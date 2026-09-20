@@ -1,0 +1,57 @@
+.env*
+!.env.example
+
+build
+bin
+tmp
+
+node_modules
+
+# Go
+*.out
+coverage.out
+
+# Rust
+target/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+mobile/build/
+mobile/.dart_tool/
+mobile/android/local.properties
+mobile/android/.gradle/
+mobile/android/app/debug/
+mobile/android/captures/
+mobile/android/gradle/wrapper/gradle-wrapper.jar
+
+# Next.js / web
+web/.next/
+web/out/
+web/coverage/
+web/playwright-report/
+web/.turbo/
+web/tsconfig.tsbuildinfo
+docs/.next/
+docs/out/
+docs/tsconfig.tsbuildinfo
+next-env.d.ts
+*storybook.log
+storybook-static
+
+# Turbo / caches
+.turbo/
+.parcel-cache/
+.biome/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# pnpm
+pnpm-debug.log*
+.pnpm-debug.log*

@@ -1,0 +1,120 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: swantara
+      POSTGRES_USER: swantara_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password_app}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swantara_app -d swantara"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build:
+      context: .
+      dockerfile: service/Dockerfile
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: postgres://swantara_app:${POSTGRES_PASSWORD:-password_app}@postgres:5432/swantara
+      GOOSE_TABLE: goose_migrations
+    command: ["./goose", "-dir", "/app/migrations", "up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: service/Dockerfile
+    restart: unless-stopped
+    command: ["./http"]
+    env_file:
+      - service/.env
+    environment:
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "8080"
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: swantara_app
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-password_app}
+      DB_NAME: swantara
+      QUEUE_REDIS_HOST: redis
+      QUEUE_REDIS_PORT: "6379"
+      STORAGE_PATH: /app/storage
+    ports:
+      - "8080:8080"
+    volumes:
+      - storage_data:/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  queue-worker:
+    build:
+      context: .
+      dockerfile: service/Dockerfile
+    restart: unless-stopped
+    command: ["./queue"]
+    env_file:
+      - service/.env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: swantara_app
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-password_app}
+      DB_NAME: swantara
+      QUEUE_REDIS_HOST: redis
+      QUEUE_REDIS_PORT: "6379"
+      STORAGE_PATH: /app/storage
+    volumes:
+      - storage_data:/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+      SWANTARA_API_URL: http://api:8080/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  storage_data:

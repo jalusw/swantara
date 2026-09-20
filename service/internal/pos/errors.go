@@ -1,0 +1,30 @@
+package pos
+
+import "errors"
+
+var (
+	ErrConfigNotFound              = errors.New("pos config not found")
+	ErrSessionNotFound             = errors.New("pos session not found")
+	ErrSessionState                = errors.New("pos session state is invalid for this operation")
+	ErrSessionOpen                 = errors.New("a pos session for this config and cashier is already open")
+	ErrSessionReconciliation       = errors.New("closing balance does not reconcile with recorded payments")
+	ErrOrderNotFound               = errors.New("pos order not found")
+	ErrOrderState                  = errors.New("pos order state is invalid for this operation")
+	ErrOrderNoLines                = errors.New("pos order must have at least one line")
+	ErrOrderProduct                = errors.New("pos order line item is required")
+	ErrOrderQty                    = errors.New("pos order line quantity must be greater than zero")
+	ErrOrderDiscount               = errors.New("pos order line discount must be between 0 and 100")
+	ErrOrderTax                    = errors.New("pos order line tax is invalid")
+	ErrOrderStockUnavailable       = errors.New("pos order quantity exceeds available stock")
+	ErrOrderNoStock                = errors.New("pos order cannot create stock movements")
+	ErrPaymentMissing              = errors.New("pos order requires at least one payment")
+	ErrPaymentTotal                = errors.New("pos payments total does not match order total")
+	ErrOrderInvoiced               = errors.New("pos order is already invoiced")
+	ErrOrderCost                   = errors.New("pos order cannot resolve original stock cost")
+	ErrConfigWarehouse             = errors.New("pos config must define a warehouse")
+	ErrConfigJournal               = errors.New("pos config must define a journal")
+	ErrConfigPriceBook             = errors.New("pos config must define a price_book")
+	ErrNoCashier                   = errors.New("pos session cashier is invalid")
+	ErrPaymentAccountNotFound      = errors.New("pos payment account not found")
+	ErrPaymentAccountAlreadyExists = errors.New("pos payment account already exists for this method")
+)

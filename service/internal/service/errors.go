@@ -1,0 +1,30 @@
+package service
+
+import "errors"
+
+var (
+	ErrEquipmentNotFound     = errors.New("equipment not found")
+	ErrEquipmentNameRequired = errors.New("equipment name is required")
+	ErrContractNotFound      = errors.New("service contract not found")
+	ErrContractNameRequired  = errors.New("service contract name is required")
+	ErrContractInvalidState  = errors.New("service contract state transition is not allowed")
+	ErrOrderNotFound         = errors.New("service order not found")
+	ErrOrderNameRequired     = errors.New("service order name is required")
+	ErrOrderInvalidType      = errors.New("service order type is invalid")
+	ErrOrderInvalidState     = errors.New("service order state transition is not allowed")
+	ErrOrderLineInvalidType  = errors.New("service order line type is invalid")
+	ErrOrderLineInvalidQty   = errors.New("service order line quantity must be positive")
+	ErrOrderLineInvalidPrice = errors.New("service order line unit cost and price must be non-negative")
+	ErrOrderNoLines          = errors.New("service order has no billable lines")
+	ErrOrderNotDone          = errors.New("service order must be done to bill")
+	ErrOrderNotCompleted     = errors.New("service order must be completed before billing")
+	ErrOrderRequiresJournal  = errors.New("service order posting requires a journal")
+	ErrOrderRequiresAccounts = errors.New("service order posting requires accounts")
+	ErrOrderRequiresContact  = errors.New("service order billing requires a contact")
+	ErrOrderEmptyLines       = errors.New("service order must have at least one line")
+	ErrOrderContactForCOGS   = errors.New("service order posting requires a contact")
+	ErrPlanNameRequired      = errors.New("maintenance plan name is required")
+	ErrPlanIntervalInvalid   = errors.New("maintenance plan interval must be positive")
+	ErrPlanNextDueRequired   = errors.New("maintenance plan next due date is required")
+	ErrPlanNotFound          = errors.New("maintenance plan not found")
+)

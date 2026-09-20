@@ -1,0 +1,24 @@
+{
+  "departments": ["General Management", "Operations", "Sales & Marketing", "Finance", "Human Resources", "Information Technology"],
+  "job_positions": [
+    {"name": "Chief Executive Officer", "department": "General Management"},
+    {"name": "Chief Financial Officer", "department": "Finance"},
+    {"name": "Sales Manager", "department": "Sales & Marketing"},
+    {"name": "HR Officer", "department": "Human Resources"},
+    {"name": "Software Engineer", "department": "Information Technology"},
+    {"name": "Warehouse Staff", "department": "Operations"}
+  ],
+  "leave_types": [
+    {"name": "Annual Leave", "paid": true, "allocation_days": 12.0},
+    {"name": "Sick Leave", "paid": true, "allocation_days": 14.0},
+    {"name": "Unpaid Leave", "paid": false, "allocation_days": 0.0},
+    {"name": "Maternity Leave", "paid": true, "allocation_days": 90.0},
+    {"name": "Marriage Leave", "paid": true, "allocation_days": 3.0}
+  ],
+  "salary_rules": [
+    {"code": "BAS", "name": "Basic Salary", "category": "earning", "compute_type": "fixed", "debit_account": "6100", "credit_account": "2200"},
+    {"code": "ALL", "name": "Allowance", "category": "earning", "compute_type": "fixed", "amount": 1000000.0, "debit_account": "6100", "credit_account": "2200"},
+    {"code": "BON", "name": "Bonus", "category": "earning", "compute_type": "fixed", "amount": 500000.0, "debit_account": "6100", "credit_account": "2200"},
+    {"code": "TAX", "name": "PPh21 Withholding", "category": "deduction", "compute_type": "percent", "amount": 5.0, "debit_account": "2200", "credit_account": "2180"}
+  ]
+}

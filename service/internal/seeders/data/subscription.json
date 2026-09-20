@@ -1,0 +1,7 @@
+{
+  "subscription_plans": [
+    {"name": "Monthly Subscription", "interval": "month", "count": 1},
+    {"name": "Quarterly Subscription", "interval": "month", "count": 3},
+    {"name": "Annual Subscription", "interval": "year", "count": 1}
+  ]
+}

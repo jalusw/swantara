@@ -1,0 +1,5 @@
+{
+  "pos_configs": [
+    {"name": "Main POS", "warehouse": "Main Warehouse", "journal": "CASH"}
+  ]
+}

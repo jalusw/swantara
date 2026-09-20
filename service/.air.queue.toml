@@ -1,0 +1,22 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+cmd = "go build -o ./tmp/worker ./cmd/queue/main.go"
+bin = "tmp/worker"
+include_ext = ["go", "tpl", "tmpl", "html"]
+exclude_dir = ["tmp", "bin", "storage", "infra", "migrations", ".git", ".hg", ".idea"]
+exclude_regex = ["_test\\.go"]
+exclude_unchanged = true
+follow_symlink = false
+
+delay = 500
+kill_delay = "0s"
+send_interrupt = true
+stop_on_root = false
+
+[log]
+time = true
+
+[misc]
+clean_on_exit = false

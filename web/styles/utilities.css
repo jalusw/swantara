@@ -1,0 +1,52 @@
+@utility z-raised {
+  z-index: var(--z-raised);
+}
+@utility z-header {
+  z-index: var(--z-header);
+}
+@utility z-docked {
+  z-index: var(--z-docked);
+}
+@utility z-popover {
+  z-index: var(--z-popover);
+}
+@utility z-modal {
+  z-index: var(--z-modal);
+}
+@utility z-tour {
+  z-index: var(--z-tour);
+}
+@utility z-skip {
+  z-index: var(--z-skip);
+}
+
+@utility bg-overlay {
+  background-color: var(--color-overlay);
+}
+@utility bg-overlay-strong {
+  background-color: var(--color-overlay-strong);
+}
+
+@utility text-headline {
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+@utility text-body-lg {
+  font-size: 1.1875rem;
+  line-height: 1.7;
+}
+
+@utility text-body {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+  background-size: 32px 32px;
+}

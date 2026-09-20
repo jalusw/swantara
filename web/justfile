@@ -1,0 +1,48 @@
+set dotenv-load
+
+default:
+    @just --list
+
+[group('dev')]
+dev:
+    pnpm dev
+
+[group('dev')]
+env:
+    cp -n .env.example .env
+
+[group('code-quality')]
+format:
+    pnpm format
+
+[group('code-quality')]
+lint:
+    pnpm lint
+
+[group('code-quality')]
+lint-suppressions:
+    pnpm lint:suppressions
+
+[group('code-quality')]
+typecheck:
+    pnpm typecheck
+
+[group('test')]
+test:
+    pnpm test
+
+[group('test')]
+test-coverage:
+    pnpm test:coverage
+
+[group('test')]
+test-e2e:
+    pnpm e2e
+
+[group('build')]
+build:
+    pnpm build
+
+[group('build')]
+clean:
+    pnpm clean

@@ -1,0 +1,78 @@
+package payroll
+
+import "errors"
+
+var (
+	ErrEmployeeNotFound       = errors.New("employee not found")
+	ErrEmployeeNumber         = errors.New("employee number is required")
+	ErrEmployeeNumberTaken    = errors.New("employee number already exists in the organization")
+	ErrEmployeeUserTaken      = errors.New("user is already linked to an employee")
+	ErrEmployeeUserNotFound   = errors.New("linked user does not exist")
+	ErrEmployeeDepartment     = errors.New("employee department does not exist")
+	ErrEmployeePosition       = errors.New("employee job position does not exist")
+	ErrEmployeeManager        = errors.New("employee manager does not exist")
+	ErrEmployeeContact        = errors.New("failed to create employee contact")
+	ErrEmployeeEmploymentType = errors.New("employee employment type is not valid")
+	ErrEmployeeOrganization   = errors.New("employee requires an organization")
+
+	ErrContractNotFound = errors.New("employment contract not found")
+	ErrContractEmployee = errors.New("contract employee does not exist")
+	ErrContractWage     = errors.New("contract wage must be greater than zero")
+	ErrContractState    = errors.New("contract state does not allow this operation")
+
+	ErrLeaveTypeNotFound    = errors.New("leave type does not exist")
+	ErrLeaveEmployee        = errors.New("leave employee does not exist")
+	ErrLeaveRequestNotFound = errors.New("leave request not found")
+	ErrLeaveState           = errors.New("leave request state does not allow this operation")
+	ErrLeaveDateRange       = errors.New("leave date range is not valid")
+	ErrLeaveDays            = errors.New("leave days must be greater than zero")
+	ErrLeaveBalance         = errors.New("leave request exceeds the remaining allocation")
+
+	ErrAttendanceNotFound        = errors.New("attendance not found")
+	ErrAttendanceCheckIn         = errors.New("attendance check in is required")
+	ErrAttendanceCheckOut        = errors.New("attendance check out must be after check in")
+	ErrAttendanceEmployee        = errors.New("attendance employee does not exist")
+	ErrAttendanceInactive        = errors.New("attendance employee is not active")
+	ErrAttendanceOpenExists      = errors.New("attendance employee already has an open attendance for today")
+	ErrAttendanceAlreadyClosed   = errors.New("attendance is already closed")
+	ErrAttendanceState           = errors.New("attendance state does not allow this operation")
+	ErrAttendanceOnLeave         = errors.New("attendance employee has an approved leave for this date")
+	ErrAttendanceAlreadyApproved = errors.New("attendance is already approved")
+	ErrAttendanceNotPending      = errors.New("attendance is not pending approval")
+
+	ErrShiftNotFound     = errors.New("shift not found")
+	ErrShiftName         = errors.New("shift name is required")
+	ErrShiftTime         = errors.New("shift start and end times are required")
+	ErrShiftTimeFormat   = errors.New("shift times must be in HH:MM format")
+	ErrShiftOrganization = errors.New("shift requires an organization")
+
+	ErrShiftAssignmentNotFound = errors.New("shift assignment not found")
+	ErrShiftAssignmentExists   = errors.New("shift assignment already exists for this employee and date")
+	ErrShiftAssignmentEmployee = errors.New("shift assignment employee does not exist")
+	ErrShiftAssignmentShift    = errors.New("shift assignment shift does not exist")
+
+	ErrAutoCheckoutHour          = errors.New("auto checkout hour must be between 0 and 23")
+	ErrAutoCheckoutNotConfigured = errors.New("organization does not have auto checkout configured")
+
+	ErrTimesheetEmployee  = errors.New("timesheet employee does not exist")
+	ErrTimesheetHours     = errors.New("timesheet hours must be greater than zero")
+	ErrTimesheetDimension = errors.New("timesheet dimension account does not exist")
+	ErrTimesheetNotFound  = errors.New("timesheet not found")
+
+	ErrRuleNotFound    = errors.New("salary rule not found")
+	ErrRuleCode        = errors.New("salary rule code is required")
+	ErrRuleCategory    = errors.New("salary rule category is not valid")
+	ErrRuleComputeType = errors.New("salary rule compute type is not valid")
+	ErrRuleAccounts    = errors.New("salary rule debit and credit accounts are required")
+	ErrRuleAccount     = errors.New("salary rule account does not exist")
+
+	ErrRunNotFound     = errors.New("payroll run not found")
+	ErrRunState        = errors.New("payroll run state does not allow this operation")
+	ErrRunOrganization = errors.New("payroll run requires an organization")
+	ErrRunPeriod       = errors.New("payroll run period start must be before period end")
+	ErrRunNoPayslips   = errors.New("payroll run has no payslips")
+	ErrRunSequence     = errors.New("payroll run document sequence not configured")
+	ErrPayslipNotFound = errors.New("payslip not found")
+	ErrNoBankAccount   = errors.New("payroll journal has no bank account")
+	ErrNoNetPayable    = errors.New("payroll payment requires a net payable account")
+)

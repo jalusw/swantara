@@ -1,0 +1,48 @@
+import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { HttpResponse, http } from "msw";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderWithProviders, server } from "@/lib/tests";
+import { CustomerFormDialog } from "../customer-form-dialog";
+
+beforeEach(() => {
+  server.use(
+    http.post("*/api/v1/organizations/:organizationId/contacts", () =>
+      HttpResponse.json(
+        {
+          success: true,
+          message: "Created.",
+          data: { contact: { id: 10, name: "Acme Corp" } },
+        },
+        { status: 201 },
+      ),
+    ),
+  );
+});
+
+function renderDialog(onSave: () => void) {
+  renderWithProviders(
+    <CustomerFormDialog open onOpenChange={() => {}} orgId="1" onSave={onSave} />,
+  );
+}
+
+describe("CustomerFormDialog", () => {
+  it("renders the create form", async () => {
+    renderDialog(() => {});
+
+    expect(await screen.findByRole("heading", { name: "New customer" })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+  });
+
+  it("creates a customer on submit", async () => {
+    const onSave = vi.fn();
+    const user = userEvent.setup();
+    renderDialog(onSave);
+
+    await screen.findByRole("heading", { name: "New customer" });
+    await user.type(screen.getByPlaceholderText("Name"), "Acme Corp");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
+  });
+});

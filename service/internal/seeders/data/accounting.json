@@ -1,0 +1,76 @@
+{
+  "fx_rates": [
+    {"currency_code": "USD", "rate": 15450, "rate_type": "spot"},
+    {"currency_code": "EUR", "rate": 16250, "rate_type": "spot"},
+    {"currency_code": "SGD", "rate": 11150, "rate_type": "spot"},
+    {"currency_code": "MYR", "rate": 3230, "rate_type": "spot"}
+  ],
+  "payment_terms": [
+    {"name": "Immediate Payment", "note": "Due immediately on receipt of invoice", "lines": [{"sequence": 10, "value_type": "balance", "value": 100, "days_after": 0}]},
+    {"name": "Net 30", "note": "Due within 30 days", "lines": [{"sequence": 10, "value_type": "percent", "value": 100, "days_after": 30}]},
+    {"name": "Net 60", "note": "Due within 60 days", "lines": [{"sequence": 10, "value_type": "percent", "value": 100, "days_after": 60}]},
+    {"name": "50% Advance / 50% On Delivery", "note": "Half upfront, half on delivery", "lines": [{"sequence": 10, "value_type": "percent", "value": 50, "days_after": 0}, {"sequence": 20, "value_type": "percent", "value": 50, "days_after": 0}]}
+  ],
+  "accounts": [
+    {"code": "1100", "name": "Cash on Hand", "type": "cash", "reconcilable": true},
+    {"code": "1110", "name": "Bank Account", "type": "bank", "reconcilable": true},
+    {"code": "1120", "name": "Petty Cash", "type": "cash", "reconcilable": true},
+    {"code": "1200", "name": "Accounts Receivable", "type": "receivable", "reconcilable": true},
+    {"code": "1300", "name": "Inventory", "type": "current_asset"},
+    {"code": "1310", "name": "Stock Input", "type": "current_asset"},
+    {"code": "1320", "name": "Stock Output", "type": "current_asset"},
+    {"code": "1330", "name": "Goods in Transit", "type": "current_asset"},
+    {"code": "1350", "name": "Goods Received Not Invoiced", "type": "current_asset"},
+    {"code": "1500", "name": "Fixed Assets", "type": "fixed_asset"},
+    {"code": "1510", "name": "Accumulated Depreciation", "type": "depreciation"},
+    {"code": "2000", "name": "Accounts Payable", "type": "payable", "reconcilable": true},
+    {"code": "2180", "name": "Withholding Tax Payable", "type": "payable", "reconcilable": true},
+    {"code": "2200", "name": "Salary Payable", "type": "payable"},
+    {"code": "2300", "name": "Gift Card Liability", "type": "liability"},
+    {"code": "2400", "name": "Deferred Revenue", "type": "liability"},
+    {"code": "2500", "name": "Accrued Expenses", "type": "liability"},
+    {"code": "3000", "name": "Owner's Equity", "type": "equity"},
+    {"code": "3200", "name": "Retained Earnings", "type": "equity"},
+    {"code": "4100", "name": "Product Sales Revenue", "type": "income"},
+    {"code": "4200", "name": "Service Revenue", "type": "income"},
+    {"code": "4500", "name": "Other Income", "type": "income"},
+    {"code": "5000", "name": "Cost of Goods Sold", "type": "cogs"},
+    {"code": "6000", "name": "Operating Expenses", "type": "expense"},
+    {"code": "6100", "name": "Salary Expense", "type": "expense"},
+    {"code": "6200", "name": "Rent Expense", "type": "expense"},
+    {"code": "6300", "name": "Utilities Expense", "type": "expense"},
+    {"code": "6400", "name": "Office Supplies Expense", "type": "expense"},
+    {"code": "6500", "name": "Travel Expense", "type": "expense"},
+    {"code": "6600", "name": "Depreciation Expense", "type": "expense"}
+  ],
+  "dimensions": ["Operations", "Marketing", "Sales", "Finance", "Information Technology", "Projects"],
+  "journals": [
+    {"name": "Sales Journal", "code": "SALE", "type": "sale", "default_account": "4100"},
+    {"name": "Purchase Journal", "code": "PURCHASE", "type": "purchase", "default_account": "6000"},
+    {"name": "Cash Journal", "code": "CASH", "type": "cash", "default_account": "1100"},
+    {"name": "Bank Journal", "code": "BANK", "type": "bank", "default_account": "1110"},
+    {"name": "General Journal", "code": "GENERAL", "type": "general"}
+  ],
+  "tax_year": {"year": 2026, "name": "FY2026", "state": "open"},
+  "reminder_levels": [
+    {"name": "Reminder", "days_overdue": 7, "sequence": 10},
+    {"name": "Second Notice", "days_overdue": 14, "sequence": 20},
+    {"name": "Final Notice", "days_overdue": 30, "sequence": 30}
+  ],
+  "expense_categories": [
+    {"name": "Travel", "expense_account": "6500"},
+    {"name": "Meals & Entertainment", "expense_account": "6500"},
+    {"name": "Office Supplies", "expense_account": "6400"},
+    {"name": "Utilities", "expense_account": "6300"},
+    {"name": "Depreciation", "expense_account": "6600"}
+  ],
+  "asset_categories": {
+    "accounts": {"asset": "1500", "depreciation": "1510", "expense": "6600", "gain": "4500", "loss": "6000"},
+    "categories": [
+      {"name": "Buildings", "method": "linear", "method_number": 240, "method_period": "month"},
+      {"name": "Vehicles", "method": "linear", "method_number": 60, "method_period": "month"},
+      {"name": "Office Equipment", "method": "linear", "method_number": 48, "method_period": "month"},
+      {"name": "Computers", "method": "linear", "method_number": 36, "method_period": "month"}
+    ]
+  }
+}

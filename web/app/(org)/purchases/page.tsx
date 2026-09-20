@@ -1,0 +1,18 @@
+import { PageHeader } from "@/components/page-header";
+import { requireActiveOrgId } from "@/lib/server/active-org";
+import { PurchaseOrdersSection } from "./orders/_components/purchase-orders-section";
+
+export default async function OrgPurchaseOrdersPage() {
+  const id = String(await requireActiveOrgId());
+  return (
+    <div className="flex flex-col gap-4 sm:gap-6">
+      <PageHeader
+        title={"Purchase orders"}
+        description={
+          "Supplier purchase orders — from draft to received, with invoicing and payments."
+        }
+      />
+      <PurchaseOrdersSection orgId={id} />
+    </div>
+  );
+}

@@ -1,0 +1,104 @@
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { HttpResponse, http } from "msw";
+import { beforeEach, describe, expect, it } from "vitest";
+import { renderWithProviders, server } from "@/lib/tests";
+import { PosOrderDetail } from "../pos-order-detail-section";
+
+const baseOrder = {
+  id: 10,
+  session_id: 1,
+  contact_id: null,
+  name: "POS-001",
+  amount_total: 55000,
+  amount_tax: 5000,
+  state: "done",
+  invoice_id: null,
+  order_time: "2026-01-02T10:00:00Z",
+  lines: [
+    {
+      id: 1,
+      order_id: 10,
+      item_id: 5,
+      qty: 2,
+      unit_price: 25000,
+      discount_pct: 0,
+      tax_ids: [],
+      price_subtotal: 50000,
+      price_tax: 5000,
+      price_total: 55000,
+    },
+  ],
+  payments: [{ id: 1, order_id: 10, method: "cash", amount: 55000 }],
+};
+
+function seedPosOrder(order: unknown) {
+  server.use(
+    http.get("*/api/v1/organizations/:organizationId/pos/orders/:orderId", () =>
+      HttpResponse.json({ success: true, message: "OK.", data: { order } }),
+    ),
+    http.get("*/api/v1/organizations/:organizationId/journals", () =>
+      HttpResponse.json({ success: true, message: "OK.", data: { journals: [] } }),
+    ),
+  );
+}
+
+beforeEach(() => {});
+
+describe("PosOrderDetail branches2", () => {
+  it("renders the not-found branch when the order is missing", async () => {
+    seedPosOrder(null);
+    renderWithProviders(<PosOrderDetail orgId="1" orderId="10" />);
+
+    expect(await screen.findByText("Order not found.")).toBeInTheDocument();
+  });
+
+  it("renders empty lines and empty payments branches", async () => {
+    seedPosOrder({ ...baseOrder, lines: [], payments: [] });
+    const user = userEvent.setup();
+    renderWithProviders(<PosOrderDetail orgId="1" orderId="10" />);
+
+    await screen.findByRole("heading", { name: "POS-001" });
+    await user.click(screen.getByRole("tab", { name: "Lines" }));
+    expect(await screen.findByText("No lines in this order.")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Payments" }));
+    expect(await screen.findByText("No payments recorded.")).toBeInTheDocument();
+  });
+
+  it("shows discount and invoice link branches when present", async () => {
+    seedPosOrder({
+      ...baseOrder,
+      invoice_id: 44,
+      contact_id: 7,
+      lines: [
+        {
+          id: 1,
+          order_id: 10,
+          item_id: 5,
+          qty: 1,
+          unit_price: 10000,
+          discount_pct: 10,
+          tax_ids: [],
+          price_subtotal: 9000,
+          price_tax: 900,
+          price_total: 9900,
+        },
+      ],
+    });
+    const user = userEvent.setup();
+    renderWithProviders(<PosOrderDetail orgId="1" orderId="10" />);
+
+    await screen.findByRole("heading", { name: "POS-001" });
+    await user.click(screen.getByRole("tab", { name: "Lines" }));
+    expect(await screen.findByText("10%")).toBeInTheDocument();
+  });
+
+  it("invoices a payable order through the invoice dialog", async () => {
+    seedPosOrder({ ...baseOrder, state: "done", invoice_id: null });
+    renderWithProviders(<PosOrderDetail orgId="1" orderId="10" />);
+
+    await screen.findByRole("heading", { name: "POS-001" });
+    expect(screen.getAllByRole("button", { name: "Create invoice" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "Refund" }).length).toBeGreaterThan(0);
+  });
+});

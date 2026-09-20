@@ -1,0 +1,11 @@
+{
+  "work_centers": [
+    {"name": "Assembly Line", "code": "WC-ASM", "cost_per_hour": 25000.0, "capacity_per_hour": 8.0, "efficiency_pct": 100, "oee_target": 85.0, "dimension": "Operations"},
+    {"name": "Packaging", "code": "WC-PKG", "cost_per_hour": 20000.0, "capacity_per_hour": 8.0, "efficiency_pct": 100, "oee_target": 85.0, "dimension": "Operations"},
+    {"name": "Quality Control", "code": "WC-QC", "cost_per_hour": 30000.0, "capacity_per_hour": 8.0, "efficiency_pct": 100, "oee_target": 90.0, "dimension": "Operations"}
+  ],
+  "quality_points": [
+    {"operation": "receipt", "test_type": "instruction", "unit": "Unit"},
+    {"operation": "production", "test_type": "pass_fail", "unit": "Unit"}
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "$comment": "Justifications for every biome-ignore suppression in the repo. A suppression may only exist here, with a reason, if it genuinely cannot be avoided or Biome lacks support. Add a new entry + reason BEFORE introducing a suppression; the guard fails otherwise.",
+  "entries": [
+    {
+      "path": "components/__tests__/primitives.test.tsx",
+      "rules": ["lint/a11y/useAnchorContent"],
+      "why": "Badge injects its children into the render element at runtime; the anchor is intentionally empty here."
+    },
+    {
+      "path": "app/[locale]/preview/design-system/_components/palette.tsx",
+      "rules": ["lint/correctness/useExhaustiveDependencies"],
+      "why": "Not covered by the dependency analysis for this memoized helper."
+    },
+    {
+      "path": "app/[locale]/preview/image-cropper/_components/image-cropper-demo.tsx",
+      "rules": ["lint/a11y/noNoninteractiveElementInteractions"],
+      "why": "Dropzone wrapping a file input; the input provides keyboard and browser access on its own."
+    },
+    {
+      "path": "app/[locale]/preview/image-cropper/_components/image-cropper-demo.tsx",
+      "rules": ["lint/performance/noImgElement"],
+      "why": "The cropped result is a runtime data URL produced on the client; next/image cannot optimize or serve it, so a plain img is the correct element."
+    },
+    {
+      "path": "app/layout.tsx",
+      "rules": ["lint/security/noDangerouslySetInnerHtml"],
+      "why": "Static pre-paint theme bootstrap string built from constants; no user input reaches it, and an inline blocking script is required to apply the theme class before first paint."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+bin
+storage
+tmp
+.logs
+*.log
+coverage.out
+coverage.html
+.env
+.env.local
+/main
+/http
+/queue

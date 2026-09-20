@@ -1,0 +1,12 @@
+.git
+.github
+.gitignore
+.air.toml
+.air.queue.toml
+.env
+.env.*
+*.md
+tmp/
+bin/
+coverage.out
+storage/

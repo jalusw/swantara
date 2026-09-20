@@ -1,0 +1,31 @@
+package interorganization
+
+import "errors"
+
+var (
+	ErrRuleNotFound             = errors.New("interorganization rule not found")
+	ErrRuleSameOrganization     = errors.New("interorganization rule must connect two different organizations")
+	ErrRuleDuplicate            = errors.New("interorganization rule already exists for this pair")
+	ErrRuleRequired             = errors.New("interorganization rule requires from and to organization")
+	ErrRuleContactsRequired     = errors.New("interorganization rule requires supplier and customer contact")
+	ErrMirrorSourceNotFound     = errors.New("mirror source order not found")
+	ErrMirrorSourceNoLines      = errors.New("mirror source order has no lines")
+	ErrMirrorRuleMissing        = errors.New("no interorganization rule matches the source order")
+	ErrMirrorRuleDisabled       = errors.New("interorganization rule is disabled for mirroring")
+	ErrMirrorSourceNotPosted    = errors.New("mirror source order must be posted to mirror")
+	ErrDropShipSourceNotFound   = errors.New("drop-ship source order not found")
+	ErrDropShipSourceNotActive  = errors.New("drop-ship source order is cancelled")
+	ErrDropShipNoLines          = errors.New("drop-ship order has no receivable lines")
+	ErrDropShipOrderNotFound    = errors.New("drop-ship purchase order not found")
+	ErrDropShipAlreadyReceived  = errors.New("drop-ship purchase order is already received")
+	ErrDropShipDestinationMiss  = errors.New("drop-ship destination location is missing")
+	ErrDropShipSupplierMissing  = errors.New("drop-ship supplier location is missing")
+	ErrConsolidationRunNotFound = errors.New("consolidation run not found")
+	ErrConsolidationNotDraft    = errors.New("consolidation run must be draft to run")
+	ErrConsolidationNoOrg       = errors.New("consolidation run requires a group organization")
+	ErrConsolidationNoPeriod    = errors.New("consolidation run requires a period")
+	ErrConsolidationPeriodMiss  = errors.New("consolidation period not found")
+	ErrConsolidationNoMember    = errors.New("consolidation group has no member organizations")
+	ErrConsolidationNoFx        = errors.New("consolidation requires a reporting fx rate for a member")
+	ErrConsolidationNoAccount   = errors.New("consolidation cannot resolve an elimination account")
+)

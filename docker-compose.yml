@@ -1,0 +1,286 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: swantara
+      POSTGRES_USER: swantara_app
+      POSTGRES_PASSWORD: password_app
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swantara_app -d swantara"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile.dev
+    working_dir: /app
+    volumes:
+      - ./web:/app
+    environment:
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: "1"
+      SWANTARA_API_URL: http://api:8080/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: .
+      dockerfile: service/Dockerfile.dev
+    working_dir: /app/service
+    volumes:
+      - ./service:/app/service
+    env_file:
+      - service/.env
+    environment:
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "8080"
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      QUEUE_REDIS_HOST: redis
+      QUEUE_REDIS_PORT: "6379"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  queue-worker:
+    build:
+      context: .
+      dockerfile: service/Dockerfile.dev
+    working_dir: /app/service
+    command: ["air", "-c", ".air.queue.toml"]
+    volumes:
+      - ./service:/app/service
+    env_file:
+      - service/.env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      QUEUE_REDIS_HOST: redis
+      QUEUE_REDIS_PORT: "6379"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgres-test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: swantara_test
+      POSTGRES_USER: swantara_app
+      POSTGRES_PASSWORD: password_app
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swantara_app -d swantara_test"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+    profiles:
+      - test
+
+  migrate:
+    image: golang:1.24-alpine
+    working_dir: /app/service
+    volumes:
+      - .:/app
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: postgres://swantara_app:password_app@postgres-test:5432/swantara_test
+      GOOSE_TABLE: goose_migrations
+    command: go run github.com/pressly/goose/v3/cmd/goose@v3.27.3 -dir /app/service/migrations up
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    profiles:
+      - test
+
+  seed:
+    image: golang:1.24-alpine
+    working_dir: /app/service
+    volumes:
+      - .:/app
+    env_file:
+      - service/.env.test
+    environment:
+      DB_HOST: postgres-test
+      QUEUE_REDIS_HOST: redis
+    command: go run cmd/seeder/main.go
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    profiles:
+      - test
+
+  api-e2e:
+    image: golang:1.24-alpine
+    working_dir: /app/service
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    env_file:
+      - service/.env.test
+    environment:
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "8080"
+      DB_HOST: postgres-test
+      QUEUE_REDIS_HOST: redis
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/v1/health"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+    command: go run cmd/http/main.go
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    profiles:
+      - test
+
+  worker-e2e:
+    image: golang:1.24-alpine
+    working_dir: /app/service
+    volumes:
+      - .:/app
+    env_file:
+      - service/.env.test
+    environment:
+      DB_HOST: postgres-test
+      QUEUE_REDIS_HOST: redis
+    command: go run cmd/queue/main.go
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    profiles:
+      - test
+
+  k6:
+    image: grafana/k6:latest
+    working_dir: /app/service
+    volumes:
+      - .:/app
+    environment:
+      BASE_URL: http://api-e2e:8080/api/v1
+      HEALTH_URL: http://api-e2e:8080/api/v1/health
+    command: run test/load/smoke.js
+    depends_on:
+      api-e2e:
+        condition: service_healthy
+    profiles:
+      - load
+
+  glitchtip-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: glitchtip
+      POSTGRES_USER: glitchtip
+      POSTGRES_PASSWORD: glitchtip_dev_password
+    volumes:
+      - glitchtip_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U glitchtip"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  glitchtip-migrate:
+    image: glitchtip/glitchtip:latest
+    depends_on:
+      glitchtip-db:
+        condition: service_healthy
+    environment: &glitchtip-env
+      DATABASE_URL: postgres://glitchtip:glitchtip_dev_password@glitchtip-db:5432/glitchtip
+      SECRET_KEY: "dev-secret-key-replace-in-production"
+      GLITCHTIP_DOMAIN: "http://localhost:8000"
+      DEFAULT_FROM_EMAIL: "noreply@localhost"
+      EMAIL_URL: "smtp://localhost:1025"
+      VALKEY_URL: "redis://redis:6379/1"
+      ENABLE_USER_REGISTRATION: "true"
+      GLITCHTIP_MAX_EVENT_LIFE_DAYS: "30"
+    command: ./manage.py migrate && ./manage.py createcachetable
+
+  glitchtip:
+    image: glitchtip/glitchtip:latest
+    depends_on:
+      glitchtip-db:
+        condition: service_healthy
+      glitchtip-migrate:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    environment: *glitchtip-env
+    volumes:
+      - glitchtip_uploads:/code/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "python3 /code/healthcheck.py || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  glitchtip-worker:
+    image: glitchtip/glitchtip:latest
+    depends_on:
+      glitchtip-db:
+        condition: service_healthy
+      glitchtip-migrate:
+        condition: service_completed_successfully
+    command: ./bin/run-celery.sh
+    environment: *glitchtip-env
+    volumes:
+      - glitchtip_uploads:/code/uploads
+
+  dev:
+    build:
+      context: .devcontainer
+      dockerfile: Dockerfile
+    image: swantara/dev:latest
+    hostname: swantara
+    command: sleep infinity
+    volumes:
+      - .:/workspace
+    environment:
+      - NODE_ENV=development
+      - SWANTARA_API_URL=http://localhost:8080/api/v1
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - devcontainer
+
+volumes:
+  postgres_data:
+  postgres_test_data:
+  glitchtip_pg_data:
+  glitchtip_uploads:

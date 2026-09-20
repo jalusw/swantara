@@ -1,0 +1,24 @@
+FROM golang:1.24-alpine
+WORKDIR /app/service
+
+ARG UID=1000
+ARG GID=1000
+RUN addgroup -g $GID appgroup && adduser -u $UID -G appgroup -D appuser
+
+RUN apk add --no-cache just
+
+RUN go install github.com/air-verse/air@latest \
+    && go install github.com/pressly/goose/v3/cmd/goose@latest \
+    && go install github.com/hibiken/asynq/tools/asynq@latest \
+    && go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+
+COPY service/go.mod service/go.sum ./
+RUN go mod download
+
+COPY --chown=appuser:appgroup service . .
+
+USER appuser
+
+EXPOSE 8080
+
+CMD ["air", "-c", ".air.toml"]

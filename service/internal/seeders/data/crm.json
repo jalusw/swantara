@@ -1,0 +1,10 @@
+{
+  "pipeline_stages": [
+    {"name": "New", "sequence": 10, "probability": 10},
+    {"name": "Qualified", "sequence": 20, "probability": 35},
+    {"name": "Proposal Sent", "sequence": 30, "probability": 60},
+    {"name": "Won", "sequence": 40, "is_won": true, "probability": 100},
+    {"name": "Lost", "sequence": 50, "probability": 0}
+  ],
+  "sales_groups": ["Retail Sales", "Wholesale", "Online Sales"]
+}

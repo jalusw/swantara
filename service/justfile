@@ -1,0 +1,180 @@
+set dotenv-load
+
+compose := "docker compose -f ../docker-compose.yml"
+
+default:
+    @just --list
+
+[group('dev')]
+deps:
+    go install github.com/air-verse/air@latest
+    go install github.com/pressly/goose/v3/cmd/goose@latest
+    go install github.com/hibiken/asynq/tools/asynq@latest
+    go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+    go install golang.org/x/vuln/cmd/govulncheck@latest
+    go install github.com/swaggo/swag/cmd/swag@latest
+
+[group('dev')]
+dev:
+    just dev-http &
+    just dev-queue &
+    wait
+
+[group('dev')]
+dev-http:
+    CONFIG_FILE=.env air -c .air.toml
+
+[group('dev')]
+dev-queue:
+    CONFIG_FILE=.env air -c .air.queue.toml
+
+[group('dev')]
+queue-dashboard:
+    asynq dash --uri redis://localhost:{{ env_var_or_default('QUEUE_REDIS_PORT', '6379') }}/{{ env_var_or_default('QUEUE_REDIS_DB', '0') }}
+
+[group('infra')]
+dev-infra:
+    {{ compose }} up web api queue-worker
+
+[group('infra')]
+dev-infra-down:
+    {{ compose }} down
+
+[group('infra')]
+db-up:
+    {{ compose }} up -d --wait postgres redis
+
+[group('infra')]
+test-infra:
+    {{ compose }} --profile test up -d postgres-test
+
+[group('infra')]
+e2e-up:
+    {{ compose }} --profile test up -d --build
+
+[group('infra')]
+e2e-down:
+    {{ compose }} --profile test down
+
+[group('infra')]
+load:
+    {{ compose }} --profile test --profile load up --abort-on-container-exit --exit-code-from k6 k6
+
+[group('build')]
+build:
+    go build -o bin/http cmd/http/main.go
+
+[group('build')]
+clean:
+    rm -rf bin coverage.out coverage.html tmp .logs main http queue
+
+[group('check')]
+fmt:
+    go fmt ./...
+
+[group('check')]
+vet:
+    go vet ./...
+
+[group('check')]
+lint:
+    golangci-lint run
+
+[group('check')]
+vuln:
+    govulncheck ./...
+
+[group('check')]
+swagger:
+    swag init -g cmd/http/main.go -d . -o internal/httpx/docs
+
+[group('check')]
+swagger-check:
+    #!/usr/bin/env sh
+    set -eu
+    tmp="$(mktemp -d)/docs"
+    trap 'rm -rf "$(dirname "$tmp")"' EXIT
+    swag init -g cmd/http/main.go -d . -o "$tmp" > /dev/null
+    for f in docs.go swagger.json swagger.yaml; do
+      if ! diff -q "internal/httpx/docs/$f" "$tmp/$f" > /dev/null 2>&1; then
+        echo "swagger docs are stale: run 'just swagger' and commit the result" >&2
+        exit 1
+      fi
+    done
+    echo "swagger docs are up to date"
+
+[group('check')]
+audit:
+    #!/usr/bin/env sh
+    set -eu
+    fail=0
+    domains="accounting accounting_standard asset commission crm crosscutting expense giftcard iam interorganization inventory jobs localization manufacturing organization partners payroll pos procurement products project quality reference reporting returns sales service subscription xtradata"
+    for name in $domains; do
+      d="internal/$name/"
+      [ -f "$d/doc.go" ] || { echo "missing $d/doc.go"; fail=1; }
+      [ -f "$d/errors.go" ] || { echo "missing $d/errors.go"; fail=1; }
+      [ -f "$d/ports.go" ] || { echo "missing $d/ports.go"; fail=1; }
+    done
+    for name in $domains; do
+      d="internal/$name/handler/"
+      [ -d "$d" ] || continue
+      [ -f "$d/routes.go" ] || { echo "missing $d/routes.go"; fail=1; }
+      [ -f "$d/doc.go" ] || { echo "missing $d/doc.go"; fail=1; }
+    done
+    echo "--- handler dao refs (informational) ---"
+    rg -N "dao\.Base\[|dao\.CRUD\[|[A-Za-z]+DAO[^M]" internal/*/handler --type go -g '!*_test.go' -g '!handler_mock.go' -g '!*_mock.go' || true
+    echo "--- raw responses outside httpx/webhooks (informational) ---"
+    rg -N "c\.SendStatus|c\.SendString" internal --type go -g '!*_test.go' -g '!httpx/*' || true
+    if [ "$fail" -ne 0 ]; then echo "audit failed"; exit 1; fi
+    echo "audit ok"
+
+[group('check')]
+check: fmt vet lint test swagger-check
+
+[group('check')]
+ci: check coverage vuln
+
+[group('test')]
+test:
+    go test ./...
+
+[group('test')]
+test-integration: test-infra
+    go test -tags integration ./test/integration/...
+
+[group('test')]
+test-e2e:
+    go test -tags e2e ./test/e2e/...
+
+[group('test')]
+coverage:
+    go test ./... -coverprofile=coverage.out -covermode=atomic
+
+[group('db')]
+migrate:
+    goose up -dir ./migrations
+
+[group('db')]
+migrate-down:
+    goose down -dir ./migrations
+
+[group('db')]
+migrate-status:
+    goose status -dir ./migrations
+
+[group('db')]
+migrate-reset:
+    goose reset -dir ./migrations
+    goose up -dir ./migrations
+
+[group('db')]
+migrate-create name:
+    goose create {{ name }} -dir ./migrations sql
+
+[group('db')]
+seed:
+    CONFIG_FILE=.env go run cmd/seeder/main.go
+
+[group('db')]
+setup: db-up migrate seed
+    @echo "Development environment ready"

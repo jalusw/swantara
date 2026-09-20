@@ -1,0 +1,24 @@
+{
+  "default_org": {"name": "Swantara Demo", "legal_name": "Swantara Demo", "base_currency": "IDR", "country_code": "ID", "timezone": "Asia/Jakarta", "fiscal_year_start_month": 1},
+  "admin_user": {"username": "admin", "first_name": "System", "last_name": "Administrator", "email": "admin@swantara.id", "password": "password123", "active": true},
+  "system_configs": [
+    {"key": "general.default_currency", "value": "IDR"},
+    {"key": "general.default_timezone", "value": "Asia/Jakarta"},
+    {"key": "inventory.allow_negative_stock", "value": false},
+    {"key": "sales.default_payment_term", "value": "Net 30"},
+    {"key": "accounting.fiscal_year_start_month", "value": 1},
+    {"key": "purchase.approval_threshold", "value": 100000000}
+  ],
+  "doc_sequences": [
+    {"code": "sale_order", "prefix": "SO/", "padding": 5, "reset_period": "never"},
+    {"code": "invoice", "prefix": "INV/", "padding": 5, "reset_period": "never"},
+    {"code": "payment", "prefix": "PAY/", "padding": 5, "reset_period": "never"},
+    {"code": "purchase_order", "prefix": "PO/", "padding": 5, "reset_period": "never"},
+    {"code": "purchase_request", "prefix": "REQ/", "padding": 5, "reset_period": "never"},
+    {"code": "supplier_quote_request", "prefix": "QuoteRequest/", "padding": 5, "reset_period": "never"},
+    {"code": "rma", "prefix": "RMA/", "padding": 5, "reset_period": "never"},
+    {"code": "production_order", "prefix": "MO/", "padding": 5, "reset_period": "never"},
+    {"code": "shop_task", "prefix": "WO/", "padding": 5, "reset_period": "never"},
+    {"code": "payroll_run", "prefix": "PR/", "padding": 5, "reset_period": "never"}
+  ]
+}
