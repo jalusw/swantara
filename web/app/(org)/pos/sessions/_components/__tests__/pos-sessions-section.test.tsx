@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { HttpResponse, http } from "msw";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -82,8 +82,12 @@ describe("PosSessionsSection", () => {
   it("renders sessions with config names and state badges", async () => {
     renderSessions();
 
-    expect(await screen.findByText("Session-1")).toBeInTheDocument();
-    expect(screen.getByText("Session-2")).toBeInTheDocument();
+    const links = await screen.findAllByRole("link", { name: /^Sesi \d+$/ });
+    expect(links).toHaveLength(2);
+    expect(links[0]).toHaveAttribute("href", "/pos/sessions/1");
+    expect(links[0]).toHaveTextContent("Sesi 1");
+    expect(links[1]).toHaveAttribute("href", "/pos/sessions/2");
+    expect(links[1]).toHaveTextContent("Sesi 2");
     expect(screen.getByText("Main Store")).toBeInTheDocument();
     expect(screen.getByText("Outlet Kiosk")).toBeInTheDocument();
   });
@@ -92,20 +96,25 @@ describe("PosSessionsSection", () => {
     const user = userEvent.setup();
     renderSessions();
 
-    await screen.findByText("Session-1");
-    await user.type(screen.getByPlaceholderText("Search sessions..."), "Session-2");
+    await screen.findAllByRole("link", { name: /^Sesi \d+$/ });
+    await user.type(screen.getByPlaceholderText("Cari sesi…"), "2");
 
-    expect(await screen.findByText("Session-2")).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByText("Session-1")).not.toBeInTheDocument());
+    await waitFor(() => {
+      const links = screen.getAllByRole("link", { name: /^Sesi \d+$/ });
+      expect(links).toHaveLength(1);
+      expect(links[0]).toHaveAttribute("href", "/pos/sessions/2");
+      expect(links[0]).toHaveTextContent("Sesi 2");
+    });
   });
 
   it("opens the open-session dialog from the action button", async () => {
     const user = userEvent.setup();
     renderSessions();
 
-    await screen.findByText("Session-1");
-    await user.click(screen.getByRole("button", { name: "Open session" }));
+    await screen.findAllByRole("link", { name: /^Sesi \d+$/ });
+    await user.click(screen.getByRole("button", { name: "Buka Sesi" }));
 
-    expect(await screen.findByText("Open Session")).toBeInTheDocument();
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByText("Buka Sesi")).toBeInTheDocument();
   });
 });

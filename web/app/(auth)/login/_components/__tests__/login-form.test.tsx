@@ -9,8 +9,8 @@ describe("LoginForm", () => {
     renderWithProviders(<LoginForm />);
 
     expect(screen.getByLabelText(/^email$/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^login$/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/^kata sandi$/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^masuk$/i })).toBeInTheDocument();
   });
 
   it("submits valid credentials and navigates to /onboarding", async () => {
@@ -18,8 +18,8 @@ describe("LoginForm", () => {
     renderWithProviders(<LoginForm />);
 
     await user.type(screen.getByLabelText(/^email$/i), "user@mail.com");
-    await user.type(screen.getByLabelText(/^password$/i), "password1");
-    await user.click(screen.getByRole("button", { name: /^login$/i }));
+    await user.type(screen.getByLabelText(/^kata sandi$/i), "password1");
+    await user.click(screen.getByRole("button", { name: /^masuk$/i }));
 
     expect(navigationMock.push).toHaveBeenCalledWith("/onboarding");
   });

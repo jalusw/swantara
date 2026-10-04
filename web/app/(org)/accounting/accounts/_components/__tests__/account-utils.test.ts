@@ -14,7 +14,7 @@ function account(overrides: Partial<Account>): Account {
     updatedAt: new Date(),
     organizationId: 1,
     code: overrides.code ?? "1000",
-    name: overrides.name ?? "Account",
+    name: overrides.name ?? "Akun",
     type: overrides.type ?? "asset",
     reconcilable: false,
     currencyCode: null,
@@ -30,7 +30,7 @@ describe("buildAccountTree", () => {
   });
 
   it("builds single root node", () => {
-    const accounts = [account({ id: 1, code: "1000", name: "Cash" })];
+    const accounts = [account({ id: 1, code: "1000", name: "Kas" })];
     const tree = buildAccountTree(accounts);
 
     expect(tree).toHaveLength(1);
@@ -40,9 +40,9 @@ describe("buildAccountTree", () => {
 
   it("builds nested hierarchy from parent references", () => {
     const accounts = [
-      account({ id: 1, code: "1000", name: "Assets" }),
+      account({ id: 1, code: "1000", name: "Aset" }),
       account({ id: 2, code: "1010", name: "Bank", parentId: 1 }),
-      account({ id: 3, code: "1020", name: "Cash", parentId: 1 }),
+      account({ id: 3, code: "1020", name: "Kas", parentId: 1 }),
     ];
     const tree = buildAccountTree(accounts);
 
@@ -63,10 +63,10 @@ describe("buildAccountTree", () => {
 
   it("sorts roots and children by code", () => {
     const accounts = [
-      account({ id: 3, code: "3000", name: "Equity" }),
-      account({ id: 1, code: "1000", name: "Assets" }),
+      account({ id: 3, code: "3000", name: "Ekuitas" }),
+      account({ id: 1, code: "1000", name: "Aset" }),
       account({ id: 2, code: "2000", name: "Liability" }),
-      account({ id: 4, code: "1020", name: "Cash", parentId: 1 }),
+      account({ id: 4, code: "1020", name: "Kas", parentId: 1 }),
       account({ id: 5, code: "1010", name: "Bank", parentId: 1 }),
     ];
     const tree = buildAccountTree(accounts);
@@ -131,15 +131,15 @@ describe("accountTypeLabels", () => {
   it("has labels for all account types", () => {
     expect(accountTypeLabels.asset).toBe("Asset");
     expect(accountTypeLabels.liability).toBe("Liability");
-    expect(accountTypeLabels.equity).toBe("Equity");
+    expect(accountTypeLabels.equity).toBe("Ekuitas");
     expect(accountTypeLabels.income).toBe("Income");
-    expect(accountTypeLabels.expense).toBe("Expense");
+    expect(accountTypeLabels.expense).toBe("Biaya");
     expect(accountTypeLabels.receivable).toBe("Receivable");
     expect(accountTypeLabels.payable).toBe("Payable");
     expect(accountTypeLabels.bank).toBe("Bank");
-    expect(accountTypeLabels.cash).toBe("Cash");
+    expect(accountTypeLabels.cash).toBe("Kas");
     expect(accountTypeLabels.cogs).toBe("COGS");
-    expect(accountTypeLabels.tax).toBe("Tax");
+    expect(accountTypeLabels.tax).toBe("Pajak");
     expect(accountTypeLabels.current_asset).toBe("Current asset");
     expect(accountTypeLabels.fixed_asset).toBe("Fixed asset");
     expect(accountTypeLabels.depreciation).toBe("Depreciation");

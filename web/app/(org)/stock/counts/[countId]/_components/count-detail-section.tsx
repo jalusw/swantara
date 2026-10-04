@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -21,6 +22,12 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { formatNumber } from "@/lib/utils";
 
 export function CountDetail({ orgId, countId }: { orgId: string; countId: string }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Stock");
+  const tCommon = useTranslations("Common");
   const [postingDialogOpen, setPostingDialogOpen] = useState(false);
   const [posting, setPosting] = useState(false);
 
@@ -45,7 +52,7 @@ export function CountDetail({ orgId, countId }: { orgId: string; countId: string
   }
 
   if (!count) {
-    return <p className="text-sm text-muted-foreground">{"Count not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("countNotFound")}</p>;
   }
 
   const isDraft = count.state === "draft";
@@ -66,7 +73,7 @@ export function CountDetail({ orgId, countId }: { orgId: string; countId: string
         void countQuery.refetch();
         void linesQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."))
+      .catch(() => toast.error(t("toastFailed")))
       .finally(() => setPosting(false));
   }
 
@@ -74,17 +81,19 @@ export function CountDetail({ orgId, countId }: { orgId: string; countId: string
     <>
       <RecordLayout
         breadcrumbItems={[
-          { label: "All counts", href: "/stock/counts" },
+          { label: t("allCounts"), href: "/stock/counts" },
           { label: count.name ?? `IC-${count.id}` },
         ]}
         title={count.name ?? `IC-${count.id}`}
         status={
-          <Badge variant={count.state === "posted" ? "default" : "secondary"}>{count.state}</Badge>
+          <Badge variant={count.state === "posted" ? "default" : "secondary"}>
+            {(t as unknown as (k: string) => string)(`countState_${count.state}`)}
+          </Badge>
         }
         tabs={[
           {
             id: "lines",
-            label: "Count lines",
+            label: t("countLines"),
             content: (
               <div className="flex flex-col gap-4">
                 {isDraft ? (
@@ -94,31 +103,34 @@ export function CountDetail({ orgId, countId }: { orgId: string; countId: string
                       onClick={() => setPostingDialogOpen(true)}
                       disabled={!hasDiff}
                     >
-                      {"Post count"}
+                      {t("postCount")}
                     </Button>
                     {hasDiff ? (
                       <span className="text-sm text-muted-foreground">
-                        {`${lines.filter((l) => l.diffQty !== 0).length} lines differ (total ${formatNumber(totalDiff)}).`}
+                        {t("linesDiffer", {
+                          count: lines.filter((l) => l.diffQty !== 0).length,
+                          total: formatNumber(totalDiff),
+                        })}
                       </span>
                     ) : null}
                   </div>
                 ) : null}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">{"Difference preview"}</CardTitle>
+                    <CardTitle className="text-base">{t("differencePreview")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {lines.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">{"No count lines found."}</p>
+                      <p className="text-sm text-muted-foreground">{t("countLinesEmpty")}</p>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b text-left text-muted-foreground">
-                              <th className="pb-2 ">{"Item"}</th>
-                              <th className="pb-2 ">{"Theoretical"}</th>
-                              <th className="pb-2 ">{"Counted"}</th>
-                              <th className="pb-2 ">{"Diff"}</th>
+                              <th className="pb-2 ">{t("fieldItem")}</th>
+                              <th className="pb-2 ">{t("colTheoretical")}</th>
+                              <th className="pb-2 ">{t("colCounted")}</th>
+                              <th className="pb-2 ">{t("colDiff")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -161,19 +173,15 @@ export function CountDetail({ orgId, countId }: { orgId: string; countId: string
       <Dialog open={postingDialogOpen} onOpenChange={setPostingDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{"Post count"}</DialogTitle>
-            <DialogDescription>
-              {
-                "Are you sure you want to post this count? This will create journal entries for any differences."
-              }
-            </DialogDescription>
+            <DialogTitle>{t("postCount")}</DialogTitle>
+            <DialogDescription>{t("postCountDescription")}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setPostingDialogOpen(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
             <Button onClick={handlePost} disabled={posting}>
-              {posting ? "Posting…" : "Post count"}
+              {posting ? t("posting") : t("postCount")}
             </Button>
           </DialogFooter>
         </DialogContent>

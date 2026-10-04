@@ -8,25 +8,25 @@ describe("PerformanceChart", () => {
   it("renders performance heading with default net profit chart", () => {
     renderWithProviders(<PerformanceChart />);
 
-    expect(screen.getByText("Performance")).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: /Net profit/ })).toBeInTheDocument();
+    expect(screen.getByText("Kinerja")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /Laba bersih/ })).toBeInTheDocument();
   });
 
   it("switches to revenue chart on tab select", async () => {
     const user = userEvent.setup();
     renderWithProviders(<PerformanceChart />);
 
-    await user.click(screen.getByRole("tab", { name: "Revenue" }));
+    await user.click(screen.getByRole("tab", { name: "Pendapatan" }));
 
-    expect(await screen.findByRole("img", { name: /^Revenue\./ })).toBeInTheDocument();
+    expect(await screen.findByRole("img", { name: /^Pendapatan\./ })).toBeInTheDocument();
   });
 
   it("switches to expenses chart on tab select", async () => {
     const user = userEvent.setup();
     renderWithProviders(<PerformanceChart />);
 
-    await user.click(screen.getByRole("tab", { name: "Expenses" }));
+    await user.click(screen.getByRole("tab", { name: "Biaya" }));
 
-    expect(await screen.findByRole("img", { name: /^Expenses\./ })).toBeInTheDocument();
+    expect(await screen.findByRole("img", { name: /^Biaya\./ })).toBeInTheDocument();
   });
 });

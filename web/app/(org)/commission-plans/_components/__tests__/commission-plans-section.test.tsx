@@ -40,7 +40,7 @@ describe("CommissionPlansSection", () => {
     renderWithProviders(<CommissionPlansSection orgId="1" />);
 
     await screen.findByText("Atlas Retail");
-    await user.type(screen.getByPlaceholderText(/Search plans/), "Bravo");
+    await user.type(screen.getByPlaceholderText(/Cari paket/), "Bravo");
 
     expect(await screen.findByText("Bravo Services")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Atlas Retail")).not.toBeInTheDocument());
@@ -51,8 +51,8 @@ describe("CommissionPlansSection", () => {
     renderWithProviders(<CommissionPlansSection orgId="1" />);
 
     await screen.findByText("Atlas Retail");
-    await user.click(screen.getByRole("button", { name: "Create plan" }));
+    await user.click(screen.getByRole("button", { name: "Buat paket" }));
 
-    expect(await screen.findByText("Create commission plan")).toBeInTheDocument();
+    expect(await screen.findByText("Buat paket komisi")).toBeInTheDocument();
   });
 });

@@ -274,19 +274,19 @@ func main() {
 
 	itemDAO := products.NewItemDAO(d)
 	itemVariantDAO := products.NewItemVariantDAO(d)
-	price_bookDAO := products.NewPriceBookDAO(d)
-	price_bookRuleDAO := products.NewPriceRuleDAO(d)
+	priceBookDAO := products.NewPriceBookDAO(d)
+	priceBookRuleDAO := products.NewPriceRuleDAO(d)
 	productSvc := products.NewProductService(
 		itemDAO,
 		itemVariantDAO,
 		itemCategoryDAO,
-		price_bookDAO,
-		price_bookRuleDAO,
+		priceBookDAO,
+		priceBookRuleDAO,
 	)
 
 	itemCategoryHandler := productsHandler.NewItemCategoryHandler(products.NewItemCategoryService(itemCategoryDAO))
 	productHandler := productsHandler.NewProductHandler(productSvc)
-	price_bookHandler := productsHandler.NewPriceBookHandler(productSvc)
+	priceBookHandler := productsHandler.NewPriceBookHandler(productSvc)
 
 	carrierHandler := referenceHandler.NewCarrierHandler(reference.NewCarrierService(carrierDAO, itemVariantDAO))
 	carrierHandler.Register(api, guards)
@@ -310,7 +310,7 @@ func main() {
 	supplierProductHandler.Register(orgAPI, guards)
 
 	productHandler.Register(orgAPI, guards)
-	price_bookHandler.Register(orgAPI, guards)
+	priceBookHandler.Register(orgAPI, guards)
 	bomHandler.Register(orgAPI, guards)
 
 	journalEntryLineDAO := accounting.NewJournalLineDAO(d)
@@ -478,7 +478,7 @@ func main() {
 		saleOrderLineDAO,
 		sequenceSvc,
 		productSvc,
-		price_bookDAO,
+		priceBookDAO,
 		taxDAO,
 		contacts.NewContactDAO(d),
 		crmLeadDAO,
@@ -828,7 +828,7 @@ func main() {
 		postingSvc,
 		db.NewDBTransactioner(d),
 	)
-	assetHandler := assetHandler.NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryDAO), assetSvc)
+	assetHandler := assetHandler.NewAssetCategoryHandler(assetCategoryDAO, assetSvc)
 
 	assetHandler.Register(orgAPI, guards)
 
@@ -849,7 +849,7 @@ func main() {
 		subscription.NewSubscriptionLineDAO(d),
 		subscriptionPlanDAO,
 		contacts.NewContactDAO(d),
-		price_bookDAO,
+		priceBookDAO,
 		productSvc,
 		invoiceSvc,
 		deferralSvc,

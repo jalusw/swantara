@@ -59,7 +59,7 @@ describe("EntitySection", () => {
   it("shows an error status with retry", async () => {
     const { onRetry } = renderSection({ error: new Error("offline") });
     expect(screen.getByText("offline")).toBeInTheDocument();
-    await userEvent.setup().click(screen.getByRole("button", { name: "Retry" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "Coba lagi" }));
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
 

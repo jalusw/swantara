@@ -113,7 +113,7 @@ describe("LeaveRequestsSection", () => {
     const user = userEvent.setup();
     renderWithProviders(<LeaveRequestsSection orgId="1" />);
 
-    expect(await screen.findByRole("button", { name: "Approve" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Setujui" })).toBeInTheDocument();
     await user.hover(screen.getByText("Alex Rivera"));
     expect(screen.getByText("June Park")).toBeInTheDocument();
   });
@@ -123,7 +123,7 @@ describe("LeaveRequestsSection", () => {
     renderWithProviders(<LeaveRequestsSection orgId="1" />);
 
     await screen.findByText("Alex Rivera");
-    await user.click(screen.getByRole("button", { name: "Add request" }));
+    await user.click(screen.getByRole("button", { name: "Tambah pengajuan" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

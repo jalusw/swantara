@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -47,6 +48,11 @@ function moveStateBadgeVariant(state: StockMovement["state"]) {
 }
 
 export function ShipmentDetail({ orgId, shipmentId }: { orgId: string; shipmentId: string }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Stock");
   const [processing, setProcessing] = useState(false);
 
   const shipmentQuery = useOrgQuery<{ shipment: Shipment }>(
@@ -71,7 +77,7 @@ export function ShipmentDetail({ orgId, shipmentId }: { orgId: string; shipmentI
   }
 
   if (!shipment) {
-    return <p className="text-sm text-muted-foreground">{"Shipment not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("shipmentNotFound")}</p>;
   }
 
   function handleValidate() {
@@ -83,7 +89,7 @@ export function ShipmentDetail({ orgId, shipmentId }: { orgId: string; shipmentI
         void shipmentQuery.refetch();
         void movementsQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."))
+      .catch(() => toast.error(t("toastFailed")))
       .finally(() => setProcessing(false));
   }
 
@@ -96,7 +102,7 @@ export function ShipmentDetail({ orgId, shipmentId }: { orgId: string; shipmentI
         void shipmentQuery.refetch();
         void movementsQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."))
+      .catch(() => toast.error(t("toastFailed")))
       .finally(() => setProcessing(false));
   }
 
@@ -106,42 +112,48 @@ export function ShipmentDetail({ orgId, shipmentId }: { orgId: string; shipmentI
   return (
     <RecordLayout
       breadcrumbItems={[
-        { label: "All shipments", href: "/stock/shipments" },
+        { label: t("allShipments"), href: "/stock/shipments" },
         { label: shipment.name ?? `PK-${shipment.id}` },
       ]}
       title={shipment.name ?? `PK-${shipment.id}`}
-      status={<Badge variant={stateBadgeVariant(shipment.state)}>{shipment.state}</Badge>}
+      status={
+        <Badge variant={stateBadgeVariant(shipment.state)}>
+          {(t as unknown as (k: string) => string)(`shipmentState_${shipment.state}`)}
+        </Badge>
+      }
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: t("overviewTab"),
           content: (
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">{"Type"}:</span>
-                <Badge variant="secondary">{String(shipment.type)}</Badge>
+                <span className="text-sm text-muted-foreground">{t("fieldType")}:</span>
+                <Badge variant="secondary">
+                  {(t as unknown as (k: string) => string)(`shipmentType_${shipment.type}`)}
+                </Badge>
                 {shipment.origin ? (
                   <>
-                    <span className="text-sm text-muted-foreground">{"Origin"}:</span>
+                    <span className="text-sm text-muted-foreground">{t("colOrigin")}:</span>
                     <span className="text-sm">{shipment.origin}</span>
                   </>
                 ) : null}
               </div>
               <WorkflowSteps
                 steps={shipmentSteps.map((step) => ({
-                  label: String(step),
+                  label: (t as unknown as (k: string) => string)(`shipmentState_${step}`),
                 }))}
                 currentIndex={shipmentStateIndex(shipment.state)}
               />
               <div className="flex gap-2">
                 {canValidate ? (
                   <Button size="sm" onClick={handleValidate} disabled={processing}>
-                    {"Validate"}
+                    {t("validate")}
                   </Button>
                 ) : null}
                 {canDone ? (
                   <Button size="sm" onClick={handleDone} disabled={processing}>
-                    {"Mark as done"}
+                    {t("markAsDone")}
                   </Button>
                 ) : null}
               </div>
@@ -150,27 +162,25 @@ export function ShipmentDetail({ orgId, shipmentId }: { orgId: string; shipmentI
         },
         {
           id: "movements",
-          label: "Movement lines",
+          label: t("movementLines"),
           content: (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">{"Movement lines"}</CardTitle>
+                <CardTitle className="text-base">{t("movementLines")}</CardTitle>
               </CardHeader>
               <CardContent>
                 {movements.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    {"No movement lines for this shipment."}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t("shipmentLinesEmpty")}</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b text-left text-muted-foreground">
-                          <th className="pb-2 ">{"Item"}</th>
-                          <th className="pb-2 ">{"Quantity"}</th>
-                          <th className="pb-2 ">{"From"}</th>
-                          <th className="pb-2 ">{"To"}</th>
-                          <th className="pb-2 ">{"State"}</th>
+                          <th className="pb-2 ">{t("fieldItem")}</th>
+                          <th className="pb-2 ">{t("colQuantity")}</th>
+                          <th className="pb-2 ">{t("colFrom")}</th>
+                          <th className="pb-2 ">{t("colTo")}</th>
+                          <th className="pb-2 ">{t("colStatus")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -182,7 +192,9 @@ export function ShipmentDetail({ orgId, shipmentId }: { orgId: string; shipmentI
                             <td className="py-2">{movement.dstLocationId}</td>
                             <td className="py-2">
                               <Badge variant={moveStateBadgeVariant(movement.state)}>
-                                {movement.state}
+                                {(t as unknown as (k: string) => string)(
+                                  `moveState_${movement.state}`,
+                                )}
                               </Badge>
                             </td>
                           </tr>

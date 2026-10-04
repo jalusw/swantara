@@ -20,20 +20,17 @@ describe("OrgShell", () => {
     );
 
     expect(await screen.findByText("Acme Inc")).toBeInTheDocument();
-    expect(await screen.findByRole("link", { name: "Dashboard" })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "Dasbor" })).toHaveAttribute(
       "href",
       "/dashboard",
     );
     await user.click(await screen.findByRole("button", { name: "CRM" }));
-    expect(await screen.findByRole("link", { name: "Sales" })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "Penjualan" })).toHaveAttribute(
       "href",
       "/sale-orders",
     );
-    expect(await screen.findByRole("link", { name: "General" })).toHaveAttribute(
-      "href",
-      "/settings",
-    );
-    expect(screen.getByRole("button", { name: /Notifications/ })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Umum" })).toHaveAttribute("href", "/settings");
+    expect(screen.getByRole("button", { name: /Notifikasi/ })).toBeInTheDocument();
     expect(screen.getByText("Page content")).toBeInTheDocument();
   });
 });

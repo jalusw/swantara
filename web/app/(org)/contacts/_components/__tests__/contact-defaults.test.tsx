@@ -34,7 +34,7 @@ describe("ContactDefaults", () => {
       />,
     );
 
-    expect(screen.getByText("Customer")).toBeInTheDocument();
-    expect(screen.getByText("Supplier")).toBeInTheDocument();
+    expect(screen.getByText("Pelanggan")).toBeInTheDocument();
+    expect(screen.getByText("Pemasok")).toBeInTheDocument();
   });
 });

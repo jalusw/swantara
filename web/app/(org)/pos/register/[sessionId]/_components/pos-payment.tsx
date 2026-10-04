@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import {
@@ -29,6 +30,10 @@ export function PosPayment({
   total: number;
   onSubmit: (payments: PosPaymentRequest[]) => void;
 }) {
+  const t = useTranslations("Pos");
+  const tCommon = useTranslations("Common");
+  const paymentMethod = (method: string) =>
+    (t as unknown as (k: string) => string)(`paymentMethod_${method}`);
   const [payments, setPayments] = useState<PosPaymentRequest[]>([
     { method: "cash", amount: total },
   ]);
@@ -58,12 +63,12 @@ export function PosPayment({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"Payment"}</DialogTitle>
+          <DialogTitle>{t("paymentTitle")}</DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between rounded-lg bg-muted p-3">
-            <span className="text-sm">{"Total due"}</span>
+            <span className="text-sm">{t("totalDue")}</span>
             <span className="text-lg font-bold tabular-nums">{formatMoney(total)}</span>
           </div>
 
@@ -72,7 +77,7 @@ export function PosPayment({
               <div key={`pay-${payment.method}-${index}`} className="flex items-end gap-2">
                 <div className="flex-1 flex flex-col gap-1">
                   {index === 0 ? (
-                    <span className="text-xs text-muted-foreground">{"Method"}</span>
+                    <span className="text-xs text-muted-foreground">{t("method")}</span>
                   ) : null}
                   <Select
                     value={payment.method}
@@ -84,7 +89,7 @@ export function PosPayment({
                     <SelectContent>
                       {PAYMENT_METHODS.map((m) => (
                         <SelectItem key={m} value={m}>
-                          {String(m)}
+                          {paymentMethod(m)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -92,7 +97,7 @@ export function PosPayment({
                 </div>
                 <div className="flex-1 flex flex-col gap-1">
                   {index === 0 ? (
-                    <span className="text-xs text-muted-foreground">{"Amount"}</span>
+                    <span className="text-xs text-muted-foreground">{t("amount")}</span>
                   ) : null}
                   <Input
                     type="number"
@@ -124,11 +129,11 @@ export function PosPayment({
 
           <Button variant="outline" size="sm" className="self-start" onClick={addPayment}>
             <Plus className="mr-1 h-4 w-4" />
-            {"Add payment"}
+            {t("addPayment")}
           </Button>
 
           <div className="flex items-center justify-between rounded-lg border p-3">
-            <span className="text-sm">{"Remaining"}</span>
+            <span className="text-sm">{t("remaining")}</span>
             <span
               className={cn(
                 "text-base font-bold tabular-nums",
@@ -142,10 +147,10 @@ export function PosPayment({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={!isBalanced}>
-            {"Confirm"}
+            {tCommon("confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

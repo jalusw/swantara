@@ -1,6 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { Currency } from "@/lib/services/swantara";
@@ -25,6 +26,7 @@ function toCurrencyRow(currency: Currency): CurrencyRow {
 }
 
 export function CurrenciesSection(_props: { orgId: string }) {
+  const t = useTranslations("Reference");
   const query = useOrgListQuery<{ currencies: Currency[] }, Record<string, never>>(
     "currencies",
     () => getSwantaraService().currencies.list(),
@@ -35,22 +37,22 @@ export function CurrenciesSection(_props: { orgId: string }) {
   const columns: ColumnDef<CurrencyRow>[] = [
     {
       accessorKey: "code",
-      header: "Code",
+      header: t("tableCode"),
       cell: ({ row }) => <span className="font-mono text-xs">{row.original.code}</span>,
     },
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "symbol",
-      header: "Symbol",
+      header: t("tableSymbol"),
       cell: ({ row }) => <span className="text-muted-foreground">{row.original.symbol}</span>,
     },
     {
       accessorKey: "decimalPlaces",
-      header: "Decimals",
+      header: t("tableDecimals"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">{row.original.decimalPlaces}</span>
@@ -58,7 +60,7 @@ export function CurrenciesSection(_props: { orgId: string }) {
     },
     {
       accessorKey: "rounding",
-      header: "Rounding",
+      header: t("tableRounding"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">{row.original.rounding}</span>
@@ -72,12 +74,12 @@ export function CurrenciesSection(_props: { orgId: string }) {
       data={currencies}
       getRowId={(row) => row.code}
       searchKeys={["name", "code"]}
-      searchPlaceholder={"Search currencies…"}
+      searchPlaceholder={t("searchCurrenciesPlaceholder")}
       filterLabel=""
       statusOptions={[]}
       allLabel=""
-      ariaLabel={"Currencies"}
-      emptyTitle={"No currencies"}
+      ariaLabel={t("currenciesTitle")}
+      emptyTitle={t("currenciesEmpty")}
       status={
         query.isLoading
           ? { type: "loading" }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { moduleKey } from "@/app/(org)/_components/module-collapsible";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
@@ -9,6 +10,7 @@ import { useActiveModuleIds, useOrgModules, useUpdateOrgModule } from "@/lib/hoo
 import { usePermissions } from "@/lib/hooks/use-permissions";
 
 export function ModulesCard() {
+  const t = useTranslations("Settings");
   const { has } = usePermissions();
   const { data, isPending } = useOrgModules();
   const activeModules = useActiveModuleIds();
@@ -18,16 +20,12 @@ export function ModulesCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{"Modules"}</CardTitle>
-        <CardDescription>
-          {
-            "Choose which parts of your business show in the sidebar. New organizations start with everything on."
-          }
-        </CardDescription>
+        <CardTitle>{t("modulesTitle")}</CardTitle>
+        <CardDescription>{t("modulesDescription")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {isPending ? (
-          <p className="text-sm text-muted-foreground">{"Loading modules..."}</p>
+          <p className="text-sm text-muted-foreground">{t("loadingModules")}</p>
         ) : (
           (data?.modules ?? []).map((module) => {
             const label = moduleKey[module.moduleId as keyof typeof moduleKey] ?? module.moduleId;
@@ -42,7 +40,7 @@ export function ModulesCard() {
                     updateModule.mutate(
                       { moduleId: module.moduleId, active },
                       {
-                        onError: () => toast.error("Couldn't update the module. Please try again."),
+                        onError: () => toast.error(t("moduleUpdateFailed")),
                       },
                     );
                   }}

@@ -107,7 +107,7 @@ function useHandlers(options?: { rules?: unknown[]; failRules?: boolean }) {
       async ({ request }) => {
         created.push(await request.json());
         return HttpResponse.json(
-          { success: true, message: "Created.", data: { rule: { id: 10 } } },
+          { success: true, message: "Dibuat.", data: { rule: { id: 10 } } },
           { status: 201 },
         );
       },
@@ -140,7 +140,7 @@ describe("PriceBookDetail branches", () => {
     useHandlers({ failRules: true });
     renderWithProviders(<PriceBookDetail orgId="1" priceBookId="7" />);
     expect(await screen.findByText("Rules down.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 
   it("opens the create dialog", async () => {
@@ -148,8 +148,8 @@ describe("PriceBookDetail branches", () => {
     useHandlers();
     renderWithProviders(<PriceBookDetail orgId="1" priceBookId="7" />);
     await screen.findByText("Canvas Tote");
-    await user.click(screen.getByRole("button", { name: "Add rule" }));
-    expect(await screen.findByText("New pricing rule")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Tambah aturan" }));
+    expect(await screen.findByText("Aturan harga baru")).toBeInTheDocument();
   });
 
   it("creates a rule with empty optionals mapped to null", async () => {
@@ -157,9 +157,9 @@ describe("PriceBookDetail branches", () => {
     const { created } = useHandlers();
     renderWithProviders(<PriceBookDetail orgId="1" priceBookId="7" />);
     await screen.findByText("Canvas Tote");
-    await user.click(screen.getByRole("button", { name: "Add rule" }));
-    await screen.findByText("New pricing rule");
-    await user.click(screen.getByRole("button", { name: "Save rule" }));
+    await user.click(screen.getByRole("button", { name: "Tambah aturan" }));
+    await screen.findByText("Aturan harga baru");
+    await user.click(screen.getByRole("button", { name: "Simpan aturan" }));
     await waitFor(() => expect(created.length).toBe(1));
     const body = created[0] as Record<string, unknown>;
     expect(body.applies_to).toBe("all");
@@ -174,9 +174,9 @@ describe("PriceBookDetail branches", () => {
     useHandlers();
     renderWithProviders(<PriceBookDetail orgId="1" priceBookId="7" />);
     await screen.findByText("Canvas Tote");
-    await user.click(screen.getByRole("button", { name: "Add rule" }));
-    await screen.findByText("New pricing rule");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-    await waitFor(() => expect(screen.queryByText("New pricing rule")).not.toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: "Tambah aturan" }));
+    await screen.findByText("Aturan harga baru");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
+    await waitFor(() => expect(screen.queryByText("Aturan harga baru")).not.toBeInTheDocument());
   });
 });

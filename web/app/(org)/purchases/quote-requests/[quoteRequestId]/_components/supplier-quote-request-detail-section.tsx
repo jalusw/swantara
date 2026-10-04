@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -36,12 +37,13 @@ function quoteRequestStateIndex(state: SupplierQuoteRequest["state"]): number {
   return idx >= 0 ? idx : 0;
 }
 
-function getQuoteRequestStatuses() {
+function getQuoteRequestStatuses(label?: (state: string) => string) {
+  const text = (state: string, fallback: string) => (label ? label(state) : fallback);
   return {
-    draft: { label: "Draft", tone: "neutral" as const },
-    sent: { label: "Sent", tone: "info" as const },
-    done: { label: "Done", tone: "success" as const },
-    cancelled: { label: "Cancelled", tone: "danger" as const },
+    draft: { label: text("draft", "Draft"), tone: "neutral" as const },
+    sent: { label: text("sent", "Terkirim"), tone: "info" as const },
+    done: { label: text("done", "Selesai"), tone: "success" as const },
+    cancelled: { label: text("cancelled", "Dibatalkan"), tone: "danger" as const },
   };
 }
 
@@ -52,6 +54,8 @@ export function SupplierQuoteRequestDetail({
   orgId: string;
   quoteRequestId: string;
 }) {
+  const t = useTranslations("Purchases");
+  const tCommon = useTranslations("Common");
   const [createPoOpen, setCreatePoOpen] = useState(false);
 
   const quoteRequestQuery = useOrgQuery<{ quoteRequest: SupplierQuoteRequest }>(
@@ -94,7 +98,23 @@ export function SupplierQuoteRequestDetail({
   }
 
   if (!quoteRequest) {
-    return <p className="text-sm text-muted-foreground">{"QuoteRequest not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("quoteRequestNotFound")}</p>;
+  }
+
+  function quoteStateLabel(state: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`quoteRequestState.${state}`);
+    } catch {
+      return state;
+    }
+  }
+
+  function quoteStepLabel(step: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`quoteRequestStep.${step}`);
+    } catch {
+      return String(step);
+    }
   }
 
   function handleSend() {
@@ -102,10 +122,10 @@ export function SupplierQuoteRequestDetail({
     void getSwantaraService()
       .supplierQuoteRequests.send(Number(orgId), quoteRequest.id)
       .then(() => {
-        toast.success("QuoteRequest sent to supplier.");
+        toast.success(t("quoteRequestSent"));
         void quoteRequestQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   function handleCancel() {
@@ -113,10 +133,10 @@ export function SupplierQuoteRequestDetail({
     void getSwantaraService()
       .supplierQuoteRequests.cancel(Number(orgId), quoteRequest.id)
       .then(() => {
-        toast.success("QuoteRequest cancelled.");
+        toast.success(t("quoteRequestCancelled"));
         void quoteRequestQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   function handleAcceptQuote(quoteId: number) {
@@ -124,10 +144,10 @@ export function SupplierQuoteRequestDetail({
     void getSwantaraService()
       .supplierQuoteRequests.quotes.accept(Number(orgId), quoteRequest.id, quoteId)
       .then(() => {
-        toast.success("Quote accepted.");
+        toast.success(t("quoteAccepted"));
         void quotesQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   function handleCreatePo() {
@@ -135,11 +155,11 @@ export function SupplierQuoteRequestDetail({
     void getSwantaraService()
       .supplierQuoteRequests.purchaseOrder(Number(orgId), quoteRequest.id)
       .then(() => {
-        toast.success("PO Created");
+        toast.success(t("purchaseOrderCreated"));
         setCreatePoOpen(false);
         void quoteRequestQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   const acceptedQuote = quotes.find((q) => q.state === "accepted");
@@ -148,46 +168,51 @@ export function SupplierQuoteRequestDetail({
     <>
       <RecordLayout
         breadcrumbItems={[
-          { label: "All Quote Requests", href: "/purchases/quoteRequests" },
+          { label: t("allQuoteRequests"), href: "/purchases/quoteRequests" },
           { label: quoteRequest.name ?? `QuoteRequest-${quoteRequest.id}` },
         ]}
         title={quoteRequest.name ?? `QuoteRequest-${quoteRequest.id}`}
-        status={<StateBadge value={quoteRequest.state} statuses={getQuoteRequestStatuses()} />}
+        status={
+          <StateBadge
+            value={quoteRequest.state}
+            statuses={getQuoteRequestStatuses(quoteStateLabel)}
+          />
+        }
         tabs={[
           {
             id: "overview",
-            label: "Overview",
+            label: t("tabOverview"),
             content: (
               <div className="flex flex-col gap-4">
                 <WorkflowSteps
-                  steps={quoteRequestSteps.map((s) => ({ label: String(s) }))}
+                  steps={quoteRequestSteps.map((s) => ({ label: quoteStepLabel(s) }))}
                   currentIndex={quoteRequestStateIndex(quoteRequest.state)}
                 />
                 <div className="flex flex-wrap gap-2">
                   {canSend(quoteRequest.state) ? (
                     <Button size="sm" onClick={handleSend}>
-                      {"Send to supplier"}
+                      {t("sendToSupplier")}
                     </Button>
                   ) : null}
                   {canCancel(quoteRequest.state) ? (
                     <Button size="sm" variant="outline" onClick={handleCancel}>
-                      {"Cancel"}
+                      {tCommon("cancel")}
                     </Button>
                   ) : null}
                   {canCreatePo(quoteRequest.state) ? (
                     <Button size="sm" onClick={() => setCreatePoOpen(true)}>
-                      {"Create purchase order"}
+                      {t("createPurchaseOrder")}
                     </Button>
                   ) : null}
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-base">{"QuoteRequest header"}</CardTitle>
+                      <CardTitle className="text-base">{t("quoteRequestHeader")}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Supplier"}</span>
+                        <span className="text-muted-foreground">{t("tableSupplier")}</span>
                         <span className="">
                           {quoteRequest.supplierId
                             ? (contactMap.get(quoteRequest.supplierId) ??
@@ -196,13 +221,13 @@ export function SupplierQuoteRequestDetail({
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Order date"}</span>
+                        <span className="text-muted-foreground">{t("tableOrderDate")}</span>
                         <span>
                           {quoteRequest.orderDate ? formatDate(quoteRequest.orderDate) : "—"}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Quote deadline"}</span>
+                        <span className="text-muted-foreground">{t("tableQuoteDeadline")}</span>
                         <span>
                           {quoteRequest.quoteDeadline
                             ? formatDate(quoteRequest.quoteDeadline)
@@ -211,7 +236,7 @@ export function SupplierQuoteRequestDetail({
                       </div>
                       {quoteRequest.notes ? (
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">{"Notes"}</span>
+                          <span className="text-muted-foreground">{t("fieldNote")}</span>
                           <span className="max-w-[200px] truncate">{quoteRequest.notes}</span>
                         </div>
                       ) : null}
@@ -220,21 +245,21 @@ export function SupplierQuoteRequestDetail({
                 </div>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">{"Lines"}</CardTitle>
+                    <CardTitle className="text-base">{t("orderLines")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {lines.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">{"No lines."}</p>
+                      <p className="text-sm text-muted-foreground">{t("emptyLines")}</p>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b text-left text-muted-foreground">
                               <th className="pb-2 ">#</th>
-                              <th className="pb-2 ">{"Item"}</th>
-                              <th className="pb-2 ">{"Description"}</th>
-                              <th className="pb-2 text-right">{"Qty"}</th>
-                              <th className="pb-2 ">{"Needed by"}</th>
+                              <th className="pb-2 ">{t("fieldItem")}</th>
+                              <th className="pb-2 ">{t("fieldDescription")}</th>
+                              <th className="pb-2 text-right">{t("fieldQty")}</th>
+                              <th className="pb-2 ">{t("fieldNeededBy")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -264,28 +289,26 @@ export function SupplierQuoteRequestDetail({
           },
           {
             id: "quotes",
-            label: "Quotes",
+            label: t("tabQuotes"),
             content: (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">{"Supplier quotes"}</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    {"Quotes received from suppliers for this QuoteRequest."}
-                  </p>
+                  <CardTitle className="text-base">{t("supplierQuotes")}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{t("supplierQuotesDescription")}</p>
                 </CardHeader>
                 <CardContent>
                   {quotes.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{"No quotes received yet."}</p>
+                    <p className="text-sm text-muted-foreground">{t("noQuotes")}</p>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b text-muted-foreground">
-                            <th className="pb-2 text-left">{"Supplier"}</th>
-                            <th className="pb-2 text-left">{"Status"}</th>
-                            <th className="pb-2 text-right">{"Total"}</th>
-                            <th className="pb-2 text-left">{"Valid until"}</th>
-                            <th className="pb-2 text-right">{"Actions"}</th>
+                            <th className="pb-2 text-left">{t("tableSupplier")}</th>
+                            <th className="pb-2 text-left">{t("tableStatus")}</th>
+                            <th className="pb-2 text-right">{t("tableTotal")}</th>
+                            <th className="pb-2 text-left">{t("validUntil")}</th>
+                            <th className="pb-2 text-right">{t("tableActions")}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -312,7 +335,7 @@ export function SupplierQuoteRequestDetail({
                                     variant="outline"
                                     onClick={() => handleAcceptQuote(quote.id)}
                                   >
-                                    {"Accept"}
+                                    {t("acceptQuote")}
                                   </Button>
                                 ) : null}
                               </td>
@@ -324,7 +347,7 @@ export function SupplierQuoteRequestDetail({
                   )}
                   {acceptedQuote ? (
                     <p className="mt-3 text-xs text-muted-foreground">
-                      {"Accepted quote total"}:{" "}
+                      {t("acceptedQuoteTotal")}:{" "}
                       <span className="">{formatNumber(acceptedQuote.amountTotal)}</span>
                     </p>
                   ) : null}
@@ -337,19 +360,15 @@ export function SupplierQuoteRequestDetail({
       <Dialog open={createPoOpen} onOpenChange={setCreatePoOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{"Create Purchase Order"}</DialogTitle>
-            <DialogDescription>
-              {"Convert this QuoteRequest into a purchase order using the accepted quote."}
-            </DialogDescription>
+            <DialogTitle>{t("createPurchaseOrder")}</DialogTitle>
+            <DialogDescription>{t("createPoDescription")}</DialogDescription>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            {"A purchase order will be created from the accepted quote lines."}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("createPoHint")}</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreatePoOpen(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <Button onClick={handleCreatePo}>{"Create PO"}</Button>
+            <Button onClick={handleCreatePo}>{t("createPoSubmit")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

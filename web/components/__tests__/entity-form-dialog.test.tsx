@@ -61,6 +61,6 @@ describe("regression: EntityFormDialog cancel button must not submit", () => {
     );
 
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Saving…" })).toBeDisabled();
   });
 });

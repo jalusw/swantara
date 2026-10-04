@@ -45,8 +45,8 @@ describe("WarehousesSection", () => {
     renderWithProviders(<WarehousesSection orgId="1" />);
 
     await screen.findByText("Main Warehouse");
-    await user.click(screen.getByRole("button", { name: "Add warehouse" }));
+    await user.click(screen.getByRole("button", { name: "Tambah gudang" }));
 
-    expect(await screen.findByRole("heading", { name: "New warehouse" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Gudang baru" })).toBeInTheDocument();
   });
 });

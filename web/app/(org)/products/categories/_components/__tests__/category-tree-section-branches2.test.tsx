@@ -55,10 +55,10 @@ describe("CategoryTreeSection branches2", () => {
     const user = userEvent.setup();
     renderWithProviders(<CategoryTreeSection orgId="1" />);
 
-    await user.click(await screen.findByRole("button", { name: "Add category" }));
+    await user.click(await screen.findByRole("button", { name: "Tambah kategori" }));
     const dialog = await screen.findByRole("dialog");
-    await user.type(within(dialog).getByLabelText("Name"), "Packaging");
-    await user.click(within(dialog).getByRole("button", { name: "Save category" }));
+    await user.type(within(dialog).getByLabelText("Nama"), "Packaging");
+    await user.click(within(dialog).getByRole("button", { name: "Simpan kategori" }));
 
     await waitFor(() => expect(createBody).not.toBeNull());
     expect(createBody).toMatchObject({ cost_method: null, valuation: null });
@@ -80,9 +80,9 @@ describe("CategoryTreeSection branches2", () => {
     renderWithProviders(<CategoryTreeSection orgId="1" />);
 
     await screen.findByText("Raw Materials");
-    await user.click(screen.getByRole("button", { name: "Edit" }));
+    await user.click(screen.getByRole("button", { name: "Ubah" }));
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "Save category" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan kategori" }));
 
     await waitFor(() => expect(updateBody).not.toBeNull());
   });
@@ -98,6 +98,6 @@ describe("CategoryTreeSection branches2", () => {
     );
     renderWithProviders(<CategoryTreeSection orgId="1" />);
 
-    expect(await screen.findByText("No categories yet.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada kategori")).toBeInTheDocument();
   });
 });

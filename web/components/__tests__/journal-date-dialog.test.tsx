@@ -29,7 +29,7 @@ function renderDialog(overrides = {}) {
 
 async function pickJournal() {
   const user = userEvent.setup();
-  await user.click(screen.getByRole("combobox", { name: "Journal" }));
+  await user.click(screen.getByRole("combobox", { name: "Jurnal" }));
   await screen.findByRole("option", { name: "Cash — cash" });
   await user.keyboard("{ArrowDown}{Enter}");
   return user;

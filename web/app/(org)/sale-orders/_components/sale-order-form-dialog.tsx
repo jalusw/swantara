@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -24,17 +25,20 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { getLocalDateString } from "@/lib/utils";
 import { createEmptyLine, type LineRow, SaleOrderLinesEditor } from "./sale-order-lines-editor";
 
-const saleOrderFormSchema = z.object({
-  contactId: z.string().min(1, "Select a customer."),
-  priceBookId: z.string().min(1, "Select a price_book."),
-  warehouseId: z.string().min(1, "Select a warehouse."),
-  crmLeadId: z.string().min(1, "Select a won opportunity."),
-  orderDate: z.string(),
-  validityDate: z.string(),
-  note: z.string(),
-});
+function useSaleOrderFormSchema() {
+  const t = useTranslations("Sales");
+  return z.object({
+    contactId: z.string().min(1, t("validationCustomerRequired")),
+    priceBookId: z.string().min(1, t("validationPriceBookRequired")),
+    warehouseId: z.string().min(1, t("validationWarehouseRequired")),
+    crmLeadId: z.string().min(1, t("validationOpportunityRequired")),
+    orderDate: z.string(),
+    validityDate: z.string(),
+    note: z.string(),
+  });
+}
 
-type SaleOrderFormValues = z.infer<typeof saleOrderFormSchema>;
+type SaleOrderFormValues = z.infer<ReturnType<typeof useSaleOrderFormSchema>>;
 
 type SaleOrderFormDialogProps = {
   open: boolean;
@@ -51,6 +55,8 @@ export function SaleOrderFormDialog({
   initialOpportunityId,
   onSave,
 }: SaleOrderFormDialogProps) {
+  const t = useTranslations("Sales");
+  const tCommon = useTranslations("Common");
   const numericOrgId = Number(orgId);
 
   const contactsQuery = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
@@ -89,7 +95,7 @@ export function SaleOrderFormDialog({
   useLineResetEffect(open, setLines, createEmptyLine);
 
   const form = useForm<SaleOrderFormValues>({
-    resolver: zodResolver(saleOrderFormSchema),
+    resolver: zodResolver(useSaleOrderFormSchema()),
     defaultValues: {
       contactId: "",
       priceBookId: "",
@@ -124,11 +130,11 @@ export function SaleOrderFormDialog({
 
   function handleSubmit(values: SaleOrderFormValues) {
     if (lines.length === 0) {
-      toast.error("Add at least one line.");
+      toast.error(t("addAtLeastOneLine"));
       return;
     }
     if (lines.some((line) => !line.itemId || Number(line.qtyOrdered) <= 0)) {
-      toast.error("Quantity must be greater than zero.");
+      toast.error(t("quantityMustBePositive"));
       return;
     }
     const request = {
@@ -159,33 +165,33 @@ export function SaleOrderFormDialog({
         dimensionId: null as number | null,
       })),
     };
-    void getSwantaraService()
+    return getSwantaraService()
       .saleOrders.create(numericOrgId, request)
       .then(({ order }) => {
-        toast.success("Quotation created.");
+        toast.success(t("quotationCreated"));
         onSave(String(order.id));
       })
-      .catch(() => toast.error("Could not create the quotation."));
+      .catch(() => void toast.error(t("quotationCreateFailed")));
   }
 
   return (
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"New quotation"}
-      description={
-        "Create a quotation from a won opportunity. PriceBook pricing is applied per line."
-      }
+      title={t("newQuotation")}
+      description={t("newQuotationDescription")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-3xl"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField name="contactId" label={"Customer"}>
+        <FormField name="contactId" label={t("tableCustomer")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Customer"}>
-                <SelectValue placeholder={"Select customer"} />
+              <SelectTrigger id={id} aria-label={t("tableCustomer")}>
+                <SelectValue placeholder={t("selectCustomer")} />
               </SelectTrigger>
               <SelectContent>
                 {contacts.map((contact) => (
@@ -197,11 +203,11 @@ export function SaleOrderFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="priceBookId" label={"PriceBook"}>
+        <FormField name="priceBookId" label={t("fieldPriceBook")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"PriceBook"}>
-                <SelectValue placeholder={"Select price_book"} />
+              <SelectTrigger id={id} aria-label={t("fieldPriceBook")}>
+                <SelectValue placeholder={t("selectPriceBook")} />
               </SelectTrigger>
               <SelectContent>
                 {priceBooks.map((priceBook) => (
@@ -213,11 +219,11 @@ export function SaleOrderFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="warehouseId" label={"Warehouse"}>
+        <FormField name="warehouseId" label={t("fieldWarehouse")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Warehouse"}>
-                <SelectValue placeholder={"Select warehouse"} />
+              <SelectTrigger id={id} aria-label={t("fieldWarehouse")}>
+                <SelectValue placeholder={t("selectWarehouse")} />
               </SelectTrigger>
               <SelectContent>
                 {warehouses.map((warehouse) => (
@@ -229,16 +235,16 @@ export function SaleOrderFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="crmLeadId" label={"Opportunity (won)"}>
+        <FormField name="crmLeadId" label={t("fieldOpportunityWon")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Opportunity (won)"}>
-                <SelectValue placeholder={"Select opportunity"} />
+              <SelectTrigger id={id} aria-label={t("fieldOpportunityWon")}>
+                <SelectValue placeholder={t("selectOpportunity")} />
               </SelectTrigger>
               <SelectContent>
                 {opportunities.length === 0 ? (
                   <SelectItem value="" disabled>
-                    {"No won opportunities"}
+                    {t("noWonOpportunities")}
                   </SelectItem>
                 ) : (
                   opportunities.map((opportunity) => (
@@ -251,13 +257,13 @@ export function SaleOrderFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="orderDate" label={"Order date"}>
+        <FormField name="orderDate" label={t("tableOrderDate")}>
           {({ field, id }) => <Input {...field} id={id} type="date" />}
         </FormField>
-        <FormField name="validityDate" label={"Validity date"}>
+        <FormField name="validityDate" label={t("fieldValidityDate")}>
           {({ field, id }) => <Input {...field} id={id} type="date" />}
         </FormField>
-        <FormField name="note" label={"Note"}>
+        <FormField name="note" label={t("fieldNote")}>
           {({ field, id }) => <Textarea {...field} id={id} rows={2} />}
         </FormField>
       </div>

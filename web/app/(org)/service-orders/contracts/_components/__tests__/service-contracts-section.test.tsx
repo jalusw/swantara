@@ -57,8 +57,8 @@ describe("ServiceContractsSection", () => {
     expect(await screen.findByText("ACME Maintenance")).toBeInTheDocument();
     expect(screen.getByText("Beta Support")).toBeInTheDocument();
     expect(screen.getByText("24/7 support")).toBeInTheDocument();
-    expect(screen.getByText("Draft")).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
+    expect(screen.getByText("Draf")).toBeInTheDocument();
+    expect(screen.getByText("Aktif")).toBeInTheDocument();
   });
 
   it("filters contracts through the search box", async () => {
@@ -66,7 +66,7 @@ describe("ServiceContractsSection", () => {
     renderWithProviders(<ServiceContractsSection orgId="1" />);
 
     await screen.findByText("ACME Maintenance");
-    await user.type(screen.getByPlaceholderText(/Search contracts/), "Beta");
+    await user.type(screen.getByPlaceholderText(/Cari kontrak/), "Beta");
 
     expect(await screen.findByText("Beta Support")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("ACME Maintenance")).not.toBeInTheDocument());

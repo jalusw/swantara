@@ -10,13 +10,13 @@ describe("CrmSubNav", () => {
   it("renders links to every CRM tab", () => {
     renderWithProviders(<CrmSubNav />);
 
-    expect(screen.getByRole("link", { name: "Pipeline" })).toHaveAttribute("href", "/crm");
-    expect(screen.getByRole("link", { name: "Leads" })).toHaveAttribute("href", "/crm/leads");
-    expect(screen.getByRole("link", { name: "Opportunities" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Pipa Penjualan" })).toHaveAttribute("href", "/crm");
+    expect(screen.getByRole("link", { name: "Prospek" })).toHaveAttribute("href", "/crm/leads");
+    expect(screen.getByRole("link", { name: "Peluang" })).toHaveAttribute(
       "href",
       "/crm/opportunities",
     );
-    expect(screen.getByRole("link", { name: "Activities" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Aktivitas" })).toHaveAttribute(
       "href",
       "/crm/activities",
     );
@@ -26,16 +26,18 @@ describe("CrmSubNav", () => {
     navigationMock.setPathname("/crm/leads");
     renderWithProviders(<CrmSubNav />);
 
-    expect(screen.getByRole("link", { name: "Leads" })).toHaveAttribute("aria-current", "page");
-    expect(screen.getByRole("link", { name: "Pipeline" })).not.toHaveAttribute("aria-current");
+    expect(screen.getByRole("link", { name: "Prospek" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Pipa Penjualan" })).not.toHaveAttribute(
+      "aria-current",
+    );
   });
 
   it("focuses the tab when clicked", async () => {
     const user = userEvent.setup();
     renderWithProviders(<CrmSubNav />);
 
-    await user.click(screen.getByRole("link", { name: "Activities" }));
+    await user.click(screen.getByRole("link", { name: "Aktivitas" }));
 
-    expect(screen.getByRole("link", { name: "Activities" })).toHaveFocus();
+    expect(screen.getByRole("link", { name: "Aktivitas" })).toHaveFocus();
   });
 });

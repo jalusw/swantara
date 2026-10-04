@@ -81,7 +81,7 @@ describe("ProductsSection branches", () => {
     );
     renderWithProviders(<ProductsSection orgId="1" />);
 
-    expect(await screen.findByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 
   it("opens the create dialog", async () => {
@@ -89,7 +89,7 @@ describe("ProductsSection branches", () => {
     renderWithProviders(<ProductsSection orgId="1" />);
 
     await screen.findByText("Widget");
-    await user.click(screen.getByRole("button", { name: "Add item" }));
+    await user.click(screen.getByRole("button", { name: "Tambah produk" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
@@ -99,6 +99,6 @@ describe("ProductsSection branches", () => {
     renderWithProviders(<ProductsSection orgId="1" />);
 
     expect(await screen.findByText("Widget")).toBeInTheDocument();
-    expect(screen.getByText("Inactive")).toBeInTheDocument();
+    expect(screen.getByText("Tidak aktif")).toBeInTheDocument();
   });
 });

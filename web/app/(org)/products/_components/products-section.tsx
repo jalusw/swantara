@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
@@ -11,10 +12,11 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { Item, ItemCategory } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatNumber } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { activeColumn, nameColumn } from "@/lib/utils/table-columns";
 import { ProductFormDialog } from "./product-form-dialog";
 import type { StubItemCategory } from "./products-data";
+
+type TFn = (key: string, values?: Record<string, string | number>) => string;
 
 function toProductRow(item: Item): {
   id: string;
@@ -72,6 +74,7 @@ function categoryName(categories: StubItemCategory[], id: string | null): string
 }
 
 export function ProductsSection({ orgId }: { orgId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -97,11 +100,11 @@ export function ProductsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<ReturnType<typeof toProductRow>>[] = [
     nameColumn<ReturnType<typeof toProductRow>>({
       basePath: "products",
-      header: "Name",
+      header: t("fieldName"),
     }),
     {
       accessorKey: "categoryId",
-      header: "Category",
+      header: () => t("fieldCategory"),
       cell: ({ row }) => (
         <Badge variant="secondary">
           {categoryName(categories, row.original.categoryId) ?? "—"}
@@ -110,14 +113,16 @@ export function ProductsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "type",
-      header: "Type",
+      header: () => t("fieldType"),
       cell: ({ row }) => (
-        <span className="text-muted-foreground">{humanizeKey(String(row.original.type))}</span>
+        <span className="text-muted-foreground">
+          {(t as unknown as (k: string) => string)(`productType_${row.original.type}`)}
+        </span>
       ),
     },
     {
       accessorKey: "listPrice",
-      header: "Sales price",
+      header: () => t("colListPrice"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
@@ -126,9 +131,9 @@ export function ProductsSection({ orgId }: { orgId: string }) {
       ),
     },
     activeColumn<ReturnType<typeof toProductRow>>({
-      header: "Status",
-      activeLabel: "Active",
-      inactiveLabel: "Inactive",
+      header: t("colStatus"),
+      activeLabel: t("active"),
+      inactiveLabel: t("inactive"),
     }),
   ];
 
@@ -148,14 +153,14 @@ export function ProductsSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="active"
         statusOptions={[
-          { value: "true", label: "Active" },
-          { value: "false", label: "Inactive" },
+          { value: "true", label: t("active") },
+          { value: "false", label: t("inactive") },
         ]}
-        searchPlaceholder={"Search products…"}
-        filterLabel={"Filter by status"}
-        allLabel={"All statuses"}
-        ariaLabel={"All products"}
-        emptyTitle={"No products"}
+        searchPlaceholder={t("searchProducts")}
+        filterLabel={t("filterByStatus")}
+        allLabel={t("filterAllStatus")}
+        ariaLabel={t("allProducts")}
+        emptyTitle={t("productsEmpty")}
         status={
           isLoading
             ? { type: "loading" }
@@ -173,7 +178,7 @@ export function ProductsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Add item"}</span>
+            <span>{t("addItem")}</span>
           </Button>
         }
       />

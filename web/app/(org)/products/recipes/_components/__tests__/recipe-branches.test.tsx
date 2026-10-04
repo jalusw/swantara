@@ -98,7 +98,7 @@ const editInitial = {
 const editLines = [{ id: "l1", componentId: "6", qty: 2, unitId: null, scrapPct: 50 }];
 
 async function selectProduct(user: ReturnType<typeof userEvent.setup>, name: string) {
-  await user.click(screen.getByRole("combobox", { name: "Item" }));
+  await user.click(screen.getByRole("combobox", { name: "Produk" }));
   await user.click(await screen.findByRole("option", { name }));
 }
 
@@ -120,7 +120,7 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit bill of materials")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah resep")).toBeInTheDocument();
     expect(screen.getByDisplayValue("3")).toBeInTheDocument();
   });
 
@@ -138,11 +138,11 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Resep baru");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Select a item.")).toBeInTheDocument();
-    expect(await screen.findByText("Select a component.")).toBeInTheDocument();
+    expect(await screen.findByText("Silakan pilih produk.")).toBeInTheDocument();
+    expect(await screen.findByText("Silakan pilih komponen.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -160,19 +160,19 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
+    await screen.findByText("Resep baru");
     await selectProduct(user, "Finished Widget");
-    const qty = screen.getAllByLabelText("Quantity")[0];
+    const qty = screen.getAllByLabelText("Kuantitas")[0];
     if (qty === undefined) throw new Error("expected a quantity input");
     await user.clear(qty);
     await user.type(qty, "0");
-    const version = screen.getByLabelText("Version");
+    const version = screen.getByLabelText("Versi");
     await user.clear(version);
     await user.type(version, "0");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Quantity must be greater than zero.")).toBeInTheDocument();
-    expect(await screen.findByText("Enter a version number.")).toBeInTheDocument();
+    expect(await screen.findByText("Kuantitas harus lebih besar dari 0.")).toBeInTheDocument();
+    expect(await screen.findByText("Versi harus minimal 1.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -188,14 +188,14 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
-    await user.click(screen.getByRole("button", { name: "Add component" }));
-    expect(screen.getAllByRole("combobox", { name: "Component" })).toHaveLength(2);
+    await screen.findByText("Resep baru");
+    await user.click(screen.getByRole("button", { name: "Tambah komponen" }));
+    expect(screen.getAllByRole("combobox", { name: "Komponen" })).toHaveLength(2);
 
-    const secondRemove = screen.getAllByRole("button", { name: "Remove line" })[1];
+    const secondRemove = screen.getAllByRole("button", { name: "Hapus baris" })[1];
     if (secondRemove === undefined) throw new Error("expected a second remove button");
     await user.click(secondRemove);
-    expect(screen.getAllByRole("combobox", { name: "Component" })).toHaveLength(1);
+    expect(screen.getAllByRole("combobox", { name: "Komponen" })).toHaveLength(1);
   });
 
   it("blocks submit when every line was removed", async () => {
@@ -212,11 +212,11 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
+    await screen.findByText("Resep baru");
     await selectProduct(user, "Finished Widget");
-    await user.click(screen.getByRole("button", { name: "Remove line" }));
-    expect(screen.queryByRole("combobox", { name: "Component" })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Hapus baris" }));
+    expect(screen.queryByRole("combobox", { name: "Komponen" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).not.toHaveBeenCalled());
   });
@@ -235,12 +235,12 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
+    await screen.findByText("Resep baru");
     await selectProduct(user, "Finished Widget");
-    await user.click(screen.getByRole("combobox", { name: "Component" }));
+    await user.click(screen.getByRole("combobox", { name: "Komponen" }));
     await user.click(await screen.findByRole("option", { name: "Raw Material" }));
-    await user.type(screen.getByPlaceholderText("Quantity"), "1");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(screen.getByPlaceholderText("Kuantitas"), "1");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -259,21 +259,21 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
+    await screen.findByText("Resep baru");
     await selectProduct(user, "Finished Widget");
     await user.type(screen.getByPlaceholderText("BOM/..."), "BOM-001");
-    await user.click(screen.getByRole("combobox", { name: "Type" }));
+    await user.click(screen.getByRole("combobox", { name: "Jenis" }));
     await user.click(await screen.findByRole("option", { name: "Kit" }));
-    await user.click(screen.getByRole("combobox", { name: "Unit of measure" }));
+    await user.click(screen.getByRole("combobox", { name: "Satuan" }));
     await user.click(await screen.findByRole("option", { name: "Units" }));
-    await user.click(screen.getByRole("combobox", { name: "Component" }));
+    await user.click(screen.getByRole("combobox", { name: "Komponen" }));
     await user.click(await screen.findByRole("option", { name: "Raw Material" }));
-    await user.type(screen.getByPlaceholderText("Quantity"), "2");
+    await user.type(screen.getByPlaceholderText("Kuantitas"), "2");
     await user.type(screen.getByPlaceholderText("Scrap %"), "50");
-    await user.click(screen.getByRole("switch", { name: "Active" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("switch", { name: "Aktif" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Total incl. scrap: 3")).toBeInTheDocument();
+    expect(await screen.findByText("Total termasuk scrap: 3")).toBeInTheDocument();
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
 
@@ -291,14 +291,14 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
+    await screen.findByText("Resep baru");
     await selectProduct(user, "Finished Widget");
-    await user.click(screen.getByRole("combobox", { name: "Component" }));
+    await user.click(screen.getByRole("combobox", { name: "Komponen" }));
     await user.click(await screen.findByRole("option", { name: "Raw Material" }));
-    await user.type(screen.getByPlaceholderText("Quantity"), "1");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(screen.getByPlaceholderText("Kuantitas"), "1");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("New bill of materials")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Resep baru")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -318,9 +318,9 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit bill of materials");
-    expect(screen.getByText("Total incl. scrap: 3")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah resep");
+    expect(screen.getByText("Total termasuk scrap: 3")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -340,13 +340,13 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit bill of materials");
-    expect(screen.queryByRole("combobox", { name: "Component" })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Add component" }));
-    await user.click(screen.getByRole("combobox", { name: "Component" }));
+    await screen.findByText("Ubah resep");
+    expect(screen.queryByRole("combobox", { name: "Komponen" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Tambah komponen" }));
+    await user.click(screen.getByRole("combobox", { name: "Komponen" }));
     await user.click(await screen.findByRole("option", { name: "Raw Material" }));
-    await user.type(screen.getByPlaceholderText("Quantity"), "1");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(screen.getByPlaceholderText("Kuantitas"), "1");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -367,10 +367,10 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit bill of materials");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah resep");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("Edit bill of materials")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Ubah resep")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -387,8 +387,8 @@ describe("BomFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByText("Resep baru");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

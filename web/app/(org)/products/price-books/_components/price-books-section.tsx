@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -28,9 +29,12 @@ import { activeColumn, nameColumn } from "@/lib/utils/table-columns";
 
 const currencyOptions = ["USD", "IDR", "EUR", "SGD", "GBP", "JPY"];
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 function usePriceBookFormSchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
   return z.object({
-    name: z.string().min(1, "Enter a price_book name."),
+    name: z.string().min(1, t("validationPriceBookNameRequired")),
     currencyCode: z.string(),
     active: z.boolean(),
   });
@@ -38,6 +42,8 @@ function usePriceBookFormSchema() {
 type PriceBookFormValues = z.infer<ReturnType<typeof usePriceBookFormSchema>>;
 
 export function PriceBooksSection({ orgId }: { orgId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const query = useOrgListQuery<{ priceBooks: PriceBook[] }, Record<string, never>>(
@@ -55,7 +61,7 @@ export function PriceBooksSection({ orgId }: { orgId: string }) {
   });
 
   function handleCreate(values: PriceBookFormValues) {
-    void getSwantaraService()
+    return getSwantaraService()
       .priceBooks.create(Number(orgId), {
         name: values.name,
         currencyCode: values.currencyCode || null,
@@ -63,29 +69,30 @@ export function PriceBooksSection({ orgId }: { orgId: string }) {
         active: values.active,
       })
       .then(() => {
-        toast.success("Rule added.");
+        toast.success(t("toastPriceBookCreated"));
         setDialogOpen(false);
         form.reset();
         void query.refetch();
-      });
+      })
+      .catch(() => {});
   }
 
   const columns: ColumnDef<PriceBook>[] = [
     nameColumn<PriceBook>({
       basePath: "price_books",
-      header: "Name",
+      header: t("fieldName"),
     }),
     {
       accessorKey: "currencyCode",
-      header: "Currency",
+      header: () => t("colCurrency"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{row.original.currencyCode ?? "—"}</span>
       ),
     },
     activeColumn<PriceBook>({
-      header: "Status",
-      activeLabel: "Active",
-      inactiveLabel: "Inactive",
+      header: t("colStatus"),
+      activeLabel: t("active"),
+      inactiveLabel: t("inactive"),
     }),
   ];
 
@@ -94,10 +101,8 @@ export function PriceBooksSection({ orgId }: { orgId: string }) {
       <Card>
         <CardHeader className="flex-row items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <CardTitle>{"PriceBooks"}</CardTitle>
-            <CardDescription>
-              {"Manage pricing rules for products across customers and channels."}
-            </CardDescription>
+            <CardTitle>{t("priceBooksTitle")}</CardTitle>
+            <CardDescription>{t("priceBooksDescription")}</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
@@ -108,13 +113,13 @@ export function PriceBooksSection({ orgId }: { orgId: string }) {
             searchKeys={["name"]}
             statusKey="active"
             statusOptions={[
-              { value: "true", label: "Active" },
-              { value: "false", label: "Inactive" },
+              { value: "true", label: t("active") },
+              { value: "false", label: t("inactive") },
             ]}
-            searchPlaceholder={"Search price_books…"}
-            filterLabel={"Filter by status"}
-            allLabel={"All statuses"}
-            ariaLabel={"All price_books"}
+            searchPlaceholder={t("searchPriceBooks")}
+            filterLabel={t("filterByStatus")}
+            allLabel={t("filterAllStatus")}
+            ariaLabel={t("allPriceBooks")}
             status={
               query.isLoading
                 ? { type: "loading" }
@@ -129,7 +134,7 @@ export function PriceBooksSection({ orgId }: { orgId: string }) {
             actions={
               <Button size="sm" onClick={() => setDialogOpen(true)}>
                 <Plus />
-                <span>{"Add price_book"}</span>
+                <span>{t("addPriceBook")}</span>
               </Button>
             }
           />
@@ -139,15 +144,15 @@ export function PriceBooksSection({ orgId }: { orgId: string }) {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{"New price_book"}</DialogTitle>
-            <DialogDescription>{"Create a new price_book with a base currency."}</DialogDescription>
+            <DialogTitle>{t("newPriceBook")}</DialogTitle>
+            <DialogDescription>{t("newPriceBookDescription")}</DialogDescription>
           </DialogHeader>
           <Form form={form} onSubmit={handleCreate}>
             <div className="flex flex-col gap-4">
-              <FormField name="name" label={"Name"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+              <FormField name="name" label={t("fieldName")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
               </FormField>
-              <FormField name="currencyCode" label={"Currency"}>
+              <FormField name="currencyCode" label={t("colCurrency")}>
                 {({ field, id }) => (
                   <select
                     id={id}
@@ -163,21 +168,21 @@ export function PriceBooksSection({ orgId }: { orgId: string }) {
                   </select>
                 )}
               </FormField>
-              <FormField name="active" label={"Active"}>
+              <FormField name="active" label={t("active")}>
                 {({ field }) => (
                   <Switch
                     checked={field.value}
                     onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-                    aria-label={"Active"}
+                    aria-label={t("active")}
                   />
                 )}
               </FormField>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                {"Cancel"}
+                {tCommon("cancel")}
               </Button>
-              <SubmitButton>{"Save"}</SubmitButton>
+              <SubmitButton>{tCommon("save")}</SubmitButton>
             </DialogFooter>
           </Form>
         </DialogContent>

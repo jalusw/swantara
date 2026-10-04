@@ -42,8 +42,8 @@ describe("DeferralsSection", () => {
     renderWithProviders(<DeferralsSection orgId="1" />);
 
     await screen.findByText("invoice #12");
-    await user.click(screen.getByRole("button", { name: "Create deferral" }));
+    await user.click(screen.getByRole("button", { name: "Buat penangguhan" }));
 
-    expect(await screen.findByRole("heading", { name: "Create deferral" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Buat penangguhan" })).toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -29,11 +30,14 @@ const usageOptions = [
   "view",
 ];
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 function useLocationFormSchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Stock");
   return z.object({
-    name: z.string().min(1, "Location name is required."),
+    name: z.string().min(1, t("validationLocationNameRequired")),
     code: z.string(),
-    usage: z.string().min(1, "Usage type is required."),
+    usage: z.string().min(1, t("validationUsageRequired")),
     barcode: z.string(),
   });
 }
@@ -60,6 +64,8 @@ export function LocationFormDialog({
   parentId?: string | null;
   onSave: () => void;
 }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Stock");
+  const tCommon = useTranslations("Common");
   const isEdit = Boolean(initial);
 
   const schema = useLocationFormSchema();
@@ -100,21 +106,21 @@ export function LocationFormDialog({
     };
 
     if (isEdit && initial) {
-      void getSwantaraService()
+      return getSwantaraService()
         .inventory.updateStockLocation(Number(orgId), Number(initial.id), {
           ...request,
           parentId: initial.id ? Number(initial.id) : null,
         })
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("toastFailed")));
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .inventory.createStockLocation(Number(orgId), {
           ...request,
           parentId: parentId ? Number(parentId) : null,
         })
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("toastFailed")));
     }
   }
 
@@ -122,43 +128,43 @@ export function LocationFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit location" : "New location"}</DialogTitle>
-          <DialogDescription>{"Define a stock location within this warehouse."}</DialogDescription>
+          <DialogTitle>{isEdit ? t("editLocation") : t("newLocation")}</DialogTitle>
+          <DialogDescription>{t("locationDialogDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4">
-            <FormField name="name" label={"Name"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+            <FormField name="name" label={t("fieldName")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
             </FormField>
-            <FormField name="code" label={"Code"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Code"} />}
+            <FormField name="code" label={t("fieldCode")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldCode")} />}
             </FormField>
-            <FormField name="usage" label={"Usage type"}>
+            <FormField name="usage" label={t("fieldUsage")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Usage type"}>
+                  <SelectTrigger id={id} aria-label={t("fieldUsage")}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {usageOptions.map((usage) => (
                       <SelectItem key={usage} value={usage}>
-                        {usage}
+                        {(t as unknown as (k: string) => string)(`locationUsage_${usage}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
             </FormField>
-            <FormField name="barcode" label={"Barcode"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Barcode"} />}
+            <FormField name="barcode" label={t("colBarcode")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("colBarcode")} />}
             </FormField>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Save"}</SubmitButton>
+            <SubmitButton>{tCommon("save")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

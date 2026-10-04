@@ -101,6 +101,14 @@ func (s PaymentService) ListAllocations(ctx context.Context, paymentID uint64) (
 }
 
 func (s PaymentService) Create(ctx context.Context, request CreatePaymentRequest) (*Payment, error) {
+	return s.createInbound(ctx, nil, request)
+}
+
+func (s PaymentService) CreateTx(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest) (*Payment, error) {
+	return s.createInbound(ctx, tx, request)
+}
+
+func (s PaymentService) createInbound(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest) (*Payment, error) {
 	if !amount.FromFloat64(request.Amount).GreaterThan(amount.Zero()) {
 		return nil, ErrPaymentAmount
 	}
@@ -129,7 +137,7 @@ func (s PaymentService) Create(ctx context.Context, request CreatePaymentRequest
 		return nil, err
 	}
 	if s.crossCurrency(preOpen, request.CurrencyCode) {
-		return s.createCrossCurrency(ctx, request, bankAccount, receivable, date, true)
+		return s.createCrossCurrency(ctx, tx, request, bankAccount, receivable, date, true)
 	}
 	open, allocations, openResidual, err := s.allocate(ctx, request.InvoiceIDs, effectiveAmount, request.Tolerance, request.AllowAdvance)
 	if err != nil {
@@ -215,10 +223,18 @@ func (s PaymentService) Create(ctx context.Context, request CreatePaymentRequest
 			postLines = append(postLines, fxLines...)
 		}
 	}
-	return s.runPayment(ctx, txPayment{payment: payment, date: date, name: name, journalID: request.JournalID, organizationID: request.OrganizationID, description: "Customer payment", open: open, allocations: allocations, postLines: postLines})
+	return s.runPayment(ctx, tx, txPayment{payment: payment, date: date, name: name, journalID: request.JournalID, organizationID: request.OrganizationID, description: "Customer payment", open: open, allocations: allocations, postLines: postLines})
 }
 
 func (s PaymentService) CreateOutbound(ctx context.Context, request CreatePaymentRequest) (*Payment, error) {
+	return s.createOutbound(ctx, nil, request)
+}
+
+func (s PaymentService) CreateOutboundTx(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest) (*Payment, error) {
+	return s.createOutbound(ctx, tx, request)
+}
+
+func (s PaymentService) createOutbound(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest) (*Payment, error) {
 	if !amount.FromFloat64(request.Amount).GreaterThan(amount.Zero()) {
 		return nil, ErrPaymentAmount
 	}
@@ -248,7 +264,7 @@ func (s PaymentService) CreateOutbound(ctx context.Context, request CreatePaymen
 		return nil, err
 	}
 	if s.crossCurrency(preOpen, request.CurrencyCode) {
-		return s.createCrossCurrency(ctx, request, payable, bankAccount, date, false)
+		return s.createCrossCurrency(ctx, tx, request, payable, bankAccount, date, false)
 	}
 	open, allocations, openResidual, err := s.allocate(ctx, request.InvoiceIDs, effectiveAmount, request.Tolerance, request.AllowAdvance)
 	if err != nil {
@@ -333,7 +349,7 @@ func (s PaymentService) CreateOutbound(ctx context.Context, request CreatePaymen
 			postLines = append(postLines, fxLines...)
 		}
 	}
-	return s.runPayment(ctx, txPayment{payment: payment, date: date, name: name, journalID: request.JournalID, organizationID: request.OrganizationID, description: "Supplier payment", open: open, allocations: allocations, postLines: postLines})
+	return s.runPayment(ctx, tx, txPayment{payment: payment, date: date, name: name, journalID: request.JournalID, organizationID: request.OrganizationID, description: "Supplier payment", open: open, allocations: allocations, postLines: postLines})
 }
 
 type txPayment struct {
@@ -348,9 +364,9 @@ type txPayment struct {
 	postLines      []PostingLine
 }
 
-func (s PaymentService) runPayment(ctx context.Context, txInput txPayment) (*Payment, error) {
+func (s PaymentService) runPayment(ctx context.Context, tx *gorm.DB, txInput txPayment) (*Payment, error) {
 	var created *Payment
-	err := s.tx.Run(ctx, func(tx *gorm.DB) error {
+	apply := func(tx *gorm.DB) error {
 		entry, err := s.poster.PostTx(ctx, tx, PostRequest{
 			OrganizationID: txInput.organizationID,
 			JournalID:      txInput.journalID,
@@ -375,7 +391,13 @@ func (s PaymentService) runPayment(ctx context.Context, txInput txPayment) (*Pay
 			}
 		}
 		return nil
-	})
+	}
+	var err error
+	if tx != nil {
+		err = apply(tx)
+	} else {
+		err = s.tx.Run(ctx, apply)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -606,13 +628,13 @@ func (s PaymentService) Void(ctx context.Context, paymentID, organizationID uint
 				if _, err := s.invoices.UpdateTx(ctx, tx, invoice); err != nil {
 					return err
 				}
-				if err := tx.WithContext(ctx).Delete(&PaymentAllocation{}, alloc.ID).Error; err != nil {
+				if err := s.allocations.DeleteTx(ctx, tx, alloc.ID); err != nil {
 					return err
 				}
 			}
 		}
 		payment.State = PaymentStateCancelled
-		updated, err := s.payments.Update(ctx, payment)
+		updated, err := s.payments.UpdateTx(ctx, tx, payment)
 		if err != nil {
 			return err
 		}
@@ -828,7 +850,7 @@ func (s PaymentService) allocateCrossCurrency(ctx context.Context, organizationI
 	return out, nil
 }
 
-func (s PaymentService) createCrossCurrency(ctx context.Context, request CreatePaymentRequest, debitAccount, creditAccount uint64, date time.Time, inbound bool) (*Payment, error) {
+func (s PaymentService) createCrossCurrency(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest, debitAccount, creditAccount uint64, date time.Time, inbound bool) (*Payment, error) {
 	if s.orgs == nil || s.rates == nil || s.fx == nil {
 		return nil, ErrCurrencyMismatch
 	}
@@ -943,7 +965,7 @@ func (s PaymentService) createCrossCurrency(ctx context.Context, request CreateP
 			postLines = append(postLines, PostingLine{AccountID: advanceAccount, Name: "Supplier Advance", Debit: cross.advanceBase})
 		}
 	}
-	return s.runPayment(ctx, txPayment{payment: payment, date: date, name: name, journalID: request.JournalID, organizationID: request.OrganizationID, description: description, open: cross.open, allocations: cross.allocations, postLines: postLines})
+	return s.runPayment(ctx, tx, txPayment{payment: payment, date: date, name: name, journalID: request.JournalID, organizationID: request.OrganizationID, description: description, open: cross.open, allocations: cross.allocations, postLines: postLines})
 }
 
 func (s PaymentService) advanceAccountID(ctx context.Context, organizationID uint64, inbound bool) (uint64, error) {

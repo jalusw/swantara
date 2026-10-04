@@ -12,9 +12,9 @@ describe("ReorderRuleFormDialog", () => {
       <ReorderRuleFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    expect(await screen.findByText("New reorder rule")).toBeInTheDocument();
-    expect(screen.getByLabelText("Item")).toBeInTheDocument();
-    expect(screen.getByLabelText("Min qty")).toBeInTheDocument();
+    expect(await screen.findByText("Aturan stok ulang baru")).toBeInTheDocument();
+    expect(screen.getByLabelText("Barang")).toBeInTheDocument();
+    expect(screen.getByLabelText("Jumlah minimum")).toBeInTheDocument();
   });
 
   it("closes without saving from the cancel button", async () => {
@@ -24,7 +24,7 @@ describe("ReorderRuleFormDialog", () => {
       <ReorderRuleFormDialog open onOpenChange={onOpenChange} orgId="1" onSave={() => {}} />,
     );
 
-    await user.click(await screen.findByRole("button", { name: "Cancel" }));
+    await user.click(await screen.findByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

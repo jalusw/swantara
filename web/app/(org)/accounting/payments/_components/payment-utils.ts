@@ -8,11 +8,11 @@ export function paymentStateLabel(state: PaymentState): string {
     case "draft":
       return "Draft";
     case "posted":
-      return "Posted";
+      return "Diposting";
     case "reconciled":
-      return "Reconciled";
+      return "Direkonsiliasi";
     case "cancelled":
-      return "Cancelled";
+      return "Dibatalkan";
     default:
       return state;
   }

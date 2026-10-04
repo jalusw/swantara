@@ -46,9 +46,9 @@ export function serviceOrderStateTone(
 export function formatServiceType(type: ServiceOrder["type"]): string {
   switch (type) {
     case "repair":
-      return "Repair";
+      return "Perbaikan";
     case "maintenance":
-      return "Maintenance";
+      return "Perawatan";
     case "installation":
       return "Installation";
     case "inspection":
@@ -61,13 +61,13 @@ export function formatServiceType(type: ServiceOrder["type"]): string {
 export function formatPriority(priority: number): string {
   switch (priority) {
     case 1:
-      return "Low";
+      return "Rendah";
     case 2:
       return "Normal";
     case 3:
-      return "High";
+      return "Tinggi";
     case 4:
-      return "Urgent";
+      return "Mendesak";
     default:
       return String(priority);
   }
@@ -80,7 +80,7 @@ export function formatLineType(lineType: string): string {
     case "labor":
       return "Labor";
     case "expense":
-      return "Expense";
+      return "Biaya";
     default:
       return lineType;
   }

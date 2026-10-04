@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -13,11 +14,13 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { ServiceOrder } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { ServiceOrderFormDialog } from "./service-order-form-dialog";
 import { serviceOrderStateTone } from "./service-order-utils";
 
 export function ServiceOrdersSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Service");
+  const orderState = (state: string) =>
+    (t as unknown as (k: string) => string)(`orderState_${state}`);
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -37,7 +40,7 @@ export function ServiceOrdersSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<ServiceOrder>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("colName"),
       cell: ({ row }) => (
         <a
           href={`/service-orders/${row.original.id}`}
@@ -49,19 +52,19 @@ export function ServiceOrdersSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "type",
-      header: "Type",
+      header: t("colType"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">{String(row.original.type)}</span>
       ),
     },
     {
       accessorKey: "priority",
-      header: "Priority",
+      header: t("colPriority"),
       cell: ({ row }) => <span className="text-sm tabular-nums">{row.original.priority}</span>,
     },
     {
       accessorKey: "scheduledDate",
-      header: "Scheduled",
+      header: t("colScheduled"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {row.original.scheduledDate ? formatDate(String(row.original.scheduledDate)) : "—"}
@@ -70,7 +73,7 @@ export function ServiceOrdersSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("colStatus"),
       cell: ({ row }) => {
         const tone = serviceOrderStateTone(row.original.state);
         return (
@@ -88,7 +91,7 @@ export function ServiceOrdersSection({ orgId }: { orgId: string }) {
                       : ""
             }
           >
-            {humanizeKey(String(row.original.state))}
+            {orderState(row.original.state)}
           </Badge>
         );
       },
@@ -98,7 +101,7 @@ export function ServiceOrdersSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("view")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -114,7 +117,7 @@ export function ServiceOrdersSection({ orgId }: { orgId: string }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader>
-            <CardTitle>{"Total Orders"}</CardTitle>
+            <CardTitle>{t("totalOrders")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">{orders.length}</p>
@@ -128,18 +131,18 @@ export function ServiceOrdersSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "new", label: "New" },
-          { value: "scheduled", label: "Scheduled" },
-          { value: "in_progress", label: "In progress" },
-          { value: "done", label: "Done" },
-          { value: "invoiced", label: "Invoiced" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "new", label: orderState("new") },
+          { value: "scheduled", label: orderState("scheduled") },
+          { value: "in_progress", label: orderState("in_progress") },
+          { value: "done", label: orderState("done") },
+          { value: "invoiced", label: orderState("invoiced") },
+          { value: "cancelled", label: orderState("cancelled") },
         ]}
-        searchPlaceholder={"Search service orders…"}
-        filterLabel={"State"}
-        allLabel={"All service orders"}
-        ariaLabel={"Service orders"}
-        emptyTitle={"No service orders yet"}
+        searchPlaceholder={t("searchPlaceholder")}
+        filterLabel={t("colStatus")}
+        allLabel={t("allOrders")}
+        ariaLabel={t("ordersTitle")}
+        emptyTitle={t("emptyTitle")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -154,7 +157,7 @@ export function ServiceOrdersSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Create service order"}</span>
+            <span>{t("newOrder")}</span>
           </Button>
         }
       />

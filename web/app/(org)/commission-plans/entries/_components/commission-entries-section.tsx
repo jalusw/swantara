@@ -1,6 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
@@ -9,9 +10,9 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { CommissionEntry } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatMoney } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 
 export function CommissionEntriesSection({ orgId: _orgId }: { orgId: string }) {
+  const t = useTranslations("Commissions");
   const query = useOrgListQuery<{ commissionEntries: CommissionEntry[] }, Record<string, never>>(
     "commissionEntries",
     (organizationId) => getSwantaraService().commissionEntries.list(organizationId),
@@ -21,27 +22,31 @@ export function CommissionEntriesSection({ orgId: _orgId }: { orgId: string }) {
 
   const totalCommission = entries.reduce((sum, e) => sum + e.commissionAmount, 0);
 
+  function stateLabel(value: string): string {
+    return (t as unknown as (k: string) => string)(`state_${value}`);
+  }
+
   const columns: ColumnDef<CommissionEntry>[] = [
     {
       accessorKey: "salespersonId",
-      header: "Salesperson",
+      header: t("tableSalesperson"),
       cell: ({ row }) => <span className="text-sm">#{row.original.salespersonId}</span>,
     },
     {
       accessorKey: "planId",
-      header: "Plan",
+      header: t("tablePlan"),
       cell: ({ row }) => <span className="text-sm">#{row.original.planId}</span>,
     },
     {
       accessorKey: "sourceType",
-      header: "Source type",
+      header: t("tableSourceType"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">{row.original.sourceType}</span>
       ),
     },
     {
       accessorKey: "baseAmount",
-      header: "Base",
+      header: t("tableBase"),
       cell: ({ row }) => (
         <span className="text-sm tabular-nums">
           {formatMoney(row.original.baseAmount, { currency: DEFAULT_CURRENCY })}
@@ -50,7 +55,7 @@ export function CommissionEntriesSection({ orgId: _orgId }: { orgId: string }) {
     },
     {
       accessorKey: "commissionAmount",
-      header: "Commission",
+      header: t("tableCommission"),
       cell: ({ row }) => (
         <span className="text-sm tabular-nums">
           {formatMoney(row.original.commissionAmount, { currency: DEFAULT_CURRENCY })}
@@ -59,7 +64,7 @@ export function CommissionEntriesSection({ orgId: _orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("tableStatus"),
       cell: ({ row }) => {
         const tone =
           row.original.state === "confirmed"
@@ -82,7 +87,7 @@ export function CommissionEntriesSection({ orgId: _orgId }: { orgId: string }) {
                     : ""
             }
           >
-            {humanizeKey(String(row.original.state))}
+            {stateLabel(String(row.original.state))}
           </Badge>
         );
       },
@@ -94,7 +99,7 @@ export function CommissionEntriesSection({ orgId: _orgId }: { orgId: string }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>{"Total Entries"}</CardTitle>
+            <CardTitle>{t("totalEntries")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">{entries.length}</p>
@@ -102,7 +107,7 @@ export function CommissionEntriesSection({ orgId: _orgId }: { orgId: string }) {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>{"Total Commission"}</CardTitle>
+            <CardTitle>{t("totalCommission")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">
@@ -118,16 +123,16 @@ export function CommissionEntriesSection({ orgId: _orgId }: { orgId: string }) {
         searchKeys={["sourceType"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "confirmed", label: "Confirmed" },
-          { value: "paid", label: "Paid" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: stateLabel("draft") },
+          { value: "confirmed", label: stateLabel("confirmed") },
+          { value: "paid", label: stateLabel("paid") },
+          { value: "cancelled", label: stateLabel("cancelled") },
         ]}
-        searchPlaceholder={"Search entries…"}
-        filterLabel={"State"}
-        allLabel={"All entries"}
-        ariaLabel={"Commission entries"}
-        emptyTitle={"No commission entries yet"}
+        searchPlaceholder={t("searchEntriesPlaceholder")}
+        filterLabel={t("tableStatus")}
+        allLabel={t("allEntries")}
+        ariaLabel={t("entriesLabel")}
+        emptyTitle={t("emptyEntries")}
         status={
           query.isLoading
             ? { type: "loading" }

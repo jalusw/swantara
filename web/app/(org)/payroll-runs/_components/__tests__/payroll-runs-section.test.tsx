@@ -53,7 +53,7 @@ describe("PayrollRunsSection", () => {
     renderWithProviders(<PayrollRunsSection orgId="1" />);
 
     await screen.findByText("January 2026");
-    await user.type(screen.getByPlaceholderText("Search runs…"), "February");
+    await user.type(screen.getByPlaceholderText("Cari penggajian…"), "February");
 
     expect((await screen.findAllByText("February 2026")).length).toBeGreaterThan(0);
     await waitFor(() => expect(screen.queryByText("January 2026")).not.toBeInTheDocument());

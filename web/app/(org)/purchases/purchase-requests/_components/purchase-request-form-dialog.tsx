@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -26,8 +27,9 @@ type LineRow = {
 };
 
 function usePurchaseRequestFormSchema() {
+  const t = useTranslations("Purchases");
   return z.object({
-    requesterId: z.string().min(1, "Select a requester."),
+    requesterId: z.string().min(1, t("validationRequesterRequired")),
     departmentId: z.string(),
     neededBy: z.string(),
     note: z.string(),
@@ -46,6 +48,8 @@ export function PurchaseRequestFormDialog({
   orgId: string;
   onSave: () => void;
 }) {
+  const t = useTranslations("Purchases");
+  const tCommon = useTranslations("Common");
   const contactsQuery = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
     "contacts",
     (organizationId) => getSwantaraService().contacts.list(organizationId),
@@ -115,12 +119,12 @@ export function PurchaseRequestFormDialog({
 
   function handleSubmit(values: PurchaseRequestFormValues) {
     if (lines.length === 0) {
-      toast.error("Add at least one line.");
+      toast.error(t("addAtLeastOneLine"));
       return;
     }
     const invalid = lines.some((line) => !line.itemId || Number(line.qty) <= 0);
     if (invalid) {
-      toast.error("Quantity must be greater than zero.");
+      toast.error(t("quantityMustBePositive"));
       return;
     }
     const request = {
@@ -136,31 +140,33 @@ export function PurchaseRequestFormDialog({
         neededBy: line.neededBy || null,
       })),
     };
-    void getSwantaraService()
+    return getSwantaraService()
       .purchaseRequests.create(Number(orgId), request)
       .then(() => {
-        toast.success("Request created.");
+        toast.success(t("requestCreated"));
         onSave();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => void toast.error(t("saveFailed")));
   }
 
   return (
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"New purchase request"}
-      description={"Create a purchase request with item lines and quantities."}
+      title={t("newPurchaseRequest")}
+      description={t("newPurchaseRequestDescription")}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       form={form}
       onSubmit={handleSubmit}
       className="max-h-[85vh] overflow-y-auto sm:max-w-3xl"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField name="requesterId" label={"Requester"}>
+        <FormField name="requesterId" label={t("tableRequester")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Requester"}>
-                <SelectValue placeholder={"Select requester"} />
+              <SelectTrigger id={id} aria-label={t("tableRequester")}>
+                <SelectValue placeholder={t("selectRequester")} />
               </SelectTrigger>
               <SelectContent>
                 {contacts.map((p) => (
@@ -172,11 +178,11 @@ export function PurchaseRequestFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="departmentId" label={"Department"}>
+        <FormField name="departmentId" label={t("tableDepartment")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Department"}>
-                <SelectValue placeholder={"Select department"} />
+              <SelectTrigger id={id} aria-label={t("tableDepartment")}>
+                <SelectValue placeholder={t("selectDepartment")} />
               </SelectTrigger>
               <SelectContent>
                 {departments.map((d) => (
@@ -188,35 +194,35 @@ export function PurchaseRequestFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="neededBy" label={"Needed by"}>
+        <FormField name="neededBy" label={t("fieldNeededBy")}>
           {({ field, id }) => <Input {...field} id={id} type="date" />}
         </FormField>
-        <FormField name="note" label={"Note"}>
+        <FormField name="note" label={t("fieldNote")}>
           {({ field, id }) => <Textarea {...field} id={id} rows={2} />}
         </FormField>
       </div>
 
       <div className="mt-6 flex flex-col gap-3 rounded-md border p-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm">{"Request lines"}</h3>
+          <h3 className="text-sm">{t("requestLines")}</h3>
           <Button type="button" variant="outline" size="sm" onClick={addLine}>
-            {"Add line"}
+            {t("addLine")}
           </Button>
         </div>
         {lines.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{"Add at least one line."}</p>
+          <p className="text-sm text-muted-foreground">{t("addAtLeastOneLine")}</p>
         ) : null}
         <div className="flex flex-col gap-3">
           {lines.map((line, index) => (
             <div key={line.id} className="grid gap-2 rounded-md border p-3 sm:grid-cols-12">
               <div className="sm:col-span-5">
-                <span className="text-xs text-muted-foreground">{"Item"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldItem")}</span>
                 <Select
                   value={line.itemId}
                   onValueChange={(value) => updateLine(line.id, { itemId: value ?? "" })}
                 >
-                  <SelectTrigger aria-label={`${"Item"} ${index + 1}`}>
-                    <SelectValue placeholder={"Select item"} />
+                  <SelectTrigger aria-label={`${t("fieldItem")} ${index + 1}`}>
+                    <SelectValue placeholder={t("selectItem")} />
                   </SelectTrigger>
                   <SelectContent>
                     {products.map((p) => (
@@ -228,7 +234,7 @@ export function PurchaseRequestFormDialog({
                 </Select>
               </div>
               <div className="sm:col-span-2">
-                <span className="text-xs text-muted-foreground">{"Qty"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldQty")}</span>
                 <Input
                   value={line.qty}
                   onChange={(e) => updateLine(line.id, { qty: e.target.value })}
@@ -238,7 +244,7 @@ export function PurchaseRequestFormDialog({
                 />
               </div>
               <div className="sm:col-span-2">
-                <span className="text-xs text-muted-foreground">{"Needed by"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldNeededBy")}</span>
                 <Input
                   value={line.neededBy}
                   onChange={(e) => updateLine(line.id, { neededBy: e.target.value })}
@@ -247,14 +253,14 @@ export function PurchaseRequestFormDialog({
               </div>
               <div className="sm:col-span-2 flex items-end">
                 <Button type="button" variant="ghost" size="sm" onClick={() => removeLine(line.id)}>
-                  {"Remove"}
+                  {tCommon("delete")}
                 </Button>
               </div>
               <div className="sm:col-span-12">
                 <Input
                   value={line.description}
                   onChange={(e) => updateLine(line.id, { description: e.target.value })}
-                  placeholder={"Description"}
+                  placeholder={t("fieldDescription")}
                 />
               </div>
             </div>

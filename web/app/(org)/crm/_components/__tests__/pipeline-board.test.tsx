@@ -69,7 +69,9 @@ describe("PipelineBoard", () => {
 
     expect(screen.getByText("Deal 11")).toBeInTheDocument();
     expect(screen.getByText("Deal 12")).toBeInTheDocument();
-    expect(screen.getByText("Drag or use the stage menu to move")).toBeInTheDocument();
+    expect(
+      screen.getByText("Seret kartu antar tahap, atau gunakan menu pada kartu.", { exact: false }),
+    ).toBeInTheDocument();
   });
 
   it("hides closed and lost opportunities from the board", () => {
@@ -101,8 +103,8 @@ describe("PipelineBoard", () => {
       />,
     );
 
-    expect(screen.getByText("Won")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Create quotation" })).toHaveAttribute(
+    expect(screen.getByText("Menang")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Buat penawaran" })).toHaveAttribute(
       "href",
       "/crm?won=12",
     );
@@ -205,7 +207,7 @@ describe("PipelineBoard", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Mark won: Deal 11" }));
+    await user.click(screen.getByRole("button", { name: "Tandai menang: Deal 11" }));
 
     await waitFor(() => expect(winCalls).toBe(1));
   });

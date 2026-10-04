@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useId, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useShallow } from "zustand/react/shallow";
@@ -18,6 +19,8 @@ function isEmailFormatValid(email: string): boolean {
 
 export function EmailStep() {
   const { control, watch } = useFormContext<RegisterFormSchema>();
+  const t = useTranslations("Auth");
+  const tx = t as unknown as (key: string) => string;
   const { step } = useRegisterFormStore(
     useShallow((s) => ({
       step: s.step,
@@ -56,7 +59,7 @@ export function EmailStep() {
     return null;
   }
 
-  const unavailableMessage = emailAvailable === false ? "This email is already taken." : undefined;
+  const unavailableMessage = emailAvailable === false ? tx("emailTaken") : undefined;
 
   return (
     <div className="animate-fade-up flex flex-col gap-y-4">
@@ -68,7 +71,7 @@ export function EmailStep() {
           const feedbackId = errorId ?? (unavailableMessage ? `${emailId}-unavailable` : undefined);
           return (
             <Field>
-              <Label htmlFor={emailId}>{"Email"}</Label>
+              <Label htmlFor={emailId}>{t("email")}</Label>
               <Input
                 id={emailId}
                 type="email"

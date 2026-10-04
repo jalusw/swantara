@@ -25,7 +25,7 @@ function seed() {
       HttpResponse.json({
         success: true,
         message: "OK.",
-        data: { subscriptions: [{ id: 4, name: "Plan" }] },
+        data: { subscriptions: [{ id: 4, name: "Paket" }] },
       }),
     ),
     http.post("*/api/v1/organizations/:organizationId/service-contracts", () =>
@@ -53,7 +53,7 @@ describe("ServiceContractFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByText("Create service contract")).toBeInTheDocument();
+    expect(await screen.findByText("Kontrak baru")).toBeInTheDocument();
   });
 
   it("creates with minimal fields", async () => {
@@ -70,9 +70,9 @@ describe("ServiceContractFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Create service contract");
-    await user.type(screen.getByPlaceholderText("Name"), "Night support");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Kontrak baru");
+    await user.type(screen.getByPlaceholderText("Nama"), "Night support");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(saved).toBe("9"));
   });
@@ -91,10 +91,10 @@ describe("ServiceContractFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Create service contract");
-    await user.type(screen.getByPlaceholderText("Name"), "Full cover");
-    await user.type(screen.getByPlaceholderText("Coverage"), "24/7 on-site");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Kontrak baru");
+    await user.type(screen.getByPlaceholderText("Nama"), "Full cover");
+    await user.type(screen.getByPlaceholderText("Cakupan"), "24/7 on-site");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(saved).toBe("9"));
   });
@@ -115,10 +115,10 @@ describe("ServiceContractFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Create service contract");
-    await user.type(screen.getByPlaceholderText("Name"), "Failing");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Kontrak baru");
+    await user.type(screen.getByPlaceholderText("Nama"), "Failing");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Create service contract")).toBeInTheDocument();
+    expect(await screen.findByText("Kontrak baru")).toBeInTheDocument();
   });
 });

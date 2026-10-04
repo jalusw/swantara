@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/button";
@@ -13,6 +14,8 @@ export function LogoutButton() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const tCommon = useTranslations("Common");
+  const tUserMenu = useTranslations("UserMenu");
 
   const handleLogout = () => {
     startTransition(async () => {
@@ -31,7 +34,7 @@ export function LogoutButton() {
         await clearActiveOrg();
         router.push("/login");
       } catch {
-        toast.error("Failed to log out. Please try again.");
+        toast.error(tUserMenu("logoutFailed"));
       }
     });
   };
@@ -45,7 +48,7 @@ export function LogoutButton() {
       onClick={handleLogout}
     >
       <LogOut aria-hidden="true" />
-      <span>{"Logout"}</span>
+      <span>{tCommon("logout")}</span>
     </Button>
   );
 }

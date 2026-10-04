@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -11,10 +12,20 @@ import { getCsrfToken } from "@/lib/constants/cookies";
 import { ME_ORGANIZATIONS_QUERY_KEY, ME_QUERY_KEY } from "@/lib/queries/me";
 import { useDigitalFingerprintStore } from "@/stores/digital-fingerprint.store";
 
-export function useLoginFormSchema() {
+export type LoginFormMessages = {
+  emailRequired: string;
+  passwordRequired: string;
+};
+
+const loginFormDefaultMessages: LoginFormMessages = {
+  emailRequired: "Email wajib diisi.",
+  passwordRequired: "Kata sandi wajib diisi",
+};
+
+export function useLoginFormSchema(messages: LoginFormMessages = loginFormDefaultMessages) {
   return z.object({
-    email: z.string().min(1, { message: "Email is required." }),
-    password: z.string().min(1, { message: "Password is required" }),
+    email: z.string().min(1, { message: messages.emailRequired }),
+    password: z.string().min(1, { message: messages.passwordRequired }),
   });
 }
 
@@ -34,7 +45,17 @@ export function useLoginForm({ defaultValues = loginFormDefaultValues }: UseLogi
   useDigitalFingerprintStore((state) => state.fingerprint);
   const router = useRouter();
   const queryClient = useQueryClient();
-  const loginFormSchema = useLoginFormSchema();
+  const t = useTranslations("Auth");
+  const tCommon = useTranslations("Common");
+  const tx = t as unknown as (key: string) => string;
+  const txCommon = tCommon as unknown as (
+    key: string,
+    values?: Record<string, string | number>,
+  ) => string;
+  const loginFormSchema = useLoginFormSchema({
+    emailRequired: tx("emailRequired"),
+    passwordRequired: tx("passwordRequired"),
+  });
 
   const form = useForm<LoginFormsSchema>({
     resolver: zodResolver(loginFormSchema),
@@ -94,24 +115,24 @@ export function useLoginForm({ defaultValues = loginFormDefaultValues }: UseLogi
           return;
         }
         if (response.status === 401) {
-          toast.error("Invalid email or password.");
+          toast.error(tx("invalidCredentials"));
           return;
         }
         if (response.status === 429) {
           const retryAfter = response.headers.get("retry-after");
           const seconds = retryAfter ? parseInt(retryAfter, 10) : undefined;
-          toast.warning("Too many requests. Please try again later.", {
-            description: seconds ? `Try again in ${seconds} seconds.` : undefined,
+          toast.warning(txCommon("rateLimited"), {
+            description: seconds ? txCommon("retryInSeconds", { seconds }) : undefined,
           });
           return;
         }
         if (response.status >= 500) {
-          toast.error("Something went wrong. Please try again later.");
+          toast.error(txCommon("serverError"));
           return;
         }
-        toast.error("Can't sign in at the moment, please try again later.");
+        toast.error(tx("loginFailed"));
       } catch {
-        toast.error("Network error. Please check your connection.");
+        toast.error(txCommon("networkError"));
       }
     });
   });

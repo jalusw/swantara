@@ -48,7 +48,7 @@ describe("EquipmentDetail", () => {
     renderWithProviders(<EquipmentDetail orgId="1" equipmentId="1" />);
 
     await screen.findByRole("heading", { name: "Excavator ZX350" });
-    await user.click(screen.getByRole("tab", { name: "Overview" }));
+    await user.click(screen.getByRole("tab", { name: "Ringkasan" }));
 
     expect(await screen.findByText("Heavy")).toBeInTheDocument();
   });

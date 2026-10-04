@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/button";
@@ -17,11 +18,14 @@ import { Input } from "@/components/input";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { getLocalDateString } from "@/lib/utils";
 
-const payrollRunSchema = z.object({
-  periodStart: z.string().min(1),
-  periodEnd: z.string().min(1),
-});
-type PayrollRunValues = z.infer<typeof payrollRunSchema>;
+function usePayrollRunSchema() {
+  const t = useTranslations("Payroll");
+  return z.object({
+    periodStart: z.string().min(1, t("validationDateRequired")),
+    periodEnd: z.string().min(1, t("validationDateRequired")),
+  });
+}
+type PayrollRunValues = z.infer<ReturnType<typeof usePayrollRunSchema>>;
 
 export function PayrollRunFormDialog({
   open,
@@ -34,8 +38,10 @@ export function PayrollRunFormDialog({
   orgId: string;
   onSave: (runId: string) => void;
 }) {
+  const t = useTranslations("Payroll");
+  const tCommon = useTranslations("Common");
   const form = useForm<PayrollRunValues>({
-    resolver: zodResolver(payrollRunSchema),
+    resolver: zodResolver(usePayrollRunSchema()),
     defaultValues: {
       periodStart: getLocalDateString(),
       periodEnd: getLocalDateString(),
@@ -43,37 +49,38 @@ export function PayrollRunFormDialog({
   });
 
   function handleSubmit(values: PayrollRunValues) {
-    void getSwantaraService()
+    return getSwantaraService()
       .payrollRuns.create(Number(orgId), {
         organizationId: Number(orgId),
         periodStart: values.periodStart,
         periodEnd: values.periodEnd,
       })
-      .then(({ run }) => onSave(String(run.id)));
+      .then(({ run }) => onSave(String(run.id)))
+      .catch(() => {});
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"New payroll run"}</DialogTitle>
-          <DialogDescription>{"Create a payroll run for a period."}</DialogDescription>
+          <DialogTitle>{t("newRun")}</DialogTitle>
+          <DialogDescription>{t("newRunDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField name="periodStart" label={"Period start"}>
+            <FormField name="periodStart" label={t("fieldPeriodStart")}>
               {({ field, id }) => <Input {...field} id={id} type="date" />}
             </FormField>
-            <FormField name="periodEnd" label={"Period end"}>
+            <FormField name="periodEnd" label={t("fieldPeriodEnd")}>
               {({ field, id }) => <Input {...field} id={id} type="date" />}
             </FormField>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Create"}</SubmitButton>
+            <SubmitButton>{t("actionCreate")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

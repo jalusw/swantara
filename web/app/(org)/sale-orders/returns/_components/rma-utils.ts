@@ -20,15 +20,15 @@ export function rmaStateLabel(state: RmaState): string {
     case "draft":
       return "Draft";
     case "confirmed":
-      return "Confirmed";
+      return "Dikonfirmasi";
     case "received":
-      return "Received";
+      return "Diterima";
     case "refunded":
-      return "Refunded";
+      return "Dikembalikan";
     case "done":
-      return "Done";
+      return "Selesai";
     case "cancelled":
-      return "Cancelled";
+      return "Dibatalkan";
     default:
       return state;
   }
@@ -39,9 +39,9 @@ export function dispositionLabel(disposition: Disposition): string {
     case "restock":
       return "Restock";
     case "scrap":
-      return "Scrap";
+      return "Sisa";
     case "repair":
-      return "Repair";
+      return "Perbaikan";
     case "replace":
       return "Replace";
     default:

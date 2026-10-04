@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -39,6 +40,11 @@ export function WarehouseTransferDetail({
   orgId: string;
   warehouseTransferId: string;
 }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Stock");
   const [processing, setProcessing] = useState(false);
 
   const warehouseTransferQuery = useOrgQuery<{ warehouseTransfer: WarehouseTransfer }>(
@@ -55,7 +61,7 @@ export function WarehouseTransferDetail({
   }
 
   if (!warehouseTransfer) {
-    return <p className="text-sm text-muted-foreground">{"Transfer not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("transferNotFound")}</p>;
   }
 
   function handleSend() {
@@ -68,7 +74,7 @@ export function WarehouseTransferDetail({
         date: new Date().toISOString(),
       })
       .then(() => void warehouseTransferQuery.refetch())
-      .catch(() => toast.error("Could not disable the organization."))
+      .catch(() => toast.error(t("toastFailed")))
       .finally(() => setProcessing(false));
   }
 
@@ -82,7 +88,7 @@ export function WarehouseTransferDetail({
         date: new Date().toISOString(),
       })
       .then(() => void warehouseTransferQuery.refetch())
-      .catch(() => toast.error("Could not disable the organization."))
+      .catch(() => toast.error(t("toastFailed")))
       .finally(() => setProcessing(false));
   }
 
@@ -92,42 +98,42 @@ export function WarehouseTransferDetail({
   return (
     <RecordLayout
       breadcrumbItems={[
-        { label: "All transfers", href: "/stock/warehouse-transfers" },
+        { label: t("allTransfers"), href: "/stock/warehouse-transfers" },
         { label: warehouseTransfer.name ?? `TO-${warehouseTransfer.id}` },
       ]}
       title={warehouseTransfer.name ?? `TO-${warehouseTransfer.id}`}
       status={
         <Badge variant={stateBadgeVariant(warehouseTransfer.state)}>
-          {warehouseTransfer.state}
+          {(t as unknown as (k: string) => string)(`transferState_${warehouseTransfer.state}`)}
         </Badge>
       }
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: t("overviewTab"),
           content: (
             <div className="flex flex-col gap-4">
               <WorkflowSteps
                 steps={transferSteps.map((step) => ({
-                  label: String(step),
+                  label: (t as unknown as (k: string) => string)(`transferState_${step}`),
                 }))}
                 currentIndex={transferStateIndex(warehouseTransfer.state)}
               />
               <div className="flex gap-2">
                 {canSend ? (
                   <Button size="sm" onClick={handleSend} disabled={processing}>
-                    {"Send"}
+                    {t("send")}
                   </Button>
                 ) : null}
                 {canReceive ? (
                   <Button size="sm" onClick={handleReceive} disabled={processing}>
-                    {"Receive"}
+                    {t("receive")}
                   </Button>
                 ) : null}
               </div>
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">{"Transfer legs"}</CardTitle>
+                  <CardTitle className="text-base">{t("transferLegs")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-4 text-sm">
@@ -135,7 +141,7 @@ export function WarehouseTransferDetail({
                       <Badge
                         variant={warehouseTransfer.state === "draft" ? "default" : "secondary"}
                       >
-                        {"Out"}
+                        {t("legOut")}
                       </Badge>
                       {warehouseTransfer.outShipmentId ? (
                         <span className="text-muted-foreground">
@@ -148,7 +154,7 @@ export function WarehouseTransferDetail({
                       <Badge
                         variant={warehouseTransfer.state === "in_transit" ? "default" : "secondary"}
                       >
-                        {"Transit"}
+                        {t("legTransit")}
                       </Badge>
                     </div>
                     <span className="text-muted-foreground">→</span>
@@ -156,7 +162,7 @@ export function WarehouseTransferDetail({
                       <Badge
                         variant={warehouseTransfer.state === "received" ? "default" : "secondary"}
                       >
-                        {"In"}
+                        {t("legIn")}
                       </Badge>
                       {warehouseTransfer.inShipmentId ? (
                         <span className="text-muted-foreground">

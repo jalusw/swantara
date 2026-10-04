@@ -37,13 +37,13 @@ describe("StatementDetailSection", () => {
     renderWithProviders(<StatementDetailSection orgId="1" statementId="5" />);
 
     expect(await screen.findByText("BS-March")).toBeInTheDocument();
-    expect(screen.getAllByText("14,000.00").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("14.000,00").length).toBeGreaterThan(0);
   });
 
   it("renders empty lines state", async () => {
     renderWithProviders(<StatementDetailSection orgId="1" statementId="5" />);
 
     await screen.findByText("BS-March");
-    expect(screen.getByText("Statement lines")).toBeInTheDocument();
+    expect(screen.getByText("Baris mutasi")).toBeInTheDocument();
   });
 });

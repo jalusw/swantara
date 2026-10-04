@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -15,6 +16,8 @@ import { formatInterval } from "../../_components/subscription-utils";
 import { SubscriptionPlanFormDialog } from "./subscription-plan-form-dialog";
 
 export function SubscriptionPlansSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Subscriptions");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editPlan, setEditPlan] = useState<SubscriptionPlan | null>(null);
@@ -33,7 +36,7 @@ export function SubscriptionPlansSection({ orgId }: { orgId: string }) {
       void queryClient.invalidateQueries({ queryKey: ["subscriptionPlans", Number(orgId)] });
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("deleteFailed"));
     },
   });
 
@@ -51,12 +54,12 @@ export function SubscriptionPlansSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<SubscriptionPlan>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("colName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "recurringInterval",
-      header: "Recurring interval",
+      header: t("colInterval"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {formatInterval(row.original.recurringInterval, row.original.recurringCount)}
@@ -68,10 +71,10 @@ export function SubscriptionPlansSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Delete plan"}
-          confirmDescription={"This will permanently remove the plan."}
+          editLabel={tCommon("edit")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("deletePlanTitle")}
+          confirmDescription={t("deletePlanDescription")}
           onEdit={() => handleEdit(row.original)}
           onDelete={() => deleteMutation.mutate(row.original.id)}
         />
@@ -89,9 +92,9 @@ export function SubscriptionPlansSection({ orgId }: { orgId: string }) {
         data={plans}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
-        searchPlaceholder={"Search plans…"}
-        ariaLabel={"All plans"}
-        emptyTitle={"No subscription plans yet"}
+        searchPlaceholder={t("plansSearchPlaceholder")}
+        ariaLabel={t("plansTitle")}
+        emptyTitle={t("plansEmpty")}
         status={
           isLoading
             ? { type: "loading" }
@@ -112,7 +115,7 @@ export function SubscriptionPlansSection({ orgId }: { orgId: string }) {
             }}
           >
             <Plus />
-            <span>{"Add plan"}</span>
+            <span>{tCommon("add")}</span>
           </Button>
         }
       />

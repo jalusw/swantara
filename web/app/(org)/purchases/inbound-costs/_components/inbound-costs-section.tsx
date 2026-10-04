@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -17,6 +18,7 @@ import { InboundCostFormDialog } from "./inbound-cost-form-dialog";
 import { inboundCostStateTone } from "./inbound-cost-utils";
 
 export function InboundCostsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Purchases");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -32,10 +34,18 @@ export function InboundCostsSection({ orgId }: { orgId: string }) {
     void costsQuery.refetch();
   }
 
+  function stateLabel(state: InboundCost["state"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`inboundCostState.${state}`);
+    } catch {
+      return humanizeKey(String(state));
+    }
+  }
+
   const columns: ColumnDef<InboundCost>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
       cell: ({ row }) => (
         <a
           href={`/purchases/inbound-costs/${row.original.id}`}
@@ -47,7 +57,7 @@ export function InboundCostsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "date",
-      header: "Date",
+      header: t("tableDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.date ? formatDate(String(row.original.date)) : "—"}
@@ -56,7 +66,7 @@ export function InboundCostsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("tableStatus"),
       cell: ({ row }) => {
         const tone = inboundCostStateTone(row.original.state);
         return (
@@ -74,7 +84,7 @@ export function InboundCostsSection({ orgId }: { orgId: string }) {
                       : ""
             }
           >
-            {humanizeKey(String(row.original.state))}
+            {stateLabel(row.original.state)}
           </Badge>
         );
       },
@@ -84,7 +94,7 @@ export function InboundCostsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("actionView")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -104,15 +114,15 @@ export function InboundCostsSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "posted", label: "Posted" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: t("inboundCostStateDraft") },
+          { value: "posted", label: t("inboundCostStatePosted") },
+          { value: "cancelled", label: t("inboundCostStateCancelled") },
         ]}
-        searchPlaceholder={"Search landed costs…"}
-        filterLabel={"State"}
-        allLabel={"All landed costs"}
-        ariaLabel={"Landed costs"}
-        emptyTitle={"No landed costs yet"}
+        searchPlaceholder={t("searchInboundCostsPlaceholder")}
+        filterLabel={t("tableStatus")}
+        allLabel={t("allInboundCosts")}
+        ariaLabel={t("inboundCostsTitle")}
+        emptyTitle={t("emptyInboundCosts")}
         status={
           costsQuery.isLoading
             ? { type: "loading" }
@@ -127,7 +137,7 @@ export function InboundCostsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Create landed cost"}</span>
+            <span>{t("newInboundCost")}</span>
           </Button>
         }
       />

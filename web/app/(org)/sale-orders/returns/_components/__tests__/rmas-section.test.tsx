@@ -50,8 +50,8 @@ describe("RmasSection", () => {
     renderWithProviders(<RmasSection orgId="1" />);
 
     await screen.findByText("RMA-0001");
-    await user.click(screen.getByRole("button", { name: "New RMA" }));
+    await user.click(screen.getByRole("button", { name: "Retur baru" }));
 
-    expect(await screen.findByRole("heading", { name: "Create RMA" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Retur baru" })).toBeInTheDocument();
   });
 });

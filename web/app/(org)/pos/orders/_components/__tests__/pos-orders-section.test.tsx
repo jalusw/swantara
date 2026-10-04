@@ -48,8 +48,12 @@ describe("PosOrdersSection", () => {
 
     expect(await screen.findByText("Walk-in Sale")).toBeInTheDocument();
     expect(screen.getByText("Corporate Order")).toBeInTheDocument();
-    expect(screen.getByText("Session-1")).toBeInTheDocument();
-    expect(screen.getByText("Session-2")).toBeInTheDocument();
+    const sessionLinks = screen.getAllByRole("link", { name: /^Sesi \d+$/ });
+    expect(sessionLinks).toHaveLength(2);
+    expect(sessionLinks[0]).toHaveAttribute("href", "/pos/sessions/1");
+    expect(sessionLinks[0]).toHaveTextContent("Sesi 1");
+    expect(sessionLinks[1]).toHaveAttribute("href", "/pos/sessions/2");
+    expect(sessionLinks[1]).toHaveTextContent("Sesi 2");
     expect(screen.getByText("#7")).toBeInTheDocument();
   });
 
@@ -58,7 +62,7 @@ describe("PosOrdersSection", () => {
     renderWithProviders(<PosOrdersSection />);
 
     await screen.findByText("Walk-in Sale");
-    await user.type(screen.getByPlaceholderText("Search orders..."), "Corporate");
+    await user.type(screen.getByPlaceholderText("Cari pesanan…"), "Corporate");
 
     expect(await screen.findByText("Corporate Order")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Walk-in Sale")).not.toBeInTheDocument());

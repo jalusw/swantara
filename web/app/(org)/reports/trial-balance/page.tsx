@@ -1,6 +1,7 @@
 "use client";
 
 import { FileDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/button";
@@ -13,6 +14,11 @@ import { trialBalanceIsBalanced, trialBalanceTotals } from "@/lib/utils/report-u
 import { TrialBalanceTable } from "../_components/trial-balance-table";
 
 export default function TrialBalancePage() {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Reports");
   const { data } = useTrialBalance();
   const tb = data?.trialBalance;
   const rows = tb?.rows ?? [];
@@ -21,15 +27,15 @@ export default function TrialBalancePage() {
 
   function handleExportCsv() {
     const headers = [
-      "Code",
-      "Account",
-      "Type",
-      "Open. DR",
-      "Open. CR",
-      "Per. DR",
-      "Per. CR",
-      "Close. DR",
-      "Close. CR",
+      t("colCode"),
+      t("colAccount"),
+      t("fieldType"),
+      t("colOpenDr"),
+      t("colOpenCr"),
+      t("colPeriodDr"),
+      t("colPeriodCr"),
+      t("colCloseDr"),
+      t("colCloseCr"),
     ];
     const csvRows = rows.map((r) => [
       r.code,
@@ -47,11 +53,11 @@ export default function TrialBalancePage() {
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <BackLink href={"/reports"}>{"Back to reports"}</BackLink>
+      <BackLink href={"/reports"}>{t("backToReports")}</BackLink>
 
       <PageHeader
-        title={"Trial Balance"}
-        description={"Debit and credit balances for all accounts in the current period."}
+        title={t("trialBalanceTitle")}
+        description={t("trialBalanceDescription")}
         actions={
           <Button
             variant="outline"
@@ -60,7 +66,7 @@ export default function TrialBalancePage() {
             disabled={rows.length === 0}
           >
             <FileDown className="size-4" aria-hidden />
-            {"Export CSV"}
+            {t("exportCsv")}
           </Button>
         }
       />
@@ -68,26 +74,26 @@ export default function TrialBalancePage() {
       <section className="grid gap-3 sm:grid-cols-3">
         <Card>
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">{"Total debits"}</p>
+            <p className="text-xs text-muted-foreground">{t("totalDebits")}</p>
             <p className="font-heading text-lg font-bold">{formatNumber(totalDebit)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">{"Total credits"}</p>
+            <p className="text-xs text-muted-foreground">{t("totalCredits")}</p>
             <p className="font-heading text-lg font-bold">{formatNumber(totalCredit)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">{"Status"}</p>
+            <p className="text-xs text-muted-foreground">{t("colStatus")}</p>
             <span
               className={cn(
                 "inline-flex items-center rounded-full px-2 py-1 text-xs",
                 isBalanced ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive",
               )}
             >
-              {isBalanced ? "Balanced" : "Unbalanced"}
+              {isBalanced ? t("balanced") : t("unbalanced")}
             </span>
           </CardContent>
         </Card>

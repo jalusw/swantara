@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -32,17 +33,20 @@ const rmaLineSchema = z.object({
 });
 
 function useRmaFormSchema() {
+  const t = useTranslations("Sales");
   return z.object({
     rmaType: z.enum(["customer_return", "vendor_return"] as const),
-    contactId: z.string().min(1, "Select a customer."),
+    contactId: z.string().min(1, t("validationContactRequired")),
     originOrderType: z.enum(["sale_order", "purchase_order"] as const),
-    originOrderId: z.string().min(1, "Origin Order Required"),
+    originOrderId: z.string().min(1, t("validationOriginOrderRequired")),
     reason: z.string(),
-    lines: z.array(rmaLineSchema).min(1, "Add at least one component."),
+    lines: z.array(rmaLineSchema).min(1, t("addAtLeastOneLine")),
   });
 }
 
 export function RmaFormDialog({ open, onOpenChange, orgId, onSave }: RmaFormDialogProps) {
+  const t = useTranslations("Sales");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
 
   const schema = useRmaFormSchema();
@@ -83,12 +87,12 @@ export function RmaFormDialog({ open, onOpenChange, orgId, onSave }: RmaFormDial
     mutationFn: (payload: CreateRmaRequest) =>
       getSwantaraService().rmas.create(Number(orgId), payload),
     onSuccess: () => {
-      toast.success("RMA created successfully");
+      toast.success(t("rmaCreated"));
       void queryClient.invalidateQueries({ queryKey: ["rmas", orgId] });
       onSave();
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -111,46 +115,65 @@ export function RmaFormDialog({ open, onOpenChange, orgId, onSave }: RmaFormDial
     });
   }
 
+  function rmaTypeLabel(key: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`rmaType.${key}`);
+    } catch {
+      return key;
+    }
+  }
+
+  function dispositionOptionLabel(value: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`disposition.${value}`);
+    } catch {
+      return dispositionLabel(value as Disposition);
+    }
+  }
+
   const originOrderTypes = [
-    { value: "sale_order", label: "Sale order" },
-    { value: "purchase_order", label: "Purchase order" },
+    { value: "sale_order", label: t("originSaleOrder") },
+    { value: "purchase_order", label: t("originPurchaseOrder") },
   ] as const;
 
   const dispositionOptions = dispositionValues.map((value) => ({
     value,
-    label: dispositionLabel(value),
+    label: dispositionOptionLabel(value),
   }));
 
   return (
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Create RMA"}
-      description={"Create a new return merchandise authorization."}
+      title={t("newRma")}
+      description={t("newRmaDescription")}
       form={form}
       onSubmit={handleSubmit}
+      isPending={createMutation.isPending}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-3xl"
     >
       <div className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField name="rmaType" label={"RMA type"}>
+          <FormField name="rmaType" label={t("fieldRmaType")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"RMA type"}>
+                <SelectTrigger id={id} aria-label={t("fieldRmaType")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="customer_return">{"Customer return"}</SelectItem>
-                  <SelectItem value="vendor_return">{"Supplier return"}</SelectItem>
+                  <SelectItem value="customer_return">{rmaTypeLabel("customer_return")}</SelectItem>
+                  <SelectItem value="vendor_return">{rmaTypeLabel("vendor_return")}</SelectItem>
                 </SelectContent>
               </Select>
             )}
           </FormField>
-          <FormField name="contactId" label={"Contact"}>
+          <FormField name="contactId" label={t("fieldContact")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Contact"}>
-                  <SelectValue placeholder={"Select a contact"} />
+                <SelectTrigger id={id} aria-label={t("fieldContact")}>
+                  <SelectValue placeholder={t("selectContact")} />
                 </SelectTrigger>
                 <SelectContent>
                   {contacts.map((p) => (
@@ -164,10 +187,10 @@ export function RmaFormDialog({ open, onOpenChange, orgId, onSave }: RmaFormDial
           </FormField>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField name="originOrderType" label={"Origin order type"}>
+          <FormField name="originOrderType" label={t("fieldOriginOrderType")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Origin order type"}>
+                <SelectTrigger id={id} aria-label={t("fieldOriginOrderType")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -180,16 +203,16 @@ export function RmaFormDialog({ open, onOpenChange, orgId, onSave }: RmaFormDial
               </Select>
             )}
           </FormField>
-          <FormField name="originOrderId" label={"Origin order ID"}>
+          <FormField name="originOrderId" label={t("fieldOriginOrderId")}>
             {({ field, id }) => <Input {...field} id={id} type="number" min="1" />}
           </FormField>
         </div>
-        <FormField name="reason" label={"Reason"}>
+        <FormField name="reason" label={t("fieldReason")}>
           {({ field, id }) => <Textarea {...field} id={id} rows={3} />}
         </FormField>
         <div className="flex flex-col gap-3 rounded-md border p-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm">{"Return lines"}</h3>
+            <h3 className="text-sm">{t("returnLines")}</h3>
             <Button
               type="button"
               variant="outline"
@@ -204,18 +227,18 @@ export function RmaFormDialog({ open, onOpenChange, orgId, onSave }: RmaFormDial
               }
             >
               <Plus />
-              <span>{"Add line"}</span>
+              <span>{t("addLine")}</span>
             </Button>
           </div>
           {fields.map((field, index) => (
             <div key={field.fieldId} className="grid gap-2 rounded-md border p-3 sm:grid-cols-12">
               <div className="sm:col-span-4">
-                <span className="text-xs text-muted-foreground">{"Item"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldItem")}</span>
                 <FormField name={`lines.${index}.itemId`}>
                   {({ field: lineField, id }) => (
                     <Select value={lineField.value} onValueChange={lineField.onChange}>
-                      <SelectTrigger id={id} aria-label={"Item"}>
-                        <SelectValue placeholder={"Select a item"} />
+                      <SelectTrigger id={id} aria-label={t("fieldItem")}>
+                        <SelectValue placeholder={t("selectItem")} />
                       </SelectTrigger>
                       <SelectContent>
                         {products.map((p) => (
@@ -229,7 +252,7 @@ export function RmaFormDialog({ open, onOpenChange, orgId, onSave }: RmaFormDial
                 </FormField>
               </div>
               <div className="sm:col-span-2">
-                <span className="text-xs text-muted-foreground">{"Quantity"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldQty")}</span>
                 <FormField name={`lines.${index}.qty`}>
                   {({ field: lineField, id }) => (
                     <Input {...lineField} id={id} type="number" min="0" step="any" />
@@ -237,11 +260,11 @@ export function RmaFormDialog({ open, onOpenChange, orgId, onSave }: RmaFormDial
                 </FormField>
               </div>
               <div className="sm:col-span-4">
-                <span className="text-xs text-muted-foreground">{"Disposition"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldDisposition")}</span>
                 <FormField name={`lines.${index}.disposition`}>
                   {({ field: lineField, id }) => (
                     <Select value={lineField.value} onValueChange={lineField.onChange}>
-                      <SelectTrigger id={id} aria-label={"Disposition"}>
+                      <SelectTrigger id={id} aria-label={t("fieldDisposition")}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

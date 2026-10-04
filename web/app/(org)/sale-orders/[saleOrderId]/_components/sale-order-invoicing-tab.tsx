@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import type { SaleOrderLine } from "@/lib/services/swantara";
@@ -14,32 +15,29 @@ export function SaleOrderInvoicingTab({
   deliveredUnbilledLines,
   onInvoice,
 }: SaleOrderInvoicingTabProps) {
+  const t = useTranslations("Sales");
   return (
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{"Invoicing"}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {"Invoice delivered-unbilled lines. Shows triplet and residual."}
-          </p>
+          <CardTitle className="text-base">{t("tabInvoicing")}</CardTitle>
+          <p className="text-sm text-muted-foreground">{t("invoiceDescription")}</p>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           {deliveredUnbilledLines.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {"No delivered-unbilled lines to invoice."}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("noBillableLines")}</p>
           ) : (
             <>
               <p className="text-sm">
-                {"Lines to invoice"}: {deliveredUnbilledLines.length}
+                {t("linesToInvoice")}: {deliveredUnbilledLines.length}
               </p>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-muted-foreground">
-                      <th className="pb-2 text-left">{"Item"}</th>
-                      <th className="pb-2 text-right">{"Delivered not invoiced"}</th>
-                      <th className="pb-2 text-right">{"Unit price"}</th>
+                      <th className="pb-2 text-left">{t("fieldItem")}</th>
+                      <th className="pb-2 text-right">{t("deliveredNotInvoiced")}</th>
+                      <th className="pb-2 text-right">{t("unitPrice")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -60,7 +58,7 @@ export function SaleOrderInvoicingTab({
             </>
           )}
           <Button size="sm" onClick={onInvoice} disabled={deliveredUnbilledLines.length === 0}>
-            {"Create invoice"}
+            {t("invoiceTitle")}
           </Button>
         </CardContent>
       </Card>

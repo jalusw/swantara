@@ -73,7 +73,7 @@ describe("InvoicesSection branches2", () => {
     seedInvoices([]);
     renderWithProviders(<InvoicesSection orgId="1" />);
 
-    expect(await screen.findByText("No invoices found.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada faktur")).toBeInTheDocument();
   });
 
   it("posts a draft invoice through the post branch", async () => {

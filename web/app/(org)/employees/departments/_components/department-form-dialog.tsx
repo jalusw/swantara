@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -12,8 +13,9 @@ import type { Department } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 
 function useDepartmentFormSchema() {
+  const t = useTranslations("Employees");
   return z.object({
-    name: z.string().min(1, "Enter a name."),
+    name: z.string().min(1, t("validationNameRequired")),
     description: z.string().optional(),
   });
 }
@@ -32,6 +34,7 @@ export function DepartmentFormDialog({
   onSave: (id: string) => void;
 }) {
   const isEdit = Boolean(initial);
+  const t = useTranslations("Employees");
 
   const schema = useDepartmentFormSchema();
   type Values = z.infer<typeof schema>;
@@ -60,24 +63,24 @@ export function DepartmentFormDialog({
     };
 
     if (isEdit && initial) {
-      void getSwantaraService()
+      return getSwantaraService()
         .departments.update(Number(orgId), initial.id, request)
         .then((result) => {
-          toast.success("Department updated");
+          toast.success(t("updated"));
           onSave(String(result.department.id));
         })
         .catch(() => {
-          toast.error("Failed to save department.");
+          toast.error(t("saveFailed"));
         });
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .departments.create(Number(orgId), request)
         .then((result) => {
-          toast.success("Department created");
+          toast.success(t("created"));
           onSave(String(result.department.id));
         })
         .catch(() => {
-          toast.error("Failed to save department.");
+          toast.error(t("saveFailed"));
         });
     }
   }
@@ -86,18 +89,18 @@ export function DepartmentFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? "Edit department" : "Add department"}
-      description={"Create a new department."}
+      title={isEdit ? t("editDepartment") : t("newDepartment")}
+      description={t("departmentsSubtitle")}
       form={form}
       onSubmit={handleSubmit}
       className="sm:max-w-lg"
     >
       <div className="flex flex-col gap-4">
-        <FormField name="name" label={"Name"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+        <FormField name="name" label={t("fieldName")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
         </FormField>
-        <FormField name="description" label={"Description"}>
-          {({ field, id }) => <Textarea {...field} id={id} placeholder={"Description"} />}
+        <FormField name="description" label={t("fieldDescription")}>
+          {({ field, id }) => <Textarea {...field} id={id} placeholder={t("fieldDescription")} />}
         </FormField>
       </div>
     </EntityFormDialog>

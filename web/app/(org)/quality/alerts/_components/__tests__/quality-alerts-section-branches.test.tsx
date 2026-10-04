@@ -57,7 +57,7 @@ describe("QualityAlertsSection branches", () => {
     renderWithProviders(<QualityAlertsSection orgId="1" />);
 
     expect(await screen.findByText("Alerts down.")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Retry" }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     expect(await screen.findByText("Leaking valve")).toBeInTheDocument();
   });
@@ -83,7 +83,7 @@ describe("QualityAlertsSection branches", () => {
     renderWithProviders(<QualityAlertsSection orgId="1" />);
 
     expect(await screen.findByText("Leaking valve")).toBeInTheDocument();
-    expect(screen.getByText("Alert #3")).toBeInTheDocument();
+    expect(screen.getByText("Peringatan #3")).toBeInTheDocument();
     expect(screen.getByText(`${"x".repeat(60)}…`)).toBeInTheDocument();
     expect(screen.queryByText("Old alert")).toBeNull();
   });

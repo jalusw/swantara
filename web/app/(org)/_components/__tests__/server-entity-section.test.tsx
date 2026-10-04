@@ -29,7 +29,7 @@ function renderTable() {
       resource="testWidgets"
       fetcher={fetchWidgets}
       selectData={(response) => response.widgets}
-      columns={[{ accessorKey: "name", header: "Name" }]}
+      columns={[{ accessorKey: "name", header: "Nama" }]}
       getRowId={(row) => String(row.id)}
       searchKeys={["name"]}
       searchPlaceholder="Search widgets..."
@@ -69,7 +69,7 @@ describe("ServerEntityTable", () => {
           meta: { pagination: { page: 1, perPage: 10, total: 25, totalPages: 3 } },
         })}
         selectData={(response) => response.widgets}
-        columns={[{ accessorKey: "name", header: "Name" }]}
+        columns={[{ accessorKey: "name", header: "Nama" }]}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
         searchPlaceholder="Search widgets..."
@@ -78,7 +78,7 @@ describe("ServerEntityTable", () => {
     );
 
     expect(await screen.findByText("Alpha Widget")).toBeInTheDocument();
-    expect(await screen.findByText("1–10 of 25")).toBeInTheDocument();
-    expect(screen.getByText("Page 1 of 3")).toBeInTheDocument();
+    expect(await screen.findByText("1–10 dari 25")).toBeInTheDocument();
+    expect(screen.getByText("Halaman 1 dari 3")).toBeInTheDocument();
   });
 });

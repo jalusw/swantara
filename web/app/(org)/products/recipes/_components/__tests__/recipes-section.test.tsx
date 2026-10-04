@@ -83,9 +83,9 @@ describe("BomsSection", () => {
     renderWithProviders(<BomsSection orgId="1" />);
 
     await screen.findByText("BOM-001");
-    await user.click(screen.getByRole("button", { name: "Add BoM" }));
+    await user.click(screen.getByRole("button", { name: "Tambah resep" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("New bill of materials")).toBeInTheDocument();
+    expect(screen.getByText("Resep baru")).toBeInTheDocument();
   });
 });

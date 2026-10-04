@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -31,9 +32,10 @@ type RefundDialogProps = {
 };
 
 function useRefundFormSchema() {
+  const t = useTranslations("Sales");
   return z.object({
-    journalId: z.string().min(1, "Select a journal."),
-    date: z.string().min(1, "Date is required."),
+    journalId: z.string().min(1, t("validationJournalRequired")),
+    date: z.string().min(1, t("validationDateRequired")),
     reference: z.string(),
   });
 }
@@ -46,6 +48,8 @@ export function RefundDialog({
   journals,
   onSave,
 }: RefundDialogProps) {
+  const t = useTranslations("Sales");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
 
   const schema = useRefundFormSchema();
@@ -70,12 +74,12 @@ export function RefundDialog({
         reference: values.reference,
       }),
     onSuccess: () => {
-      toast.success("Return refunded successfully");
+      toast.success(t("returnRefunded"));
       void queryClient.invalidateQueries({ queryKey: ["rmas", orgId] });
       onSave();
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -87,15 +91,15 @@ export function RefundDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{"Refund Return"}</DialogTitle>
-          <DialogDescription>{"Create a credit note for the returned goods."}</DialogDescription>
+          <DialogTitle>{t("refundReturn")}</DialogTitle>
+          <DialogDescription>{t("refundReturnDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
-          <FormField name="journalId" label={"Journal"}>
+          <FormField name="journalId" label={t("fieldJournal")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Journal"}>
-                  <SelectValue placeholder={"Select a journal"} />
+                <SelectTrigger id={id} aria-label={t("fieldJournal")}>
+                  <SelectValue placeholder={t("selectJournal")} />
                 </SelectTrigger>
                 <SelectContent>
                   {accountJournals.map((j) => (
@@ -107,17 +111,17 @@ export function RefundDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="date" label={"Refund date"}>
+          <FormField name="date" label={t("fieldRefundDate")}>
             {({ field, id }) => <Input {...field} id={id} type="date" />}
           </FormField>
-          <FormField name="reference" label={"Reference"}>
+          <FormField name="reference" label={t("fieldReference")}>
             {({ field, id }) => <Input {...field} id={id} />}
           </FormField>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton loading={refundMutation.isPending}>{"Refund"}</SubmitButton>
+            <SubmitButton loading={refundMutation.isPending}>{t("actionRefund")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

@@ -57,7 +57,7 @@ function useHandlers(options?: { failStatements?: boolean }) {
     http.post("*/api/v1/organizations/:organizationId/bank-statements", async ({ request }) => {
       created.push(await request.json());
       return HttpResponse.json(
-        { success: true, message: "Created.", data: { bank_statement: { id: 3 } } },
+        { success: true, message: "Dibuat.", data: { bank_statement: { id: 3 } } },
         { status: 201 },
       );
     }),
@@ -80,7 +80,7 @@ describe("BankStatementsSection branches", () => {
     expect(badges.length).toBeGreaterThan(0);
     const firstBadge = badges[0];
     if (firstBadge === undefined) throw new Error("expected a badge");
-    expect(firstBadge.textContent).toContain("Draft");
+    expect(firstBadge.textContent).toContain("Draf");
   });
 
   it("links to the statement detail page", async () => {
@@ -97,7 +97,7 @@ describe("BankStatementsSection branches", () => {
     useHandlers({ failStatements: true });
     renderWithProviders(<BankStatementsSection orgId="1" />);
     expect(await screen.findByText("Statements down.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 
   it("keeps save disabled without a journal and cancels cleanly", async () => {
@@ -105,14 +105,12 @@ describe("BankStatementsSection branches", () => {
     const { created } = useHandlers();
     renderWithProviders(<BankStatementsSection orgId="1" />);
     await screen.findByText("BCA January");
-    await user.click(screen.getByRole("button", { name: "New statement" }));
-    await screen.findByText("Create bank statement");
-    expect(screen.getByRole("button", { name: "Create" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Mutasi baru" }));
+    await screen.findByText("Buat mutasi bank");
+    expect(screen.getByRole("button", { name: "Buat" })).toBeDisabled();
     expect(created.length).toBe(0);
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-    await waitFor(() =>
-      expect(screen.queryByText("Create bank statement")).not.toBeInTheDocument(),
-    );
+    await user.click(screen.getByRole("button", { name: "Batal" }));
+    await waitFor(() => expect(screen.queryByText("Buat mutasi bank")).not.toBeInTheDocument());
   });
 
   it("edits statement fields in the create dialog", async () => {
@@ -120,8 +118,8 @@ describe("BankStatementsSection branches", () => {
     useHandlers();
     renderWithProviders(<BankStatementsSection orgId="1" />);
     await screen.findByText("BCA January");
-    await user.click(screen.getByRole("button", { name: "New statement" }));
-    await screen.findByText("Create bank statement");
+    await user.click(screen.getByRole("button", { name: "Mutasi baru" }));
+    await screen.findByText("Buat mutasi bank");
     const dialog = screen.getByRole("dialog");
     const visible = (value: string) =>
       Array.from(dialog.querySelectorAll("input")).find(

@@ -50,7 +50,7 @@ describe("BankStatementsSection branches2", () => {
     seedStatements([]);
     renderWithProviders(<BankStatementsSection orgId="1" />);
 
-    expect(await screen.findByText("No bank statements found.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada mutasi bank")).toBeInTheDocument();
   });
 
   it("creates a statement through the dialog success branch", async () => {
@@ -60,7 +60,7 @@ describe("BankStatementsSection branches2", () => {
       http.post("*/api/v1/organizations/:organizationId/bank-statements", async ({ request }) => {
         createBody = await request.json();
         return HttpResponse.json(
-          { success: true, message: "Created.", data: { bank_statement: { id: 9 } } },
+          { success: true, message: "Dibuat.", data: { bank_statement: { id: 9 } } },
           { status: 201 },
         );
       }),
@@ -68,12 +68,12 @@ describe("BankStatementsSection branches2", () => {
     const user = userEvent.setup();
     renderWithProviders(<BankStatementsSection orgId="1" />);
 
-    await user.click(await screen.findByRole("button", { name: "New statement" }));
+    await user.click(await screen.findByRole("button", { name: "Mutasi baru" }));
     const dialog = await screen.findByRole("dialog");
     const { within } = await import("@testing-library/react");
-    await user.click(within(dialog).getByRole("combobox", { name: "Bank journal" }));
+    await user.click(within(dialog).getByRole("combobox", { name: "Jurnal bank" }));
     await user.click(await screen.findByRole("option", { name: "BCA Journal" }));
-    await user.click(within(dialog).getByRole("button", { name: "Create" }));
+    await user.click(within(dialog).getByRole("button", { name: "Buat" }));
 
     await waitFor(() => expect(createBody).not.toBeNull());
   });
@@ -83,8 +83,8 @@ describe("BankStatementsSection branches2", () => {
     const user = userEvent.setup();
     renderWithProviders(<BankStatementsSection orgId="1" />);
 
-    await user.click(await screen.findByRole("button", { name: "New statement" }));
+    await user.click(await screen.findByRole("button", { name: "Mutasi baru" }));
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Create" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Buat" })).toBeDisabled();
   });
 });

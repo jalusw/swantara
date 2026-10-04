@@ -1,17 +1,22 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { OrgSubNav } from "@/app/(org)/_components/org-subnav";
 
-const QUALITY_TABS = [
-  {
-    key: "quality",
-    label: "Quality checks",
-    href: "/quality",
-  },
-  { key: "qualityPoints", href: "/quality/points" },
-  { key: "qualityAlerts", href: "/quality/alerts" },
-] as const;
-
 export function QualitySubNav() {
-  return <OrgSubNav label={"Quality"} tabs={QUALITY_TABS} />;
+  const t = useTranslations("Quality");
+  return (
+    <OrgSubNav
+      label={t("title")}
+      tabs={[
+        {
+          key: "quality",
+          label: t("checksTitle"),
+          href: "/quality",
+        },
+        { key: "qualityPoints", href: "/quality/points" },
+        { key: "qualityAlerts", href: "/quality/alerts" },
+      ]}
+    />
+  );
 }

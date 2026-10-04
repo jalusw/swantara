@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -14,11 +15,12 @@ import type { Equipment } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 
 function useMaintenancePlanFormSchema() {
+  const t = useTranslations("Service");
   return z.object({
-    name: z.string().min(1, "Name is required"),
-    equipmentId: z.string().min(1, "Equipment is required"),
-    intervalDays: z.string().min(1, "Interval is required"),
-    nextDue: z.string().min(1, "Next due is required"),
+    name: z.string().min(1, t("validation_nameRequired")),
+    equipmentId: z.string().min(1, t("validation_equipmentRequired")),
+    intervalDays: z.string().min(1, t("validation_intervalRequired")),
+    nextDue: z.string().min(1, t("validation_nextDueRequired")),
   });
 }
 
@@ -33,6 +35,8 @@ export function MaintenancePlanFormDialog({
   orgId: string;
   onSave: (id: string) => void;
 }) {
+  const t = useTranslations("Service");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
 
   const equipmentsQuery = useOrgListQuery<{ equipments: Equipment[] }, Record<string, never>>(
@@ -65,10 +69,10 @@ export function MaintenancePlanFormDialog({
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["maintenancePlans", Number(orgId)] });
       onSave(String(result.maintenancePlan.id));
-      toast.success("Plan created");
+      toast.success(t("planCreated"));
     },
     onError: () => {
-      toast.error("Failed to create plan");
+      toast.error(t("createFailed"));
     },
   });
 
@@ -80,22 +84,25 @@ export function MaintenancePlanFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Create maintenance plan"}
-      description={"Schedule preventive maintenance for equipment."}
+      title={t("newMaintenancePlan")}
+      description={t("plansDescription")}
       form={form}
       onSubmit={handleSubmit}
+      isPending={createMutation.isPending}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-2xl"
     >
       <div className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField name="name" label={"Name"}>
-            {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+          <FormField name="name" label={t("fieldName")}>
+            {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
           </FormField>
-          <FormField name="equipmentId" label={"Equipment"}>
+          <FormField name="equipmentId" label={t("equipment")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Equipment"}>
-                  <SelectValue placeholder={"Select equipment"} />
+                <SelectTrigger id={id} aria-label={t("equipment")}>
+                  <SelectValue placeholder={t("selectEquipment")} />
                 </SelectTrigger>
                 <SelectContent>
                   {equipments.map((e) => (
@@ -107,12 +114,12 @@ export function MaintenancePlanFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="intervalDays" label={"Interval (days)"}>
+          <FormField name="intervalDays" label={t("intervalDays")}>
             {({ field, id }) => (
-              <Input {...field} id={id} type="number" min="1" placeholder={"Interval (days)"} />
+              <Input {...field} id={id} type="number" min="1" placeholder={t("intervalDays")} />
             )}
           </FormField>
-          <FormField name="nextDue" label={"Next due date"}>
+          <FormField name="nextDue" label={t("nextDueDate")}>
             {({ field, id }) => <Input {...field} id={id} type="date" />}
           </FormField>
         </div>

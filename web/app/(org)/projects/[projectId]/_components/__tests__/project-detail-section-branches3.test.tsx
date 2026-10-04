@@ -111,7 +111,7 @@ describe("ProjectDetail branches3", () => {
     );
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
-    expect(await screen.findByText("Project not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Proyek tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("opens the project and closes it from header actions", async () => {
@@ -120,7 +120,7 @@ describe("ProjectDetail branches3", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    const open = screen.queryByRole("button", { name: "Open" });
+    const open = screen.queryByRole("button", { name: "Action Buka" });
     if (open) await user.click(open);
     expect(await screen.findByRole("heading", { name: "Website Redesign" })).toBeInTheDocument();
   });
@@ -169,7 +169,7 @@ describe("ProjectDetail branches3", () => {
     await screen.findByRole("heading", { name: "Website Redesign" });
     await user.click(screen.getAllByRole("tab")[2]!);
 
-    const toggle = await screen.findByRole("button", { name: "Mark reached" });
+    const toggle = await screen.findByRole("button", { name: "Tandai tercapai" });
     await user.click(toggle);
     expect(toggle).toBeInTheDocument();
   });
@@ -185,7 +185,7 @@ describe("ProjectDetail branches3", () => {
 
     await screen.findByRole("heading", { name: "Website Redesign" });
     await user.click(screen.getAllByRole("tab")[3]!);
-    expect(await screen.findByText("Timesheet entry")).toBeInTheDocument();
+    expect(await screen.findByText("Entri lembar waktu")).toBeInTheDocument();
     await user.click(screen.getAllByRole("tab")[5]!);
     expect(screen.getAllByRole("tab")[5]).toBeInTheDocument();
   });

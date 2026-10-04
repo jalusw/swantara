@@ -1,8 +1,11 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const allowedDevOrigins = process.env?.ALLOWED_DEV_ORIGINS
   ? process.env?.ALLOWED_DEV_ORIGINS?.split(",").map((origin) => origin)
   : [];
+
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 let nextConfig: NextConfig = {
   output: "standalone" as const,
@@ -51,4 +54,4 @@ if (process.env.ANALYZE === "true") {
   nextConfig = withBundleAnalyzer({ enabled: true })(nextConfig);
 }
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

@@ -94,7 +94,7 @@ describe("RmaDetailSection", () => {
     renderWithProviders(<RmaDetailSection orgId="1" rmaId="9" />);
 
     await screen.findByText("RMA-0009");
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
 
     expect(confirmCalled).toBe(true);
   });

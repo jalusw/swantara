@@ -138,12 +138,12 @@ func (s HRService) CreateEmployee(ctx context.Context, request CreateEmployeeReq
 	}
 	var created *Employee
 	err := s.tx.Run(ctx, func(tx *gorm.DB) error {
-		contact, err := s.contacts.CreateWithDetails(ctx, request.Contact, nil, nil, nil, nil)
+		contact, err := s.contacts.CreateWithDetailsTx(ctx, tx, request.Contact, nil, nil, nil, nil)
 		if err != nil {
 			return err
 		}
 		employee.ContactID = contact.ID
-		created, err = s.employees.Create(ctx, employee)
+		created, err = s.employees.CreateTx(ctx, tx, employee)
 		if err != nil {
 			return err
 		}
@@ -162,7 +162,7 @@ func (s HRService) CreateEmployee(ctx context.Context, request CreateEmployeeReq
 		if contract.WageType == "" {
 			contract.WageType = WageTypeMonthly
 		}
-		_, err = s.contracts.Create(ctx, contract)
+		_, err = s.contracts.CreateTx(ctx, tx, contract)
 		return err
 	})
 	if err != nil {

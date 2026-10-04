@@ -6,7 +6,7 @@ import { renderWithProviders, server } from "@/lib/tests";
 import { AssetCategoryFormDialog } from "../asset-category-form-dialog";
 
 const accounts = [
-  { id: 41, code: "1500", name: "Equipment" },
+  { id: 41, code: "1500", name: "Peralatan" },
   { id: 42, code: "1501", name: "Accumulated Depreciation" },
 ];
 
@@ -102,7 +102,7 @@ describe("AssetCategoryFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit asset category")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah kategori aset")).toBeInTheDocument();
     expect(screen.getByDisplayValue("IT Equipment")).toBeInTheDocument();
     expect(screen.getByDisplayValue("4")).toBeInTheDocument();
   });
@@ -118,7 +118,7 @@ describe("AssetCategoryFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit asset category")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah kategori aset")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Furniture")).toBeInTheDocument();
   });
 
@@ -136,10 +136,10 @@ describe("AssetCategoryFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Create asset category");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Buat kategori aset");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Name is required")).toBeInTheDocument();
+    expect(await screen.findByText("Nama wajib diisi.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -157,8 +157,8 @@ describe("AssetCategoryFormDialog branches", () => {
       />,
     );
 
-    await user.type(await screen.findByLabelText("Name"), "IT Equipment");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByLabelText("Nama"), "IT Equipment");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("3"));
   });
@@ -177,23 +177,23 @@ describe("AssetCategoryFormDialog branches", () => {
       />,
     );
 
-    await user.type(await screen.findByLabelText("Name"), "Vehicles");
-    await user.click(screen.getByRole("combobox", { name: "Depreciation method" }));
+    await user.type(await screen.findByLabelText("Nama"), "Vehicles");
+    await user.click(screen.getByRole("combobox", { name: "Metode penyusutan" }));
     await user.click(
       await screen.findByRole("option", {
-        name: "Declining",
+        name: "Menurun",
       }),
     );
-    await user.type(screen.getByLabelText("Method number"), "5");
-    await user.click(screen.getByRole("combobox", { name: "Period" }));
+    await user.type(screen.getByLabelText("Nomor metode"), "5");
+    await user.click(screen.getByRole("combobox", { name: "Periode" }));
     await user.click(
       await screen.findByRole("option", {
-        name: "Month",
+        name: "Bulan",
       }),
     );
-    await user.click(screen.getByRole("combobox", { name: "Asset account" }));
-    await user.click(await screen.findByRole("option", { name: "1500 Equipment" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("combobox", { name: "Akun aset" }));
+    await user.click(await screen.findByRole("option", { name: "1500 Peralatan" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("3"));
   });
@@ -212,10 +212,10 @@ describe("AssetCategoryFormDialog branches", () => {
       />,
     );
 
-    await user.type(await screen.findByLabelText("Name"), "IT Equipment");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByLabelText("Nama"), "IT Equipment");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByLabelText("Name")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByLabelText("Nama")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -233,8 +233,8 @@ describe("AssetCategoryFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit asset category");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah kategori aset");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("7"));
   });
@@ -253,9 +253,9 @@ describe("AssetCategoryFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit asset category");
+    await screen.findByText("Ubah kategori aset");
     await user.clear(screen.getByDisplayValue("4"));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("8"));
   });
@@ -274,10 +274,10 @@ describe("AssetCategoryFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit asset category");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah kategori aset");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("Edit asset category")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Ubah kategori aset")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -294,8 +294,8 @@ describe("AssetCategoryFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Create asset category");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByText("Buat kategori aset");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

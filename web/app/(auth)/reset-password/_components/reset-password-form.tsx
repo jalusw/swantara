@@ -2,6 +2,7 @@
 
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useId } from "react";
 import { Controller } from "react-hook-form";
 import { Button } from "@/components/button";
@@ -17,6 +18,8 @@ export default function ResetPasswordForm({ token }: { token?: string }) {
   const { form, handleSubmit, isPending, isSuccess } = useResetPasswordForm({
     token,
   });
+  const t = useTranslations("Auth");
+  const tx = t as unknown as (key: string) => string;
   const passwordId = useId();
   const confirmId = useId();
 
@@ -30,15 +33,13 @@ export default function ResetPasswordForm({ token }: { token?: string }) {
     return (
       <div className="animate-fade-up flex flex-col items-center gap-4 py-4 text-center">
         <AlertCircle className="size-10 text-destructive" aria-hidden="true" />
-        <h2 className="text-xl">{"Link invalid or expired"}</h2>
-        <p className="max-w-sm text-muted-foreground">
-          {"Your reset link is missing or has expired. Request a new one."}
-        </p>
+        <h2 className="text-xl">{tx("resetLinkInvalidTitle")}</h2>
+        <p className="max-w-sm text-muted-foreground">{tx("resetLinkInvalidDescription")}</p>
         <Button asChild variant="default" size="lg" className="w-full">
-          <Link href="/forgot-password">{"Request new link"}</Link>
+          <Link href="/forgot-password">{tx("requestNewLink")}</Link>
         </Button>
         <Button asChild variant="outline" size="lg" className="w-full">
-          <Link href="/login">{"Back to login"}</Link>
+          <Link href="/login">{t("backToLogin")}</Link>
         </Button>
       </div>
     );
@@ -48,12 +49,10 @@ export default function ResetPasswordForm({ token }: { token?: string }) {
     return (
       <div className="animate-fade-up flex flex-col items-center gap-4 py-4 text-center">
         <CheckCircle2 className="size-10 text-primary" aria-hidden="true" />
-        <h2 className="text-xl">{"Password updated!"}</h2>
-        <p className="max-w-sm text-muted-foreground">
-          {"Your password has been reset successfully. You can now sign in with your new password."}
-        </p>
+        <h2 className="text-xl">{tx("passwordUpdatedTitle")}</h2>
+        <p className="max-w-sm text-muted-foreground">{tx("passwordUpdatedDescription")}</p>
         <Button asChild variant="default" size="lg" className="w-full">
-          <Link href="/login">{"Go to login"}</Link>
+          <Link href="/login">{tx("goToLogin")}</Link>
         </Button>
       </div>
     );
@@ -69,7 +68,7 @@ export default function ResetPasswordForm({ token }: { token?: string }) {
             const errorId = fieldState.error ? `${passwordId}-error` : undefined;
             return (
               <Field>
-                <Label htmlFor={passwordId}>{"New Password"}</Label>
+                <Label htmlFor={passwordId}>{tx("newPassword")}</Label>
                 <Password
                   id={passwordId}
                   autoComplete="new-password"
@@ -86,7 +85,7 @@ export default function ResetPasswordForm({ token }: { token?: string }) {
                 >
                   {fieldState.error?.message}
                 </FieldFeedback>
-                <p className="text-sm text-muted-foreground">{"At least 8 characters."}</p>
+                <p className="text-sm text-muted-foreground">{tx("passwordMinLengthHint")}</p>
               </Field>
             );
           }}
@@ -98,7 +97,7 @@ export default function ResetPasswordForm({ token }: { token?: string }) {
             const errorId = fieldState.error ? `${confirmId}-error` : undefined;
             return (
               <Field>
-                <Label htmlFor={confirmId}>{"Confirm New Password"}</Label>
+                <Label htmlFor={confirmId}>{tx("confirmNewPassword")}</Label>
                 <Password
                   id={confirmId}
                   autoComplete="new-password"
@@ -121,10 +120,10 @@ export default function ResetPasswordForm({ token }: { token?: string }) {
       </div>
       <div className="mt-6 flex flex-col gap-3 sm:mt-8">
         <SubmitButton className="w-full" loading={isPending} size="lg">
-          {"Reset password"}
+          {t("resetButton")}
         </SubmitButton>
         <Button variant="outline" size="lg" asChild className="w-full">
-          <Link href="/login">{"Back to login"}</Link>
+          <Link href="/login">{t("backToLogin")}</Link>
         </Button>
       </div>
     </form>

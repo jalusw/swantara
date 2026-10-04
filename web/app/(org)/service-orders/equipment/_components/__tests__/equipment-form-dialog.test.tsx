@@ -47,8 +47,8 @@ describe("EquipmentFormDialog", () => {
       <EquipmentFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(await screen.findByText("Create equipment")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Peralatan baru")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("creates a new equipment", async () => {
@@ -58,8 +58,8 @@ describe("EquipmentFormDialog", () => {
       <EquipmentFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await user.type(await screen.findByLabelText("Name"), "Excavator ZX350");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByLabelText("Nama"), "Excavator ZX350");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("9"));
   });

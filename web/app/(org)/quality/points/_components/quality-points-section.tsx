@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
@@ -10,10 +11,13 @@ import { Button } from "@/components/button";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { Item, QualityPoint } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
-import { normRangeLabel, testTypeLabel } from "../../_components/quality-utils";
+import { normRangeLabel } from "../../_components/quality-utils";
 import { QualityPointFormDialog } from "./quality-point-form-dialog";
 
 export function QualityPointsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Quality");
+  const tCommon = useTranslations("Common");
+  const testType = (type: string) => (t as unknown as (k: string) => string)(`testType_${type}`);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const query = useOrgListQuery<{ points: QualityPoint[] }, Record<string, never>>(
@@ -41,27 +45,27 @@ export function QualityPointsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<QualityPoint>[] = [
     {
       accessorKey: "itemId",
-      header: "Item",
+      header: t("colItem"),
       cell: ({ row }) => (row.original.itemId ? productMap.get(row.original.itemId) : null) ?? "—",
     },
     {
       accessorKey: "operation",
-      header: "Operation",
+      header: t("colOperation"),
       cell: ({ row }) => row.original.operation ?? "—",
     },
     {
       accessorKey: "testType",
-      header: "Test type",
-      cell: ({ row }) => <Badge variant="secondary">{testTypeLabel(row.original.testType)}</Badge>,
+      header: t("colTestType"),
+      cell: ({ row }) => <Badge variant="secondary">{testType(row.original.testType)}</Badge>,
     },
     {
       accessorKey: "norms",
-      header: "Norms",
+      header: t("colNorms"),
       cell: ({ row }) => normRangeLabel(row.original),
     },
     {
       accessorKey: "unitId",
-      header: "Unit of Measure",
+      header: t("colUom"),
       cell: ({ row }) => (row.original.unitId ? uomMap.get(row.original.unitId) : null) ?? "—",
     },
     {
@@ -69,7 +73,7 @@ export function QualityPointsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: () => (
         <Button size="sm" variant="ghost">
-          {"Edit"}
+          {tCommon("edit")}
         </Button>
       ),
     },
@@ -82,9 +86,9 @@ export function QualityPointsSection({ orgId }: { orgId: string }) {
         data={points}
         getRowId={(row) => String(row.id)}
         searchKeys={["operation"]}
-        searchPlaceholder={"Search quality points…"}
-        ariaLabel={"Quality Points"}
-        emptyTitle={"No quality points"}
+        searchPlaceholder={t("pointsSearchPlaceholder")}
+        ariaLabel={t("pointsTitle")}
+        emptyTitle={t("pointsEmpty")}
         status={
           isLoading
             ? { type: "loading" }
@@ -99,7 +103,7 @@ export function QualityPointsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New quality point"}</span>
+            <span>{t("newPoint")}</span>
           </Button>
         }
       />

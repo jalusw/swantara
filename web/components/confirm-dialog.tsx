@@ -1,6 +1,7 @@
 "use client";
 
 import { TriangleAlertIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { isValidElement, type ReactNode } from "react";
 
 import {
@@ -67,8 +68,9 @@ export function ConfirmDialog({
   open,
   onOpenChange,
 }: ConfirmDialogProps) {
-  const resolvedConfirmLabel = confirmLabel ?? "Confirm";
-  const resolvedCancelLabel = cancelLabel ?? "Cancel";
+  const t = useTranslations("Common");
+  const resolvedConfirmLabel = confirmLabel ?? t("confirm");
+  const resolvedCancelLabel = cancelLabel ?? t("cancel");
   const idle = loading || disabled;
   const isControlled = open !== undefined;
   return (

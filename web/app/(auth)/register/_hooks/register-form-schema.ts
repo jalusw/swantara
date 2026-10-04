@@ -1,29 +1,49 @@
 import { z } from "zod";
 import type { RegistrationStep } from "./register-form.types";
 
-export function useRegisterFormSchema() {
+export type RegisterFormMessages = {
+  firstNameRequired: string;
+  invalidEmail: string;
+  emailRequired: string;
+  passwordMinLength: string;
+  confirmPasswordMinLength: string;
+  passwordMismatch: string;
+};
+
+const registerFormDefaultMessages: RegisterFormMessages = {
+  firstNameRequired: "Nama depan wajib diisi",
+  invalidEmail: "Masukkan alamat email yang valid.",
+  emailRequired: "Email wajib diisi.",
+  passwordMinLength: "Kata sandi minimal 8 karakter",
+  confirmPasswordMinLength: "Konfirmasi kata sandi minimal 8 karakter",
+  passwordMismatch: "Konfirmasi kata sandi tidak cocok",
+};
+
+export function useRegisterFormSchema(
+  messages: RegisterFormMessages = registerFormDefaultMessages,
+) {
   return z
     .object({
       firstName: z.string().min(1, {
-        message: "First Name is required",
+        message: messages.firstNameRequired,
       }),
       lastName: z.string(),
       email: z
         .email({
-          message: "Please enter a valid email address.",
+          message: messages.invalidEmail,
         })
         .min(1, {
-          message: "Email is required.",
+          message: messages.emailRequired,
         }),
       password: z.string().min(8, {
-        message: "Password must contain at least 8 characters",
+        message: messages.passwordMinLength,
       }),
       passwordConfirmation: z.string().min(8, {
-        message: "Password confirmation must contain at least 8 characters",
+        message: messages.confirmPasswordMinLength,
       }),
     })
     .refine((data) => data.password === data.passwordConfirmation, {
-      message: "Password confirmation doesn't match",
+      message: messages.passwordMismatch,
       path: ["passwordConfirmation"],
     });
 }

@@ -86,7 +86,7 @@ describe("InvoicesSection extra2", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     expect(await screen.findByText("boom")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Retry" }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     expect(await screen.findByText("INV-2026-002")).toBeInTheDocument();
     expect(calls).toBe(2);
@@ -97,14 +97,14 @@ describe("InvoicesSection extra2", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-2026-002");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
     const dialog = await screen.findByRole("dialog");
 
-    await user.click(within(dialog).getByRole("button", { name: "Add line" }));
-    expect(within(dialog).getAllByRole("button", { name: "Remove" })).toHaveLength(2);
+    await user.click(within(dialog).getByRole("button", { name: "Tambah baris" }));
+    expect(within(dialog).getAllByRole("button", { name: "Hapus" })).toHaveLength(2);
 
-    await user.click(within(dialog).getAllByRole("button", { name: "Remove" })[0]!);
-    expect(within(dialog).getAllByRole("button", { name: "Remove" })).toHaveLength(1);
+    await user.click(within(dialog).getAllByRole("button", { name: "Hapus" })[0]!);
+    expect(within(dialog).getAllByRole("button", { name: "Hapus" })).toHaveLength(1);
   });
 
   it("keeps save disabled until contact and journal are set", async () => {
@@ -112,10 +112,10 @@ describe("InvoicesSection extra2", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-2026-002");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
     const dialog = await screen.findByRole("dialog");
 
-    expect(within(dialog).getByRole("button", { name: "Create" })).toBeDisabled();
+    expect(within(dialog).getByRole("button", { name: "Buat" })).toBeDisabled();
   });
 
   it("creates an invoice and refreshes the list", async () => {
@@ -124,7 +124,7 @@ describe("InvoicesSection extra2", () => {
       http.post("*/api/v1/organizations/:organizationId/invoices", () => {
         createCalls += 1;
         return HttpResponse.json(
-          { success: true, message: "Created.", data: { invoice: { id: 9 } } },
+          { success: true, message: "Dibuat.", data: { invoice: { id: 9 } } },
           { status: 201 },
         );
       }),
@@ -133,15 +133,15 @@ describe("InvoicesSection extra2", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-2026-002");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
     const dialog = await screen.findByRole("dialog");
 
     const spinners = within(dialog).getAllByRole("spinbutton");
     await user.type(spinners[0]!, "10");
-    await user.click(within(dialog).getByRole("combobox", { name: "Journal" }));
+    await user.click(within(dialog).getByRole("combobox", { name: "Jurnal" }));
     await user.click(await screen.findByRole("option", { name: "Sales Journal" }));
 
-    const save = within(dialog).getByRole("button", { name: "Create" });
+    const save = within(dialog).getByRole("button", { name: "Buat" });
     await waitFor(() => expect(save).toBeEnabled());
     await user.click(save);
 
@@ -154,10 +154,10 @@ describe("InvoicesSection extra2", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-2026-002");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
     const dialog = await screen.findByRole("dialog");
 
-    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    await user.click(within(dialog).getByRole("button", { name: "Batal" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 });

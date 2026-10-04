@@ -48,7 +48,7 @@ describe("TableFilterBar", () => {
     const user = userEvent.setup();
     renderWithProviders(<StatefulTableFilterBar />);
     expect(screen.getByLabelText("Search")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /filters/i }));
+    await user.click(screen.getByRole("button", { name: /filter/i }));
     expect(screen.getByLabelText("Status")).toBeInTheDocument();
   });
 
@@ -69,7 +69,7 @@ describe("TableFilterBar", () => {
         onColumnFiltersChange={onColumnFiltersChange}
       />,
     );
-    await user.click(screen.getByRole("button", { name: /filters/i }));
+    await user.click(screen.getByRole("button", { name: /filter/i }));
     await user.selectOptions(screen.getByLabelText("Status"), "active");
     expect(onColumnFiltersChange).toHaveBeenCalled();
   });
@@ -94,7 +94,7 @@ describe("TableFilterBar", () => {
         onReset={onReset}
       />,
     );
-    await user.click(screen.getByRole("button", { name: /clear all/i }));
+    await user.click(screen.getByRole("button", { name: /hapus semua/i }));
     expect(onReset).toHaveBeenCalledTimes(1);
   });
 });

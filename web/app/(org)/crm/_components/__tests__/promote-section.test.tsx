@@ -28,8 +28,8 @@ describe("PromoteDialog", () => {
       <PromoteDialog open onOpenChange={() => {}} orgId="1" prospectId="5" onPromoted={() => {}} />,
     );
 
-    expect(await screen.findByText("Promote lead to opportunity")).toBeInTheDocument();
-    expect(screen.getByText("Expected revenue")).toBeInTheDocument();
+    expect(await screen.findByText("Promosikan prospek menjadi peluang")).toBeInTheDocument();
+    expect(screen.getByText("Pendapatan yang diharapkan")).toBeInTheDocument();
   });
 
   it("requires a stage before promoting", async () => {
@@ -38,10 +38,10 @@ describe("PromoteDialog", () => {
       <PromoteDialog open onOpenChange={() => {}} orgId="1" prospectId="5" onPromoted={() => {}} />,
     );
 
-    await screen.findByText("Promote lead to opportunity");
-    await user.click(screen.getByRole("button", { name: "Promote" }));
+    await screen.findByText("Promosikan prospek menjadi peluang");
+    await user.click(screen.getByRole("button", { name: "Promosikan" }));
 
-    expect(await screen.findByText("Select a stage.")).toBeInTheDocument();
+    expect(await screen.findByText("Pilih tahap.")).toBeInTheDocument();
   });
 
   it("promotes with optional fields left blank", async () => {
@@ -67,9 +67,9 @@ describe("PromoteDialog", () => {
       />,
     );
 
-    await user.click(screen.getByRole("combobox", { name: "Stage" }));
+    await user.click(screen.getByRole("combobox", { name: "Tahap" }));
     await user.click(await screen.findByRole("option", { name: "Qualified — 30%" }));
-    await user.click(screen.getByRole("button", { name: "Promote" }));
+    await user.click(screen.getByRole("button", { name: "Promosikan" }));
 
     await waitFor(() => expect(onPromoted).toHaveBeenCalled());
     expect(payload).toMatchObject({ stage_id: 2, probability: null, expected_close: null });
@@ -91,10 +91,10 @@ describe("PromoteDialog", () => {
       <PromoteDialog open onOpenChange={() => {}} orgId="1" prospectId="5" onPromoted={() => {}} />,
     );
 
-    await user.click(screen.getByRole("combobox", { name: "Stage" }));
+    await user.click(screen.getByRole("combobox", { name: "Tahap" }));
     await user.click(await screen.findByRole("option", { name: "Proposal — 60%" }));
-    await user.type(screen.getByLabelText("Probability %"), "70");
-    await user.click(screen.getByRole("button", { name: "Promote" }));
+    await user.type(screen.getByLabelText("Probabilitas %"), "70");
+    await user.click(screen.getByRole("button", { name: "Promosikan" }));
 
     await waitFor(() => expect(payload).toMatchObject({ stage_id: 3, probability: 70 }));
   });
@@ -119,7 +119,7 @@ describe("PromoteDialog", () => {
       />,
     );
 
-    await screen.findByText("Promote lead to opportunity");
+    await screen.findByText("Promosikan prospek menjadi peluang");
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);

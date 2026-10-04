@@ -20,7 +20,7 @@ describe("LocationFormDialog branches2", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Edit location" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Ubah lokasi" })).toBeInTheDocument();
     expect(screen.getByDisplayValue("WH/Stock")).toBeInTheDocument();
   });
 
@@ -44,8 +44,8 @@ describe("LocationFormDialog branches2", () => {
       />,
     );
 
-    await user.type(screen.getByPlaceholderText("Name"), "WH/New");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(screen.getByPlaceholderText("Nama"), "WH/New");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
     expect(createBody).toMatchObject({ name: "WH/New" });
@@ -72,7 +72,7 @@ describe("LocationFormDialog branches2", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
     await waitFor(() => expect(updateCalls).toBeGreaterThan(0));
   });
 
@@ -88,7 +88,7 @@ describe("LocationFormDialog branches2", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
-    expect(await screen.findByText("Location name is required.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
+    expect(await screen.findByText("Nama lokasi wajib diisi.")).toBeInTheDocument();
   });
 });

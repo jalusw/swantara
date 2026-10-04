@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -26,26 +27,31 @@ import { AttributeEditor, type AttributeRow } from "./attribute-editor";
 import { productTypes, trackingModes } from "./products-data";
 import { buildMatrix, generateSku, VariantMatrixPreview } from "./variant-matrix-preview";
 
-const schema = z.object({
-  name: z.string().trim().min(1),
-  categoryId: z.string().trim(),
-  type: z.enum(productTypes),
-  tracking: z.enum(trackingModes),
-  unitId: z.string().trim(),
-  purchaseUnitId: z.string().trim(),
-  listPrice: z
-    .string()
-    .trim()
-    .refine((value) => Number(value) >= 0),
-  standardCost: z
-    .string()
-    .trim()
-    .refine((value) => Number(value) >= 0),
-  isPurchasable: z.boolean(),
-  isSellable: z.boolean(),
-  isManufactured: z.boolean(),
-});
-type Values = z.infer<typeof schema>;
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
+function useProductSchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  return z.object({
+    name: z.string().trim().min(1, t("validationNameRequired")),
+    categoryId: z.string().trim(),
+    type: z.enum(productTypes),
+    tracking: z.enum(trackingModes),
+    unitId: z.string().trim(),
+    purchaseUnitId: z.string().trim(),
+    listPrice: z
+      .string()
+      .trim()
+      .refine((value) => Number(value) >= 0, t("validationNonNegative")),
+    standardCost: z
+      .string()
+      .trim()
+      .refine((value) => Number(value) >= 0, t("validationNonNegative")),
+    isPurchasable: z.boolean(),
+    isSellable: z.boolean(),
+    isManufactured: z.boolean(),
+  });
+}
+type Values = z.infer<ReturnType<typeof useProductSchema>>;
 
 export function ProductFormDialog({
   open,
@@ -75,6 +81,9 @@ export function ProductFormDialog({
   };
   onSave: (itemId: string) => void;
 }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  const tCommon = useTranslations("Common");
+  const schema = useProductSchema();
   const unitsQuery = useOrgListQuery<{ units: Unit[] }, Record<string, never>>("units", () =>
     getSwantaraService().units.list(),
   );
@@ -97,7 +106,7 @@ export function ProductFormDialog({
 
   function handleSubmit(values: Values) {
     if (hasDuplicateSkus) {
-      toast.error(`SKU ${""} is generated more than once. Make names unique.`);
+      toast.error(t("duplicateSkuError"));
       return;
     }
 
@@ -133,36 +142,35 @@ export function ProductFormDialog({
       })),
     };
 
-    void getSwantaraService()
+    return getSwantaraService()
       .products.create(Number(orgId) || 0, request)
       .then(({ item }) => {
-        toast.success("Item saved.");
+        toast.success(t("toastItemSaved"));
         onSave(String(item.id));
-      });
+      })
+      .catch(() => {});
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{initial ? "Edit item" : "New item"}</DialogTitle>
-          <DialogDescription>
-            {"Define the item template, then generate variants."}
-          </DialogDescription>
+          <DialogTitle>{initial ? t("editItem") : t("newItem")}</DialogTitle>
+          <DialogDescription>{t("itemDialogDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField name="name" label={"Name"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+            <FormField name="name" label={t("fieldName")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
             </FormField>
-            <FormField name="categoryId" label={"Category"}>
+            <FormField name="categoryId" label={t("fieldCategory")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Category"}>
-                    <SelectValue placeholder={"No category"} />
+                  <SelectTrigger id={id} aria-label={t("fieldCategory")}>
+                    <SelectValue placeholder={t("noCategory")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">{"No category"}</SelectItem>
+                    <SelectItem value="">{t("noCategory")}</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
@@ -172,53 +180,53 @@ export function ProductFormDialog({
                 </Select>
               )}
             </FormField>
-            <FormField name="type" label={"Type"}>
+            <FormField name="type" label={t("fieldType")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Type"}>
+                  <SelectTrigger id={id} aria-label={t("fieldType")}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {productTypes.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {type}
+                        {(t as unknown as (k: string) => string)(`productType_${type}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
             </FormField>
-            <FormField name="tracking" label={"Tracking"}>
+            <FormField name="tracking" label={t("fieldTracking")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Tracking"}>
+                  <SelectTrigger id={id} aria-label={t("fieldTracking")}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {trackingModes.map((mode) => (
                       <SelectItem key={mode} value={mode}>
-                        {mode}
+                        {(t as unknown as (k: string) => string)(`trackingMode_${mode}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
             </FormField>
-            <FormField name="listPrice" label={"Sales price"}>
+            <FormField name="listPrice" label={t("colListPrice")}>
               {({ field, id }) => (
                 <Input {...field} id={id} type="number" step="any" min="0" inputMode="decimal" />
               )}
             </FormField>
-            <FormField name="standardCost" label={"Standard cost"}>
+            <FormField name="standardCost" label={t("colStandardCost")}>
               {({ field, id }) => (
                 <Input {...field} id={id} type="number" step="any" min="0" inputMode="decimal" />
               )}
             </FormField>
-            <FormField name="unitId" label={"Unit of measure"}>
+            <FormField name="unitId" label={t("fieldUnit")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Unit of measure"}>
-                    <SelectValue placeholder={"Unit of measure"} />
+                  <SelectTrigger id={id} aria-label={t("fieldUnit")}>
+                    <SelectValue placeholder={t("fieldUnit")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">—</SelectItem>
@@ -231,11 +239,11 @@ export function ProductFormDialog({
                 </Select>
               )}
             </FormField>
-            <FormField name="purchaseUnitId" label={"Purchase UoM"}>
+            <FormField name="purchaseUnitId" label={t("fieldPurchaseUnit")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Purchase UoM"}>
-                    <SelectValue placeholder={"Purchase UoM"} />
+                  <SelectTrigger id={id} aria-label={t("fieldPurchaseUnit")}>
+                    <SelectValue placeholder={t("fieldPurchaseUnit")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">—</SelectItem>
@@ -248,30 +256,30 @@ export function ProductFormDialog({
                 </Select>
               )}
             </FormField>
-            <FormField name="isSellable" label={"Can be sold"}>
+            <FormField name="isSellable" label={t("canBeSold")}>
               {({ field }) => (
                 <Switch
                   checked={field.value}
                   onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-                  aria-label={"Can be sold"}
+                  aria-label={t("canBeSold")}
                 />
               )}
             </FormField>
-            <FormField name="isPurchasable" label={"Can be purchased"}>
+            <FormField name="isPurchasable" label={t("canBePurchased")}>
               {({ field }) => (
                 <Switch
                   checked={field.value}
                   onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-                  aria-label={"Can be purchased"}
+                  aria-label={t("canBePurchased")}
                 />
               )}
             </FormField>
-            <FormField name="isManufactured" label={"Is manufactured"}>
+            <FormField name="isManufactured" label={t("isManufactured")}>
               {({ field }) => (
                 <Switch
                   checked={field.value}
                   onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-                  aria-label={"Is manufactured"}
+                  aria-label={t("isManufactured")}
                 />
               )}
             </FormField>
@@ -279,10 +287,8 @@ export function ProductFormDialog({
 
           <div className="flex flex-col gap-3 rounded-md border p-4">
             <div className="flex flex-col gap-1">
-              <p className="text-sm">{"Attributes & variants"}</p>
-              <p className="text-xs text-muted-foreground">
-                {"List attribute values to generate variant combinations with SKUs."}
-              </p>
+              <p className="text-sm">{t("attributesVariants")}</p>
+              <p className="text-xs text-muted-foreground">{t("attributesVariantsDescription")}</p>
             </div>
             <AttributeEditor value={attributes} onChange={setAttributes} />
             <VariantMatrixPreview templateName={templateName || ""} attributes={attributes} />
@@ -290,9 +296,9 @@ export function ProductFormDialog({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Save item"}</SubmitButton>
+            <SubmitButton>{t("saveItem")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

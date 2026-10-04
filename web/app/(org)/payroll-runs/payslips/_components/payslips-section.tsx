@@ -1,6 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
@@ -10,6 +11,7 @@ import { formatNumber } from "@/lib/utils";
 import { humanizeKey } from "@/lib/utils/case";
 
 export function PayslipsSection() {
+  const t = useTranslations("Payroll");
   const payslipsQuery = useOrgListQuery<{ payslips: Payslip[] }, Record<string, never>>(
     "payslips",
     (organizationId) => getSwantaraService().payslips.list(organizationId),
@@ -17,10 +19,18 @@ export function PayslipsSection() {
 
   const payslips = payslipsQuery.data?.payslips ?? [];
 
+  function stateLabel(state: Payslip["state"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`payslipState.${state}`);
+    } catch {
+      return humanizeKey(String(state));
+    }
+  }
+
   const columns: ColumnDef<Payslip>[] = [
     {
       accessorKey: "id",
-      header: "Number",
+      header: t("tableNumber"),
       cell: ({ row }) => (
         <a
           href={`/payroll-runs/payslips/${row.original.id}`}
@@ -32,33 +42,33 @@ export function PayslipsSection() {
     },
     {
       accessorKey: "employeeId",
-      header: "Employee",
+      header: t("fieldEmployee"),
       cell: ({ row }) => <span className="text-muted-foreground">#{row.original.employeeId}</span>,
     },
     {
       accessorKey: "gross",
-      header: "Gross",
+      header: t("grossTotal"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums ">{formatNumber(row.original.gross)}</span>,
     },
     {
       accessorKey: "net",
-      header: "Net",
+      header: t("netTotal"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums ">{formatNumber(row.original.net)}</span>,
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("tableStatus"),
       cell: ({ row }) => (
         <Badge variant={row.original.state === "posted" ? "default" : "outline"}>
-          {humanizeKey(String(row.original.state))}
+          {stateLabel(row.original.state)}
         </Badge>
       ),
     },
     {
       accessorKey: "moveId",
-      header: "Journal entry",
+      header: t("tableJournalEntry"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {row.original.entryId != null ? `#${row.original.entryId}` : "—"}
@@ -75,13 +85,13 @@ export function PayslipsSection() {
       searchKeys={["employeeId"]}
       statusKey="state"
       statusOptions={[
-        { value: "draft", label: "Draft" },
-        { value: "posted", label: "Posted" },
+        { value: "draft", label: t("payslipStateDraft") },
+        { value: "posted", label: t("payslipStatePosted") },
       ]}
-      searchPlaceholder={"Search payslips…"}
-      filterLabel={"State"}
-      allLabel={"All"}
-      ariaLabel={"Payslips"}
+      searchPlaceholder={t("searchPayslipsPlaceholder")}
+      filterLabel={t("tableStatus")}
+      allLabel={t("allLabel")}
+      ariaLabel={t("payslipsTitle")}
       status={
         payslipsQuery.isLoading
           ? { type: "loading" }

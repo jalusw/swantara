@@ -55,9 +55,9 @@ describe("QualityPointFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByLabelText("Operation")).toHaveValue("Final");
-    expect(screen.getByLabelText("Min value")).toHaveValue(1);
-    expect(screen.getByLabelText("Max value")).toHaveValue(2);
+    expect(await screen.findByLabelText("Operasi")).toHaveValue("Final");
+    expect(screen.getByLabelText("Nilai minimum")).toHaveValue(1);
+    expect(screen.getByLabelText("Nilai maksimum")).toHaveValue(2);
   });
 
   it("saves an edited point", async () => {
@@ -73,8 +73,8 @@ describe("QualityPointFormDialog branches", () => {
       />,
     );
 
-    await screen.findByLabelText("Operation");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByLabelText("Operasi");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -92,7 +92,7 @@ describe("QualityPointFormDialog branches", () => {
     await user.click(productBox);
     await user.click(await screen.findByRole("option", { name: "—" }));
 
-    const uomBox = within(dialog).getByRole("combobox", { name: "Unit of Measure" });
+    const uomBox = within(dialog).getByRole("combobox", { name: "Uom" });
     await user.click(uomBox);
     await user.click(await screen.findByRole("option", { name: "Gram" }));
     await user.click(uomBox);
@@ -108,19 +108,19 @@ describe("QualityPointFormDialog branches", () => {
       <QualityPointFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    const operation = await screen.findByLabelText("Operation");
+    const operation = await screen.findByLabelText("Operasi");
     await user.type(operation, "Visual check");
     await user.clear(operation);
 
-    const normMin = screen.getByLabelText("Min value");
+    const normMin = screen.getByLabelText("Nilai minimum");
     await user.type(normMin, "1.5");
     await user.clear(normMin);
 
-    const normMax = screen.getByLabelText("Max value");
+    const normMax = screen.getByLabelText("Nilai maksimum");
     await user.type(normMax, "9.5");
     await user.clear(normMax);
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });

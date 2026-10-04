@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -15,6 +16,7 @@ import { formatDate } from "@/lib/utils";
 import { EquipmentFormDialog } from "./equipment-form-dialog";
 
 export function EquipmentsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Service");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -33,26 +35,26 @@ export function EquipmentsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<Equipment>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("colName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "category",
-      header: "Category",
+      header: t("category"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">{row.original.category || "—"}</span>
       ),
     },
     {
       accessorKey: "location",
-      header: "Location",
+      header: t("location"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">{row.original.location || "—"}</span>
       ),
     },
     {
       accessorKey: "installDate",
-      header: "Install date",
+      header: t("installDate"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {row.original.installDate ? formatDate(String(row.original.installDate)) : "—"}
@@ -61,7 +63,7 @@ export function EquipmentsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "warrantyEnd",
-      header: "Warranty end",
+      header: t("warrantyEnd"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {row.original.warrantyEnd ? formatDate(String(row.original.warrantyEnd)) : "—"}
@@ -73,7 +75,7 @@ export function EquipmentsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("view")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -89,7 +91,7 @@ export function EquipmentsSection({ orgId }: { orgId: string }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>{"Total Equipment"}</CardTitle>
+            <CardTitle>{t("totalEquipment")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">{equipments.length}</p>
@@ -101,9 +103,9 @@ export function EquipmentsSection({ orgId }: { orgId: string }) {
         data={equipments}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
-        searchPlaceholder={"Search equipments…"}
-        ariaLabel={"Equipments"}
-        emptyTitle={"No equipments yet"}
+        searchPlaceholder={t("equipmentSearchPlaceholder")}
+        ariaLabel={t("equipmentTitle")}
+        emptyTitle={t("equipmentEmpty")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -118,7 +120,7 @@ export function EquipmentsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Create equipment"}</span>
+            <span>{t("newEquipment")}</span>
           </Button>
         }
       />

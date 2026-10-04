@@ -41,11 +41,11 @@ describe("MembersInviteDialog", () => {
     const user = userEvent.setup();
     renderWithProviders(<MembersInviteDialog open onOpenChange={onOpenChange} />);
 
-    await user.type(screen.getByLabelText("Search users"), "jane");
+    await user.type(screen.getByLabelText("Cari pengguna"), "jane");
     expect(await screen.findByText("janedoe", { exact: false })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /Jane Doe/ }));
-    await user.click(screen.getByRole("button", { name: "Invite" }));
+    await user.click(screen.getByRole("button", { name: "Undang" }));
 
     await waitFor(() => expect(posted).toMatchObject({ user_id: 9 }));
     await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
@@ -56,10 +56,12 @@ describe("MembersInviteDialog", () => {
     const user = userEvent.setup();
     renderWithProviders(<MembersInviteDialog open onOpenChange={vi.fn()} />);
 
-    await user.type(screen.getByLabelText("Search users"), "jane@example.com");
+    await user.type(screen.getByLabelText("Cari pengguna"), "jane@example.com");
 
     expect(
-      await screen.findByText("No suggestions for email or phone. Search by username or name."),
+      await screen.findByText(
+        "Tidak ada saran untuk email atau telepon. Cari berdasarkan nama pengguna atau nama.",
+      ),
     ).toBeInTheDocument();
     expect(screen.queryByText("janedoe", { exact: false })).toBeNull();
   });

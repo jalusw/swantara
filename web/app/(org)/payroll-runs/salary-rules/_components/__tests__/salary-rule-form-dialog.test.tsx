@@ -19,8 +19,8 @@ describe("SalaryRuleFormDialog", () => {
       />,
     );
 
-    expect(await screen.findByLabelText("Code")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByLabelText("Kode")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("accepts a rule code", async () => {
@@ -36,7 +36,7 @@ describe("SalaryRuleFormDialog", () => {
       />,
     );
 
-    const codeInput = await screen.findByLabelText("Code");
+    const codeInput = await screen.findByLabelText("Kode");
     await user.type(codeInput, "BASIC");
 
     expect(codeInput).toHaveValue("BASIC");

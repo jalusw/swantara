@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { PageHeader } from "@/components/page-header";
 import { requireActiveOrgId } from "@/lib/server/active-org";
@@ -6,19 +7,17 @@ import { EmployeesTable } from "./_components/employees-table-section";
 
 export default async function OrgEmployeesPage() {
   const id = String(await requireActiveOrgId());
+  const t = await getTranslations("Employees");
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <PageHeader
-        title={"Employees"}
-        description={"Manage your team, roles, and departments across the organization."}
-      />
+      <PageHeader title={t("title")} description={t("subtitle")} />
 
       <EmployeesStats />
 
       <Card>
         <CardHeader className="border-b">
-          <CardTitle>{"All employees"}</CardTitle>
+          <CardTitle>{t("allEmployees")}</CardTitle>
         </CardHeader>
         <CardContent>
           <EmployeesTable orgId={id} />

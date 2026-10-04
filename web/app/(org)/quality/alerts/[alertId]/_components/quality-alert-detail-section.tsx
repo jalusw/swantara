@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
@@ -9,14 +10,14 @@ import { StateBadge } from "@/components/state-badge";
 import { useOrgQuery } from "@/lib/hooks/use-org-query";
 import type { QualityAlert } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
-import {
-  alertStateLabel,
-  alertStateTone,
-  alertTraceability,
-  severityLabel,
-} from "../../../_components/quality-utils";
+import { alertStateTone, alertTraceability } from "../../../_components/quality-utils";
 
 export function QualityAlertDetail({ orgId, alertId }: { orgId: string; alertId: string }) {
+  const t = useTranslations("Quality");
+  const tCommon = useTranslations("Common");
+  const alertState = (state: string) =>
+    (t as unknown as (k: string) => string)(`alertState_${state}`);
+  const severity = (level: string) => (t as unknown as (k: string) => string)(`severity_${level}`);
   const queryClient = useQueryClient();
 
   const query = useOrgQuery<{ alert: QualityAlert }>("qualityAlert", alertId, (organizationId) =>
@@ -34,10 +35,10 @@ export function QualityAlertDetail({ orgId, alertId }: { orgId: string; alertId:
       void queryClient.invalidateQueries({
         queryKey: ["qualityAlert", Number(orgId), Number(alertId)],
       });
-      toast.success("Alert status updated.");
+      toast.success(t("alertStatusUpdated"));
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -57,13 +58,11 @@ export function QualityAlertDetail({ orgId, alertId }: { orgId: string; alertId:
   }
 
   if (isLoading) {
-    return <div className="text-muted-foreground text-sm">{"Loading…"}</div>;
+    return <div className="text-muted-foreground text-sm">{tCommon("loading")}</div>;
   }
 
   if (error || !alert) {
-    return (
-      <div className="text-destructive text-sm">{error?.message ?? "Quality alert not found."}</div>
-    );
+    return <div className="text-destructive text-sm">{error?.message ?? t("alertNotFound")}</div>;
   }
 
   const tone = alertStateTone(alert.state);
@@ -73,9 +72,9 @@ export function QualityAlertDetail({ orgId, alertId }: { orgId: string; alertId:
     <div className="flex flex-col gap-4 sm:gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg">{alert.title || `Alert #${alert.id}`}</h1>
-          <StateBadge tone={tone} label={alertStateLabel(alert.state)} />
-          {alert.severity ? <Badge variant="outline">{severityLabel(alert.severity)}</Badge> : null}
+          <h1 className="text-lg">{alert.title || t("alertFallback", { id: alert.id })}</h1>
+          <StateBadge tone={tone} label={alertState(alert.state)} />
+          {alert.severity ? <Badge variant="outline">{severity(alert.severity)}</Badge> : null}
         </div>
         <div className="flex gap-2">
           {transitions.map((next) => (
@@ -87,7 +86,7 @@ export function QualityAlertDetail({ orgId, alertId }: { orgId: string; alertId:
               }
               onClick={() => handleTransition(next)}
             >
-              {alertStateLabel(next)}
+              {alertState(next)}
             </Button>
           ))}
         </div>
@@ -95,20 +94,22 @@ export function QualityAlertDetail({ orgId, alertId }: { orgId: string; alertId:
 
       <Card>
         <CardHeader>
-          <CardTitle>{"Overview"}</CardTitle>
+          <CardTitle>{t("summary")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="text-sm text-muted-foreground">{"Description"}</p>
+            <p className="text-sm text-muted-foreground">{t("description")}</p>
             <p className="text-sm">{alert.description || "—"}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{"Traceability"}</p>
+            <p className="text-sm text-muted-foreground">{t("traceability")}</p>
             <p className="text-sm">{alertTraceability(alert)}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{"Assigned to"}</p>
-            <p className="text-sm">{alert.assignedTo ? `User #${alert.assignedTo}` : "—"}</p>
+            <p className="text-sm text-muted-foreground">{t("assignedTo")}</p>
+            <p className="text-sm">
+              {alert.assignedTo ? t("userFallback", { id: alert.assignedTo }) : "—"}
+            </p>
           </div>
         </CardContent>
       </Card>

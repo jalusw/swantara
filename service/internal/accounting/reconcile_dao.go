@@ -74,6 +74,7 @@ func (d accountPartialReconcileDAO) TotalByLine(ctx context.Context, lineID uint
 
 type ReminderActionDAO interface {
 	dao.CRUD[ReminderAction]
+	CreateTx(ctx context.Context, tx *gorm.DB, action *ReminderAction) (*ReminderAction, error)
 	FindByInvoiceLevel(ctx context.Context, invoiceID, levelID uint64) (*ReminderAction, error)
 	ListByInvoice(ctx context.Context, invoiceID uint64) ([]*ReminderAction, error)
 }
@@ -85,6 +86,13 @@ type reminderActionDAO struct {
 
 func NewReminderActionDAO(db *gorm.DB) ReminderActionDAO {
 	return reminderActionDAO{Base: dao.NewBase[ReminderAction](db), db: db}
+}
+
+func (d reminderActionDAO) CreateTx(ctx context.Context, tx *gorm.DB, action *ReminderAction) (*ReminderAction, error) {
+	if err := tx.WithContext(ctx).Create(action).Error; err != nil {
+		return nil, err
+	}
+	return action, nil
 }
 
 func (d reminderActionDAO) FindByInvoiceLevel(ctx context.Context, invoiceID, levelID uint64) (*ReminderAction, error) {

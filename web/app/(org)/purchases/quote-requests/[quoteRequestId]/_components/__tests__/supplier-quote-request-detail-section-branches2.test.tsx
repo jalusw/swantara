@@ -92,7 +92,7 @@ describe("SupplierQuoteRequestDetail branches2", () => {
     );
     renderWithProviders(<SupplierQuoteRequestDetail orgId="1" quoteRequestId="4" />);
 
-    expect(await screen.findByText("QuoteRequest not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Permintaan penawaran tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("hides notes and date fallbacks on both branches", async () => {
@@ -109,9 +109,9 @@ describe("SupplierQuoteRequestDetail branches2", () => {
     renderWithProviders(<SupplierQuoteRequestDetail orgId="1" quoteRequestId="4" />);
 
     await screen.findAllByText("QuoteRequest-0004");
-    expect(await screen.findByText("No lines.")).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: "Quotes" }));
-    expect(await screen.findByText("No quotes received yet.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada baris")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Penawaran" }));
+    expect(await screen.findByText("Tidak ada penawaran")).toBeInTheDocument();
   });
 
   it("shows accepted quote branch when a quote is accepted", async () => {
@@ -120,7 +120,7 @@ describe("SupplierQuoteRequestDetail branches2", () => {
     renderWithProviders(<SupplierQuoteRequestDetail orgId="1" quoteRequestId="4" />);
 
     await screen.findAllByText("QuoteRequest-0004");
-    await user.click(screen.getByRole("tab", { name: "Quotes" }));
+    await user.click(screen.getByRole("tab", { name: "Penawaran" }));
     expect(await screen.findByText("Accepted")).toBeInTheDocument();
   });
 

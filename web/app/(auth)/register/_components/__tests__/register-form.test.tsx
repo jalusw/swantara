@@ -6,8 +6,8 @@ import { useRegisterFormStore } from "../../_hooks/register-form-store";
 import RegisterForm from "../register-form";
 
 async function fillNameStep(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText(/first name/i), "Jane");
-  await user.type(screen.getByLabelText(/last name/i), "Doe");
+  await user.type(screen.getByLabelText(/nama depan/i), "Jane");
+  await user.type(screen.getByLabelText(/nama belakang/i), "Doe");
 }
 
 describe("RegisterForm", () => {
@@ -15,21 +15,21 @@ describe("RegisterForm", () => {
     const user = userEvent.setup();
     renderWithProviders(<RegisterForm />);
 
-    expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/nama depan/i)).toBeInTheDocument();
 
     await fillNameStep(user);
-    await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("button", { name: /lanjut/i }));
 
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
 
     await user.type(screen.getByLabelText(/email/i), "new@example.com");
-    await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("button", { name: /lanjut/i }));
 
-    expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^kata sandi$/i)).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText(/^password$/i), "password1");
-    await user.type(screen.getByLabelText(/password confirmation/i), "password1");
-    await user.click(screen.getByRole("button", { name: /register/i }));
+    await user.type(screen.getByLabelText(/^kata sandi$/i), "password1");
+    await user.type(screen.getByLabelText(/konfirmasi kata sandi/i), "password1");
+    await user.click(screen.getByRole("button", { name: /daftar/i }));
 
     await waitFor(() => {
       expect(navigationMock.push).toHaveBeenCalledWith("/onboarding");
@@ -40,9 +40,9 @@ describe("RegisterForm", () => {
     const user = userEvent.setup();
     renderWithProviders(<RegisterForm />);
 
-    await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("button", { name: /lanjut/i }));
 
-    expect(screen.getByText(/first name is required/i)).toBeInTheDocument();
+    expect(screen.getByText(/nama depan wajib diisi/i)).toBeInTheDocument();
     expect(useRegisterFormStore.getState().step).toBe("name");
   });
 
@@ -51,12 +51,12 @@ describe("RegisterForm", () => {
     renderWithProviders(<RegisterForm />);
 
     await fillNameStep(user);
-    await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("button", { name: /lanjut/i }));
 
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /back/i }));
+    await user.click(screen.getByRole("button", { name: /kembali/i }));
 
-    expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/nama depan/i)).toBeInTheDocument();
     expect(useRegisterFormStore.getState().step).toBe("name");
   });
 });

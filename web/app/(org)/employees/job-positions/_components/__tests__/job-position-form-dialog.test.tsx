@@ -26,7 +26,7 @@ beforeEach(() => {
       HttpResponse.json(
         {
           success: true,
-          message: "Created.",
+          message: "Dibuat.",
           data: { job_position: { id: 4, name: "Backend Engineer" } },
         },
         { status: 201 },
@@ -45,8 +45,8 @@ describe("JobPositionFormDialog", () => {
   it("renders the create form", async () => {
     renderDialog(() => {});
 
-    expect(await screen.findByRole("heading", { name: "New position" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Jabatan baru" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("creates a job position on submit", async () => {
@@ -54,9 +54,9 @@ describe("JobPositionFormDialog", () => {
     const user = userEvent.setup();
     renderDialog(onSave);
 
-    await screen.findByRole("heading", { name: "New position" });
-    await user.type(screen.getByLabelText("Name"), "Backend Engineer");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByRole("heading", { name: "Jabatan baru" });
+    await user.type(screen.getByLabelText("Nama"), "Backend Engineer");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
   });

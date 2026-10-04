@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
@@ -8,14 +9,14 @@ import { useOrgQuery } from "@/lib/hooks/use-org-query";
 import type { QualityCheck } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
-import {
-  canRecordResult,
-  checkResultLabel,
-  checkResultTone,
-} from "../../../_components/quality-utils";
+import { canRecordResult, checkResultTone } from "../../../_components/quality-utils";
 import { RecordResultDialog } from "../../_components/record-result-dialog";
 
 export function QualityCheckDetail({ orgId, checkId }: { orgId: string; checkId: string }) {
+  const t = useTranslations("Quality");
+  const tCommon = useTranslations("Common");
+  const resultLabel = (result: string) =>
+    (t as unknown as (k: string) => string)(`result_${result}`);
   const [resultDialogOpen, setResultDialogOpen] = useState(false);
 
   const query = useOrgQuery<{ check: QualityCheck }>("qualityCheck", checkId, (organizationId) =>
@@ -27,13 +28,11 @@ export function QualityCheckDetail({ orgId, checkId }: { orgId: string; checkId:
   const error = query.isError ? query.error : null;
 
   if (isLoading) {
-    return <div className="text-muted-foreground text-sm">{"Loading…"}</div>;
+    return <div className="text-muted-foreground text-sm">{tCommon("loading")}</div>;
   }
 
   if (error || !check) {
-    return (
-      <div className="text-destructive text-sm">{error?.message ?? "Quality check not found."}</div>
-    );
+    return <div className="text-destructive text-sm">{error?.message ?? t("checkNotFound")}</div>;
   }
 
   const tone = checkResultTone(check.result);
@@ -42,45 +41,45 @@ export function QualityCheckDetail({ orgId, checkId }: { orgId: string; checkId:
     <div className="flex flex-col gap-4 sm:gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg">{`Quality Check #${check.id}`}</h1>
-          <StateBadge tone={tone} label={checkResultLabel(check.result)} />
+          <h1 className="text-lg">{t("checkHeading", { id: check.id })}</h1>
+          <StateBadge tone={tone} label={resultLabel(check.result)} />
         </div>
         {canRecordResult(check) ? (
           <Button size="sm" onClick={() => setResultDialogOpen(true)}>
-            {"Record result"}
+            {t("recordResult")}
           </Button>
         ) : null}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>{"Overview"}</CardTitle>
+          <CardTitle>{t("summary")}</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="text-sm text-muted-foreground">{"Item"}</p>
+            <p className="text-sm text-muted-foreground">{t("colItem")}</p>
             <p className="text-sm">{check.itemId ? `Item #${check.itemId}` : "—"}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{"Batch"}</p>
+            <p className="text-sm text-muted-foreground">{t("colBatch")}</p>
             <p className="text-sm">{check.batchId ? `Batch #${check.batchId}` : "—"}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{"Shipment"}</p>
+            <p className="text-sm text-muted-foreground">{t("colShipment")}</p>
             <p className="text-sm">{check.shipmentId ? `#${check.shipmentId}` : "—"}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{"MO"}</p>
+            <p className="text-sm text-muted-foreground">{t("colProductionOrder")}</p>
             <p className="text-sm">
               {check.productionOrderId ? `#${check.productionOrderId}` : "—"}
             </p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{"Measured value"}</p>
+            <p className="text-sm text-muted-foreground">{t("measuredValue")}</p>
             <p className="text-sm">{check.measuredValue != null ? check.measuredValue : "—"}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{"Checked at"}</p>
+            <p className="text-sm text-muted-foreground">{t("colCheckedAt")}</p>
             <p className="text-sm">{check.checkedAt ? formatDate(check.checkedAt) : "—"}</p>
           </div>
         </CardContent>

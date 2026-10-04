@@ -38,7 +38,7 @@ describe("FilterBar", () => {
     const user = userEvent.setup();
     renderWithProviders(<HostStatefulFilterBar />);
     expect(screen.getByLabelText("Search")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /filters/i }));
+    await user.click(screen.getByRole("button", { name: "Filter" }));
     expect(screen.getByLabelText("Status")).toBeInTheDocument();
   });
 

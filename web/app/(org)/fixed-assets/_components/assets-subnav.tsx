@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { OrgSubNav } from "@/app/(org)/_components/org-subnav";
 
 const ASSETS_TABS = [
@@ -8,5 +9,6 @@ const ASSETS_TABS = [
 ] as const;
 
 export function AssetsSubNav() {
-  return <OrgSubNav label={"Assets"} tabs={ASSETS_TABS} />;
+  const t = useTranslations("FixedAssets");
+  return <OrgSubNav label={t("layoutTitle")} tabs={ASSETS_TABS} />;
 }

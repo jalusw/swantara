@@ -56,8 +56,8 @@ describe("TimesheetFormDialog", () => {
       <TimesheetFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(await screen.findByText("Add timesheet entry")).toBeInTheDocument();
-    expect(screen.getByLabelText("Hours")).toBeInTheDocument();
+    expect(await screen.findByText("Tambah entri lembar waktu")).toBeInTheDocument();
+    expect(screen.getByLabelText("Jam")).toBeInTheDocument();
   });
 
   it("renders employee options from the API", async () => {
@@ -65,7 +65,7 @@ describe("TimesheetFormDialog", () => {
       <TimesheetFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Add timesheet entry");
-    expect(screen.getAllByText("Employee").length).toBeGreaterThan(0);
+    await screen.findByText("Tambah entri lembar waktu");
+    expect(screen.getAllByText("Karyawan").length).toBeGreaterThan(0);
   });
 });

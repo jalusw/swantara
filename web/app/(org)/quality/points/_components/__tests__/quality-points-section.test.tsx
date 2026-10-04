@@ -71,7 +71,7 @@ describe("QualityPointsSection", () => {
     renderWithProviders(<QualityPointsSection orgId="1" />);
 
     await screen.findByText("Final inspection");
-    await user.type(screen.getByPlaceholderText("Search quality points…"), "Incoming");
+    await user.type(screen.getByPlaceholderText("Cari titik mutu…"), "Incoming");
 
     expect(await screen.findByText("Incoming QC")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Final inspection")).not.toBeInTheDocument());

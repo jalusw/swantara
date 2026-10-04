@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -12,11 +13,11 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { DeferralSchedule } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatNumber } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { DeferralFormDialog } from "./deferral-form-dialog";
 import { deferralStateTone } from "./deferral-utils";
 
 export function DeferralsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Deferrals");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -35,7 +36,7 @@ export function DeferralsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<DeferralSchedule>[] = [
     {
       accessorKey: "sourceType",
-      header: "Source",
+      header: () => t("colSource"),
       cell: ({ row }) => (
         <a
           href={`/deferrals/${row.original.id}`}
@@ -47,12 +48,16 @@ export function DeferralsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => <Badge variant="outline">{String(row.original.type)}</Badge>,
+      header: () => t("colType"),
+      cell: ({ row }) => (
+        <Badge variant="outline">
+          {(t as unknown as (k: string) => string)(`deferralType_${row.original.type}`)}
+        </Badge>
+      ),
     },
     {
       accessorKey: "totalAmount",
-      header: "Total",
+      header: () => t("colTotal"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums ">{formatNumber(row.original.totalAmount)}</span>
@@ -60,7 +65,7 @@ export function DeferralsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "recognizedAmount",
-      header: "Recognized",
+      header: () => t("colRecognized"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums">{formatNumber(row.original.recognizedAmount)}</span>
@@ -68,14 +73,16 @@ export function DeferralsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "method",
-      header: "Method",
+      header: () => t("colMethod"),
       cell: ({ row }) => (
-        <span className="text-muted-foreground text-sm">{String(row.original.method)}</span>
+        <span className="text-muted-foreground text-sm">
+          {(t as unknown as (k: string) => string)(`deferMethod_${row.original.method}`)}
+        </span>
       ),
     },
     {
       accessorKey: "dateStart",
-      header: "Start date",
+      header: () => t("colStartDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.dateStart ? formatDate(String(row.original.dateStart)) : "—"}
@@ -84,7 +91,7 @@ export function DeferralsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: () => t("colStatus"),
       cell: ({ row }) => {
         const tone = deferralStateTone(row.original.state);
         return (
@@ -102,7 +109,7 @@ export function DeferralsSection({ orgId }: { orgId: string }) {
                       : ""
             }
           >
-            {humanizeKey(String(row.original.state))}
+            {(t as unknown as (k: string) => string)(`deferralState_${row.original.state}`)}
           </Badge>
         );
       },
@@ -112,7 +119,7 @@ export function DeferralsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("actionView")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -132,16 +139,22 @@ export function DeferralsSection({ orgId }: { orgId: string }) {
         searchKeys={["sourceType"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "running", label: "Running" },
-          { value: "done", label: "Done" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: (t as unknown as (k: string) => string)("deferralState_draft") },
+          {
+            value: "running",
+            label: (t as unknown as (k: string) => string)("deferralState_running"),
+          },
+          { value: "done", label: (t as unknown as (k: string) => string)("deferralState_done") },
+          {
+            value: "cancelled",
+            label: (t as unknown as (k: string) => string)("deferralState_cancelled"),
+          },
         ]}
-        searchPlaceholder={"Search deferrals…"}
-        filterLabel={"State"}
-        allLabel={"All deferrals"}
-        ariaLabel={"Deferrals"}
-        emptyTitle={"No deferral schedules yet"}
+        searchPlaceholder={t("searchDeferrals")}
+        filterLabel={t("colStatus")}
+        allLabel={t("allDeferrals")}
+        ariaLabel={t("title")}
+        emptyTitle={t("emptyDeferrals")}
         status={
           schedulesQuery.isLoading
             ? { type: "loading" }
@@ -156,7 +169,7 @@ export function DeferralsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Create deferral"}</span>
+            <span>{t("createDeferral")}</span>
           </Button>
         }
       />

@@ -13,7 +13,9 @@ import (
 
 type PaymentCreator interface {
 	Create(ctx context.Context, request CreatePaymentRequest) (*Payment, error)
+	CreateTx(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest) (*Payment, error)
 	CreateOutbound(ctx context.Context, request CreatePaymentRequest) (*Payment, error)
+	CreateOutboundTx(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest) (*Payment, error)
 }
 
 type RegisterPdcRequest struct {
@@ -121,9 +123,9 @@ func (s PdcService) Clear(ctx context.Context, id, organizationID uint64) (*PdcI
 		var payment *Payment
 		var err error
 		if instrument.Direction == PaymentTypeOutbound {
-			payment, err = s.payments.CreateOutbound(ctx, paymentRequest)
+			payment, err = s.payments.CreateOutboundTx(ctx, tx, paymentRequest)
 		} else {
-			payment, err = s.payments.Create(ctx, paymentRequest)
+			payment, err = s.payments.CreateTx(ctx, tx, paymentRequest)
 		}
 		if err != nil {
 			return err

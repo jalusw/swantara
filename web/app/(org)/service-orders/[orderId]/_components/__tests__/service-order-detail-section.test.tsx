@@ -75,7 +75,7 @@ describe("ServiceOrderDetail", () => {
     renderWithProviders(<ServiceOrderDetail orgId="1" orderId="1" />);
 
     await screen.findByRole("heading", { name: "AC Repair Visit" });
-    await user.click(screen.getByRole("tab", { name: "Lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris" }));
 
     expect(await screen.findByText("Brake pad replacement")).toBeInTheDocument();
   });

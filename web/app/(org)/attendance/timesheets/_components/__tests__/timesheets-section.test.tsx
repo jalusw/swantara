@@ -99,7 +99,7 @@ describe("TimesheetsSection", () => {
     renderWithProviders(<TimesheetsSection orgId="1" />);
 
     await screen.findByText("Alex Rivera");
-    await user.type(screen.getByPlaceholderText("Search timesheets…"), "Design");
+    await user.type(screen.getByPlaceholderText("Cari lembar waktu…"), "Design");
 
     expect(await screen.findByText("Design review")).toBeInTheDocument();
   });
@@ -109,7 +109,7 @@ describe("TimesheetsSection", () => {
     renderWithProviders(<TimesheetsSection orgId="1" />);
 
     await screen.findByText("Alex Rivera");
-    await user.click(screen.getByRole("button", { name: "Add entry" }));
+    await user.click(screen.getByRole("button", { name: "Tambah entri lembar waktu" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

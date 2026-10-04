@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { OrgSubNav } from "@/app/(org)/_components/org-subnav";
 
 const LEAVE_TABS = [
@@ -8,5 +9,6 @@ const LEAVE_TABS = [
 ] as const;
 
 export function LeaveSubNav() {
-  return <OrgSubNav label={"Leave"} tabs={LEAVE_TABS} />;
+  const t = useTranslations("Leave");
+  return <OrgSubNav label={t("subnavLabel")} tabs={LEAVE_TABS} />;
 }

@@ -27,7 +27,7 @@ describe("ManufacturingSection", () => {
     seedManufacturing({ kpi });
     renderWithProviders(<ManufacturingSection />);
 
-    expect(await screen.findByText("Manufacturing")).toBeInTheDocument();
+    expect(await screen.findByText("Manufaktur")).toBeInTheDocument();
     expect((await screen.findAllByText("24")).length).toBeGreaterThan(0);
   });
 
@@ -35,7 +35,7 @@ describe("ManufacturingSection", () => {
     seedManufacturing({});
     renderWithProviders(<ManufacturingSection />);
 
-    await screen.findByText("Manufacturing");
+    await screen.findByText("Manufaktur");
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
 
@@ -51,7 +51,7 @@ describe("ManufacturingSection", () => {
     seedManufacturing({ kpi: null });
     renderWithProviders(<ManufacturingSection />);
 
-    await screen.findByText("Manufacturing");
+    await screen.findByText("Manufaktur");
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
 });

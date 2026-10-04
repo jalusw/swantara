@@ -1,0 +1,37 @@
+# Swantara — single-domain reverse proxy (prod).
+#
+# Traffic flow (intentional):
+#   browser -> Caddy (:80/:443) -> web:3000 -> (server-side) -> api:8080
+#
+# The Next.js app already proxies /api/v1/* server-side via
+# SWANTARA_API_URL=http://api:8080/api/v1 (see web/app/api/v1/[...path]/route.ts),
+# so Caddy only fronts `web`. The Go API is NOT exposed publicly: no CORS,
+# no extra TLS, cookies stay same-site.
+#
+# Usage:
+#   DOMAIN=erp.example.com docker compose -f docker-compose.prod.yml up -d
+#
+# Local plain-HTTP test (no TLS):
+#   DOMAIN=:80 docker compose -f docker-compose.prod.yml up -d
+#   open http://localhost
+#
+# Caddy gets certs automatically when DOMAIN is a real hostname pointing at
+# this host. Certs persist in the caddy_data volume.
+{
+	admin off
+	# Optional: add `email your@mail.com` here so Let's Encrypt can notify
+	# about cert expiry / rate limits.
+}
+
+{$DOMAIN} {
+	encode gzip zstd
+
+	# Next.js (includes /api/v1/* proxy, PWA, static)
+	reverse_proxy web:3000 {
+		lb_try_duration 30s
+		lb_try_interval 2s
+		health_uri /
+		health_interval 30s
+		health_timeout 5s
+	}
+}

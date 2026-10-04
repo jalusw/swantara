@@ -11,66 +11,56 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/card";
 import { usePermissions } from "@/lib/hooks/use-permissions";
 
 type ReportCard = {
   key: string;
-  title: string;
-  description: string;
   href: string;
   icon: LucideIcon;
   permission?: string;
 };
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 export function ReportsHubSection() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Reports");
   const { has } = usePermissions();
 
   const reports: ReportCard[] = [
     {
       key: "profitAndLoss",
-      title: "Profit & Loss",
-      description: "Income and expenses for the current period.",
       href: "/reports/profit-and-loss",
       icon: TrendingUp,
       permission: "journal_entry.view",
     },
     {
       key: "balanceSheet",
-      title: "Balance Sheet",
-      description: "Assets, liabilities, and equity snapshot.",
       href: "/reports/balance-sheet",
       icon: Scale,
       permission: "journal_entry.view",
     },
     {
       key: "cashFlow",
-      title: "Cash Flow",
-      description: "Cash movements across operating, investing, and financing.",
       href: "/reports/cash-flow",
       icon: Wallet,
       permission: "journal_entry.view",
     },
     {
       key: "trialBalance",
-      title: "Trial Balance",
-      description: "Debit and credit balances for all accounts.",
       href: "/reports/trial-balance",
       icon: BarChart3,
       permission: "journal_entry.view",
     },
     {
       key: "aging",
-      title: "Accounts Aging",
-      description: "Outstanding receivables by age bucket.",
       href: "/reports/aging",
       icon: DollarSign,
       permission: "journal_entry.view",
     },
     {
       key: "inventory",
-      title: "Inventory Valuation",
-      description: "Stock value by warehouse and SKU.",
       href: "/reports/inventory-valuation",
       icon: Package,
       permission: "item.view",
@@ -100,8 +90,12 @@ export function ReportsHubSection() {
                     aria-hidden
                   />
                 </div>
-                <CardTitle className="mt-1">{report.title}</CardTitle>
-                <CardDescription>{report.description}</CardDescription>
+                <CardTitle className="mt-1">
+                  {(t as unknown as (k: string) => string)(`card_${report.key}_title`)}
+                </CardTitle>
+                <CardDescription>
+                  {(t as unknown as (k: string) => string)(`card_${report.key}_description`)}
+                </CardDescription>
               </CardHeader>
             </Card>
           </Link>

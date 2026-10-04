@@ -17,7 +17,7 @@ describe("MilestoneFormDialog", () => {
       />,
     );
 
-    expect(screen.getByText("New milestone")).toBeInTheDocument();
+    expect(screen.getByText("Tonggak baru")).toBeInTheDocument();
   });
 
   it("renders name field", () => {
@@ -31,6 +31,6 @@ describe("MilestoneFormDialog", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Milestone")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama tonggak")).toBeInTheDocument();
   });
 });

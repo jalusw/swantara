@@ -39,7 +39,7 @@ describe("PosSessionDetail remainder", () => {
     );
     renderWithProviders(<PosSessionDetail orgId="1" sessionId="999" />);
 
-    expect(await screen.findByText("Session not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Sesi tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("shows the empty orders and payments states", async () => {
@@ -47,11 +47,11 @@ describe("PosSessionDetail remainder", () => {
     const user = userEvent.setup();
     renderWithProviders(<PosSessionDetail orgId="1" sessionId="1" />);
 
-    await screen.findByRole("heading", { name: "Session-1" });
-    expect(screen.getByText("No payments")).toBeInTheDocument();
+    await screen.findByRole("heading", { name: "Sesi 1" });
+    expect(screen.getByText("Tidak ada pembayaran")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("tab", { name: "Orders" }));
-    expect(await screen.findByText("No orders in this session.")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Pesanan" }));
+    expect(await screen.findByText("Tidak ada pesanan sesi")).toBeInTheDocument();
   });
 
   it("moves an opened session to closing", async () => {
@@ -66,8 +66,8 @@ describe("PosSessionDetail remainder", () => {
     const user = userEvent.setup();
     renderWithProviders(<PosSessionDetail orgId="1" sessionId="1" />);
 
-    await screen.findByRole("heading", { name: "Session-1" });
-    await user.click(screen.getByRole("button", { name: "Start closing" }));
+    await screen.findByRole("heading", { name: "Sesi 1" });
+    await user.click(screen.getByRole("button", { name: "Mulai penutupan" }));
 
     await waitFor(() => expect(closingCalled).toBe(true));
   });
@@ -102,14 +102,14 @@ describe("PosSessionDetail remainder", () => {
     const user = userEvent.setup();
     renderWithProviders(<PosSessionDetail orgId="1" sessionId="1" />);
 
-    await screen.findByRole("heading", { name: "Session-1" });
+    await screen.findByRole("heading", { name: "Sesi 1" });
     expect(screen.getByText("cash")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Close session" }));
+    await user.click(screen.getByRole("button", { name: "Tutup Sesi" }));
 
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByText("Balanced")).toBeInTheDocument();
-    await user.click(within(dialog).getByRole("button", { name: "Close session" }));
+    await user.click(within(dialog).getByRole("button", { name: "Tutup Sesi" }));
 
     await waitFor(() => expect(closedBalance).toMatchObject({ closing_balance: 150000 }));
   });
@@ -119,8 +119,8 @@ describe("PosSessionDetail remainder", () => {
     const user = userEvent.setup();
     renderWithProviders(<PosSessionDetail orgId="1" sessionId="1" />);
 
-    await screen.findByRole("heading", { name: "Session-1" });
-    await user.click(screen.getByRole("button", { name: "Close session" }));
+    await screen.findByRole("heading", { name: "Sesi 1" });
+    await user.click(screen.getByRole("button", { name: "Tutup Sesi" }));
 
     const dialog = await screen.findByRole("dialog");
     const input = within(dialog).getByRole("spinbutton");
@@ -140,10 +140,10 @@ describe("PosSessionDetail remainder", () => {
     );
     renderWithProviders(<PosSessionDetail orgId="1" sessionId="1" />);
 
-    await screen.findByRole("heading", { name: "Session-1" });
-    expect(screen.queryByRole("button", { name: "Open register" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Start closing" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Close session" })).not.toBeInTheDocument();
+    await screen.findByRole("heading", { name: "Sesi 1" });
+    expect(screen.queryByRole("button", { name: "Buka Kasir" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Mulai penutupan" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tutup Sesi" })).not.toBeInTheDocument();
   });
 
   it("shows an error toast when closing fails", async () => {
@@ -156,9 +156,9 @@ describe("PosSessionDetail remainder", () => {
     const user = userEvent.setup();
     renderWithProviders(<PosSessionDetail orgId="1" sessionId="1" />);
 
-    await screen.findByRole("heading", { name: "Session-1" });
-    await user.click(screen.getByRole("button", { name: "Start closing" }));
+    await screen.findByRole("heading", { name: "Sesi 1" });
+    await user.click(screen.getByRole("button", { name: "Mulai penutupan" }));
 
-    expect(await screen.findByRole("heading", { name: "Session-1" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Sesi 1" })).toBeInTheDocument();
   });
 });

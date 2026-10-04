@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
@@ -8,13 +9,14 @@ import { KanbanBoard } from "@/components/kanban-board";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { QualityAlert } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
-import {
-  alertStateLabel,
-  alertStateSteps,
-  canTransitionAlert,
-} from "../../_components/quality-utils";
+import { alertStateSteps, canTransitionAlert } from "../../_components/quality-utils";
 
 export function QualityAlertsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Quality");
+  const tCommon = useTranslations("Common");
+  const alertState = (state: string) =>
+    (t as unknown as (k: string) => string)(`alertState_${state}`);
+  const severity = (level: string) => (t as unknown as (k: string) => string)(`severity_${level}`);
   const queryClient = useQueryClient();
 
   const query = useOrgListQuery<{ alerts: QualityAlert[] }, Record<string, never>>(
@@ -30,7 +32,7 @@ export function QualityAlertsSection({ orgId }: { orgId: string }) {
     id: state,
     title: (
       <span className="flex items-center gap-1">
-        <span>{alertStateLabel(state)}</span>
+        <span>{alertState(state)}</span>
         <Badge variant="secondary" className="text-[10px] leading-none">
           {alerts.filter((a) => a.state === state).length}
         </Badge>
@@ -43,24 +45,24 @@ export function QualityAlertsSection({ orgId }: { orgId: string }) {
     .map((alert) => ({
       id: String(alert.id),
       columnId: alert.state,
-      title: alert.title || `Alert #${alert.id}`,
+      title: alert.title || t("alertFallback", { id: alert.id }),
       subtitle: alert.description
         ? alert.description.length > 60
           ? `${alert.description.slice(0, 60)}…`
           : alert.description
         : undefined,
-      meta: alert.severity ? <Badge variant="outline">{alert.severity}</Badge> : null,
+      meta: alert.severity ? <Badge variant="outline">{severity(alert.severity)}</Badge> : null,
     }));
 
   const stateMutation = useMutation({
     mutationFn: ({ cardId, next }: { cardId: string; next: QualityAlert["state"] }) =>
       getSwantaraService().qualityAlerts.state(Number(orgId), Number(cardId), { state: next }),
     onSuccess: () => {
-      toast.success("Alert status updated.");
+      toast.success(t("alertStatusUpdated"));
       void queryClient.invalidateQueries({ queryKey: ["qualityAlerts"] });
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -85,7 +87,7 @@ export function QualityAlertsSection({ orgId }: { orgId: string }) {
   }
 
   if (isLoading) {
-    return <div className="text-muted-foreground text-sm">{"Loading…"}</div>;
+    return <div className="text-muted-foreground text-sm">{tCommon("loading")}</div>;
   }
 
   if (error) {
@@ -93,7 +95,7 @@ export function QualityAlertsSection({ orgId }: { orgId: string }) {
       <div className="flex flex-col gap-2">
         <p className="text-destructive text-sm">{error.message}</p>
         <Button variant="outline" size="sm" onClick={() => void query.refetch()}>
-          {"Retry"}
+          {tCommon("retry")}
         </Button>
       </div>
     );
@@ -105,11 +107,9 @@ export function QualityAlertsSection({ orgId }: { orgId: string }) {
         columns={columns}
         cards={cards}
         onMoveCard={handleMove}
-        aria-label={"Quality Alerts"}
+        aria-label={t("alertsTitle")}
       />
-      <p className="text-xs text-muted-foreground">
-        {"Drag cards between columns to update status."}
-      </p>
+      <p className="text-xs text-muted-foreground">{t("kanbanHint")}</p>
       <div className="flex flex-wrap gap-2 lg:hidden">
         {alerts
           .filter((a) => a.state !== "cancelled" && a.state !== "solved")
@@ -125,7 +125,7 @@ export function QualityAlertsSection({ orgId }: { orgId: string }) {
                     variant="outline"
                     onClick={() => handleMove(String(alert.id), next)}
                   >
-                    {alertStateLabel(next)}: {alert.title || `#${alert.id}`}
+                    {alertState(next)}: {alert.title || `#${alert.id}`}
                   </Button>
                 ))}
               </div>

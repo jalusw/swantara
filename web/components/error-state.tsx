@@ -33,13 +33,13 @@ export function ErrorState({
   homeHref = "/login",
 }: ErrorStateProps) {
   const allLabels = {
-    title: "Something went wrong",
+    title: "Terjadi kesalahan",
     description:
-      "An unexpected error occurred. Please try again or contact support if the problem persists.",
-    retry: "Try again",
-    contactSupport: "Contact support",
-    backToHome: "Back to home",
-    errorReference: digest ? `Error reference: ${digest}` : undefined,
+      "Terjadi kesalahan tak terduga. Silakan coba lagi atau hubungi dukungan jika masalah berlanjut.",
+    retry: "Coba lagi",
+    contactSupport: "Hubungi dukungan",
+    backToHome: "Kembali ke beranda",
+    errorReference: digest ? `Referensi kesalahan: ${digest}` : undefined,
     ...labels,
   };
 

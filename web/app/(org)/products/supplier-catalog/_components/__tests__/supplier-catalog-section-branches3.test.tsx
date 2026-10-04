@@ -84,7 +84,7 @@ describe("SupplierCatalogSection branches3", () => {
     renderWithProviders(<SupplierCatalogSection orgId="1" />);
 
     await screen.findByText("Bolt");
-    await user.click(screen.getByRole("button", { name: "Add supplier item" }));
+    await user.click(screen.getByRole("button", { name: "Tambah produk pemasok" }));
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
     await user.keyboard("{Escape}");
   });
@@ -97,6 +97,6 @@ describe("SupplierCatalogSection branches3", () => {
     );
     renderWithProviders(<SupplierCatalogSection orgId="1" />);
 
-    expect(await screen.findByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 });

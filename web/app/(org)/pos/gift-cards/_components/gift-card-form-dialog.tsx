@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -13,11 +14,12 @@ import type { Contact } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 
 function useGiftCardFormSchema() {
+  const t = useTranslations("Pos");
   return z.object({
     code: z.string().optional(),
     contactId: z.string().optional(),
-    amount: z.string().min(1, "Amount is required"),
-    currencyCode: z.string().min(1, "Currency is required"),
+    amount: z.string().min(1, t("validation_amountRequired")),
+    currencyCode: z.string().min(1, t("validation_currencyRequired")),
     expiryDate: z.string().optional(),
   });
 }
@@ -33,6 +35,8 @@ export function GiftCardFormDialog({
   orgId: string;
   onSave: (id: string) => void;
 }) {
+  const t = useTranslations("Pos");
+  const tCommon = useTranslations("Common");
   const contactsQuery = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
     "contacts",
     (organizationId) => getSwantaraService().contacts.list(organizationId),
@@ -53,54 +57,62 @@ export function GiftCardFormDialog({
     },
   });
 
-  function handleSubmit(values: Values) {
-    void toast.promise(
-      getSwantaraService().giftCards.create(Number(orgId), {
-        code: values.code || undefined,
-        contactId: values.contactId ? Number(values.contactId) : undefined,
-        amount: Number(values.amount),
-        currencyCode: values.currencyCode,
-        expiryDate: values.expiryDate || undefined,
-        journalId: 1,
-        cashAccountId: 1,
-        liabilityAccountId: 1,
-      }),
-      {
-        loading: "Issuing…",
-        success: (result) => {
-          onSave(String(result.giftCard.id));
-          return "Gift card issued";
-        },
-        error: "Failed to issue gift card",
+  async function handleSubmit(values: Values) {
+    const request = getSwantaraService().giftCards.create(Number(orgId), {
+      code: values.code || undefined,
+      contactId: values.contactId ? Number(values.contactId) : undefined,
+      amount: Number(values.amount),
+      currencyCode: values.currencyCode,
+      expiryDate: values.expiryDate || undefined,
+      journalId: 1,
+      cashAccountId: 1,
+      liabilityAccountId: 1,
+    });
+    toast.promise(request, {
+      loading: t("issuing"),
+      success: (result) => {
+        onSave(String(result.giftCard.id));
+        return t("giftCardIssued");
       },
-    );
+      error: t("giftCardIssueFailed"),
+    });
+    await request.catch(() => {});
   }
 
   return (
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Issue gift card"}
-      description={"Issue, redeem and manage gift cards."}
+      title={t("issueGiftCard")}
+      description={t("giftCardsDescription")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-2xl"
     >
       <div className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField name="code" label={"Code"}>
-            {({ field, id }) => <Input {...field} id={id} placeholder={"Code"} />}
+          <FormField name="code" label={t("colCode")}>
+            {({ field, id }) => <Input {...field} id={id} placeholder={t("colCode")} />}
           </FormField>
-          <FormField name="amount" label={"Amount"}>
+          <FormField name="amount" label={t("amount")}>
             {({ field, id }) => (
-              <Input {...field} id={id} type="number" min="0" step="0.01" placeholder={"Amount"} />
+              <Input
+                {...field}
+                id={id}
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder={t("amount")}
+              />
             )}
           </FormField>
-          <FormField name="contactId" label={"Customer"}>
+          <FormField name="contactId" label={t("customer")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Customer"}>
-                  <SelectValue placeholder={"Select customer"} />
+                <SelectTrigger id={id} aria-label={t("customer")}>
+                  <SelectValue placeholder={t("selectCustomer")} />
                 </SelectTrigger>
                 <SelectContent>
                   {contacts.map((p) => (
@@ -112,10 +124,10 @@ export function GiftCardFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="currencyCode" label={"Currency"}>
+          <FormField name="currencyCode" label={t("currency")}>
             {({ field, id }) => <Input {...field} id={id} placeholder={"USD"} />}
           </FormField>
-          <FormField name="expiryDate" label={"Expiry date"}>
+          <FormField name="expiryDate" label={t("colExpiry")}>
             {({ field, id }) => <Input {...field} id={id} type="date" />}
           </FormField>
         </div>

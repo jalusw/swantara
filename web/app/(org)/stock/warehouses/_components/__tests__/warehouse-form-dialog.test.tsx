@@ -12,8 +12,8 @@ describe("WarehouseFormDialog", () => {
       <WarehouseFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(screen.getByRole("heading", { name: "New warehouse" })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Gudang baru" })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Nama")).toBeInTheDocument();
   });
 
   it("accepts a warehouse name through typing", async () => {
@@ -22,7 +22,7 @@ describe("WarehouseFormDialog", () => {
       <WarehouseFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await user.type(screen.getByPlaceholderText("Name"), "East Warehouse");
+    await user.type(screen.getByPlaceholderText("Nama"), "East Warehouse");
 
     expect(screen.getByDisplayValue("East Warehouse")).toBeInTheDocument();
   });

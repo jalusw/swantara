@@ -59,7 +59,7 @@ describe("TransfersSection", () => {
     renderWithProviders(<TransfersSection />);
 
     await screen.findByText("TO-0001");
-    await user.type(screen.getByPlaceholderText("Search transfers…"), "TO-0002");
+    await user.type(screen.getByPlaceholderText("Cari transfer…"), "TO-0002");
 
     expect((await screen.findAllByText("TO-0002")).length).toBeGreaterThan(0);
     expect(screen.queryByText("TO-0001")).not.toBeInTheDocument();

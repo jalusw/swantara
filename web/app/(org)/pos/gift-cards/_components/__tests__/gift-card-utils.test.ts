@@ -74,7 +74,7 @@ describe("gift-card-utils", () => {
 
   describe("formatGiftCardState", () => {
     it("should format active", () => {
-      expect(formatGiftCardState("active")).toBe("Active");
+      expect(formatGiftCardState("active")).toBe("Aktif");
     });
 
     it("should format used", () => {
@@ -86,7 +86,7 @@ describe("gift-card-utils", () => {
     });
 
     it("should format cancelled", () => {
-      expect(formatGiftCardState("cancelled")).toBe("Cancelled");
+      expect(formatGiftCardState("cancelled")).toBe("Dibatalkan");
     });
   });
 });

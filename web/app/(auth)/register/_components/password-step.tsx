@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Field } from "@/components/field";
@@ -12,6 +13,8 @@ import { type RegisterFormSchema, useRegisterFormStore } from "../_hooks/use-reg
 export function PasswordStep() {
   const { control } = useFormContext<RegisterFormSchema>();
   const step = useRegisterFormStore((s) => s.step);
+  const t = useTranslations("Auth");
+  const tx = t as unknown as (key: string) => string;
   const passwordId = useId();
   const confirmId = useId();
 
@@ -28,7 +31,7 @@ export function PasswordStep() {
           const errorId = fieldState.error ? `${passwordId}-error` : undefined;
           return (
             <Field>
-              <Label htmlFor={passwordId}>{"Password"}</Label>
+              <Label htmlFor={passwordId}>{t("password")}</Label>
               <Password
                 id={passwordId}
                 autoComplete="new-password"
@@ -45,7 +48,7 @@ export function PasswordStep() {
               >
                 {fieldState.error?.message}
               </FieldFeedback>
-              <p className="text-sm text-muted-foreground">{"At least 8 characters."}</p>
+              <p className="text-sm text-muted-foreground">{tx("passwordMinLengthHint")}</p>
             </Field>
           );
         }}
@@ -57,7 +60,7 @@ export function PasswordStep() {
           const errorId = fieldState.error ? `${confirmId}-error` : undefined;
           return (
             <Field>
-              <Label htmlFor={confirmId}>{"Password Confirmation"}</Label>
+              <Label htmlFor={confirmId}>{t("confirmPassword")}</Label>
               <Password
                 id={confirmId}
                 autoComplete="new-password"

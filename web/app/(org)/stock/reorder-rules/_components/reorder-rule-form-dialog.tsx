@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -19,12 +20,15 @@ import type { ReorderRule } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { zodResolver } from "@/lib/utils/zod-resolver";
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 function useReorderRuleFormSchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Stock");
   return z.object({
-    itemId: z.coerce.number().min(1, "Item ID is required."),
-    minQty: z.coerce.number().min(0),
-    maxQty: z.coerce.number().min(0),
-    qtyMultiple: z.coerce.number().min(1),
+    itemId: z.coerce.number().min(1, t("validationItemRequired")),
+    minQty: z.coerce.number().min(0, t("validationNonNegative")),
+    maxQty: z.coerce.number().min(0, t("validationNonNegative")),
+    qtyMultiple: z.coerce.number().min(1, t("validationMinOne")),
     leadTimeDays: z.coerce.number().nullable(),
     active: z.boolean(),
   });
@@ -43,6 +47,8 @@ export function ReorderRuleFormDialog({
   initial?: ReorderRule | null;
   onSave: () => void;
 }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Stock");
+  const tCommon = useTranslations("Common");
   const isEdit = Boolean(initial);
 
   const schema = useReorderRuleFormSchema();
@@ -82,15 +88,15 @@ export function ReorderRuleFormDialog({
     };
 
     if (isEdit && initial) {
-      void getSwantaraService()
+      return getSwantaraService()
         .inventory.updateReorderRule(Number(orgId), initial.id, request)
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("toastFailed")));
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .inventory.createReorderRule(Number(orgId), request)
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("toastFailed")));
     }
   }
 
@@ -98,28 +104,26 @@ export function ReorderRuleFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit reorder rule" : "New reorder rule"}</DialogTitle>
-          <DialogDescription>
-            {"Define minimum and maximum stock levels for automatic replenishment."}
-          </DialogDescription>
+          <DialogTitle>{isEdit ? t("editReorderRule") : t("newReorderRule")}</DialogTitle>
+          <DialogDescription>{t("reorderRulesDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4">
-            <FormField name="itemId" label={"Item"}>
+            <FormField name="itemId" label={t("fieldItem")}>
               {({ field, id }) => <Input {...field} id={id} type="number" min="1" />}
             </FormField>
             <div className="grid gap-4 sm:grid-cols-3">
-              <FormField name="minQty" label={"Min qty"}>
+              <FormField name="minQty" label={t("fieldMinQty")}>
                 {({ field, id }) => <Input {...field} id={id} type="number" min="0" />}
               </FormField>
-              <FormField name="maxQty" label={"Max qty"}>
+              <FormField name="maxQty" label={t("fieldMaxQty")}>
                 {({ field, id }) => <Input {...field} id={id} type="number" min="0" />}
               </FormField>
-              <FormField name="qtyMultiple" label={"Qty multiple"}>
+              <FormField name="qtyMultiple" label={t("fieldQtyMultiple")}>
                 {({ field, id }) => <Input {...field} id={id} type="number" min="1" />}
               </FormField>
             </div>
-            <FormField name="leadTimeDays" label={"Lead time (days)"}>
+            <FormField name="leadTimeDays" label={t("fieldLeadTime")}>
               {({ field, id }) => (
                 <Input
                   {...field}
@@ -134,12 +138,12 @@ export function ReorderRuleFormDialog({
                 />
               )}
             </FormField>
-            <FormField name="active" label={"Active"}>
+            <FormField name="active" label={t("active")}>
               {({ field }) => (
                 <Switch
                   checked={field.value}
                   onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-                  aria-label={"Active"}
+                  aria-label={t("active")}
                 />
               )}
             </FormField>
@@ -147,9 +151,9 @@ export function ReorderRuleFormDialog({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Save"}</SubmitButton>
+            <SubmitButton>{tCommon("save")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

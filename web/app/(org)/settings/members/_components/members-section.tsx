@@ -1,6 +1,7 @@
 "use client";
 
 import { ShieldCheck, UserCheck, UserPlus, UsersRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
 import { MetricGrid } from "@/components/metric-grid";
@@ -12,6 +13,7 @@ import { MembersInviteDialog } from "./members-invite-dialog";
 import { MembersTable, toMemberRow } from "./members-table";
 
 export function MembersSection() {
+  const t = useTranslations("Settings");
   const [inviteOpen, setInviteOpen] = useState(false);
   const query = useOrgListQuery<{ members: Member[] }, Record<string, never>>(
     "members",
@@ -27,16 +29,16 @@ export function MembersSection() {
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
       <MetricGrid>
-        <StatCard label={"Total members"} value={String(total)} icon={UsersRound} />
-        <StatCard label={"Active members"} value={String(active)} icon={UserCheck} />
-        <StatCard label={"Invited"} value={String(invited)} icon={UserPlus} />
-        <StatCard label={"Admins"} value={String(admins)} icon={ShieldCheck} />
+        <StatCard label={t("totalMembers")} value={String(total)} icon={UsersRound} />
+        <StatCard label={t("activeMembers")} value={String(active)} icon={UserCheck} />
+        <StatCard label={t("invitedMembers")} value={String(invited)} icon={UserPlus} />
+        <StatCard label={t("admins")} value={String(admins)} icon={ShieldCheck} />
       </MetricGrid>
 
       <Card>
         <CardHeader className="border-b">
-          <CardTitle>{"All members"}</CardTitle>
-          <CardDescription>{"People with access to this organization."}</CardDescription>
+          <CardTitle>{t("allMembers")}</CardTitle>
+          <CardDescription>{t("allMembersDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <MembersTable

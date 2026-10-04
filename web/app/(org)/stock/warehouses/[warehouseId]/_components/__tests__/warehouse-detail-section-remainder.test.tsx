@@ -86,7 +86,7 @@ describe("WarehouseDetail remainder", () => {
     renderWithProviders(<WarehouseDetail orgId="1" warehouseId="1" />);
 
     expect(
-      await screen.findByText("No locations found. Add one to organize this warehouse."),
+      await screen.findByText("Belum ada lokasi. Tambah lokasi untuk mengatur gudang ini."),
     ).toBeInTheDocument();
   });
 
@@ -95,9 +95,9 @@ describe("WarehouseDetail remainder", () => {
     renderWithProviders(<WarehouseDetail orgId="1" warehouseId="1" />);
 
     await screen.findByText("WH/Stock");
-    await user.click(screen.getAllByRole("button", { name: "Edit" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Ubah" })[0]!);
 
-    expect(await screen.findByText("Edit location")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah lokasi")).toBeInTheDocument();
   });
 
   it("adds a sub-location from the tree row action", async () => {
@@ -105,9 +105,9 @@ describe("WarehouseDetail remainder", () => {
     renderWithProviders(<WarehouseDetail orgId="1" warehouseId="1" />);
 
     await screen.findByText("WH/Stock");
-    await user.click(screen.getAllByRole("button", { name: "Add sub-location" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Tambah sub-lokasi" })[0]!);
 
-    expect(await screen.findByText("New location")).toBeInTheDocument();
+    expect(await screen.findByText("Lokasi baru")).toBeInTheDocument();
   });
 
   it("deletes a location through the tree row action", async () => {
@@ -122,10 +122,10 @@ describe("WarehouseDetail remainder", () => {
     renderWithProviders(<WarehouseDetail orgId="1" warehouseId="1" />);
 
     await screen.findByText("WH/Stock");
-    await user.click(screen.getAllByRole("button", { name: "Delete" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Hapus" })[0]!);
 
     const confirm = await screen.findByRole("alertdialog");
-    await user.click(within(confirm).getByRole("button", { name: "Delete" }));
+    await user.click(within(confirm).getByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(deletedId).toBe(9));
   });
@@ -140,10 +140,10 @@ describe("WarehouseDetail remainder", () => {
     renderWithProviders(<WarehouseDetail orgId="1" warehouseId="1" />);
 
     await screen.findByText("WH/Stock");
-    await user.click(screen.getAllByRole("button", { name: "Delete" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Hapus" })[0]!);
 
     const confirm = await screen.findByRole("alertdialog");
-    await user.click(within(confirm).getByRole("button", { name: "Delete" }));
+    await user.click(within(confirm).getByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(screen.getByText("WH/Stock")).toBeInTheDocument());
   });

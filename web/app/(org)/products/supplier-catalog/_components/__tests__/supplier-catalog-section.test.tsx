@@ -116,7 +116,7 @@ describe("SupplierCatalogSection", () => {
     expect(screen.getByText("Ceramic Mug")).toBeInTheDocument();
     expect(screen.getByText("VEN-TOTE-001")).toBeInTheDocument();
     expect(screen.getByText("VEN-MUG-002")).toBeInTheDocument();
-    expect(screen.getByText("Supplier # 9")).toBeInTheDocument();
+    expect(screen.getByText("Pemasok #9")).toBeInTheDocument();
   });
 
   it("filters entries through the search box", async () => {
@@ -124,7 +124,7 @@ describe("SupplierCatalogSection", () => {
     renderWithProviders(<SupplierCatalogSection orgId="1" />);
 
     await screen.findByText("VEN-TOTE-001");
-    await user.type(screen.getByPlaceholderText("Search supplier products…"), "MUG-002");
+    await user.type(screen.getByPlaceholderText("Cari produk pemasok"), "MUG-002");
 
     expect(await screen.findByText("VEN-MUG-002")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("VEN-TOTE-001")).not.toBeInTheDocument());
@@ -135,9 +135,9 @@ describe("SupplierCatalogSection", () => {
     renderWithProviders(<SupplierCatalogSection orgId="1" />);
 
     await screen.findByText("VEN-TOTE-001");
-    await user.click(screen.getByRole("button", { name: "Add supplier item" }));
+    await user.click(screen.getByRole("button", { name: "Tambah produk pemasok" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("New supplier item")).toBeInTheDocument();
+    expect(screen.getByText("Produk pemasok baru")).toBeInTheDocument();
   });
 });

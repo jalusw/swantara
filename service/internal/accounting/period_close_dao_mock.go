@@ -10,6 +10,7 @@ import (
 type PeriodCloseDAOMock struct {
 	FindByPeriodFunc func(ctx context.Context, periodID uint64) (*PeriodCloseEntry, error)
 	CreateFunc       func(ctx context.Context, entry *PeriodCloseEntry) (*PeriodCloseEntry, error)
+	CreateTxFunc     func(ctx context.Context, tx *gorm.DB, entry *PeriodCloseEntry) (*PeriodCloseEntry, error)
 	UpdateFunc       func(ctx context.Context, entry *PeriodCloseEntry) (*PeriodCloseEntry, error)
 }
 
@@ -28,7 +29,10 @@ func (m PeriodCloseDAOMock) Create(ctx context.Context, entry *PeriodCloseEntry)
 	return entry, nil
 }
 
-func (m PeriodCloseDAOMock) CreateTx(ctx context.Context, _ *gorm.DB, entry *PeriodCloseEntry) (*PeriodCloseEntry, error) {
+func (m PeriodCloseDAOMock) CreateTx(ctx context.Context, tx *gorm.DB, entry *PeriodCloseEntry) (*PeriodCloseEntry, error) {
+	if m.CreateTxFunc != nil {
+		return m.CreateTxFunc(ctx, tx, entry)
+	}
 	return m.Create(ctx, entry)
 }
 

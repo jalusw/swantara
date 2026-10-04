@@ -38,10 +38,10 @@ describe("OrgBrand", () => {
     );
 
     await user.click(await screen.findByRole("button"));
-    await user.click(await screen.findByRole("menuitem", { name: /Create organization/ }));
+    await user.click(await screen.findByRole("menuitem", { name: /Buat organisasi/ }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Create organization")).toBeInTheDocument();
+    expect(screen.getByText("Buat organisasi")).toBeInTheDocument();
     expect(navigationMock.push).not.toHaveBeenCalledWith("/onboarding");
   });
 });

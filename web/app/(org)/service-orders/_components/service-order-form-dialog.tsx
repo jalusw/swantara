@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ import type { Contact, Employee, Equipment, Item, ServiceContract } from "@/lib/
 import { getSwantaraService } from "@/lib/services/swantara";
 
 function useServiceOrderSchema() {
+  const t = useTranslations("Service");
   const lineSchema = z.object({
     type: z.string().min(1),
     itemId: z.string().optional(),
@@ -24,15 +26,15 @@ function useServiceOrderSchema() {
     billable: z.boolean(),
   });
   const schema = z.object({
-    name: z.string().min(1, "Name is required"),
+    name: z.string().min(1, t("validation_nameRequired")),
     contactId: z.string().optional(),
     equipmentId: z.string().optional(),
     contractId: z.string().optional(),
-    type: z.string().min(1, "Type is required"),
+    type: z.string().min(1, t("validation_typeRequired")),
     priority: z.string().optional(),
     technicianId: z.string().optional(),
     reportedIssue: z.string().optional(),
-    lines: z.array(lineSchema).min(1, "At least one line is required"),
+    lines: z.array(lineSchema).min(1, t("validation_linesRequired")),
   });
   return schema;
 }
@@ -49,6 +51,10 @@ export function ServiceOrderFormDialog({
   orgId: string;
   onSave: (id: string) => void;
 }) {
+  const t = useTranslations("Service");
+  const tCommon = useTranslations("Common");
+  const orderType = (type: string) => (t as unknown as (k: string) => string)(`type_${type}`);
+  const lineType = (type: string) => (t as unknown as (k: string) => string)(`lineType_${type}`);
   const linePrefix = useId();
 
   const contactsQuery = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
@@ -114,72 +120,73 @@ export function ServiceOrderFormDialog({
     name: "lines",
   });
 
-  function handleSubmit(values: ServiceOrderValues) {
-    void toast.promise(
-      getSwantaraService().serviceOrders.create(Number(orgId), {
-        name: values.name,
-        contactId: values.contactId ? Number(values.contactId) : undefined,
-        equipmentId: values.equipmentId ? Number(values.equipmentId) : undefined,
-        contractId: values.contractId ? Number(values.contractId) : undefined,
-        type: values.type as "repair" | "maintenance" | "installation" | "inspection",
-        priority: values.priority ? Number(values.priority) : undefined,
-        technicianId: values.technicianId ? Number(values.technicianId) : undefined,
-        reportedIssue: values.reportedIssue || undefined,
-        lines: values.lines.map((l) => ({
-          type: l.type as "part" | "labor" | "expense",
-          itemId: l.itemId ? Number(l.itemId) : undefined,
-          description: l.description || undefined,
-          qty: Number(l.qty),
-          unitPrice: l.unitPrice ? Number(l.unitPrice) : undefined,
-          billable: l.billable,
-        })),
-      }),
-      {
-        loading: "Saving…",
-        success: (result) => {
-          onSave(String(result.serviceOrder.id));
-          return "Service order created";
-        },
-        error: "Failed to create service order",
+  async function handleSubmit(values: ServiceOrderValues) {
+    const request = getSwantaraService().serviceOrders.create(Number(orgId), {
+      name: values.name,
+      contactId: values.contactId ? Number(values.contactId) : undefined,
+      equipmentId: values.equipmentId ? Number(values.equipmentId) : undefined,
+      contractId: values.contractId ? Number(values.contractId) : undefined,
+      type: values.type as "repair" | "maintenance" | "installation" | "inspection",
+      priority: values.priority ? Number(values.priority) : undefined,
+      technicianId: values.technicianId ? Number(values.technicianId) : undefined,
+      reportedIssue: values.reportedIssue || undefined,
+      lines: values.lines.map((l) => ({
+        type: l.type as "part" | "labor" | "expense",
+        itemId: l.itemId ? Number(l.itemId) : undefined,
+        description: l.description || undefined,
+        qty: Number(l.qty),
+        unitPrice: l.unitPrice ? Number(l.unitPrice) : undefined,
+        billable: l.billable,
+      })),
+    });
+    toast.promise(request, {
+      loading: t("saving"),
+      success: (result) => {
+        onSave(String(result.serviceOrder.id));
+        return t("orderCreated");
       },
-    );
+      error: t("createFailed"),
+    });
+    await request.catch(() => {});
   }
 
   return (
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Create service order"}
-      description={"Description"}
+      title={t("newOrder")}
+      description={t("formDescription")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-2xl"
     >
       <div className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField name="name" label={"Name"}>
-            {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+          <FormField name="name" label={t("fieldName")}>
+            {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
           </FormField>
-          <FormField name="type" label={"Type"}>
+          <FormField name="type" label={t("orderType")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Type"}>
-                  <SelectValue placeholder={"Select type"} />
+                <SelectTrigger id={id} aria-label={t("orderType")}>
+                  <SelectValue placeholder={t("selectType")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="repair">{"Repair"}</SelectItem>
-                  <SelectItem value="maintenance">{"Maintenance"}</SelectItem>
-                  <SelectItem value="installation">{"Installation"}</SelectItem>
-                  <SelectItem value="inspection">{"Inspection"}</SelectItem>
+                  <SelectItem value="repair">{orderType("repair")}</SelectItem>
+                  <SelectItem value="maintenance">{orderType("maintenance")}</SelectItem>
+                  <SelectItem value="installation">{orderType("installation")}</SelectItem>
+                  <SelectItem value="inspection">{orderType("inspection")}</SelectItem>
                 </SelectContent>
               </Select>
             )}
           </FormField>
-          <FormField name="contactId" label={"Customer"}>
+          <FormField name="contactId" label={t("customer")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Customer"}>
-                  <SelectValue placeholder={"Select customer"} />
+                <SelectTrigger id={id} aria-label={t("customer")}>
+                  <SelectValue placeholder={t("selectCustomer")} />
                 </SelectTrigger>
                 <SelectContent>
                   {contacts.map((p) => (
@@ -191,11 +198,11 @@ export function ServiceOrderFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="equipmentId" label={"Equipment"}>
+          <FormField name="equipmentId" label={t("equipment")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Equipment"}>
-                  <SelectValue placeholder={"Select equipment"} />
+                <SelectTrigger id={id} aria-label={t("equipment")}>
+                  <SelectValue placeholder={t("selectEquipment")} />
                 </SelectTrigger>
                 <SelectContent>
                   {equipments.map((e) => (
@@ -207,11 +214,11 @@ export function ServiceOrderFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="contractId" label={"Contract"}>
+          <FormField name="contractId" label={t("contract")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Contract"}>
-                  <SelectValue placeholder={"Select Contract"} />
+                <SelectTrigger id={id} aria-label={t("contract")}>
+                  <SelectValue placeholder={t("selectContract")} />
                 </SelectTrigger>
                 <SelectContent>
                   {contracts.map((c) => (
@@ -223,11 +230,11 @@ export function ServiceOrderFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="technicianId" label={"Technician"}>
+          <FormField name="technicianId" label={t("technician")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Technician"}>
-                  <SelectValue placeholder={"Select Technician"} />
+                <SelectTrigger id={id} aria-label={t("technician")}>
+                  <SelectValue placeholder={t("selectTechnician")} />
                 </SelectTrigger>
                 <SelectContent>
                   {employees.map((e) => (
@@ -239,18 +246,18 @@ export function ServiceOrderFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="priority" label={"Priority"}>
+          <FormField name="priority" label={t("colPriority")}>
             {({ field, id }) => (
-              <Input {...field} id={id} type="number" min="1" placeholder={"Priority"} />
+              <Input {...field} id={id} type="number" min="1" placeholder={t("colPriority")} />
             )}
           </FormField>
-          <FormField name="reportedIssue" label={"Reported issue"}>
+          <FormField name="reportedIssue" label={t("reportedIssue")}>
             {({ field, id }) => (
               <textarea
                 {...field}
                 id={id}
                 className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                placeholder={"Reported issue"}
+                placeholder={t("reportedIssue")}
               />
             )}
           </FormField>
@@ -258,7 +265,7 @@ export function ServiceOrderFormDialog({
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm">{"Lines"}</span>
+            <span className="text-sm">{t("lines")}</span>
             <Button
               type="button"
               size="sm"
@@ -274,7 +281,7 @@ export function ServiceOrderFormDialog({
                 })
               }
             >
-              {"Add line"}
+              {t("addLine")}
             </Button>
           </div>
           {fields.map((field, index) => (
@@ -287,19 +294,19 @@ export function ServiceOrderFormDialog({
                   htmlFor={`${linePrefix}-type-${index}`}
                   className="text-xs text-muted-foreground"
                 >
-                  {"Line Type"}
+                  {t("lineType")}
                 </label>
                 <Select
                   value={form.watch(`lines.${index}.type`)}
                   onValueChange={(v) => form.setValue(`lines.${index}.type`, v ?? "")}
                 >
-                  <SelectTrigger id={`${linePrefix}-type-${index}`} aria-label={"Line Type"}>
+                  <SelectTrigger id={`${linePrefix}-type-${index}`} aria-label={t("lineType")}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="part">{"Part"}</SelectItem>
-                    <SelectItem value="labor">{"Labor"}</SelectItem>
-                    <SelectItem value="expense">{"Expense"}</SelectItem>
+                    <SelectItem value="part">{lineType("part")}</SelectItem>
+                    <SelectItem value="labor">{lineType("labor")}</SelectItem>
+                    <SelectItem value="expense">{lineType("expense")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -308,14 +315,14 @@ export function ServiceOrderFormDialog({
                   htmlFor={`${linePrefix}-item-${index}`}
                   className="text-xs text-muted-foreground"
                 >
-                  {"Item"}
+                  {t("item")}
                 </label>
                 <Select
                   value={form.watch(`lines.${index}.itemId`)}
                   onValueChange={(v) => form.setValue(`lines.${index}.itemId`, v ?? "")}
                 >
-                  <SelectTrigger id={`${linePrefix}-item-${index}`} aria-label={"Item"}>
-                    <SelectValue placeholder={"Select item"} />
+                  <SelectTrigger id={`${linePrefix}-item-${index}`} aria-label={t("item")}>
+                    <SelectValue placeholder={t("selectItem")} />
                   </SelectTrigger>
                   <SelectContent>
                     {products.map((p) => (
@@ -331,7 +338,7 @@ export function ServiceOrderFormDialog({
                   htmlFor={`${linePrefix}-qty-${index}`}
                   className="text-xs text-muted-foreground"
                 >
-                  {"Qty"}
+                  {t("qty")}
                 </label>
                 <Input
                   id={`${linePrefix}-qty-${index}`}
@@ -345,7 +352,7 @@ export function ServiceOrderFormDialog({
                   htmlFor={`${linePrefix}-price-${index}`}
                   className="text-xs text-muted-foreground"
                 >
-                  {"Price"}
+                  {t("price")}
                 </label>
                 <Input
                   id={`${linePrefix}-price-${index}`}

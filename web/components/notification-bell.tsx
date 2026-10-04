@@ -1,6 +1,7 @@
 "use client";
 
 import { BellIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Badge } from "./badge";
 import { Button } from "./button";
@@ -32,9 +33,10 @@ export function NotificationBell({
   className,
   "aria-label": ariaLabel,
 }: NotificationBellProps) {
-  const resolvedAriaLabel = ariaLabel ?? "Notifications";
+  const t = useTranslations("Notifications");
+  const resolvedAriaLabel = ariaLabel ?? tooltip ?? t("title");
   const count = unreadCount ?? items.filter((item) => item.unread).length;
-  const label = count > 0 ? `${count} unread` : resolvedAriaLabel;
+  const label = count > 0 ? t("unread", { count }) : resolvedAriaLabel;
 
   const trigger = (
     <PopoverTrigger
@@ -64,14 +66,12 @@ export function NotificationBell({
       )}
       <PopoverContent align="end" className="w-80">
         <PopoverHeader>
-          <PopoverTitle>{"Notifications"}</PopoverTitle>
+          <PopoverTitle>{t("title")}</PopoverTitle>
         </PopoverHeader>
         <ScrollArea className="max-h-80">
           <ul data-slot="notification-list" className="flex flex-col">
             {items.length === 0 ? (
-              <li className="px-2 py-6 text-center text-sm text-muted-foreground">
-                {"You're all caught up."}
-              </li>
+              <li className="px-2 py-6 text-center text-sm text-muted-foreground">{t("empty")}</li>
             ) : (
               items.map((item) => (
                 <li key={item.id}>

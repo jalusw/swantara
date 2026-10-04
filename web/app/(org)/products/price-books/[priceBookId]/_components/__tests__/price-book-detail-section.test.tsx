@@ -89,7 +89,7 @@ describe("PriceBookDetail", () => {
     expect(await screen.findByText("Canvas Tote")).toBeInTheDocument();
     expect(screen.getByText("45.00")).toBeInTheDocument();
     expect(screen.getByText("5%")).toBeInTheDocument();
-    expect(screen.getByText("Fixed price")).toBeInTheDocument();
+    expect(screen.getByText("Tetap")).toBeInTheDocument();
   });
 
   it("opens the rule dialog from the add button", async () => {
@@ -97,9 +97,9 @@ describe("PriceBookDetail", () => {
     renderWithProviders(<PriceBookDetail orgId="1" priceBookId="7" />);
 
     await screen.findByText("Canvas Tote");
-    await user.click(screen.getByRole("button", { name: "Add rule" }));
+    await user.click(screen.getByRole("button", { name: "Tambah aturan" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("New pricing rule")).toBeInTheDocument();
+    expect(screen.getByText("Aturan harga baru")).toBeInTheDocument();
   });
 });

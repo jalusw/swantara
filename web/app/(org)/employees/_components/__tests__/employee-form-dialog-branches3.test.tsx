@@ -81,13 +81,13 @@ describe("EmployeeFormDialog branches3", () => {
   it("renders create title for new employees", async () => {
     renderCreate();
 
-    expect(await screen.findByText("Add employee")).toBeInTheDocument();
+    expect(await screen.findByText("Tambah Karyawan")).toBeInTheDocument();
   });
 
   it("renders edit title when initial is provided", async () => {
     renderEdit();
 
-    expect(await screen.findByText("Edit employee")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah karyawan")).toBeInTheDocument();
   });
 
   it("fills user and department ids on edit defaults", async () => {
@@ -101,7 +101,7 @@ describe("EmployeeFormDialog branches3", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit employee")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah karyawan")).toBeInTheDocument();
   });
 
   it("submits the create form", async () => {
@@ -111,19 +111,19 @@ describe("EmployeeFormDialog branches3", () => {
       saved = true;
     });
 
-    await screen.findByText("Add employee");
-    await user.type(screen.getByPlaceholderText("Name"), "Budi Santoso");
-    await user.type(screen.getByPlaceholderText("Employee number"), "EMP-0099");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Tambah Karyawan");
+    await user.type(screen.getByPlaceholderText("Nama"), "Budi Santoso");
+    await user.type(screen.getByPlaceholderText("Nomor karyawan"), "EMP-0099");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Add employee")).toBeInTheDocument();
+    expect(await screen.findByText("Tambah Karyawan")).toBeInTheDocument();
     expect(saved).toBe(true);
   });
 
   it("shows employment and wage fields", async () => {
     renderCreate();
 
-    expect(await screen.findByPlaceholderText("Employee number")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText("Nomor karyawan")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Nama")).toBeInTheDocument();
   });
 });

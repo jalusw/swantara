@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -12,11 +13,13 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { ExpenseReport } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatNumber } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { ExpenseFormDialog } from "./expense-form-dialog";
 import { expenseStateTone } from "./expense-utils";
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 export function ExpensesSection({ orgId }: { orgId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Expenses");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -35,7 +38,7 @@ export function ExpensesSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<ExpenseReport>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: () => t("fieldName"),
       cell: ({ row }) => (
         <a
           href={`/expenses/${row.original.id}`}
@@ -47,17 +50,21 @@ export function ExpensesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "employeeId",
-      header: "Employee",
+      header: () => t("fieldEmployee"),
       cell: ({ row }) => <span className="text-muted-foreground">#{row.original.employeeId}</span>,
     },
     {
       accessorKey: "paymentMode",
-      header: "Payment mode",
-      cell: ({ row }) => <Badge variant="outline">{String(row.original.paymentMode)}</Badge>,
+      header: () => t("fieldPaymentMode"),
+      cell: ({ row }) => (
+        <Badge variant="outline">
+          {(t as unknown as (k: string) => string)(`paymentMode_${row.original.paymentMode}`)}
+        </Badge>
+      ),
     },
     {
       accessorKey: "totalAmount",
-      header: "Total",
+      header: () => t("colTotal"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums ">{formatNumber(row.original.totalAmount)}</span>
@@ -65,7 +72,7 @@ export function ExpensesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: () => t("colStatus"),
       cell: ({ row }) => {
         const tone = expenseStateTone(row.original.state);
         return (
@@ -83,7 +90,7 @@ export function ExpensesSection({ orgId }: { orgId: string }) {
                       : ""
             }
           >
-            {humanizeKey(String(row.original.state))}
+            {(t as unknown as (k: string) => string)(`expenseState_${row.original.state}`)}
           </Badge>
         );
       },
@@ -93,7 +100,7 @@ export function ExpensesSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("view")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -113,18 +120,33 @@ export function ExpensesSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "submitted", label: "Submitted" },
-          { value: "approved", label: "Approved" },
-          { value: "refused", label: "Refused" },
-          { value: "posted", label: "Posted" },
-          { value: "reimbursed", label: "Reimbursed" },
+          { value: "draft", label: (t as unknown as (k: string) => string)("expenseState_draft") },
+          {
+            value: "submitted",
+            label: (t as unknown as (k: string) => string)("expenseState_submitted"),
+          },
+          {
+            value: "approved",
+            label: (t as unknown as (k: string) => string)("expenseState_approved"),
+          },
+          {
+            value: "refused",
+            label: (t as unknown as (k: string) => string)("expenseState_refused"),
+          },
+          {
+            value: "posted",
+            label: (t as unknown as (k: string) => string)("expenseState_posted"),
+          },
+          {
+            value: "reimbursed",
+            label: (t as unknown as (k: string) => string)("expenseState_reimbursed"),
+          },
         ]}
-        searchPlaceholder={"Search expenses…"}
-        filterLabel={"State"}
-        allLabel={"All expenses"}
-        ariaLabel={"Expenses"}
-        emptyTitle={"No expense reports yet"}
+        searchPlaceholder={t("searchExpenses")}
+        filterLabel={t("colStatus")}
+        allLabel={t("allExpenses")}
+        ariaLabel={t("expensesTitle")}
+        emptyTitle={t("expensesEmpty")}
         status={
           reportsQuery.isLoading
             ? { type: "loading" }
@@ -139,7 +161,7 @@ export function ExpensesSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Create expense report"}</span>
+            <span>{t("newReport")}</span>
           </Button>
         }
       />

@@ -163,7 +163,7 @@ func (s ServiceService) CreateOrder(ctx context.Context, request CreateOrderRequ
 
 	var created *ServiceOrder
 	err := s.tx.Run(ctx, func(tx *gorm.DB) error {
-		createdOrder, err := s.orders.Create(ctx, order)
+		createdOrder, err := s.orders.CreateTx(ctx, tx, order)
 		if err != nil {
 			return err
 		}

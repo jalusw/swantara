@@ -40,7 +40,7 @@ describe("DataTable branches4", () => {
     );
 
     expect(screen.getByText("Custom fail")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Coba lagi" })).toBeNull();
   });
 
   it("shows custom empty title for the empty status", () => {
@@ -68,9 +68,9 @@ describe("DataTable branches4", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await user.click(screen.getByRole("button", { name: "Halaman berikutnya" }));
     expect(onPaginationChange).toHaveBeenCalled();
-    expect(screen.getAllByText(/Page/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Halaman/).length).toBeGreaterThan(0);
   });
 
   it("uses center alignment for meta columns", () => {
@@ -84,7 +84,7 @@ describe("DataTable branches4", () => {
     const user = userEvent.setup();
     renderWithProviders(<DataTable {...baseProps({ enableSorting: true })} />);
 
-    const sortButton = screen.getByRole("button", { name: "Sort by Name" });
+    const sortButton = screen.getByRole("button", { name: "Urutkan berdasarkan Name" });
     await user.click(sortButton);
     await user.click(sortButton);
 
@@ -120,6 +120,6 @@ describe("DataTable branches4", () => {
       />,
     );
 
-    expect(screen.queryByText(/Page 1/)).toBeNull();
+    expect(screen.queryByText(/Halaman 1/)).toBeNull();
   });
 });

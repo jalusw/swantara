@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { BarChart } from "@/components/bar-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
@@ -9,6 +10,7 @@ import { formatNumber } from "@/lib/utils";
 import { KpiCard } from "./kpi-card";
 
 export function ManufacturingSection() {
+  const t = useTranslations("Dashboard");
   const { data } = useManufacturingKpi();
   const kpi = data?.kpi;
 
@@ -16,34 +18,34 @@ export function ManufacturingSection() {
     () =>
       kpi
         ? [
-            { label: "Orders", value: kpi.orderCount },
+            { label: t("orders"), value: kpi.orderCount },
             { label: "OEE", value: kpi.oeePct * 100 },
-            { label: "Yield", value: kpi.yieldPct * 100 },
-            { label: "Scrap", value: kpi.scrapPct * 100 },
-            { label: "Cost variance", value: kpi.costVariancePct * 100 },
+            { label: t("yield"), value: kpi.yieldPct * 100 },
+            { label: t("scrap"), value: kpi.scrapPct * 100 },
+            { label: t("costVariance"), value: kpi.costVariancePct * 100 },
           ]
         : [
-            { label: "Orders", value: 0 },
+            { label: t("orders"), value: 0 },
             { label: "OEE", value: 0 },
-            { label: "Yield", value: 0 },
-            { label: "Scrap", value: 0 },
-            { label: "Cost variance", value: 0 },
+            { label: t("yield"), value: 0 },
+            { label: t("scrap"), value: 0 },
+            { label: t("costVariance"), value: 0 },
           ],
-    [kpi],
+    [kpi, t],
   );
 
   const yieldScrapData = useMemo(
     () =>
       kpi
         ? [
-            { label: "Yield", value: kpi.yieldPct * 100 },
-            { label: "Scrap", value: kpi.scrapPct * 100 },
+            { label: t("yield"), value: kpi.yieldPct * 100 },
+            { label: t("scrap"), value: kpi.scrapPct * 100 },
           ]
         : [
-            { label: "Yield", value: 0 },
-            { label: "Scrap", value: 0 },
+            { label: t("yield"), value: 0 },
+            { label: t("scrap"), value: 0 },
           ],
-    [kpi],
+    [kpi, t],
   );
 
   const oeeVarianceData = useMemo(
@@ -51,26 +53,26 @@ export function ManufacturingSection() {
       kpi
         ? [
             { label: "OEE", value: kpi.oeePct * 100 },
-            { label: "Cost variance", value: kpi.costVariancePct * 100 },
+            { label: t("costVariance"), value: kpi.costVariancePct * 100 },
           ]
         : [
             { label: "OEE", value: 0 },
-            { label: "Cost variance", value: 0 },
+            { label: t("costVariance"), value: 0 },
           ],
-    [kpi],
+    [kpi, t],
   );
 
   return (
     <div className="grid gap-4 grid-cols-12">
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle>{"Manufacturing"}</CardTitle>
-          <CardDescription>{"OEE, yield, scrap and cost variance."}</CardDescription>
+          <CardTitle>{t("manufacturingTitle")}</CardTitle>
+          <CardDescription>{t("manufacturingDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-12">
           <KpiCard
             className="col-span-12 lg:col-span-4 rounded-xl border border-border bg-card p-4 bg-primary/[0.04] border-primary/15"
-            label={"Orders"}
+            label={t("orders")}
           >
             {kpi ? String(kpi.orderCount) : "—"}
           </KpiCard>
@@ -82,19 +84,19 @@ export function ManufacturingSection() {
           </KpiCard>
           <KpiCard
             className="col-span-6 lg:col-span-2 rounded-xl border border-border bg-card p-4"
-            label={"Yield"}
+            label={t("yield")}
           >
             {kpi ? `${(kpi.yieldPct * 100).toFixed(1)}%` : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 lg:col-span-2 rounded-xl border border-border bg-card p-4"
-            label={"Scrap"}
+            label={t("scrap")}
           >
             {kpi ? `${(kpi.scrapPct * 100).toFixed(1)}%` : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 lg:col-span-2 rounded-xl border border-border bg-card p-4"
-            label={"Cost variance"}
+            label={t("costVariance")}
           >
             {kpi ? `${(kpi.costVariancePct * 100).toFixed(1)}%` : "—"}
           </KpiCard>
@@ -102,35 +104,35 @@ export function ManufacturingSection() {
       </Card>
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle className="text-sm">{"Output metrics"}</CardTitle>
-          <CardDescription>{"Orders, OEE, yield and variance"}</CardDescription>
+          <CardTitle className="text-sm">{t("outputMetrics")}</CardTitle>
+          <CardDescription>{t("outputMetricsDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <BarChart
             data={manufacturingData}
-            ariaLabel={"Manufacturing"}
+            ariaLabel={t("manufacturingTitle")}
             valueFormatter={(value) => formatNumber(value)}
           />
         </CardContent>
       </Card>
       <Card className="col-span-6">
         <CardHeader>
-          <CardTitle className="text-sm">{"Yield vs scrap"}</CardTitle>
-          <CardDescription>{"Quality balance"}</CardDescription>
+          <CardTitle className="text-sm">{t("yieldVsScrap")}</CardTitle>
+          <CardDescription>{t("qualityBalance")}</CardDescription>
         </CardHeader>
         <CardContent>
           <DonutChart
             data={yieldScrapData}
-            ariaLabel={"Yield"}
+            ariaLabel={t("yield")}
             valueFormatter={(value) => `${value.toFixed(1)}%`}
-            centerLabel={"Yield"}
+            centerLabel={t("yield")}
           />
         </CardContent>
       </Card>
       <Card className="col-span-6">
         <CardHeader>
-          <CardTitle className="text-sm">{"OEE vs variance"}</CardTitle>
-          <CardDescription>{"Efficiency vs cost"}</CardDescription>
+          <CardTitle className="text-sm">{t("oeeVsVariance")}</CardTitle>
+          <CardDescription>{t("efficiencyVsCost")}</CardDescription>
         </CardHeader>
         <CardContent>
           <DonutChart

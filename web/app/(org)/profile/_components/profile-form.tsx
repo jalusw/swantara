@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Camera, Save } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { type UseFormReturn, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ import { ME_QUERY_KEY } from "@/lib/queries/me";
 import { getSwantaraService } from "@/lib/services/swantara";
 
 export function ProfileForm() {
+  const t = useTranslations("Profile");
   const meQuery = useMeQuery();
   const queryClient = useQueryClient();
   const user = meQuery.data?.user;
@@ -36,7 +38,7 @@ export function ProfileForm() {
   const [cropSrc, setCropSrc] = useState<string | null>(null);
 
   const schema = z.object({
-    firstName: z.string().min(1, "First name is required"),
+    firstName: z.string().min(1, t("validation_firstNameRequired")),
     lastName: z.string(),
     bio: z.string(),
     birthday: z.string(),
@@ -103,10 +105,10 @@ export function ProfileForm() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY });
-      toast.success("Profile updated successfully");
+      toast.success(t("profileUpdated"));
     },
     onError: () => {
-      toast.error("Failed to update profile");
+      toast.error(t("profileUpdateFailed"));
     },
   });
 
@@ -126,10 +128,10 @@ export function ProfileForm() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY });
-      toast.success("Profile updated successfully");
+      toast.success(t("profileUpdated"));
     },
     onError: () => {
-      toast.error("Failed to update profile");
+      toast.error(t("profileUpdateFailed"));
     },
   });
 
@@ -164,20 +166,18 @@ export function ProfileForm() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{"Crop photo"}</DialogTitle>
-            <DialogDescription>
-              {"Drag to position and zoom to adjust your photo"}
-            </DialogDescription>
+            <DialogTitle>{t("cropPhoto")}</DialogTitle>
+            <DialogDescription>{t("cropPhotoDescription")}</DialogDescription>
           </DialogHeader>
-          {cropSrc && <ImageCropper src={cropSrc} alt={"Avatar"} onCrop={handleCropComplete} />}
+          {cropSrc && <ImageCropper src={cropSrc} alt={t("avatar")} onCrop={handleCropComplete} />}
         </DialogContent>
       </Dialog>
 
       <div className="flex flex-col gap-4 sm:gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>{"Avatar"}</CardTitle>
-            <CardDescription>{"Your profile photo"}</CardDescription>
+            <CardTitle>{t("avatar")}</CardTitle>
+            <CardDescription>{t("avatarDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4">
@@ -191,7 +191,7 @@ export function ProfileForm() {
                 disabled={avatarMutation.isPending}
               >
                 <Camera />
-                {avatarMutation.isPending ? "Uploading..." : "Upload photo"}
+                {avatarMutation.isPending ? t("uploading") : t("uploadPhoto")}
               </Button>
             </div>
           </CardContent>
@@ -200,41 +200,36 @@ export function ProfileForm() {
         <Form form={form as UseFormReturn<Values>} onSubmit={handleSubmit}>
           <Card>
             <CardHeader>
-              <CardTitle>{"Personal information"}</CardTitle>
-              <CardDescription>{"Your name, contact details, and basic info"}</CardDescription>
+              <CardTitle>{t("personalInfo")}</CardTitle>
+              <CardDescription>{t("personalInfoDescription")}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <FormField name="firstName" label={"First name"}>
+              <FormField name="firstName" label={t("firstName")}>
                 {({ field, id }) => <Input {...field} id={id} />}
               </FormField>
-              <FormField name="lastName" label={"Last name"}>
+              <FormField name="lastName" label={t("lastName")}>
                 {({ field, id }) => <Input {...field} id={id} />}
               </FormField>
-              <FormField name="birthday" label={"Birthday"}>
+              <FormField name="birthday" label={t("birthday")}>
                 {({ field, id }) => <Input {...field} id={id} type="date" />}
               </FormField>
-              <FormField name="sex" label={"Sex"}>
+              <FormField name="sex" label={t("sex")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Sex"}>
-                      <SelectValue placeholder={"Sex"} />
+                    <SelectTrigger id={id} aria-label={t("sex")}>
+                      <SelectValue placeholder={t("sex")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">{"Prefer not to say"}</SelectItem>
-                      <SelectItem value="male">{"Male"}</SelectItem>
-                      <SelectItem value="female">{"Female"}</SelectItem>
+                      <SelectItem value="">{t("preferNotToSay")}</SelectItem>
+                      <SelectItem value="male">{t("male")}</SelectItem>
+                      <SelectItem value="female">{t("female")}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               </FormField>
-              <FormField name="bio" label={"Bio"} className="sm:col-span-2">
+              <FormField name="bio" label={t("bio")} className="sm:col-span-2">
                 {({ field, id }) => (
-                  <Textarea
-                    {...field}
-                    id={id}
-                    placeholder={"Tell us a little about yourself"}
-                    rows={3}
-                  />
+                  <Textarea {...field} id={id} placeholder={t("bioPlaceholder")} rows={3} />
                 )}
               </FormField>
             </CardContent>
@@ -242,25 +237,25 @@ export function ProfileForm() {
 
           <Card>
             <CardHeader>
-              <CardTitle>{"Address"}</CardTitle>
-              <CardDescription>{"Your home address"}</CardDescription>
+              <CardTitle>{t("address")}</CardTitle>
+              <CardDescription>{t("addressDescription")}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
-              <FormField name="address" label={"Address"} className="sm:col-span-2">
+              <FormField name="address" label={t("address")} className="sm:col-span-2">
                 {({ field, id }) => <Textarea {...field} id={id} rows={2} />}
               </FormField>
-              <FormField name="city" label={"City"}>
+              <FormField name="city" label={t("city")}>
                 {({ field, id }) => <Input {...field} id={id} />}
               </FormField>
-              <FormField name="postalCode" label={"Postal code"}>
+              <FormField name="postalCode" label={t("postalCode")}>
                 {({ field, id }) => <Input {...field} id={id} />}
               </FormField>
             </CardContent>
             <Separator />
             <CardContent className="flex items-center justify-end gap-2">
-              <SubmitButton>
+              <SubmitButton loading={profileMutation.isPending}>
                 <Save />
-                {"Save changes"}
+                {t("saveChanges")}
               </SubmitButton>
             </CardContent>
           </Card>

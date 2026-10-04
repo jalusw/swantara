@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
@@ -11,7 +12,6 @@ import { useOrgQuery } from "@/lib/hooks/use-org-query";
 import type { Subscription } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import {
   canActivate,
   canChurn,
@@ -28,6 +28,11 @@ export function SubscriptionDetail({
   orgId: string;
   subscriptionId: string;
 }) {
+  const t = useTranslations("Subscriptions");
+  const tCommon = useTranslations("Common");
+  const subState = (state: string) => (t as unknown as (k: string) => string)(`state_${state}`);
+  const actionLabel = (action: string) =>
+    (t as unknown as (k: string) => string)(`action_${action}`);
   const queryClient = useQueryClient();
 
   const subQuery = useOrgQuery<{ subscription: Subscription }>(
@@ -45,19 +50,19 @@ export function SubscriptionDetail({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["subscription"] });
       void queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
-      toast.success("Saved.");
+      toast.success(t("saved"));
     },
     onError: () => {
-      toast.error("Action failed");
+      toast.error(t("actionFailed"));
     },
   });
 
   if (subQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (!sub) {
-    return <p className="text-sm text-muted-foreground">{"Subscription not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("notFound")}</p>;
   }
 
   const tone = subscriptionStateTone(sub.state);
@@ -75,7 +80,7 @@ export function SubscriptionDetail({
           disabled={actionMutation.isPending}
           onClick={() => handleAction("activate")}
         >
-          {"Activate"}
+          {actionLabel("activate")}
         </Button>
       ) : null}
       {canPause(sub.state) ? (
@@ -85,7 +90,7 @@ export function SubscriptionDetail({
           disabled={actionMutation.isPending}
           onClick={() => handleAction("pause")}
         >
-          {"Pause"}
+          {actionLabel("pause")}
         </Button>
       ) : null}
       {canResume(sub.state) ? (
@@ -94,7 +99,7 @@ export function SubscriptionDetail({
           disabled={actionMutation.isPending}
           onClick={() => handleAction("resume")}
         >
-          {"Resume"}
+          {actionLabel("resume")}
         </Button>
       ) : null}
       {canChurn(sub.state) ? (
@@ -104,7 +109,7 @@ export function SubscriptionDetail({
           disabled={actionMutation.isPending}
           onClick={() => handleAction("churn")}
         >
-          {"Churn"}
+          {actionLabel("churn")}
         </Button>
       ) : null}
       {canClose(sub.state) ? (
@@ -114,7 +119,7 @@ export function SubscriptionDetail({
           disabled={actionMutation.isPending}
           onClick={() => handleAction("close")}
         >
-          {"Close"}
+          {actionLabel("close")}
         </Button>
       ) : null}
     </div>
@@ -124,7 +129,7 @@ export function SubscriptionDetail({
 
   return (
     <RecordLayout
-      breadcrumbItems={[{ label: "Subscriptions", href: "/subscriptions" }, { label: sub.name }]}
+      breadcrumbItems={[{ label: t("title"), href: "/subscriptions" }, { label: sub.name }]}
       title={sub.name}
       status={
         <Badge
@@ -141,14 +146,14 @@ export function SubscriptionDetail({
                     : ""
           }
         >
-          {humanizeKey(String(sub.state))}
+          {subState(sub.state)}
         </Badge>
       }
       actions={stateActions}
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: t("tabOverview"),
           content: (
             <div className="grid gap-4 lg:grid-cols-3">
               <Card>
@@ -163,7 +168,7 @@ export function SubscriptionDetail({
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Start date"}</CardTitle>
+                  <CardTitle>{t("colStartDate")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">
@@ -173,7 +178,7 @@ export function SubscriptionDetail({
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Next invoice"}</CardTitle>
+                  <CardTitle>{t("colNextInvoice")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">
@@ -183,24 +188,24 @@ export function SubscriptionDetail({
               </Card>
               <Card className="lg:col-span-3">
                 <CardHeader>
-                  <CardTitle>{"Subscription information"}</CardTitle>
+                  <CardTitle>{t("infoTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <dl className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"Customer"}</dt>
+                      <dt className="text-muted-foreground text-sm">{t("customer")}</dt>
                       <dd className="text-sm">#{sub.contactId}</dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"Plan"}</dt>
+                      <dt className="text-muted-foreground text-sm">{t("plan")}</dt>
                       <dd className="text-sm">#{sub.planId}</dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"Currency"}</dt>
+                      <dt className="text-muted-foreground text-sm">{t("currency")}</dt>
                       <dd className="text-sm">{sub.currencyCode ?? "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"End date"}</dt>
+                      <dt className="text-muted-foreground text-sm">{t("colEndDate")}</dt>
                       <dd className="text-sm">
                         {sub.dateEnd ? formatDate(String(sub.dateEnd)) : "—"}
                       </dd>
@@ -213,21 +218,21 @@ export function SubscriptionDetail({
         },
         {
           id: "lines",
-          label: "Lines",
+          label: t("tabLines"),
           content: (
             <div className="space-y-4">
               {lines.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{"No lines on this subscription."}</p>
+                <p className="text-sm text-muted-foreground">{t("noLines")}</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b text-muted-foreground">
-                        <th className="pb-2 text-left">{"Item"}</th>
-                        <th className="pb-2 text-right">{"Qty"}</th>
-                        <th className="pb-2 text-right">{"Price"}</th>
-                        <th className="pb-2 text-right">{"Discount"}</th>
-                        <th className="pb-2 text-right">{"Subtotal"}</th>
+                        <th className="pb-2 text-left">{t("item")}</th>
+                        <th className="pb-2 text-right">{t("qty")}</th>
+                        <th className="pb-2 text-right">{t("price")}</th>
+                        <th className="pb-2 text-right">{t("discount")}</th>
+                        <th className="pb-2 text-right">{t("subtotal")}</th>
                       </tr>
                     </thead>
                     <tbody>

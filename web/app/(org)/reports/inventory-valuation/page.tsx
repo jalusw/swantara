@@ -2,6 +2,7 @@
 
 import { FileDown } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/button";
@@ -13,24 +14,29 @@ import { exportCsv, formatMoney } from "@/lib/utils";
 import { inventoryTotalQuantity, inventoryTotalValue } from "@/lib/utils/report-utils";
 
 export default function InventoryValuationPage() {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Reports");
   const { data, isLoading } = useInventoryValuation();
   const rows = data?.rows ?? [];
   const totalValue = inventoryTotalValue(rows);
   const totalQty = inventoryTotalQuantity(rows);
 
   function handleExportCsv() {
-    const headers = ["Item", "Quantity", "Value"];
+    const headers = [t("fieldItem"), t("colQuantity"), t("colValue")];
     const csvRows = rows.map((r) => [r.productName, r.quantity, r.value]);
     exportCsv("inventory-valuation", headers, csvRows);
   }
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <BackLink href={"/reports"}>{"Back to reports"}</BackLink>
+      <BackLink href={"/reports"}>{t("backToReports")}</BackLink>
 
       <PageHeader
-        title={"Inventory Valuation"}
-        description={"Stock value by item."}
+        title={t("inventoryValuationTitle")}
+        description={t("inventoryValuationDescription")}
         actions={
           <Button
             variant="outline"
@@ -39,7 +45,7 @@ export default function InventoryValuationPage() {
             disabled={rows.length === 0}
           >
             <FileDown className="size-4" aria-hidden />
-            {"Export CSV"}
+            {t("exportCsv")}
           </Button>
         }
       />
@@ -47,7 +53,7 @@ export default function InventoryValuationPage() {
       <section className="grid gap-3 sm:grid-cols-2">
         <Card>
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">{"Total value"}</p>
+            <p className="text-xs text-muted-foreground">{t("totalValue")}</p>
             <p className="font-heading text-lg font-bold">
               {formatMoney(totalValue, { currency: DEFAULT_CURRENCY })}
             </p>
@@ -55,7 +61,7 @@ export default function InventoryValuationPage() {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">{"Total quantity"}</p>
+            <p className="text-xs text-muted-foreground">{t("totalQuantity")}</p>
             <p className="font-heading text-lg font-bold">
               {formatMoney(totalQty, { currency: DEFAULT_CURRENCY })}
             </p>
@@ -66,28 +72,30 @@ export default function InventoryValuationPage() {
       {isLoading ? (
         <Card>
           <CardContent className="p-6 text-center text-muted-foreground">
-            {"Loading inventory valuation…"}
+            {t("loadingInventoryValuation")}
           </CardContent>
         </Card>
       ) : rows.length === 0 ? (
         <Card>
           <CardContent className="p-6 text-center text-muted-foreground">
-            {"No inventory valuation data available."}
+            {t("inventoryValuationEmpty")}
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>{"Inventory values"}</CardTitle>
+            <CardTitle>{t("inventoryValues")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="px-3 py-2 text-left text-muted-foreground">{"Item"}</th>
-                    <th className="px-3 py-2 text-right text-muted-foreground">{"Quantity"}</th>
-                    <th className="px-3 py-2 text-right text-muted-foreground">{"Value"}</th>
+                    <th className="px-3 py-2 text-left text-muted-foreground">{t("fieldItem")}</th>
+                    <th className="px-3 py-2 text-right text-muted-foreground">
+                      {t("colQuantity")}
+                    </th>
+                    <th className="px-3 py-2 text-right text-muted-foreground">{t("colValue")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -112,7 +120,7 @@ export default function InventoryValuationPage() {
                 </tbody>
                 <tfoot>
                   <tr className="border-t-2 border-border ">
-                    <td className="px-3 py-2">{"Totals"}</td>
+                    <td className="px-3 py-2">{t("colTotal")}</td>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {formatMoney(totalQty, { currency: DEFAULT_CURRENCY })}
                     </td>

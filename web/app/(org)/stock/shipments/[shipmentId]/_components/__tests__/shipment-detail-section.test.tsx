@@ -71,8 +71,8 @@ describe("ShipmentDetail", () => {
     renderWithProviders(<ShipmentDetail orgId="1" shipmentId="21" />);
 
     await screen.findAllByText("PK-0021");
-    await user.click(screen.getByRole("tab", { name: "Movement lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris mutasi" }));
 
-    expect(await screen.findByText("assigned")).toBeInTheDocument();
+    expect(await screen.findByText("Ditugaskan")).toBeInTheDocument();
   });
 });

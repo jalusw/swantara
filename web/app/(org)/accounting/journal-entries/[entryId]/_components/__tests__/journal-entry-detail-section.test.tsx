@@ -72,7 +72,7 @@ describe("JournalEntryDetailSection", () => {
     const user = userEvent.setup();
     renderWithProviders(<JournalEntryDetailSection orgId="1" entryId="9" />);
 
-    expect(await screen.findByRole("button", { name: "Reverse entry" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Balikkan entri" })).toBeInTheDocument();
     await user.hover(screen.getByText("JE-009"));
     expect(screen.getByText("REF-009")).toBeInTheDocument();
   });

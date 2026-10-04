@@ -83,7 +83,7 @@ function useHandlers(options?: {
       async ({ request }) => {
         options?.created?.push(await request.json());
         return HttpResponse.json(
-          { success: true, message: "Created.", data: { rule: { id: 10 } } },
+          { success: true, message: "Dibuat.", data: { rule: { id: 10 } } },
           { status: 201 },
         );
       },
@@ -94,7 +94,7 @@ function useHandlers(options?: {
 beforeEach(() => {});
 
 async function openDialog(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("button", { name: "Add rule" }));
+  await user.click(screen.getByRole("button", { name: "Tambah aturan" }));
   return await screen.findByRole("dialog");
 }
 
@@ -118,25 +118,25 @@ describe("PriceBookDetail branches2", () => {
     useHandlers({ created });
     const user = userEvent.setup();
     renderWithProviders(<PriceBookDetail orgId="1" priceBookId="7" />);
-    await screen.findByText("Pricing rules");
+    await screen.findByText("Aturan harga");
 
     const dialog = await openDialog(user);
-    await user.click(within(dialog).getByRole("combobox", { name: "Scope" }));
-    await user.click(await screen.findByRole("option", { name: "Item" }));
-    await user.click(within(dialog).getByRole("combobox", { name: "Item" }));
+    await user.click(within(dialog).getByRole("combobox", { name: "Cakupan" }));
+    await user.click(await screen.findByRole("option", { name: "Produk" }));
+    await user.click(within(dialog).getByRole("combobox", { name: "Produk" }));
     await user.click(await screen.findByRole("option", { name: "Canvas Tote" }));
 
-    const minQty = within(dialog).getByLabelText("Min. quantity");
+    const minQty = within(dialog).getByLabelText("Jumlah minimum");
     await user.clear(minQty);
     await user.type(minQty, "0");
-    await user.type(within(dialog).getByLabelText("Price"), "45");
+    await user.type(within(dialog).getByLabelText("Harga"), "45");
 
     const dates = dialog.querySelectorAll('input[type="date"]');
     if (dates.length !== 2) throw new Error("Expected date inputs");
     await user.type(dates[0] as HTMLElement, "2026-01-01");
     await user.type(dates[1] as HTMLElement, "2026-12-31");
 
-    await user.click(within(dialog).getByRole("button", { name: "Save rule" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan aturan" }));
 
     await waitFor(() => expect(created).toHaveLength(1));
     expect(created[0]).toMatchObject({
@@ -156,18 +156,18 @@ describe("PriceBookDetail branches2", () => {
     useHandlers({ created });
     const user = userEvent.setup();
     renderWithProviders(<PriceBookDetail orgId="1" priceBookId="7" />);
-    await screen.findByText("Pricing rules");
+    await screen.findByText("Aturan harga");
 
     const dialog = await openDialog(user);
-    await user.click(within(dialog).getByRole("combobox", { name: "Scope" }));
-    await user.click(await screen.findByRole("option", { name: "Category" }));
-    await user.click(within(dialog).getByRole("combobox", { name: "Category" }));
+    await user.click(within(dialog).getByRole("combobox", { name: "Cakupan" }));
+    await user.click(await screen.findByRole("option", { name: "Kategori" }));
+    await user.click(within(dialog).getByRole("combobox", { name: "Kategori" }));
     await user.click(await screen.findByRole("option", { name: "Bags" }));
-    await user.click(within(dialog).getByRole("combobox", { name: "Compute type" }));
-    await user.click(await screen.findByRole("option", { name: "Percent discount" }));
-    await user.type(within(dialog).getByLabelText("Discount %"), "10");
+    await user.click(within(dialog).getByRole("combobox", { name: "Jenis perhitungan" }));
+    await user.click(await screen.findByRole("option", { name: "Persen" }));
+    await user.type(within(dialog).getByLabelText("Diskon %"), "10");
 
-    await user.click(within(dialog).getByRole("button", { name: "Save rule" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan aturan" }));
 
     await waitFor(() => expect(created).toHaveLength(1));
     expect(created[0]).toMatchObject({

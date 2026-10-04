@@ -91,9 +91,14 @@ describe("SupplierQuoteRequestsSection", () => {
     renderWithProviders(<SupplierQuoteRequestsSection orgId="1" />);
 
     await screen.findByText("QuoteRequest-0001");
-    await user.click(screen.getByRole("button", { name: "New QuoteRequest" }));
+    const table = screen.getByRole("table");
+    const addButton = screen
+      .getAllByRole("button", { name: "Permintaan penawaran baru" })
+      .find((button) => !table.contains(button));
+    expect(addButton).toBeDefined();
+    await user.click(addButton!);
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "New QuoteRequest" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Permintaan penawaran baru" })).toBeInTheDocument();
   });
 });

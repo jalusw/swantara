@@ -37,17 +37,17 @@ describe("MembersTable", () => {
 
     expect(screen.getByText("Alex Rivera")).toBeInTheDocument();
     expect(screen.getByText("June Park")).toBeInTheDocument();
-    expect(screen.getByText("Owner")).toBeInTheDocument();
+    expect(screen.getByText("Pemilik")).toBeInTheDocument();
     expect(screen.getByText("Admin")).toBeInTheDocument();
-    expect(screen.getAllByText("Active")).toHaveLength(2);
-    expect(screen.getByText("Invited")).toBeInTheDocument();
+    expect(screen.getAllByText("Aktif")).toHaveLength(2);
+    expect(screen.getByText("Diundang")).toBeInTheDocument();
   });
 
   it("filters rows by search query", async () => {
     const user = userEvent.setup();
     renderWithProviders(<MembersTable members={rows} />);
 
-    await user.type(screen.getByPlaceholderText("Search members…"), "June");
+    await user.type(screen.getByPlaceholderText("Cari anggota…"), "June");
 
     expect(screen.getByText("June Park")).toBeInTheDocument();
     expect(screen.queryByText("Alex Rivera")).toBeNull();

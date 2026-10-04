@@ -1,6 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { StateBadge } from "@/components/state-badge";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
@@ -8,6 +9,8 @@ import type { StockCount } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
 import { nameColumn } from "@/lib/utils/table-columns";
+
+type TFn = (key: string, values?: Record<string, string | number>) => string;
 
 function toRow(count: StockCount) {
   return {
@@ -19,6 +22,7 @@ function toRow(count: StockCount) {
 }
 
 export function CountsSection() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Stock");
   const countsQuery = useOrgListQuery<{ counts: StockCount[] }, Record<string, never>>(
     "inventoryCounts",
     (organizationId) => getSwantaraService().inventory.inventoryCounts(organizationId),
@@ -29,24 +33,30 @@ export function CountsSection() {
   const columns: ColumnDef<ReturnType<typeof toRow>>[] = [
     nameColumn<ReturnType<typeof toRow>>({
       basePath: "stock/counts",
-      header: "Count",
+      header: t("colCount"),
     }),
     {
       accessorKey: "state",
-      header: "State",
+      header: () => t("colStatus"),
       cell: ({ row }) => (
         <StateBadge
           value={row.original.state}
           statuses={{
-            posted: { label: row.original.state, tone: "success" },
-            draft: { label: row.original.state, tone: "neutral" },
+            posted: {
+              label: (t as unknown as (k: string) => string)("countState_posted"),
+              tone: "success",
+            },
+            draft: {
+              label: (t as unknown as (k: string) => string)("countState_draft"),
+              tone: "neutral",
+            },
           }}
         />
       ),
     },
     {
       accessorKey: "countDate",
-      header: "Count date",
+      header: () => t("colCountDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {row.original.countDate ? formatDate(row.original.countDate, { nullFallback: "—" }) : "—"}
@@ -64,9 +74,9 @@ export function CountsSection() {
       data={rows}
       getRowId={(row) => row.id}
       searchKeys={["name"]}
-      searchPlaceholder={"Search counts…"}
-      ariaLabel={"All counts"}
-      emptyTitle={"No inventory counts found."}
+      searchPlaceholder={t("searchCounts")}
+      ariaLabel={t("allCounts")}
+      emptyTitle={t("countsEmpty")}
       status={
         isLoading
           ? { type: "loading" }

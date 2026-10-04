@@ -90,7 +90,7 @@ describe("PurchaseOrderDetail extra", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
 
     await waitFor(() => expect(confirmCalls).toBe(1));
   });
@@ -100,7 +100,7 @@ describe("PurchaseOrderDetail extra", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    expect(screen.getByText("Only draft orders can be edited.")).toBeInTheDocument();
+    expect(screen.getByText("Hanya pesanan berstatus draf yang dapat diubah.")).toBeInTheDocument();
   });
 
   it("shows supplier reference and expected date when present", async () => {
@@ -120,7 +120,7 @@ describe("PurchaseOrderDetail extra", () => {
     );
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
-    expect(await screen.findByText("Purchase order not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Pesanan pembelian tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("shows the linked shipment on the receipt tab", async () => {
@@ -132,7 +132,7 @@ describe("PurchaseOrderDetail extra", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Receipt" }));
+    await user.click(screen.getByRole("tab", { name: "Penerimaan" }));
     expect(await screen.findByText(/IN-01/)).toBeInTheDocument();
   });
 
@@ -142,10 +142,10 @@ describe("PurchaseOrderDetail extra", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
 
-    expect(await screen.findByText(/Lines to bill/)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Create supplier bill" }));
+    expect(await screen.findByText(/Baris yang akan ditagih/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Buat tagihan pemasok" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
@@ -159,10 +159,12 @@ describe("PurchaseOrderDetail extra", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
 
-    expect(await screen.findByText("No received-not-billed lines to bill.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Create supplier bill" })).toBeDisabled();
+    expect(
+      await screen.findByText("Tidak ada baris yang sudah diterima tetapi belum ditagih."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Buat tagihan pemasok" })).toBeDisabled();
   });
 
   it("disables payment for draft orders", async () => {
@@ -171,8 +173,8 @@ describe("PurchaseOrderDetail extra", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Payments" }));
+    await user.click(screen.getByRole("tab", { name: "Pembayaran" }));
 
-    expect(await screen.findByRole("button", { name: "Make payment" })).toBeDisabled();
+    expect(await screen.findByRole("button", { name: "Buat pembayaran" })).toBeDisabled();
   });
 });

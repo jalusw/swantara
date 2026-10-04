@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowDownRight, ArrowUpRight, PiggyBank } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
 import { cn } from "@/lib/utils/style";
 
@@ -36,17 +37,22 @@ function CashFlowItem({
 }
 
 export function CashFlowSummary() {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Accounting");
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{"Cash flow"}</CardTitle>
-        <CardDescription>{"Money in and out this month."}</CardDescription>
+        <CardTitle>{t("cashFlowTitle")}</CardTitle>
+        <CardDescription>{t("cashFlowDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ul className="space-y-3">
-          <CashFlowItem label={"Inflows"} value="—" />
-          <CashFlowItem label={"Outflows"} value="—" />
-          <CashFlowItem label={"Net"} value="—" />
+          <CashFlowItem label={t("cashFlowInflows")} value="—" />
+          <CashFlowItem label={t("cashFlowOutflows")} value="—" />
+          <CashFlowItem label={t("cashFlowNet")} value="—" />
         </ul>
       </CardContent>
     </Card>

@@ -2,25 +2,21 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "@/components/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/dialog";
-import { Form, FormField, SubmitButton } from "@/components/form";
+import { Badge } from "@/components/badge";
+import { EntityFormDialog } from "@/components/entity-form-dialog";
+import { FormField } from "@/components/form";
 import { Textarea } from "@/components/textarea";
 import { getSwantaraService } from "@/lib/services/swantara";
 
 function useLostReasonFormSchema() {
+  const t = useTranslations("Crm");
   return z.object({
-    lostReason: z.string().min(1, "Lost reason is required."),
+    lostReason: z.string().min(1, t("validationLostReasonRequired")),
   });
 }
 type LostReasonValues = z.infer<ReturnType<typeof useLostReasonFormSchema>>;
@@ -38,6 +34,7 @@ export function LostReasonDialog({
   opportunityId: string;
   onDone: () => void;
 }) {
+  const t = useTranslations("Crm");
   const queryClient = useQueryClient();
   const schema = useLostReasonFormSchema();
   const form = useForm<LostReasonValues>({
@@ -45,18 +42,24 @@ export function LostReasonDialog({
     defaultValues: { lostReason: "" },
   });
 
+  useEffect(() => {
+    if (open) {
+      form.reset({ lostReason: "" });
+    }
+  }, [open, form]);
+
   const loseMutation = useMutation({
     mutationFn: (lostReason: string) =>
       getSwantaraService().crmOpportunities.lose(Number(orgId), Number(opportunityId), {
         lostReason,
       }),
     onSuccess: () => {
-      toast.success("Mark lost");
+      toast.success(t("markedLost"));
       void queryClient.invalidateQueries({ queryKey: ["crmOpportunities"] });
       onDone();
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -65,24 +68,31 @@ export function LostReasonDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{"Mark as lost"}</DialogTitle>
-          <DialogDescription>{"Explain why this deal was lost."}</DialogDescription>
-        </DialogHeader>
-        <Form form={form} onSubmit={handleSubmit}>
-          <FormField name="lostReason" label={"Lost reason"}>
-            {({ field, id }) => <Textarea {...field} id={id} placeholder={"e.g. Price too high"} />}
-          </FormField>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              {"Mark as lost"}
-            </Button>
-            <SubmitButton>{"Mark lost"}</SubmitButton>
-          </DialogFooter>
-        </Form>
-      </DialogContent>
-    </Dialog>
+    <EntityFormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("markLost")}
+      description={t("lostReasonDescription")}
+      badge={<Badge variant="destructive">{t("lostBadge")}</Badge>}
+      form={form}
+      onSubmit={handleSubmit}
+      isPending={loseMutation.isPending}
+      submitLabel={t("markLost")}
+      submitVariant="destructive"
+      footerHint={t("lostHint")}
+      className="sm:max-w-lg"
+    >
+      <FormField name="lostReason" label={t("fieldLostReason")} description={t("lostReasonHint")}>
+        {({ field, id }) => (
+          <Textarea
+            {...field}
+            id={id}
+            autoFocus
+            rows={4}
+            placeholder={t("lostReasonPlaceholder")}
+          />
+        )}
+      </FormField>
+    </EntityFormDialog>
   );
 }

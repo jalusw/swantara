@@ -35,8 +35,8 @@ describe("ServiceOrderFormDialog", () => {
       <ServiceOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(await screen.findByText("Create service order")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Pesanan baru")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("adds another service line", async () => {
@@ -45,9 +45,9 @@ describe("ServiceOrderFormDialog", () => {
       <ServiceOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Create service order");
-    await user.click(screen.getByRole("button", { name: "Add line" }));
+    await screen.findByText("Pesanan baru");
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
 
-    expect(screen.getAllByLabelText("Qty", { exact: false }).length).toBeGreaterThan(1);
+    expect(screen.getAllByLabelText("Jml", { exact: false }).length).toBeGreaterThan(1);
   });
 });

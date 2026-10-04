@@ -57,7 +57,7 @@ describe("TaxYearsSection", () => {
     renderWithProviders(<TaxYearsSection orgId="1" />);
 
     await screen.findByText("FY 2025");
-    await user.type(screen.getByPlaceholderText("Search tax years..."), "2024");
+    await user.type(screen.getByPlaceholderText("Cari tahun pajak..."), "2024");
 
     expect(await screen.findByText("FY 2024")).toBeInTheDocument();
   });
@@ -67,9 +67,9 @@ describe("TaxYearsSection", () => {
     renderWithProviders(<TaxYearsSection orgId="1" />);
 
     await screen.findByText("FY 2025");
-    await user.click(screen.getByRole("button", { name: "Add tax year" }));
+    await user.click(screen.getByRole("button", { name: "Tambah tahun pajak" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Create tax year")).toBeInTheDocument();
+    expect(screen.getByText("Buat tahun pajak")).toBeInTheDocument();
   });
 });

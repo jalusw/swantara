@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { RecordLayout } from "@/components/record-layout";
 import { useOrgQuery } from "@/lib/hooks/use-org-query";
@@ -8,6 +9,8 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
 
 export function MaintenancePlanDetail({ planId }: { orgId: string; planId: string }) {
+  const t = useTranslations("Service");
+  const tCommon = useTranslations("Common");
   const query = useOrgQuery<{ maintenancePlan: MaintenancePlan }>(
     "maintenancePlan",
     planId,
@@ -17,29 +20,29 @@ export function MaintenancePlanDetail({ planId }: { orgId: string; planId: strin
   const plan = query.data?.maintenancePlan;
 
   if (query.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (!plan) {
-    return <p className="text-sm text-muted-foreground">{"Maintenance plan not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("maintenancePlanNotFound")}</p>;
   }
 
   return (
     <RecordLayout
       breadcrumbItems={[
-        { label: "Maintenance plans", href: "/service-orders/plans" },
+        { label: t("plansTitle"), href: "/service-orders/plans" },
         { label: plan.name },
       ]}
       title={plan.name}
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: t("tabOverview"),
           content: (
             <div className="grid gap-4 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Equipment"}</CardTitle>
+                  <CardTitle>{t("equipment")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">{plan.equipmentId ? `#${plan.equipmentId}` : "—"}</p>
@@ -47,15 +50,17 @@ export function MaintenancePlanDetail({ planId }: { orgId: string; planId: strin
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Interval (days)"}</CardTitle>
+                  <CardTitle>{t("intervalDays")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm tabular-nums">{plan.intervalDays} days</p>
+                  <p className="text-sm tabular-nums">
+                    {t("daysCount", { count: plan.intervalDays })}
+                  </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Next due"}</CardTitle>
+                  <CardTitle>{t("nextDue")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">{plan.nextDue ? formatDate(String(plan.nextDue)) : "—"}</p>
@@ -63,10 +68,10 @@ export function MaintenancePlanDetail({ planId }: { orgId: string; planId: strin
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Active"}</CardTitle>
+                  <CardTitle>{t("active")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm">{plan.active ? "Yes" : "No"}</p>
+                  <p className="text-sm">{plan.active ? tCommon("yes") : tCommon("no")}</p>
                 </CardContent>
               </Card>
             </div>

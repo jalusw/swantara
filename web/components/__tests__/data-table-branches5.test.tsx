@@ -33,7 +33,7 @@ describe("DataTable branches5", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await user.click(screen.getByRole("button", { name: "Halaman berikutnya" }));
 
     expect(onPaginationChange).toHaveBeenCalledWith(expect.objectContaining({ pageIndex: 1 }));
   });
@@ -49,7 +49,7 @@ describe("DataTable branches5", () => {
       />,
     );
 
-    expect(screen.getByText("1–10 of 12")).toBeInTheDocument();
+    expect(screen.getByText("1–10 dari 12")).toBeInTheDocument();
   });
 
   it("shows empty state when column filters remove every row", () => {
@@ -63,7 +63,7 @@ describe("DataTable branches5", () => {
       />,
     );
 
-    expect(screen.getByText("No records found")).toBeInTheDocument();
+    expect(screen.getByText("Tidak ada hasil")).toBeInTheDocument();
     expect(screen.queryByText("User 01")).toBeNull();
   });
 

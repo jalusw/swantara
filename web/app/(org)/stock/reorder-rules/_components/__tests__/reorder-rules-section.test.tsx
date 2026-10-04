@@ -48,7 +48,7 @@ describe("ReorderRulesSection", () => {
 
     expect(await screen.findByText("101")).toBeInTheDocument();
     expect(screen.getByText("202")).toBeInTheDocument();
-    expect(screen.getByText("Inactive")).toBeInTheDocument();
+    expect(screen.getByText("Nonaktif")).toBeInTheDocument();
   });
 
   it("opens the create dialog from the add button", async () => {
@@ -56,8 +56,8 @@ describe("ReorderRulesSection", () => {
     renderWithProviders(<ReorderRulesSection orgId="1" />);
 
     await screen.findByText("101");
-    await user.click(screen.getByRole("button", { name: "Add rule" }));
+    await user.click(screen.getByRole("button", { name: "Tambah aturan" }));
 
-    expect(await screen.findByText("New reorder rule")).toBeInTheDocument();
+    expect(await screen.findByText("Aturan stok ulang baru")).toBeInTheDocument();
   });
 });

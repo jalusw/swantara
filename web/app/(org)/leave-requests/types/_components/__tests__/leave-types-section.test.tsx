@@ -31,8 +31,8 @@ describe("LeaveTypesSection", () => {
     renderWithProviders(<LeaveTypesSection orgId="1" />);
 
     await screen.findByText("Annual Leave");
-    await user.click(screen.getByRole("button", { name: "Add leave type" }));
+    await user.click(screen.getByRole("button", { name: "Tambah jenis cuti" }));
 
-    expect(await screen.findByRole("heading", { name: "New leave type" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Jenis cuti baru" })).toBeInTheDocument();
   });
 });

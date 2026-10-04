@@ -11,7 +11,7 @@ beforeEach(() => {
       HttpResponse.json(
         {
           success: true,
-          message: "Created.",
+          message: "Dibuat.",
           data: { schedule: { id: 3 } },
         },
         { status: 201 },
@@ -30,8 +30,8 @@ describe("DeferralFormDialog", () => {
   it("renders the create form", async () => {
     renderDialog(() => {});
 
-    expect(await screen.findByRole("heading", { name: "Create deferral" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Source type")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Buat penangguhan" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Jenis sumber")).toBeInTheDocument();
   });
 
   it("creates a deferral on submit", async () => {
@@ -39,23 +39,23 @@ describe("DeferralFormDialog", () => {
     const user = userEvent.setup();
     renderDialog(onSave);
 
-    await screen.findByRole("heading", { name: "Create deferral" });
+    await screen.findByRole("heading", { name: "Buat penangguhan" });
 
-    await user.click(screen.getByRole("combobox", { name: "Type" }));
+    await user.click(screen.getByRole("combobox", { name: "Jenis" }));
     await user.click((await screen.findAllByRole("option"))[0]!);
-    await user.click(screen.getByRole("combobox", { name: "Method" }));
+    await user.click(screen.getByRole("combobox", { name: "Metode" }));
     await user.click((await screen.findAllByRole("option"))[0]!);
 
-    await user.type(screen.getByLabelText("Source type"), "invoice");
-    const sourceId = screen.getByLabelText("Source ID");
+    await user.type(screen.getByLabelText("Jenis sumber"), "invoice");
+    const sourceId = screen.getByLabelText("ID sumber");
     await user.clear(sourceId);
     await user.type(sourceId, "7");
-    const totalAmount = screen.getByLabelText("Total amount");
+    const totalAmount = screen.getByLabelText("Total jumlah");
     await user.clear(totalAmount);
     await user.type(totalAmount, "1200");
-    await user.type(screen.getByLabelText("Start date"), "2026-02-01");
+    await user.type(screen.getByLabelText("Tanggal mulai"), "2026-02-01");
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("3"));
   });

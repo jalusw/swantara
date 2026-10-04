@@ -40,7 +40,7 @@ describe("ProductBoms", () => {
 
     expect(screen.getByText("BOM-TOTE-001")).toBeInTheDocument();
     expect(screen.getByText("BOM-MUG-001")).toBeInTheDocument();
-    expect(screen.getByText("Manufacture")).toBeInTheDocument();
+    expect(screen.getByText("Manufaktur")).toBeInTheDocument();
     expect(screen.getByText("v2")).toBeInTheDocument();
   });
 
@@ -48,7 +48,7 @@ describe("ProductBoms", () => {
     const user = userEvent.setup();
     renderWithProviders(<ProductBoms recipes={recipes} />);
 
-    await user.type(screen.getByPlaceholderText("Search bills of materials…"), "MUG");
+    await user.type(screen.getByPlaceholderText("Cari resep"), "MUG");
 
     expect(await screen.findByText("BOM-MUG-001")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("BOM-TOTE-001")).not.toBeInTheDocument());
@@ -57,6 +57,6 @@ describe("ProductBoms", () => {
   it("shows an empty message when no recipes exist", () => {
     renderWithProviders(<ProductBoms recipes={[]} />);
 
-    expect(screen.getByText("No bills of materials")).toBeInTheDocument();
+    expect(screen.getByText("Belum ada resep")).toBeInTheDocument();
   });
 });

@@ -51,7 +51,7 @@ describe("ServiceContractDetail branches", () => {
     );
     renderWithProviders(<ServiceContractDetail orgId="1" contractId="1" />);
 
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText("Memuat...")).toBeInTheDocument();
   });
 
   it("renders not-found when contract is missing", async () => {
@@ -62,7 +62,7 @@ describe("ServiceContractDetail branches", () => {
     );
     renderWithProviders(<ServiceContractDetail orgId="1" contractId="1" />);
 
-    expect(await screen.findByText("Service contract not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Kontrak tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("renders dash fallbacks for null relations", async () => {
@@ -95,7 +95,7 @@ describe("ServiceContractDetail branches", () => {
     renderWithProviders(<ServiceContractDetail orgId="1" contractId="1" />);
 
     await screen.findByRole("heading", { name: "ACME Maintenance" });
-    const cancel = screen.queryByRole("button", { name: "Cancel" });
+    const cancel = screen.queryByRole("button", { name: "Batal" });
     if (cancel) await user.click(cancel);
     expect(await screen.findByRole("heading", { name: "ACME Maintenance" })).toBeInTheDocument();
   });

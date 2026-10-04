@@ -47,8 +47,8 @@ describe("JobPositionsSection", () => {
     renderWithProviders(<JobPositionsSection orgId="1" />);
 
     await screen.findByText("Backend Engineer");
-    await user.click(screen.getByRole("button", { name: "Add position" }));
+    await user.click(screen.getByRole("button", { name: "Tambah Jabatan" }));
 
-    expect(await screen.findByRole("heading", { name: "New position" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Jabatan baru" })).toBeInTheDocument();
   });
 });

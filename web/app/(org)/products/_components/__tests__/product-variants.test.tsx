@@ -43,7 +43,7 @@ describe("ItemVariants", () => {
     const user = userEvent.setup();
     renderWithProviders(<ItemVariants variants={variants} />);
 
-    await user.type(screen.getByPlaceholderText("SKU…"), "BLUE");
+    await user.type(screen.getByPlaceholderText("Cari varian"), "BLUE");
 
     expect(await screen.findByText("TOTE-BLUE")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("TOTE-RED")).not.toBeInTheDocument());
@@ -52,6 +52,6 @@ describe("ItemVariants", () => {
   it("shows an empty message when no variants exist", () => {
     renderWithProviders(<ItemVariants variants={[]} />);
 
-    expect(screen.getByText("This item has no variants yet.")).toBeInTheDocument();
+    expect(screen.getByText("Belum ada varian")).toBeInTheDocument();
   });
 });

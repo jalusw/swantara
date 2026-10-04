@@ -56,7 +56,7 @@ describe("LeaveRequestFormDialog", () => {
       <LeaveRequestFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(await screen.findByText("Add leave request")).toBeInTheDocument();
+    expect(await screen.findByText("Pengajuan baru")).toBeInTheDocument();
   });
 
   it("renders days input", async () => {
@@ -64,7 +64,7 @@ describe("LeaveRequestFormDialog", () => {
       <LeaveRequestFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Add leave request");
+    await screen.findByText("Pengajuan baru");
     expect(screen.getByLabelText("Days")).toBeInTheDocument();
   });
 });

@@ -132,8 +132,8 @@ describe("SaleOrdersSection", () => {
     expect(screen.getByText("SO-0002")).toBeInTheDocument();
     expect(screen.getByText("Bluebird Trading")).toBeInTheDocument();
     expect(screen.getByText("Nusantara Logistics")).toBeInTheDocument();
-    expect(screen.getByText("Draft")).toBeInTheDocument();
-    expect(screen.getByText("Confirmed")).toBeInTheDocument();
+    expect(screen.getByText("Draf")).toBeInTheDocument();
+    expect(screen.getByText("Dikonfirmasi")).toBeInTheDocument();
   });
 
   it("filters orders through the search box", async () => {
@@ -141,7 +141,7 @@ describe("SaleOrdersSection", () => {
     renderWithProviders(<SaleOrdersSection orgId="1" />);
 
     await screen.findByText("SO-0001");
-    await user.type(screen.getByPlaceholderText("Search orders…"), "SO-0002");
+    await user.type(screen.getByPlaceholderText("Cari pesanan…"), "SO-0002");
 
     expect((await screen.findAllByText("SO-0002")).length).toBeGreaterThan(0);
     await waitFor(() => expect(screen.queryByText("SO-0001")).not.toBeInTheDocument());
@@ -152,9 +152,9 @@ describe("SaleOrdersSection", () => {
     renderWithProviders(<SaleOrdersSection orgId="1" />);
 
     await screen.findByText("SO-0001");
-    await user.click(screen.getByRole("button", { name: "New quotation" }));
+    await user.click(screen.getByRole("button", { name: "Penawaran baru" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Order lines")).toBeInTheDocument();
+    expect(screen.getByText("Baris pesanan")).toBeInTheDocument();
   });
 });

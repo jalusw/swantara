@@ -71,7 +71,7 @@ describe("ActivitiesSection remainder", () => {
 
     server.resetHandlers();
     useActivitiesHandlers();
-    await user.click(screen.getByRole("button", { name: /retry|try again/i }));
+    await user.click(screen.getByRole("button", { name: /coba lagi|retry|try again/i }));
 
     expect(await screen.findAllByText("Intro call with Acme")).toHaveLength(2);
   });
@@ -84,7 +84,10 @@ describe("ActivitiesSection remainder", () => {
     );
     renderWithProviders(<ActivitiesSection orgId="1" />);
 
-    expect(await screen.findByText("No activities")).toBeInTheDocument();
+    const timelineCard = screen
+      .getByText("Linimasa aktivitas")
+      .closest('[data-slot="card"]') as HTMLElement;
+    expect(await within(timelineCard).findByText("Belum ada aktivitas")).toBeInTheDocument();
   });
 
   it("marks an undone activity as done", async () => {
@@ -100,7 +103,7 @@ describe("ActivitiesSection remainder", () => {
 
     await screen.findAllByText("Intro call with Acme");
     const table = screen.getByRole("table");
-    await user.click(within(table).getByRole("button", { name: "Mark done" }));
+    await user.click(within(table).getByRole("button", { name: "Tandai selesai" }));
 
     await waitFor(() => expect(doneId).toBe(1));
   });
@@ -109,7 +112,7 @@ describe("ActivitiesSection remainder", () => {
     renderWithProviders(<ActivitiesSection orgId="1" />);
 
     await screen.findAllByText("Intro call with Acme");
-    expect(screen.getAllByRole("button", { name: "Mark done" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Tandai selesai" })).toHaveLength(1);
   });
 
   it("deletes an activity and shows a success toast", async () => {
@@ -125,10 +128,13 @@ describe("ActivitiesSection remainder", () => {
 
     await screen.findAllByText("Intro call with Acme");
     const table = screen.getByRole("table");
-    await user.click(within(table).getAllByRole("button", { name: "Delete activity" })[0]!);
+    const deleteTriggers = within(table)
+      .getAllByRole("button", { name: "Hapus aktivitas" })
+      .filter((el) => el.getAttribute("aria-haspopup") === "dialog");
+    await user.click(deleteTriggers[0]!);
 
     const confirm = await screen.findByRole("alertdialog");
-    await user.click(within(confirm).getByRole("button", { name: "Delete" }));
+    await user.click(within(confirm).getByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(deletedId).toBe(1));
   });
@@ -139,7 +145,7 @@ describe("ActivitiesSection remainder", () => {
 
     await screen.findAllByText("Intro call with Acme");
     const table = screen.getByRole("table");
-    await user.click(within(table).getAllByRole("button", { name: "Edit activity" })[0]!);
+    await user.click(within(table).getAllByRole("button", { name: "Ubah aktivitas" })[0]!);
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

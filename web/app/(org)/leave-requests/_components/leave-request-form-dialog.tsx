@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -13,19 +14,22 @@ import type { Employee, LeaveType } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { getLocalDateString } from "@/lib/utils";
 
-const leaveRequestFormSchema = z
-  .object({
-    employeeId: z.string().min(1),
-    leaveTypeId: z.string().min(1),
-    dateFrom: z.string().min(1),
-    dateTo: z.string().min(1),
-    days: z.string().refine((v) => Number(v) > 0),
-  })
-  .refine((data) => data.dateTo >= data.dateFrom, {
-    message: "End date must be after start date",
-    path: ["dateTo"],
-  });
-type LeaveRequestFormValues = z.infer<typeof leaveRequestFormSchema>;
+function useLeaveRequestFormSchema() {
+  const t = useTranslations("Leave");
+  return z
+    .object({
+      employeeId: z.string().min(1, t("validationEmployeeRequired")),
+      leaveTypeId: z.string().min(1, t("validationLeaveTypeRequired")),
+      dateFrom: z.string().min(1, t("validationDateRequired")),
+      dateTo: z.string().min(1, t("validationDateRequired")),
+      days: z.string().refine((v) => Number(v) > 0, t("validationDaysInvalid")),
+    })
+    .refine((data) => data.dateTo >= data.dateFrom, {
+      message: t("validationEndAfterStart"),
+      path: ["dateTo"],
+    });
+}
+type LeaveRequestFormValues = z.infer<ReturnType<typeof useLeaveRequestFormSchema>>;
 
 export function LeaveRequestFormDialog({
   open,
@@ -38,6 +42,7 @@ export function LeaveRequestFormDialog({
   orgId: string;
   onSave: () => void;
 }) {
+  const t = useTranslations("Leave");
   const employeesQuery = useOrgListQuery<{ employees: Employee[] }, Record<string, never>>(
     "employees",
     (organizationId) => getSwantaraService().employees.list(organizationId),
@@ -51,7 +56,7 @@ export function LeaveRequestFormDialog({
   const leaveTypes = leaveTypesQuery.data?.leaveTypes ?? [];
 
   const form = useForm<LeaveRequestFormValues>({
-    resolver: zodResolver(leaveRequestFormSchema),
+    resolver: zodResolver(useLeaveRequestFormSchema()),
     defaultValues: {
       employeeId: "",
       leaveTypeId: "",
@@ -62,7 +67,7 @@ export function LeaveRequestFormDialog({
   });
 
   function handleSubmit(values: LeaveRequestFormValues) {
-    void getSwantaraService()
+    return getSwantaraService()
       .leaveRequests.create(Number(orgId), {
         employeeId: Number(values.employeeId),
         leaveTypeId: Number(values.leaveTypeId),
@@ -71,25 +76,25 @@ export function LeaveRequestFormDialog({
         days: Number(values.days),
       })
       .then(() => onSave())
-      .catch(() => toast.error("Something went wrong."));
+      .catch(() => void toast.error(t("saveFailed")));
   }
 
   return (
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Add leave request"}
-      description={"Create a new leave request."}
+      title={t("newRequest")}
+      description={t("newRequestDescription")}
       form={form}
       onSubmit={handleSubmit}
       className="max-h-[85vh] overflow-y-auto sm:max-w-lg"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField name="employeeId" label={"Employee"}>
+        <FormField name="employeeId" label={t("fieldEmployee")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Employee"}>
-                <SelectValue placeholder={"Select employee"} />
+              <SelectTrigger id={id} aria-label={t("fieldEmployee")}>
+                <SelectValue placeholder={t("selectEmployee")} />
               </SelectTrigger>
               <SelectContent>
                 {employees.map((e) => (
@@ -101,11 +106,11 @@ export function LeaveRequestFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="leaveTypeId" label={"Leave type"}>
+        <FormField name="leaveTypeId" label={t("fieldLeaveType")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Leave type"}>
-                <SelectValue placeholder={"Select leave type"} />
+              <SelectTrigger id={id} aria-label={t("fieldLeaveType")}>
+                <SelectValue placeholder={t("selectLeaveType")} />
               </SelectTrigger>
               <SelectContent>
                 {leaveTypes.map((lt) => (
@@ -117,13 +122,13 @@ export function LeaveRequestFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="dateFrom" label={"From"}>
+        <FormField name="dateFrom" label={t("fieldDateFrom")}>
           {({ field, id }) => <Input {...field} id={id} type="date" />}
         </FormField>
-        <FormField name="dateTo" label={"To"}>
+        <FormField name="dateTo" label={t("fieldDateTo")}>
           {({ field, id }) => <Input {...field} id={id} type="date" />}
         </FormField>
-        <FormField name="days" label={"Days"}>
+        <FormField name="days" label={t("fieldDays")}>
           {({ field, id }) => <Input {...field} id={id} type="number" min="0.5" step="0.5" />}
         </FormField>
       </div>

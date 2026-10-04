@@ -161,6 +161,7 @@ func NewPeriodCloseService(
 	lines JournalLineDAO,
 	periodCloses PeriodCloseDAO,
 	poster PostingService,
+	txer db.Transactioner,
 ) PeriodCloseService {
 	return PeriodCloseService{
 		periods:      periods,
@@ -169,17 +170,13 @@ func NewPeriodCloseService(
 		lines:        lines,
 		periodCloses: periodCloses,
 		poster:       poster,
+		txer:         txer,
 		now:          time.Now,
 	}
 }
 
 func (s PeriodCloseService) WithJournalResolver(journalResolver ClosingJournalResolver) PeriodCloseService {
 	s.journalResolver = journalResolver
-	return s
-}
-
-func (s PeriodCloseService) WithTransactioner(txer db.Transactioner) PeriodCloseService {
-	s.txer = txer
 	return s
 }
 
@@ -284,23 +281,6 @@ func (s PeriodCloseService) Close(ctx context.Context, organizationID, periodID 
 	}
 
 	if len(closeLines) == 0 {
-		if s.txer == nil {
-			period.State = TaxPeriodStateClosed
-			if _, err := s.periods.Update(ctx, period); err != nil {
-				return nil, err
-			}
-			entry, err := s.periodCloses.Create(ctx, &PeriodCloseEntry{
-				OrganizationID: organizationID,
-				PeriodID:       periodID,
-				ClosingDate:    *period.DateEnd,
-				State:          PeriodCloseStatePosted,
-				PostedAt:       &now,
-			})
-			if err != nil {
-				return nil, err
-			}
-			return entry, nil
-		}
 		var entry *PeriodCloseEntry
 		err := s.txer.Run(ctx, func(tx *gorm.DB) error {
 			period.State = TaxPeriodStateClosed
@@ -346,37 +326,6 @@ func (s PeriodCloseService) Close(ctx context.Context, organizationID, periodID 
 	}
 	if journalID == 0 {
 		return nil, ErrClosingJournalMissing
-	}
-	if s.txer == nil {
-		posted, err := s.poster.Post(ctx, PostRequest{
-			OrganizationID: organizationID,
-			JournalID:      journalID,
-			Date:           *period.DateEnd,
-			Description:    "Period close " + period.Name,
-			Lines:          closeLines,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		closeEntry, err := s.periodCloses.Create(ctx, &PeriodCloseEntry{
-			OrganizationID: organizationID,
-			PeriodID:       periodID,
-			EntryID:        helper.Ptr(posted.ID),
-			ClosingDate:    *period.DateEnd,
-			State:          PeriodCloseStatePosted,
-			PostedAt:       &now,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		period.State = TaxPeriodStateClosed
-		if _, err := s.periods.Update(ctx, period); err != nil {
-			return nil, err
-		}
-
-		return closeEntry, nil
 	}
 
 	var result *PeriodCloseEntry

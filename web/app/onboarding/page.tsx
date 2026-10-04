@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { createServerSwantaraService } from "@/lib/server/api-client";
 import { SwantaraError } from "@/lib/services/swantara/errors";
@@ -9,6 +10,7 @@ import OnboardingForm from "./_components/onboarding-form";
 export const dynamic = "force-dynamic";
 
 export default async function OnboardingPage() {
+  const t = await getTranslations("Onboarding");
   const service = await createServerSwantaraService();
   let organizations: Awaited<ReturnType<typeof service.me.organizations>>["organizations"];
   try {
@@ -21,17 +23,14 @@ export default async function OnboardingPage() {
   }
   if (organizations.length > 0) {
     return (
-      <AuthShell title={"Opening Your Dashboard"} subtitle={"Selecting your organization."}>
+      <AuthShell title={t("openingDashboard")} subtitle={t("choosingOrg")}>
         <AcceptOrganization orgId={organizations[0]!.id} />
       </AuthShell>
     );
   }
 
   return (
-    <AuthShell
-      title={"Set Up Your Company"}
-      subtitle={"Create your company to get started with Swantara."}
-    >
+    <AuthShell title={t("setupCompany")} subtitle={t("setupSubtitle")}>
       <OnboardingForm />
     </AuthShell>
   );

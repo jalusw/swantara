@@ -34,7 +34,7 @@ export function commissionEntryStateTone(
 export function formatBasis(basis: CommissionPlan["basis"]): string {
   switch (basis) {
     case "revenue":
-      return "Revenue";
+      return "Pendapatan";
     case "margin":
       return "Margin";
     case "collected":

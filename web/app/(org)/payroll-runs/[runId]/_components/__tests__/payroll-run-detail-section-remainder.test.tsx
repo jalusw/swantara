@@ -75,7 +75,7 @@ describe("PayrollRunDetail remainder", () => {
     );
     renderWithProviders(<PayrollRunDetail orgId="1" runId="3" />);
 
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText("Memuat...")).toBeInTheDocument();
   });
 
   it("shows the not-found state when the run is missing", async () => {
@@ -86,7 +86,7 @@ describe("PayrollRunDetail remainder", () => {
     );
     renderWithProviders(<PayrollRunDetail orgId="1" runId="999" />);
 
-    expect(await screen.findByText("Payroll run not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Penggajian tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("shows the empty payslips message on the payslips tab", async () => {
@@ -95,9 +95,9 @@ describe("PayrollRunDetail remainder", () => {
     renderWithProviders(<PayrollRunDetail orgId="1" runId="3" />);
 
     await screen.findAllByText("March 2026");
-    await user.click(screen.getByRole("tab", { name: "Payslips" }));
+    await user.click(screen.getByRole("tab", { name: "Slip gaji" }));
 
-    expect(await screen.findByText("No payslips computed yet")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada slip gaji yang dihitung")).toBeInTheDocument();
   });
 
   it("renders payslip lines with earning and deduction badges", async () => {
@@ -106,7 +106,7 @@ describe("PayrollRunDetail remainder", () => {
     renderWithProviders(<PayrollRunDetail orgId="1" runId="3" />);
 
     await screen.findAllByText("March 2026");
-    await user.click(screen.getByRole("tab", { name: "Payslips" }));
+    await user.click(screen.getByRole("tab", { name: "Slip gaji" }));
 
     expect(await screen.findByText("Basic salary")).toBeInTheDocument();
     expect(screen.getByText("earning")).toBeInTheDocument();
@@ -129,7 +129,7 @@ describe("PayrollRunDetail remainder", () => {
     renderWithProviders(<PayrollRunDetail orgId="1" runId="3" />);
 
     await screen.findAllByText("March 2026");
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
 
     await waitFor(() => expect(confirmed).toMatchObject({ journal_id: 1 }));
   });
@@ -147,7 +147,7 @@ describe("PayrollRunDetail remainder", () => {
     renderWithProviders(<PayrollRunDetail orgId="1" runId="3" />);
 
     await screen.findAllByText("March 2026");
-    await user.click(screen.getByRole("button", { name: "Pay" }));
+    await user.click(screen.getByRole("button", { name: "Bayar" }));
 
     await waitFor(() => expect(paid).toBe(true));
   });
@@ -165,7 +165,7 @@ describe("PayrollRunDetail remainder", () => {
     renderWithProviders(<PayrollRunDetail orgId="1" runId="3" />);
 
     await screen.findAllByText("March 2026");
-    await user.click(screen.getByRole("button", { name: "Close" }));
+    await user.click(screen.getByRole("button", { name: "Tutup" }));
 
     await waitFor(() => expect(closed).toBe(true));
   });
@@ -175,8 +175,8 @@ describe("PayrollRunDetail remainder", () => {
     renderWithProviders(<PayrollRunDetail orgId="1" runId="3" />);
 
     await screen.findAllByText("March 2026");
-    expect(screen.queryByRole("button", { name: "Confirm" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Pay" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Close" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Konfirmasi" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Bayar" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tutup" })).not.toBeInTheDocument();
   });
 });

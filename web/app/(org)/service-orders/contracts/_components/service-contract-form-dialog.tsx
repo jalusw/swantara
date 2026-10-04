@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -22,8 +23,9 @@ import type { Contact, Equipment, Subscription } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 
 function useServiceContractSchema() {
+  const t = useTranslations("Service");
   return z.object({
-    name: z.string().min(1, "Name is required"),
+    name: z.string().min(1, t("validation_nameRequired")),
     contactId: z.string().optional(),
     equipmentId: z.string().optional(),
     subscriptionId: z.string().optional(),
@@ -46,6 +48,8 @@ export function ServiceContractFormDialog({
   orgId: string;
   onSave: (id: string) => void;
 }) {
+  const t = useTranslations("Service");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
 
   const contactsQuery = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
@@ -97,10 +101,10 @@ export function ServiceContractFormDialog({
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["serviceContracts", Number(orgId)] });
       onSave(String(result.serviceContract.id));
-      toast.success("Contract created");
+      toast.success(t("contractCreated"));
     },
     onError: () => {
-      toast.error("Failed to create contract");
+      toast.error(t("createFailed"));
     },
   });
 
@@ -112,23 +116,23 @@ export function ServiceContractFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{"Create service contract"}</DialogTitle>
-          <DialogDescription>{"Manage service contracts and SLA agreements."}</DialogDescription>
+          <DialogTitle>{t("newContract")}</DialogTitle>
+          <DialogDescription>{t("contractsDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="name" label={"Name"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+              <FormField name="name" label={t("fieldName")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
               </FormField>
-              <FormField name="coverage" label={"Coverage"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Coverage"} />}
+              <FormField name="coverage" label={t("coverage")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("coverage")} />}
               </FormField>
-              <FormField name="contactId" label={"Customer"}>
+              <FormField name="contactId" label={t("customer")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Customer"}>
-                      <SelectValue placeholder={"Select customer"} />
+                    <SelectTrigger id={id} aria-label={t("customer")}>
+                      <SelectValue placeholder={t("selectCustomer")} />
                     </SelectTrigger>
                     <SelectContent>
                       {contacts.map((p) => (
@@ -140,11 +144,11 @@ export function ServiceContractFormDialog({
                   </Select>
                 )}
               </FormField>
-              <FormField name="equipmentId" label={"Equipment"}>
+              <FormField name="equipmentId" label={t("equipment")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Equipment"}>
-                      <SelectValue placeholder={"Select equipment"} />
+                    <SelectTrigger id={id} aria-label={t("equipment")}>
+                      <SelectValue placeholder={t("selectEquipment")} />
                     </SelectTrigger>
                     <SelectContent>
                       {equipments.map((e) => (
@@ -156,11 +160,11 @@ export function ServiceContractFormDialog({
                   </Select>
                 )}
               </FormField>
-              <FormField name="subscriptionId" label={"Subscriptions"}>
+              <FormField name="subscriptionId" label={t("subscription")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Subscriptions"}>
-                      <SelectValue placeholder={"Select Subscription"} />
+                    <SelectTrigger id={id} aria-label={t("subscription")}>
+                      <SelectValue placeholder={t("selectSubscription")} />
                     </SelectTrigger>
                     <SelectContent>
                       {subscriptions.map((s) => (
@@ -172,21 +176,21 @@ export function ServiceContractFormDialog({
                   </Select>
                 )}
               </FormField>
-              <FormField name="slaResponseHours" label={"SLA response hours"}>
+              <FormField name="slaResponseHours" label={t("slaResponseHours")}>
                 {({ field, id }) => (
                   <Input
                     {...field}
                     id={id}
                     type="number"
                     min="0"
-                    placeholder={"SLA response hours"}
+                    placeholder={t("slaResponseHours")}
                   />
                 )}
               </FormField>
-              <FormField name="dateStart" label={"Start date"}>
+              <FormField name="dateStart" label={t("startDate")}>
                 {({ field, id }) => <Input {...field} id={id} type="date" />}
               </FormField>
-              <FormField name="dateEnd" label={"End date"}>
+              <FormField name="dateEnd" label={t("endDate")}>
                 {({ field, id }) => <Input {...field} id={id} type="date" />}
               </FormField>
             </div>
@@ -194,9 +198,9 @@ export function ServiceContractFormDialog({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Save"}</SubmitButton>
+            <SubmitButton loading={createMutation.isPending}>{tCommon("save")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

@@ -81,7 +81,7 @@ function seedForm() {
 }
 
 async function fillRequired(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("combobox", { name: "Supplier" }));
+  await user.click(screen.getByRole("combobox", { name: "Pemasok" }));
   await user.click(await screen.findByRole("option", { name: "Acme Supplier" }));
   await user.click(screen.getByRole("combobox", { name: "Item 1" }));
   await user.click(await screen.findByRole("option", { name: "Finished Widget" }));
@@ -107,7 +107,7 @@ describe("PurchaseOrderFormDialog extra2", () => {
     );
 
     await fillRequired(user);
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(createCalls).toBe(1));
     await waitFor(() => expect(onSave).toHaveBeenCalled());
@@ -127,12 +127,12 @@ describe("PurchaseOrderFormDialog extra2", () => {
       <PurchaseOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await user.click(screen.getByRole("combobox", { name: "Supplier" }));
+    await user.click(screen.getByRole("combobox", { name: "Pemasok" }));
     await user.click(await screen.findByRole("option", { name: "Acme Supplier" }));
-    await user.click(screen.getByRole("button", { name: "Remove" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Hapus" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Add at least one line.")).toBeInTheDocument();
+    expect(await screen.findByText("Tambahkan minimal satu baris.")).toBeInTheDocument();
     expect(createCalls).toBe(0);
     expect(onSave).not.toHaveBeenCalled();
   });
@@ -155,7 +155,7 @@ describe("PurchaseOrderFormDialog extra2", () => {
     const qtyInput = screen.getAllByRole("spinbutton")[0]!;
     await user.clear(qtyInput);
     await user.type(qtyInput, "0");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     expect(createCalls).toBe(0);
     expect(onSave).not.toHaveBeenCalled();
@@ -167,9 +167,9 @@ describe("PurchaseOrderFormDialog extra2", () => {
       <PurchaseOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Add line" }));
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
     expect(screen.getByRole("combobox", { name: "Item 2" })).toBeInTheDocument();
-    await user.click(screen.getAllByRole("button", { name: "Remove" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Hapus" })[0]!);
     expect(screen.queryByRole("combobox", { name: "Item 2" })).not.toBeInTheDocument();
   });
 
@@ -184,7 +184,7 @@ describe("PurchaseOrderFormDialog extra2", () => {
     await user.type(spins[1]!, "42");
     expect(spins[1]).toHaveValue(42);
 
-    const descriptionInput = screen.getByPlaceholderText("Description");
+    const descriptionInput = screen.getByPlaceholderText("Deskripsi");
     await user.type(descriptionInput, "Fragile");
     expect(descriptionInput).toHaveValue("Fragile");
   });
@@ -195,7 +195,7 @@ describe("PurchaseOrderFormDialog extra2", () => {
       <PurchaseOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    const vendorRefInput = screen.getByLabelText("Supplier reference");
+    const vendorRefInput = screen.getByLabelText("Referensi vendor");
     await user.type(vendorRefInput, "VEND-99");
     expect(vendorRefInput).toHaveValue("VEND-99");
   });

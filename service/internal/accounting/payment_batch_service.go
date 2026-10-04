@@ -89,7 +89,7 @@ func (s PaymentBatchService) Create(ctx context.Context, request CreatePaymentBa
 			BatchDate:      &batchDate,
 		}
 
-		created, err := s.batches.Create(ctx, batch)
+		created, err := s.batches.CreateTx(ctx, tx, batch)
 		if err != nil {
 			return err
 		}

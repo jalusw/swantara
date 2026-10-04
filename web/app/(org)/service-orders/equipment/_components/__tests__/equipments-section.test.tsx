@@ -63,7 +63,7 @@ describe("EquipmentsSection", () => {
     renderWithProviders(<EquipmentsSection orgId="1" />);
 
     await screen.findByText("Excavator ZX350");
-    await user.type(screen.getByPlaceholderText("Search equipments…"), "Forklift");
+    await user.type(screen.getByPlaceholderText("Cari peralatan…"), "Forklift");
 
     expect(await screen.findByText("Forklift FD30")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Excavator ZX350")).not.toBeInTheDocument());

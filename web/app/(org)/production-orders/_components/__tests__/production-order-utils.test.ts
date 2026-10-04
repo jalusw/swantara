@@ -16,11 +16,11 @@ describe("production-order-utils", () => {
   describe("moStateLabel", () => {
     it("maps all states to translation keys", () => {
       expect(moStateLabel("draft")).toBe("Draft");
-      expect(moStateLabel("confirmed")).toBe("Confirmed");
-      expect(moStateLabel("planned")).toBe("Planned");
-      expect(moStateLabel("in_progress")).toBe("In Progress");
-      expect(moStateLabel("done")).toBe("Done");
-      expect(moStateLabel("cancelled")).toBe("Cancelled");
+      expect(moStateLabel("confirmed")).toBe("Dikonfirmasi");
+      expect(moStateLabel("planned")).toBe("Direncanakan");
+      expect(moStateLabel("in_progress")).toBe("Berjalan");
+      expect(moStateLabel("done")).toBe("Selesai");
+      expect(moStateLabel("cancelled")).toBe("Dibatalkan");
     });
   });
 

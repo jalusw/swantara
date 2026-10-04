@@ -70,10 +70,10 @@ describe("TimesheetFormDialog branches", () => {
       <TimesheetFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add timesheet entry");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Tambah entri lembar waktu");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Select an employee.")).toBeInTheDocument();
+    expect(await screen.findByText("Karyawan wajib dipilih.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -85,10 +85,10 @@ describe("TimesheetFormDialog branches", () => {
       <TimesheetFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add timesheet entry");
-    await user.click(screen.getByRole("combobox", { name: "Employee" }));
+    await screen.findByText("Tambah entri lembar waktu");
+    await user.click(screen.getByRole("combobox", { name: "Karyawan" }));
     await user.click(await screen.findByRole("option", { name: "Alex Rivera" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -101,18 +101,18 @@ describe("TimesheetFormDialog branches", () => {
       <TimesheetFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add timesheet entry");
-    expect(screen.getByRole("combobox", { name: "Task" })).toBeDisabled();
-    await user.click(screen.getByRole("combobox", { name: "Employee" }));
+    await screen.findByText("Tambah entri lembar waktu");
+    expect(screen.getByRole("combobox", { name: "Tugas" })).toBeDisabled();
+    await user.click(screen.getByRole("combobox", { name: "Karyawan" }));
     await user.click(await screen.findByRole("option", { name: "Alex Rivera" }));
-    await user.click(screen.getByRole("combobox", { name: "Project" }));
+    await user.click(screen.getByRole("combobox", { name: "Proyek" }));
     await user.click(await screen.findByRole("option", { name: "Website Revamp" }));
 
-    const task = screen.getByRole("combobox", { name: "Task" });
+    const task = screen.getByRole("combobox", { name: "Tugas" });
     await waitFor(() => expect(task).toBeEnabled());
     await user.click(task);
     await user.click(await screen.findByRole("option", { name: "Design homepage" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -125,16 +125,13 @@ describe("TimesheetFormDialog branches", () => {
       <TimesheetFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add timesheet entry");
-    await user.click(screen.getByRole("combobox", { name: "Employee" }));
+    await screen.findByText("Tambah entri lembar waktu");
+    await user.click(screen.getByRole("combobox", { name: "Karyawan" }));
     await user.click(await screen.findByRole("option", { name: "Alex Rivera" }));
-    await user.type(
-      screen.getByLabelText("Log hours worked on projects and tasks."),
-      "Worked on homepage",
-    );
-    await user.click(screen.getByRole("combobox", { name: "Dimension account" }));
+    await user.type(screen.getByLabelText("Deskripsi"), "Worked on homepage");
+    await user.click(screen.getByRole("combobox", { name: "Dimensi" }));
     await user.click(await screen.findByRole("option", { name: "Operating costs" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -147,15 +144,15 @@ describe("TimesheetFormDialog branches", () => {
       <TimesheetFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add timesheet entry");
-    await user.click(screen.getByRole("combobox", { name: "Employee" }));
+    await screen.findByText("Tambah entri lembar waktu");
+    await user.click(screen.getByRole("combobox", { name: "Karyawan" }));
     await user.click(await screen.findByRole("option", { name: "Alex Rivera" }));
-    const hours = screen.getByLabelText("Hours");
+    const hours = screen.getByLabelText("Jam");
     await user.clear(hours);
     await user.type(hours, "0");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Minimum 0.5 hours.")).toBeInTheDocument();
+    expect(await screen.findByText("Minimal 0,5 jam.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -167,12 +164,12 @@ describe("TimesheetFormDialog branches", () => {
       <TimesheetFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add timesheet entry");
-    await user.click(screen.getByRole("combobox", { name: "Employee" }));
+    await screen.findByText("Tambah entri lembar waktu");
+    await user.click(screen.getByRole("combobox", { name: "Karyawan" }));
     await user.click(await screen.findByRole("option", { name: "Alex Rivera" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("Add timesheet entry")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Tambah entri lembar waktu")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -183,8 +180,8 @@ describe("TimesheetFormDialog branches", () => {
       <TimesheetFormDialog open={true} onOpenChange={onOpenChange} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Add timesheet entry");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByText("Tambah entri lembar waktu");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

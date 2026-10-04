@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FolderIcon, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -50,8 +51,9 @@ function toDimensionRow(account: Dimension): DimensionRow {
 const kinds = ["expense", "revenue", "cost", "other"] as const;
 
 function useDimensionSchema() {
+  const t = useTranslations("Reference");
   return z.object({
-    name: z.string().min(1, "Enter a name."),
+    name: z.string().min(1, t("validationNameRequired")),
     code: z.string(),
     kind: z.enum(kinds),
     parentId: z.string(),
@@ -61,6 +63,7 @@ function useDimensionSchema() {
 type DimensionValues = z.infer<ReturnType<typeof useDimensionSchema>>;
 
 export function DimensionsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Reference");
   const [editing, setEditing] = useState<DimensionRow | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -118,30 +121,30 @@ export function DimensionsSection({ orgId }: { orgId: string }) {
     };
 
     if (editing) {
-      void getSwantaraService()
+      return getSwantaraService()
         .dimensions.update(Number(orgId), Number(editing.id), payload)
         .then(() => {
-          toast.success("Dimension account saved.");
+          toast.success(t("dimensionSaved"));
           setOpen(false);
           form.reset();
           void query.refetch();
         })
         .catch((error) => {
           logger.error("Failed to update dimension account", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastFailed"));
         });
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .dimensions.create(Number(orgId), payload)
         .then(() => {
-          toast.success("Dimension account saved.");
+          toast.success(t("dimensionSaved"));
           setOpen(false);
           form.reset();
           void query.refetch();
         })
         .catch((error) => {
           logger.error("Failed to create dimension account", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastFailed"));
         });
     }
   }
@@ -152,16 +155,16 @@ export function DimensionsSection({ orgId }: { orgId: string }) {
       .then(() => void query.refetch())
       .catch((error) => {
         logger.error("Failed to delete dimension account", error);
-        toast.error("Could not disable the organization.");
+        toast.error(t("toastFailed"));
       });
   }
 
   const tree: TreeNode[] = buildTree(accounts, (row) => (
     <RowActions
-      editLabel={"Edit"}
-      deleteLabel={"Delete"}
-      confirmTitle={"Delete this account?"}
-      confirmDescription={"The dimension account and its children will be removed."}
+      editLabel={t("actionEdit")}
+      deleteLabel={t("actionDelete")}
+      confirmTitle={t("deleteAccountTitle")}
+      confirmDescription={t("deleteAccountDescription")}
       onEdit={() => openEdit(row)}
       onDelete={() => deleteRow(row.id)}
     />
@@ -172,43 +175,39 @@ export function DimensionsSection({ orgId }: { orgId: string }) {
       <div className="flex justify-end">
         <Button size="sm" onClick={openCreate}>
           <Plus />
-          <span>{"Add account"}</span>
+          <span>{t("addAccount")}</span>
         </Button>
       </div>
 
       {query.isLoading ? (
-        <p className="text-sm text-muted-foreground">{"Loading..."}</p>
+        <p className="text-sm text-muted-foreground">{t("loading")}</p>
       ) : (
         <TreeView
           items={tree}
           defaultExpandedIds={tree.map((node) => node.id)}
-          aria-label={"Dimension accounts"}
+          aria-label={t("dimensionsTitle")}
         />
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {editing ? "Edit dimension account" : "New dimension account"}
-            </DialogTitle>
-            <DialogDescription>
-              {"Cost centers and dimensions used for reporting."}
-            </DialogDescription>
+            <DialogTitle>{editing ? t("editAccount") : t("newAccount")}</DialogTitle>
+            <DialogDescription>{t("dimensionDialogDescription")}</DialogDescription>
           </DialogHeader>
           <Form form={form} onSubmit={handleSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="name" label={"Name"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+              <FormField name="name" label={t("fieldName")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
               </FormField>
-              <FormField name="code" label={"Code"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Code"} />}
+              <FormField name="code" label={t("fieldCode")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldCode")} />}
               </FormField>
-              <FormField name="kind" label={"Kind"}>
+              <FormField name="kind" label={t("fieldType")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Kind"}>
-                      <SelectValue placeholder={"Kind"} />
+                    <SelectTrigger id={id} aria-label={t("fieldType")}>
+                      <SelectValue placeholder={t("fieldType")} />
                     </SelectTrigger>
                     <SelectContent>
                       {kinds.map((kind) => (
@@ -220,14 +219,14 @@ export function DimensionsSection({ orgId }: { orgId: string }) {
                   </Select>
                 )}
               </FormField>
-              <FormField name="parentId" label={"Parent account"}>
+              <FormField name="parentId" label={t("fieldParentAccount")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Parent account"}>
-                      <SelectValue placeholder={"None (top-level)"} />
+                    <SelectTrigger id={id} aria-label={t("fieldParentAccount")}>
+                      <SelectValue placeholder={t("noParentOption")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">{"None (top-level)"}</SelectItem>
+                      <SelectItem value="">{t("noParentOption")}</SelectItem>
                       {accounts
                         .filter((row) => row.id !== editing?.id)
                         .map((row) => (
@@ -239,21 +238,21 @@ export function DimensionsSection({ orgId }: { orgId: string }) {
                   </Select>
                 )}
               </FormField>
-              <FormField name="active" label={"Active"}>
+              <FormField name="active" label={t("fieldActive")}>
                 {({ field }) => (
                   <Switch
                     checked={field.value}
                     onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-                    aria-label={"Active"}
+                    aria-label={t("fieldActive")}
                   />
                 )}
               </FormField>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>
-                {"Cancel"}
+                {t("actionCancel")}
               </Button>
-              <SubmitButton>{"Save account"}</SubmitButton>
+              <SubmitButton>{t("saveAccount")}</SubmitButton>
             </DialogFooter>
           </Form>
         </DialogContent>

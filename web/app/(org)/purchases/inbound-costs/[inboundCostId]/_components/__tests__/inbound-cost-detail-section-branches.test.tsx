@@ -52,7 +52,7 @@ describe("InboundCostDetail branches", () => {
     );
     renderWithProviders(<InboundCostDetail orgId="1" inboundCostId="1" />);
 
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText("Memuat...")).toBeInTheDocument();
   });
 
   it("renders dash fallbacks for null date and move", async () => {
@@ -129,6 +129,6 @@ describe("InboundCostDetail branches", () => {
     renderWithProviders(<InboundCostDetail orgId="1" inboundCostId="1" />);
 
     expect(await screen.findByRole("heading", { name: "Freight January" })).toBeInTheDocument();
-    expect(screen.getByText("Cancelled")).toBeInTheDocument();
+    expect(screen.getByText("Dibatalkan")).toBeInTheDocument();
   });
 });

@@ -63,7 +63,7 @@ describe("LeadFormDialog extra", () => {
       />,
     );
 
-    expect(await screen.findByText("New opportunity")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Peluang baru" })).toBeInTheDocument();
   });
 
   it("renders the edit title with prefilled values", async () => {
@@ -77,7 +77,7 @@ describe("LeadFormDialog extra", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit lead")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Ubah prospek" })).toBeInTheDocument();
     expect(screen.getByDisplayValue("Acme Website Inquiry")).toBeInTheDocument();
     expect(screen.getByDisplayValue("aria@example.com")).toBeInTheDocument();
   });
@@ -93,7 +93,7 @@ describe("LeadFormDialog extra", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit opportunity")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Ubah peluang" })).toBeInTheDocument();
   });
 
   it("requires a name before saving", async () => {
@@ -102,10 +102,10 @@ describe("LeadFormDialog extra", () => {
       <LeadFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    await screen.findByPlaceholderText("Name");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByPlaceholderText("Nama");
+    await user.click(screen.getByRole("button", { name: "Buat prospek" }));
 
-    expect(await screen.findByText("Enter a name.")).toBeInTheDocument();
+    expect(await screen.findByText("Nama wajib diisi.")).toBeInTheDocument();
   });
 
   it("rejects an invalid email address", async () => {
@@ -114,12 +114,12 @@ describe("LeadFormDialog extra", () => {
       <LeadFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    await user.type(await screen.findByPlaceholderText("Name"), "Acme Inquiry");
+    await user.type(await screen.findByPlaceholderText("Nama"), "Acme Inquiry");
     const emailInput = screen.getByLabelText("Email");
     await user.type(emailInput, "not-an-email");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Buat prospek" }));
 
-    expect(await screen.findByText("Enter a valid email.")).toBeInTheDocument();
+    expect(await screen.findByText("Masukkan alamat email yang valid.")).toBeInTheDocument();
   });
 
   it("requires a stage for opportunities", async () => {
@@ -134,10 +134,10 @@ describe("LeadFormDialog extra", () => {
       />,
     );
 
-    await user.type(await screen.findByPlaceholderText("Name"), "Big deal");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByPlaceholderText("Nama"), "Big deal");
+    await user.click(screen.getByRole("button", { name: "Buat peluang" }));
 
-    expect(await screen.findByText("An opportunity must have a stage.")).toBeInTheDocument();
+    expect(await screen.findByText("Pilih tahap.")).toBeInTheDocument();
   });
 
   it("creates a lead and notifies on save", async () => {
@@ -146,7 +146,7 @@ describe("LeadFormDialog extra", () => {
       http.post("*/api/v1/organizations/:organizationId/crm/leads", () => {
         createCalls += 1;
         return HttpResponse.json(
-          { success: true, message: "Created.", data: { lead: { ...baseLead, id: 9 } } },
+          { success: true, message: "Dibuat.", data: { lead: { ...baseLead, id: 9 } } },
           { status: 201 },
         );
       }),
@@ -155,8 +155,8 @@ describe("LeadFormDialog extra", () => {
     const user = userEvent.setup();
     renderWithProviders(<LeadFormDialog open onOpenChange={() => {}} orgId="1" onSave={onSave} />);
 
-    await user.type(await screen.findByPlaceholderText("Name"), "Acme Inquiry");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByPlaceholderText("Nama"), "Acme Inquiry");
+    await user.click(screen.getByRole("button", { name: "Buat prospek" }));
 
     await waitFor(() => expect(createCalls).toBe(1));
     await waitFor(() => expect(onSave).toHaveBeenCalled());
@@ -172,7 +172,7 @@ describe("LeadFormDialog extra", () => {
       }),
       http.post("*/api/v1/organizations/:organizationId/crm/leads", () => {
         createCalls += 1;
-        return HttpResponse.json({ success: true, message: "Created.", data: {} });
+        return HttpResponse.json({ success: true, message: "Dibuat.", data: {} });
       }),
     );
     const onSave = vi.fn();
@@ -182,7 +182,7 @@ describe("LeadFormDialog extra", () => {
     );
 
     await screen.findByDisplayValue("Acme Website Inquiry");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan perubahan" }));
 
     await waitFor(() => expect(updateCalls).toBe(1));
     expect(createCalls).toBe(0);

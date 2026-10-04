@@ -7,11 +7,11 @@ export type PosOrderState = PosOrder["state"];
 export function posSessionStateLabel(state: PosSessionState): string {
   switch (state) {
     case "opened":
-      return "Opened";
+      return "Dibuka";
     case "closing":
-      return "Closing";
+      return "Penutupan";
     case "closed":
-      return "Closed";
+      return "Ditutup";
     default:
       return state;
   }
@@ -35,9 +35,9 @@ export function posSessionStateTone(
 export function posOrderStateLabel(state: PosOrderState): string {
   switch (state) {
     case "done":
-      return "Done";
+      return "Selesai";
     case "refunded":
-      return "Refunded";
+      return "Dikembalikan";
     default:
       return state;
   }

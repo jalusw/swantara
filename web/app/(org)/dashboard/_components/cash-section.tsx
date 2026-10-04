@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { BarChart } from "@/components/bar-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
@@ -10,6 +11,7 @@ import { formatMoney } from "@/lib/utils";
 import { KpiCard } from "./kpi-card";
 
 export function CashSection() {
+  const t = useTranslations("Dashboard");
   const cashKpi = useCashKpi();
   const arApKpi = useArApKpi();
   const cash = cashKpi.data?.kpi;
@@ -19,44 +21,44 @@ export function CashSection() {
     () =>
       cash
         ? [
-            { label: "Cash position", value: cash.position },
-            { label: "Burn", value: cash.burn },
-            { label: "Forecast", value: cash.forecast },
+            { label: t("cashPosition"), value: cash.position },
+            { label: t("cashBurn"), value: cash.burn },
+            { label: t("cashForecast"), value: cash.forecast },
           ]
         : [
-            { label: "Cash position", value: 0 },
-            { label: "Burn", value: 0 },
-            { label: "Forecast", value: 0 },
+            { label: t("cashPosition"), value: 0 },
+            { label: t("cashBurn"), value: 0 },
+            { label: t("cashForecast"), value: 0 },
           ],
-    [cash],
+    [cash, t],
   );
 
   const arData = useMemo(
     () =>
       arAp
         ? [
-            { label: "Overdue AR", value: arAp.overdueArPct * 100 },
-            { label: "Current", value: (1 - arAp.overdueArPct) * 100 },
+            { label: t("overdueReceivables"), value: arAp.overdueArPct * 100 },
+            { label: t("current"), value: (1 - arAp.overdueArPct) * 100 },
           ]
         : [
-            { label: "Overdue AR", value: 0 },
-            { label: "Current", value: 0 },
+            { label: t("overdueReceivables"), value: 0 },
+            { label: t("current"), value: 0 },
           ],
-    [arAp],
+    [arAp, t],
   );
 
   const apData = useMemo(
     () =>
       arAp
         ? [
-            { label: "Overdue AP", value: arAp.overdueApPct * 100 },
-            { label: "Current", value: (1 - arAp.overdueApPct) * 100 },
+            { label: t("overduePayables"), value: arAp.overdueApPct * 100 },
+            { label: t("current"), value: (1 - arAp.overdueApPct) * 100 },
           ]
         : [
-            { label: "Overdue AP", value: 0 },
-            { label: "Current", value: 0 },
+            { label: t("overduePayables"), value: 0 },
+            { label: t("current"), value: 0 },
           ],
-    [arAp],
+    [arAp, t],
   );
 
   const arApComparison = useMemo(
@@ -77,27 +79,27 @@ export function CashSection() {
     <div className="grid gap-4 grid-cols-12">
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle>{"Cash"}</CardTitle>
+          <CardTitle>{t("cashTitle")}</CardTitle>
           <CardDescription>
-            {"Bank position, burn and forecast."} · {"DSO, DPO and overdue exposure."}
+            {t("cashDesc")} · {t("arApDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-12">
           <KpiCard
             className="col-span-12 md:col-span-4 rounded-xl border border-border bg-card p-4 bg-primary/[0.04] border-primary/15"
-            label={"Cash position"}
+            label={t("cashPosition")}
           >
             {cash ? formatMoney(cash.position, { currency: DEFAULT_CURRENCY }) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 md:col-span-4 rounded-xl border border-border bg-card p-4"
-            label={"Burn"}
+            label={t("cashBurn")}
           >
             {cash ? formatMoney(cash.burn, { currency: DEFAULT_CURRENCY }) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 md:col-span-4 rounded-xl border border-border bg-card p-4"
-            label={"Forecast"}
+            label={t("cashForecast")}
           >
             {cash ? formatMoney(cash.forecast, { currency: DEFAULT_CURRENCY }) : "—"}
           </KpiCard>
@@ -109,7 +111,11 @@ export function CashSection() {
               {arAp ? `${arAp.dso.toFixed(1)}d` : "—"}
             </p>
             <p className="text-xs text-muted-foreground">
-              {arAp ? `${(arAp.overdueArPct * 100).toFixed(1)}% ${"Overdue AR"}` : "—"}
+              {arAp
+                ? t("overdueReceivablesPct", {
+                    pct: (arAp.overdueArPct * 100).toFixed(1),
+                  })
+                : "—"}
             </p>
           </div>
           <div className="col-span-6 rounded-xl border border-border p-4">
@@ -120,20 +126,24 @@ export function CashSection() {
               {arAp ? `${arAp.dpo.toFixed(1)}d` : "—"}
             </p>
             <p className="text-xs text-muted-foreground">
-              {arAp ? `${(arAp.overdueApPct * 100).toFixed(1)}% ${"Overdue AP"}` : "—"}
+              {arAp
+                ? t("overduePayablesPct", {
+                    pct: (arAp.overdueApPct * 100).toFixed(1),
+                  })
+                : "—"}
             </p>
           </div>
         </CardContent>
       </Card>
       <Card className="col-span-12 lg:col-span-8">
         <CardHeader>
-          <CardTitle className="text-sm">{"Cash flow"}</CardTitle>
-          <CardDescription>{"Position, burn and forecast"}</CardDescription>
+          <CardTitle className="text-sm">{t("cashFlowTitle")}</CardTitle>
+          <CardDescription>{t("cashFlowDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <BarChart
             data={cashData}
-            ariaLabel={"Cash"}
+            ariaLabel={t("cashTitle")}
             valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
           />
         </CardContent>
@@ -141,12 +151,12 @@ export function CashSection() {
       <Card className="col-span-12 lg:col-span-4">
         <CardHeader>
           <CardTitle className="text-sm">{"DSO / DPO"}</CardTitle>
-          <CardDescription>{"Collection vs payment days"}</CardDescription>
+          <CardDescription>{t("dsoDpoDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <BarChart
             data={arApComparison}
-            ariaLabel={"Receivables & Payables"}
+            ariaLabel={t("arApTitle")}
             valueFormatter={(value) => `${value.toFixed(1)}d`}
           />
         </CardContent>
@@ -154,7 +164,7 @@ export function CashSection() {
       <Card className="col-span-6">
         <CardHeader>
           <CardTitle className="text-sm">{"DSO"}</CardTitle>
-          <CardDescription>{"Overdue vs current"}</CardDescription>
+          <CardDescription>{t("overdueVsCurrent")}</CardDescription>
         </CardHeader>
         <CardContent>
           <DonutChart
@@ -168,7 +178,7 @@ export function CashSection() {
       <Card className="col-span-6">
         <CardHeader>
           <CardTitle className="text-sm">{"DPO"}</CardTitle>
-          <CardDescription>{"Overdue vs current"}</CardDescription>
+          <CardDescription>{t("overdueVsCurrent")}</CardDescription>
         </CardHeader>
         <CardContent>
           <DonutChart

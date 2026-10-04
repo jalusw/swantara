@@ -50,7 +50,7 @@ describe("PosOrderDetail branches2", () => {
     seedPosOrder(null);
     renderWithProviders(<PosOrderDetail orgId="1" orderId="10" />);
 
-    expect(await screen.findByText("Order not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Pesanan tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("renders empty lines and empty payments branches", async () => {
@@ -59,10 +59,10 @@ describe("PosOrderDetail branches2", () => {
     renderWithProviders(<PosOrderDetail orgId="1" orderId="10" />);
 
     await screen.findByRole("heading", { name: "POS-001" });
-    await user.click(screen.getByRole("tab", { name: "Lines" }));
-    expect(await screen.findByText("No lines in this order.")).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: "Payments" }));
-    expect(await screen.findByText("No payments recorded.")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Baris" }));
+    expect(await screen.findByText("Tidak ada baris pesanan")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Pembayaran" }));
+    expect(await screen.findByText("Tidak ada pembayaran")).toBeInTheDocument();
   });
 
   it("shows discount and invoice link branches when present", async () => {
@@ -89,7 +89,7 @@ describe("PosOrderDetail branches2", () => {
     renderWithProviders(<PosOrderDetail orgId="1" orderId="10" />);
 
     await screen.findByRole("heading", { name: "POS-001" });
-    await user.click(screen.getByRole("tab", { name: "Lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris" }));
     expect(await screen.findByText("10%")).toBeInTheDocument();
   });
 
@@ -98,7 +98,7 @@ describe("PosOrderDetail branches2", () => {
     renderWithProviders(<PosOrderDetail orgId="1" orderId="10" />);
 
     await screen.findByRole("heading", { name: "POS-001" });
-    expect(screen.getAllByRole("button", { name: "Create invoice" }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("button", { name: "Refund" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "Buat faktur" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "Pengembalian dana" }).length).toBeGreaterThan(0);
   });
 });

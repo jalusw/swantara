@@ -15,8 +15,8 @@ describe("AccountsList", () => {
 
     expect(await screen.findByText("Current assets")).toBeInTheDocument();
     expect(screen.getByText("Accounts payable")).toBeInTheDocument();
-    expect(screen.getByText("IDR 58,200.00")).toBeInTheDocument();
-    expect(screen.getByText("IDR 12,800.00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 58.200,00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 12.800,00")).toBeInTheDocument();
   });
 
   it("renders movement percentages", () => {

@@ -41,9 +41,9 @@ describe("SubscriptionDetail", () => {
     renderWithProviders(<SubscriptionDetail orgId="1" subscriptionId="5" />);
 
     await screen.findAllByText("Acme Monthly");
-    await user.click(screen.getByRole("tab", { name: "Lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris" }));
 
-    expect(await screen.findByText("Qty")).toBeInTheDocument();
+    expect(await screen.findByText("Jml")).toBeInTheDocument();
     expect(screen.getByText("#7")).toBeInTheDocument();
   });
 });

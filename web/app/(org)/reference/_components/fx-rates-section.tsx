@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -25,7 +26,6 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { FxRate } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatNumber } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { logger } from "@/lib/utils/logger";
 
 type RateType = "spot" | "avg" | "closing";
@@ -55,25 +55,22 @@ const currencyOptions = ["USD", "IDR", "EUR", "SGD", "GBP", "JPY"];
 
 const rateTypes: RateType[] = ["spot", "avg", "closing"];
 
-function rateTypeLabel(rateType: RateType): string {
-  if (rateType === "avg") return "Average";
-  return humanizeKey(rateType);
-}
-
 function useFxRateSchema() {
+  const t = useTranslations("Reference");
   return z.object({
-    currencyCode: z.string().min(1, "Select a currency."),
+    currencyCode: z.string().min(1, t("validationCurrencyRequired")),
     rate: z
       .string()
-      .min(1, "Enter a rate.")
-      .refine((value) => Number(value) > 0, "Rate must be greater than zero."),
+      .min(1, t("validationRateRequired"))
+      .refine((value) => Number(value) > 0, t("validationRatePositive")),
     rateType: z.enum(["spot", "avg", "closing"]),
-    validFrom: z.string().min(1, "Enter a valid date."),
+    validFrom: z.string().min(1, t("validationDateRequired")),
   });
 }
 type FxRateValues = z.infer<ReturnType<typeof useFxRateSchema>>;
 
 export function FxRatesSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Reference");
   const [editing, setEditing] = useState<FxRateRow | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -122,30 +119,30 @@ export function FxRatesSection({ orgId }: { orgId: string }) {
     };
 
     if (editing) {
-      void getSwantaraService()
+      return getSwantaraService()
         .fxRates.update(Number(orgId), Number(editing.id), payload)
         .then(() => {
-          toast.success("Exchange rate saved.");
+          toast.success(t("fxRateSaved"));
           setOpen(false);
           form.reset();
           void query.refetch();
         })
         .catch((error) => {
           logger.error("Failed to update fx rate", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastFailed"));
         });
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .fxRates.create(Number(orgId), payload)
         .then(() => {
-          toast.success("Exchange rate saved.");
+          toast.success(t("fxRateSaved"));
           setOpen(false);
           form.reset();
           void query.refetch();
         })
         .catch((error) => {
           logger.error("Failed to create fx rate", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastFailed"));
         });
     }
   }
@@ -153,12 +150,12 @@ export function FxRatesSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<FxRateRow>[] = [
     {
       accessorKey: "currencyCode",
-      header: "Currency",
+      header: t("tableCurrency"),
       cell: ({ row }) => <span className="font-mono text-xs">{row.original.currencyCode}</span>,
     },
     {
       accessorKey: "rate",
-      header: "Rate",
+      header: t("tableRate"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
@@ -168,14 +165,16 @@ export function FxRatesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "rateType",
-      header: "Rate type",
+      header: t("tableRateType"),
       cell: ({ row }) => (
-        <span className="text-muted-foreground">{rateTypeLabel(row.original.rateType)}</span>
+        <span className="text-muted-foreground">
+          {(t as unknown as (k: string) => string)(`rateType_${row.original.rateType}`)}
+        </span>
       ),
     },
     {
       accessorKey: "validFrom",
-      header: "Valid from",
+      header: t("tableValidFrom"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{formatDate(row.original.validFrom)}</span>
       ),
@@ -185,10 +184,10 @@ export function FxRatesSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Delete this rate?"}
-          confirmDescription={"The rate will be removed and can no longer be used for conversions."}
+          editLabel={t("actionEdit")}
+          deleteLabel={t("actionDelete")}
+          confirmTitle={t("deleteRateTitle")}
+          confirmDescription={t("deleteRateDescription")}
           onEdit={() => openEdit(row.original)}
           onDelete={() =>
             void getSwantaraService()
@@ -196,7 +195,7 @@ export function FxRatesSection({ orgId }: { orgId: string }) {
               .then(() => void query.refetch())
               .catch((error) => {
                 logger.error("Failed to delete fx rate", error);
-                toast.error("Could not disable the organization.");
+                toast.error(t("toastFailed"));
               })
           }
         />
@@ -211,12 +210,12 @@ export function FxRatesSection({ orgId }: { orgId: string }) {
         data={rates}
         getRowId={(row) => row.id}
         searchKeys={["currencyCode"]}
-        searchPlaceholder={"Search rates…"}
+        searchPlaceholder={t("searchRatesPlaceholder")}
         filterLabel=""
         statusOptions={[]}
         allLabel=""
-        ariaLabel={"FX rates"}
-        emptyTitle={"No exchange rates"}
+        ariaLabel={t("fxRatesTitle")}
+        emptyTitle={t("fxRatesEmpty")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -231,7 +230,7 @@ export function FxRatesSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={openCreate}>
             <Plus />
-            <span>{"Add rate"}</span>
+            <span>{t("addRate")}</span>
           </Button>
         }
       />
@@ -239,18 +238,16 @@ export function FxRatesSection({ orgId }: { orgId: string }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit exchange rate" : "New exchange rate"}</DialogTitle>
-            <DialogDescription>
-              {"Exchange rates used to convert amounts between currencies."}
-            </DialogDescription>
+            <DialogTitle>{editing ? t("editFxRate") : t("newFxRate")}</DialogTitle>
+            <DialogDescription>{t("fxRateDialogDescription")}</DialogDescription>
           </DialogHeader>
           <Form form={form} onSubmit={handleSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="currencyCode" label={"Currency"}>
+              <FormField name="currencyCode" label={t("fieldCurrency")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Currency"}>
-                      <SelectValue placeholder={"All currencies"} />
+                    <SelectTrigger id={id} aria-label={t("fieldCurrency")}>
+                      <SelectValue placeholder={t("allCurrencies")} />
                     </SelectTrigger>
                     <SelectContent>
                       {currencyOptions.map((code) => (
@@ -262,36 +259,36 @@ export function FxRatesSection({ orgId }: { orgId: string }) {
                   </Select>
                 )}
               </FormField>
-              <FormField name="rateType" label={"Rate type"}>
+              <FormField name="rateType" label={t("fieldRateType")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Rate type"}>
-                      <SelectValue placeholder={"Rate type"} />
+                    <SelectTrigger id={id} aria-label={t("fieldRateType")}>
+                      <SelectValue placeholder={t("fieldRateType")} />
                     </SelectTrigger>
                     <SelectContent>
                       {rateTypes.map((type) => (
                         <SelectItem key={type} value={type}>
-                          {rateTypeLabel(type)}
+                          {(t as unknown as (k: string) => string)(`rateType_${type}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 )}
               </FormField>
-              <FormField name="rate" label={"Rate"}>
+              <FormField name="rate" label={t("fieldRate")}>
                 {({ field, id }) => (
                   <Input {...field} id={id} type="number" step="0.000001" inputMode="decimal" />
                 )}
               </FormField>
-              <FormField name="validFrom" label={"Valid from"}>
+              <FormField name="validFrom" label={t("fieldValidFrom")}>
                 {({ field, id }) => <Input {...field} id={id} type="date" />}
               </FormField>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>
-                {"Cancel"}
+                {t("actionCancel")}
               </Button>
-              <SubmitButton>{"Save rate"}</SubmitButton>
+              <SubmitButton>{t("saveRate")}</SubmitButton>
             </DialogFooter>
           </Form>
         </DialogContent>

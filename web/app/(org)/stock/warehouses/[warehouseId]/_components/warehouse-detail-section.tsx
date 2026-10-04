@@ -1,6 +1,7 @@
 "use client";
 
 import { FolderTree, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -35,7 +36,7 @@ function toRow(location: StockLocation): LocationRow {
   };
 }
 
-function buildTree(locations: LocationRow[]): TreeNode[] {
+function buildTree(locations: LocationRow[], usageLabel: (usage: string) => string): TreeNode[] {
   const childrenMap = new Map<string | null, LocationRow[]>();
 
   for (const location of locations) {
@@ -56,7 +57,7 @@ function buildTree(locations: LocationRow[]): TreeNode[] {
             <span className="font-mono text-xs text-muted-foreground">{location.code}</span>
           ) : null}
           <Badge variant="secondary" className="text-xs">
-            {location.usage}
+            {usageLabel(location.usage)}
           </Badge>
         </span>
       ),
@@ -70,6 +71,12 @@ function buildTree(locations: LocationRow[]): TreeNode[] {
 }
 
 export function WarehouseDetail({ orgId, warehouseId }: { orgId: string; warehouseId: string }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Stock");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLocation, setEditingLocation] = useState<LocationRow | null>(null);
   const [parentId, setParentId] = useState<string | null>(null);
@@ -83,7 +90,13 @@ export function WarehouseDetail({ orgId, warehouseId }: { orgId: string; warehou
     .map(toRow)
     .filter((location) => location.warehouseId === warehouseId);
 
-  const tree = useMemo(() => buildTree(locations), [locations]);
+  const tree = useMemo(
+    () =>
+      buildTree(locations, (usage) =>
+        (t as unknown as (k: string) => string)(`locationUsage_${usage}`),
+      ),
+    [locations, t],
+  );
 
   function handleOpenCreate(parent: string | null) {
     setEditingLocation(null);
@@ -103,7 +116,7 @@ export function WarehouseDetail({ orgId, warehouseId }: { orgId: string; warehou
       .then(() => {
         void locationsQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("toastFailed")));
   }
 
   function handleSave() {
@@ -123,17 +136,15 @@ export function WarehouseDetail({ orgId, warehouseId }: { orgId: string; warehou
             event.stopPropagation();
             handleOpenCreate(node.id);
           }}
-          aria-label={"Add sub-location"}
+          aria-label={t("addSubLocation")}
         >
           <Plus className="size-3.5" />
         </Button>
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Delete this location?"}
-          confirmDescription={
-            "This will permanently remove the location. Sub-locations will be moved to the root."
-          }
+          editLabel={tCommon("edit")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("deleteLocationTitle")}
+          confirmDescription={t("deleteLocationDescription")}
           onEdit={() => {
             const location = locations.find((l) => l.id === node.id);
             if (location) handleOpenEdit(location);
@@ -151,10 +162,10 @@ export function WarehouseDetail({ orgId, warehouseId }: { orgId: string; warehou
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">{"Stock locations"}</CardTitle>
+          <CardTitle className="text-base">{t("stockLocations")}</CardTitle>
           <Button size="sm" onClick={() => handleOpenCreate(null)}>
             <Plus />
-            <span>{"Add location"}</span>
+            <span>{t("addLocation")}</span>
           </Button>
         </CardHeader>
         <CardContent>
@@ -165,11 +176,9 @@ export function WarehouseDetail({ orgId, warehouseId }: { orgId: string; warehou
               <Skeleton className="h-10 w-1/2" />
             </div>
           ) : enrichedTree.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {"No locations found. Add one to organize this warehouse."}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("locationsEmpty")}</p>
           ) : (
-            <TreeView items={enrichedTree} aria-label={"Stock locations"} />
+            <TreeView items={enrichedTree} aria-label={t("stockLocations")} />
           )}
         </CardContent>
       </Card>

@@ -65,7 +65,7 @@ describe("commission-utils", () => {
 
   describe("formatBasis", () => {
     it("should format revenue", () => {
-      expect(formatBasis("revenue")).toBe("Revenue");
+      expect(formatBasis("revenue")).toBe("Pendapatan");
     });
 
     it("should format margin", () => {

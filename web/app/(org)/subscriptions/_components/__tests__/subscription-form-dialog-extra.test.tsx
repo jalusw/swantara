@@ -40,26 +40,26 @@ describe("SubscriptionFormDialog extra", () => {
     const user = userEvent.setup();
     renderDialog();
 
-    await screen.findByText("Create subscription");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Langganan baru");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Name is required")).toBeInTheDocument();
+    expect(await screen.findByText("Nama wajib diisi.")).toBeInTheDocument();
   });
 
   it("keeps a single line removable only when multiple lines exist", async () => {
     const user = userEvent.setup();
     renderDialog();
 
-    await screen.findByText("Create subscription");
+    await screen.findByText("Langganan baru");
     expect(screen.getByRole("button", { name: "×" })).toBeDisabled();
 
-    await user.click(screen.getByRole("button", { name: "Add line" }));
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
     const removeButtons = screen.getAllByRole("button", { name: "×" });
     expect(removeButtons).toHaveLength(2);
     expect(removeButtons[0]).toBeEnabled();
 
     await user.click(removeButtons[1]!);
-    expect(screen.getAllByLabelText("Qty")).toHaveLength(1);
+    expect(screen.getAllByLabelText("Jml")).toHaveLength(1);
   });
 
   it("creates a subscription and notifies on save", async () => {
@@ -70,7 +70,7 @@ describe("SubscriptionFormDialog extra", () => {
         return HttpResponse.json(
           {
             success: true,
-            message: "Created.",
+            message: "Dibuat.",
             data: { subscription: { id: 12, name: "Acme Monthly" } },
           },
           { status: 201 },
@@ -81,19 +81,19 @@ describe("SubscriptionFormDialog extra", () => {
     const user = userEvent.setup();
     renderDialog(onSave);
 
-    await screen.findByText("Create subscription");
-    await user.type(screen.getByLabelText("Name"), "Acme Monthly");
+    await screen.findByText("Langganan baru");
+    await user.type(screen.getByLabelText("Nama"), "Acme Monthly");
 
-    await user.click(screen.getByRole("combobox", { name: "Customer" }));
+    await user.click(screen.getByRole("combobox", { name: "Pelanggan" }));
     await user.click(await screen.findByRole("option", { name: "Acme Corp" }));
 
-    await user.click(screen.getByRole("combobox", { name: "Plan" }));
+    await user.click(screen.getByRole("combobox", { name: "Paket" }));
     await user.click(await screen.findByRole("option", { name: "Monthly Basic" }));
 
     await user.click(screen.getByRole("combobox", { name: "Item" }));
     await user.click(await screen.findByRole("option", { name: "Widget" }));
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(createCalls).toHaveLength(1));
     expect(createCalls[0]).toMatchObject({ name: "Acme Monthly" });

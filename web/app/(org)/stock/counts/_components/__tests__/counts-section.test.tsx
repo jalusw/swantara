@@ -51,7 +51,7 @@ describe("CountsSection", () => {
     renderWithProviders(<CountsSection />);
 
     await screen.findByText("IC-0001");
-    await user.type(screen.getByPlaceholderText("Search counts…"), "IC-0002");
+    await user.type(screen.getByPlaceholderText("Cari opname…"), "IC-0002");
 
     expect((await screen.findAllByText("IC-0002")).length).toBeGreaterThan(0);
     expect(screen.queryByText("IC-0001")).not.toBeInTheDocument();

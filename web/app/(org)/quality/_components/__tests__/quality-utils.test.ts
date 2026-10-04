@@ -23,7 +23,7 @@ import {
 describe("quality-utils", () => {
   describe("checkResultLabel", () => {
     it("maps all results to translation keys", () => {
-      expect(checkResultLabel("pending")).toBe("Pending");
+      expect(checkResultLabel("pending")).toBe("Menunggu");
       expect(checkResultLabel("pass")).toBe("Pass");
       expect(checkResultLabel("fail")).toBe("Fail");
     });
@@ -31,10 +31,10 @@ describe("quality-utils", () => {
 
   describe("alertStateLabel", () => {
     it("maps all states to translation keys", () => {
-      expect(alertStateLabel("open")).toBe("Open");
-      expect(alertStateLabel("in_progress")).toBe("In Progress");
+      expect(alertStateLabel("open")).toBe("Buka");
+      expect(alertStateLabel("in_progress")).toBe("Berjalan");
       expect(alertStateLabel("solved")).toBe("Solved");
-      expect(alertStateLabel("cancelled")).toBe("Cancelled");
+      expect(alertStateLabel("cancelled")).toBe("Dibatalkan");
     });
   });
 
@@ -48,9 +48,9 @@ describe("quality-utils", () => {
 
   describe("severityLabel", () => {
     it("maps severity levels to translation keys", () => {
-      expect(severityLabel("low")).toBe("Low");
-      expect(severityLabel("medium")).toBe("Medium");
-      expect(severityLabel("high")).toBe("High");
+      expect(severityLabel("low")).toBe("Rendah");
+      expect(severityLabel("medium")).toBe("Sedang");
+      expect(severityLabel("high")).toBe("Tinggi");
       expect(severityLabel("critical")).toBe("Critical");
     });
   });

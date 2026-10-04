@@ -44,29 +44,29 @@ describe("CashFlowPage", () => {
     );
     renderWithProviders(<CashFlowPage />);
 
-    expect(screen.getByText("Loading cash flow…")).toBeInTheDocument();
+    expect(screen.getByText("Memuat arus kas...")).toBeInTheDocument();
   });
 
   it("renders empty state when no cash flow is returned", async () => {
     useCashFlowHandlers(null);
     renderWithProviders(<CashFlowPage />);
 
-    expect(await screen.findByText("No cash flow data available.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Export CSV" })).toBeDisabled();
+    expect(await screen.findByText("Belum ada data arus kas")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ekspor CSV" })).toBeDisabled();
   });
 
   it("renders positive and negative flows with tone classes", async () => {
     useCashFlowHandlers(cashFlow);
     renderWithProviders(<CashFlowPage />);
 
-    expect(await screen.findByText("Operating")).toBeInTheDocument();
-    expect(screen.getByText("Investing")).toBeInTheDocument();
-    expect(screen.getByText("Net change")).toBeInTheDocument();
-    const operating = screen.getByText("IDR 1,200.00");
+    expect(await screen.findByText("Operasi")).toBeInTheDocument();
+    expect(screen.getByText("Investasi")).toBeInTheDocument();
+    expect(screen.getByText("Perubahan bersih")).toBeInTheDocument();
+    const operating = screen.getByText("Rp 1.200,00");
     expect(operating.className).toMatch("text-success");
-    const investing = screen.getByText("-IDR 300.00");
+    const investing = screen.getByText("-Rp 300,00");
     expect(investing.className).toMatch("text-destructive");
-    expect(screen.getByRole("button", { name: "Export CSV" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Ekspor CSV" })).toBeEnabled();
   });
 
   it("exports csv from the header action", async () => {
@@ -81,7 +81,7 @@ describe("CashFlowPage", () => {
     useCashFlowHandlers(cashFlow);
     renderWithProviders(<CashFlowPage />);
 
-    await user.click(await screen.findByRole("button", { name: "Export CSV" }));
+    await user.click(await screen.findByRole("button", { name: "Ekspor CSV" }));
 
     expect(clickSpy).toHaveBeenCalled();
     createSpy.mockRestore();
@@ -91,7 +91,7 @@ describe("CashFlowPage", () => {
     useCashFlowHandlers({ ...cashFlow, operating: -50, net_change: -450 });
     renderWithProviders(<CashFlowPage />);
 
-    expect(await screen.findByText("Operating")).toBeInTheDocument();
-    expect(screen.getByText("-IDR 50.00").className).toMatch("text-destructive");
+    expect(await screen.findByText("Operasi")).toBeInTheDocument();
+    expect(screen.getByText("-Rp 50,00").className).toMatch("text-destructive");
   });
 });

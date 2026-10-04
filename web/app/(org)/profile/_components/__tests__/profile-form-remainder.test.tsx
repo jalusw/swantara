@@ -92,7 +92,7 @@ describe("ProfileForm remainder", () => {
     useProfileHandlers({ ...baseUser, first_name: "", last_name: "", avatar: null });
     renderWithProviders(<ProfileForm />);
 
-    await screen.findByText("Upload photo");
+    await screen.findByText("Unggah foto");
   });
 
   it("opens the cropper after selecting a photo", async () => {
@@ -147,9 +147,9 @@ describe("ProfileForm remainder", () => {
 
     const firstName = await screen.findByDisplayValue("Alex");
     await user.clear(firstName);
-    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    await user.click(screen.getByRole("button", { name: "Simpan perubahan" }));
 
-    expect(await screen.findByText("First name is required")).toBeInTheDocument();
+    expect(await screen.findByText("Nama depan wajib diisi.")).toBeInTheDocument();
   });
 
   it("shows an error toast when saving fails", async () => {
@@ -163,7 +163,7 @@ describe("ProfileForm remainder", () => {
     renderWithProviders(<ProfileForm />);
 
     await screen.findByDisplayValue("Alex");
-    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    await user.click(screen.getByRole("button", { name: "Simpan perubahan" }));
 
     await waitFor(() => expect(screen.getByDisplayValue("Alex")).toBeInTheDocument());
   });

@@ -16,7 +16,7 @@ const rows = [
   {
     account_id: 10,
     code: "1000",
-    name: "Cash",
+    name: "Kas",
     account_type: "asset",
     opening_debit: 500,
     opening_credit: 0,
@@ -28,7 +28,7 @@ const rows = [
   {
     account_id: 40,
     code: "4000",
-    name: "Revenue",
+    name: "Pendapatan",
     account_type: "income",
     opening_debit: 0,
     opening_credit: 0,
@@ -59,10 +59,10 @@ describe("TrialBalanceTable", () => {
   it("renders seeded rows with totals", async () => {
     renderWithProviders(<TrialBalanceTable />);
 
-    expect(await screen.findByText("Cash")).toBeInTheDocument();
-    expect(screen.getByText("Revenue")).toBeInTheDocument();
+    expect(await screen.findByText("Kas")).toBeInTheDocument();
+    expect(screen.getByText("Pendapatan")).toBeInTheDocument();
     expect(screen.getByText("asset")).toBeInTheDocument();
-    expect(screen.getAllByText("IDR 500.00").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Rp 500,00").length).toBeGreaterThan(0);
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
 
     const link = screen.getByRole("link", { name: "1000" });
@@ -76,7 +76,7 @@ describe("TrialBalanceTable", () => {
     const link = await screen.findByRole("link", { name: "1000" });
     await user.hover(link);
 
-    expect(screen.getByText("Cash")).toBeInTheDocument();
+    expect(screen.getByText("Kas")).toBeInTheDocument();
     expect(link).toHaveAttribute("href", "/accounts/10");
   });
 
@@ -92,6 +92,6 @@ describe("TrialBalanceTable", () => {
     );
     renderWithProviders(<TrialBalanceTable />);
 
-    expect(await screen.findByText("No trial balance data available.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada data neraca saldo")).toBeInTheDocument();
   });
 });

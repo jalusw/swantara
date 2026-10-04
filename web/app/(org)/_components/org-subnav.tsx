@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { navLabel } from "./nav-items";
 
 export type OrgSubNavTab = {
   key: string;
@@ -12,6 +12,7 @@ export type OrgSubNavTab = {
 };
 
 export function OrgSubNav({ label, tabs }: { label: string; tabs: readonly OrgSubNavTab[] }) {
+  const tNav = useTranslations("Nav");
   const pathname = usePathname();
   const hrefs = tabs.map((tab) => tab.href);
 
@@ -39,7 +40,7 @@ export function OrgSubNav({ label, tabs }: { label: string; tabs: readonly OrgSu
                   : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
-              {tab.label ?? navLabel(tab.key)}
+              {tab.label ?? (tNav as unknown as (k: string) => string)(tab.key)}
             </Link>
           );
         })}

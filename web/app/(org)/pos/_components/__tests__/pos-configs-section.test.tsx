@@ -78,7 +78,7 @@ describe("PosConfigsSection", () => {
     renderWithProviders(<PosConfigsSection orgId="1" />);
 
     await screen.findByText("Main Store");
-    await user.type(screen.getByPlaceholderText("Search configs..."), "Kiosk");
+    await user.type(screen.getByPlaceholderText("Cari konfigurasi…"), "Kiosk");
 
     expect(await screen.findByText("Outlet Kiosk")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Main Store")).not.toBeInTheDocument());
@@ -89,8 +89,8 @@ describe("PosConfigsSection", () => {
     renderWithProviders(<PosConfigsSection orgId="1" />);
 
     await screen.findByText("Main Store");
-    await user.click(screen.getByRole("button", { name: "Add config" }));
+    await user.click(screen.getByRole("button", { name: "Konfigurasi baru" }));
 
-    expect(await screen.findByText("New POS Config")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Konfigurasi baru" })).toBeInTheDocument();
   });
 });

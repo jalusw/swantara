@@ -27,8 +27,8 @@ describe("ExpenseCategoryFormDialog", () => {
       />,
     );
 
-    expect(await screen.findByText("Create expense category")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Kategori baru")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("seeds the name when editing and accepts changes", async () => {

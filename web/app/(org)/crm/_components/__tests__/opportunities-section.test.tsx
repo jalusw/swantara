@@ -93,7 +93,7 @@ describe("OpportunitiesSection", () => {
     expect(await screen.findByText("Acme Enterprise Deal")).toBeInTheDocument();
     expect(screen.getByText("Nusantara Rollout")).toBeInTheDocument();
     expect(screen.getByText("Proposal")).toBeInTheDocument();
-    expect(screen.getByText("Create quotation")).toBeInTheDocument();
+    expect(screen.getByText("Buat penawaran")).toBeInTheDocument();
   });
 
   it("filters opportunities through the search box", async () => {
@@ -101,7 +101,7 @@ describe("OpportunitiesSection", () => {
     renderWithProviders(<OpportunitiesSection orgId="1" />);
 
     await screen.findByText("Acme Enterprise Deal");
-    await user.type(screen.getByPlaceholderText("Search opportunities…"), "Nusantara");
+    await user.type(screen.getByPlaceholderText("Cari peluang…"), "Nusantara");
 
     expect(await screen.findByText("Nusantara Rollout")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Acme Enterprise Deal")).not.toBeInTheDocument());
@@ -112,9 +112,9 @@ describe("OpportunitiesSection", () => {
     renderWithProviders(<OpportunitiesSection orgId="1" />);
 
     await screen.findByText("Acme Enterprise Deal");
-    await user.click(screen.getByRole("button", { name: "Add opportunity" }));
+    await user.click(screen.getByRole("button", { name: "Tambah Peluang" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("New opportunity")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Peluang baru" })).toBeInTheDocument();
   });
 });

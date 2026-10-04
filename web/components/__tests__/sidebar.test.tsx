@@ -186,14 +186,14 @@ describe("Sidebar (extended)", () => {
     );
     const sidebar = document.querySelector("[data-slot='sidebar']");
     expect(sidebar).toHaveAttribute("data-state", "collapsed");
-    expect(sidebar).toHaveStyle({ width: "64px" });
+    expect(sidebar).toHaveStyle({ width: "72px" });
   });
 
   it("persists width changes to storage", async () => {
     const user = userEvent.setup();
     renderWithProviders(FullSidebar());
     await user.click(screen.getByRole("button", { name: "Toggle sidebar" }));
-    expect(localStorage.getItem(STORAGE_KEY)).toBe("64");
+    expect(localStorage.getItem(STORAGE_KEY)).toBe("72");
   });
 
   it("renders no resize handle", () => {

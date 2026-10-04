@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { Controller, FormProvider } from "react-hook-form";
 import { Field } from "@/components/field";
@@ -14,6 +15,7 @@ import { useLoginForm } from "../_hooks/use-login-form";
 
 export default function LoginForm() {
   const { form, handleSubmit, isPending } = useLoginForm({});
+  const t = useTranslations("Auth");
   const emailId = useId();
   const passwordId = useId();
   const emailErrorId = `${emailId}-error`;
@@ -30,7 +32,7 @@ export default function LoginForm() {
               const errorId = fieldState.error ? emailErrorId : undefined;
               return (
                 <Field className="flex-1">
-                  <Label htmlFor={emailId}>{"Email"}</Label>
+                  <Label htmlFor={emailId}>{t("email")}</Label>
                   <Input
                     id={emailId}
                     type="email"
@@ -60,7 +62,7 @@ export default function LoginForm() {
               const errorId = fieldState.error ? passwordErrorId : undefined;
               return (
                 <Field className="flex-1">
-                  <Label htmlFor={passwordId}>{"Password"}</Label>
+                  <Label htmlFor={passwordId}>{t("password")}</Label>
                   <Password
                     id={passwordId}
                     autoComplete="current-password"
@@ -86,12 +88,12 @@ export default function LoginForm() {
             className="inline-flex min-h-12 items-center rounded-md px-2 text-sm text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             href="/forgot-password"
           >
-            {"Forgot your password?"}
+            {t("forgotPassword")}
           </Link>
         </div>
         <div className="mt-6 sm:mt-8">
           <SubmitButton className="w-full" loading={isPending} variant="default" size="lg">
-            {"Login"}
+            {t("loginButton")}
           </SubmitButton>
         </div>
       </form>

@@ -16,7 +16,7 @@ describe("ProfileForm extra", () => {
     );
     renderWithProviders(<ProfileForm />);
 
-    expect(await screen.findByRole("button", { name: "Try again" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 
   it("retries loading the profile from the error state", async () => {
@@ -59,7 +59,7 @@ describe("ProfileForm extra", () => {
     const user = userEvent.setup();
     renderWithProviders(<ProfileForm />);
 
-    await user.click(await screen.findByRole("button", { name: "Try again" }));
+    await user.click(await screen.findByRole("button", { name: "Coba lagi" }));
 
     expect(await screen.findByDisplayValue("Alex")).toBeInTheDocument();
   });
@@ -75,9 +75,9 @@ describe("ProfileForm extra", () => {
     const user = userEvent.setup();
     renderWithProviders(<ProfileForm />);
 
-    const bio = await screen.findByPlaceholderText("Tell us a little about yourself");
+    const bio = await screen.findByPlaceholderText("Ceritakan sedikit tentang diri Anda");
     await user.type(bio, "Operations lead");
-    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    await user.click(screen.getByRole("button", { name: "Simpan perubahan" }));
 
     await waitFor(() => expect(updateCalls).toHaveLength(1));
     expect(updateCalls[0]).toMatchObject({ bio: "Operations lead" });
@@ -88,9 +88,11 @@ describe("ProfileForm extra", () => {
     renderWithProviders(<ProfileForm />);
 
     await screen.findByDisplayValue("Alex");
-    expect(screen.getByRole("button", { name: "Upload photo" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Unggah foto" })).toBeInTheDocument();
     await user.click(screen.getByRole("combobox", { name: "Sex" }));
-    expect(await screen.findByRole("option", { name: "Prefer not to say" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("option", { name: "Tidak ingin menyebutkan" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Male" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Female" })).toBeInTheDocument();
   });

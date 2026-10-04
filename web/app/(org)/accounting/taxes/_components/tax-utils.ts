@@ -5,14 +5,14 @@ export type TaxScope = Tax["scope"];
 
 export const taxTypeLabels: Record<TaxType, string> = {
   percent: "Percent",
-  fixed: "Fixed",
+  fixed: "Tetap",
   group: "Group",
 };
 
 export const taxScopeLabels: Record<TaxScope, string> = {
-  sale: "Sales",
+  sale: "Penjualan",
   purchase: "Purchase",
-  none: "None",
+  none: "Tidak ada",
 };
 
 export function taxTypeTone(type: TaxType): "neutral" | "success" | "warning" | "danger" | "info" {

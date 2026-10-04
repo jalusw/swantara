@@ -127,8 +127,10 @@ func (m PaymentTermSplitterMock) Splits(ctx context.Context, termID uint64, tota
 }
 
 type PaymentCreatorMock struct {
-	CreateFunc         func(ctx context.Context, request CreatePaymentRequest) (*Payment, error)
-	CreateOutboundFunc func(ctx context.Context, request CreatePaymentRequest) (*Payment, error)
+	CreateFunc           func(ctx context.Context, request CreatePaymentRequest) (*Payment, error)
+	CreateTxFunc         func(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest) (*Payment, error)
+	CreateOutboundFunc   func(ctx context.Context, request CreatePaymentRequest) (*Payment, error)
+	CreateOutboundTxFunc func(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest) (*Payment, error)
 }
 
 func (m PaymentCreatorMock) Create(ctx context.Context, request CreatePaymentRequest) (*Payment, error) {
@@ -138,11 +140,25 @@ func (m PaymentCreatorMock) Create(ctx context.Context, request CreatePaymentReq
 	return &Payment{}, nil
 }
 
+func (m PaymentCreatorMock) CreateTx(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest) (*Payment, error) {
+	if m.CreateTxFunc != nil {
+		return m.CreateTxFunc(ctx, tx, request)
+	}
+	return m.Create(ctx, request)
+}
+
 func (m PaymentCreatorMock) CreateOutbound(ctx context.Context, request CreatePaymentRequest) (*Payment, error) {
 	if m.CreateOutboundFunc != nil {
 		return m.CreateOutboundFunc(ctx, request)
 	}
 	return &Payment{}, nil
+}
+
+func (m PaymentCreatorMock) CreateOutboundTx(ctx context.Context, tx *gorm.DB, request CreatePaymentRequest) (*Payment, error) {
+	if m.CreateOutboundTxFunc != nil {
+		return m.CreateOutboundTxFunc(ctx, tx, request)
+	}
+	return m.CreateOutbound(ctx, request)
 }
 
 type ContactCreditLimiterMock struct {

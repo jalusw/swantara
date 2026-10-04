@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
@@ -19,6 +20,7 @@ export function InboundCostDetail({
   orgId: string;
   inboundCostId: string;
 }) {
+  const t = useTranslations("Purchases");
   const costQuery = useOrgListQuery<InboundCost, Record<string, never>>(
     "inboundCost",
     (organizationId) =>
@@ -43,7 +45,7 @@ export function InboundCostDetail({
   const adjustments = adjustmentsQuery.data?.adjustments ?? [];
 
   if (costQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{"Memuat..."}</p>;
   }
 
   if (!cost) {
@@ -63,7 +65,7 @@ export function InboundCostDetail({
           void adjustmentsQuery.refetch();
           return "Landed cost posted";
         },
-        error: "Action failed",
+        error: "Aksi gagal",
       },
     );
   }
@@ -77,7 +79,7 @@ export function InboundCostDetail({
           void costQuery.refetch();
           return "Landed cost cancelled";
         },
-        error: "Action failed",
+        error: "Aksi gagal",
       },
     );
   }
@@ -91,7 +93,7 @@ export function InboundCostDetail({
       ) : null}
       {canCancel(cost.state) ? (
         <Button size="sm" variant="destructive" onClick={handleCancel}>
-          {"Cancel"}
+          {"Batal"}
         </Button>
       ) : null}
     </div>
@@ -100,7 +102,7 @@ export function InboundCostDetail({
   return (
     <RecordLayout
       breadcrumbItems={[
-        { label: "Landed costs", href: "/purchases/inbound-costs" },
+        { label: t("inboundCosts"), href: "/purchases/inbound-costs" },
         { label: cost.name },
       ]}
       title={cost.name}
@@ -126,12 +128,12 @@ export function InboundCostDetail({
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: "Ringkasan",
           content: (
             <div className="grid gap-4 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Date"}</CardTitle>
+                  <CardTitle>{"Tanggal"}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">{cost.date ? formatDate(String(cost.date)) : "—"}</p>
@@ -172,10 +174,10 @@ export function InboundCostDetail({
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b text-muted-foreground">
-                        <th className="pb-2 text-left">{"Item"}</th>
-                        <th className="pb-2 text-left">{"Description"}</th>
-                        <th className="pb-2 text-right">{"Amount"}</th>
-                        <th className="pb-2 text-right">{"Split method"}</th>
+                        <th className="pb-2 text-left">{"Barang"}</th>
+                        <th className="pb-2 text-left">{"Deskripsi"}</th>
+                        <th className="pb-2 text-right">{"Jumlah"}</th>
+                        <th className="pb-2 text-right">{"Metode bagi"}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -210,7 +212,7 @@ export function InboundCostDetail({
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b text-muted-foreground">
-                        <th className="pb-2 text-left">{"Item"}</th>
+                        <th className="pb-2 text-left">{"Barang"}</th>
                         <th className="pb-2 text-left">{"Stock Move"}</th>
                         <th className="pb-2 text-right">{"Additional Cost"}</th>
                         <th className="pb-2 text-right">{"Valuation Layer"}</th>

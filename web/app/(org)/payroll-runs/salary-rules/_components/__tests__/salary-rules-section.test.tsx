@@ -64,7 +64,7 @@ describe("SalaryRulesSection", () => {
     renderWithProviders(<SalaryRulesSection orgId="1" />);
 
     await screen.findByText("BASIC");
-    await user.type(screen.getByPlaceholderText("Search rules…"), "TAX");
+    await user.type(screen.getByPlaceholderText("Cari aturan…"), "TAX");
 
     expect((await screen.findAllByText("TAX")).length).toBeGreaterThan(0);
     await waitFor(() => expect(screen.queryByText("BASIC")).not.toBeInTheDocument());

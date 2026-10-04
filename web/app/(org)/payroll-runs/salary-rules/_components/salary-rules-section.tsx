@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -13,6 +14,8 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { SalaryRuleFormDialog } from "./salary-rule-form-dialog";
 
 export function SalaryRulesSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Payroll");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<SalaryRule | null>(null);
 
@@ -49,16 +52,16 @@ export function SalaryRulesSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<SalaryRule>[] = [
     {
       accessorKey: "code",
-      header: "Code",
+      header: t("tableCode"),
       cell: ({ row }) => <span className="">{row.original.code}</span>,
     },
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
     },
     {
       accessorKey: "category",
-      header: "Category",
+      header: t("tableCategory"),
       cell: ({ row }) => (
         <Badge variant={row.original.category === "earning" ? "default" : "destructive"}>
           {String(row.original.category ?? "earning")}
@@ -67,14 +70,14 @@ export function SalaryRulesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "computeType",
-      header: "Compute type",
+      header: t("tableComputeType"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{String(row.original.computeType ?? "fixed")}</span>
       ),
     },
     {
       accessorKey: "amount",
-      header: "Amount",
+      header: t("tableAmount"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums">
@@ -87,10 +90,10 @@ export function SalaryRulesSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Delete rule"}
-          confirmDescription={"Are you sure you want to delete this salary rule?"}
+          editLabel={tCommon("edit")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("deleteSalaryRuleTitle")}
+          confirmDescription={t("deleteSalaryRuleDescription")}
           onEdit={() => handleEdit(row.original)}
           onDelete={() => handleDelete(row.original)}
         />
@@ -107,13 +110,13 @@ export function SalaryRulesSection({ orgId }: { orgId: string }) {
         searchKeys={["code", "name"]}
         statusKey="category"
         statusOptions={[
-          { value: "earning", label: "Earning" },
-          { value: "deduction", label: "Deduction" },
+          { value: "earning", label: t("categoryEarning") },
+          { value: "deduction", label: t("categoryDeduction") },
         ]}
-        searchPlaceholder={"Search rules…"}
-        filterLabel={"Category"}
-        allLabel={"All"}
-        ariaLabel={"Salary rules"}
+        searchPlaceholder={t("searchSalaryRulesPlaceholder")}
+        filterLabel={t("tableCategory")}
+        allLabel={t("allLabel")}
+        ariaLabel={t("salaryRulesTitle")}
         status={
           rulesQuery.isLoading
             ? { type: "loading" }
@@ -134,7 +137,7 @@ export function SalaryRulesSection({ orgId }: { orgId: string }) {
             }}
           >
             <Plus />
-            <span>{"Add rule"}</span>
+            <span>{t("addSalaryRule")}</span>
           </Button>
         }
       />

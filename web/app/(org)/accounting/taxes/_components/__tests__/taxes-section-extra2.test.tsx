@@ -52,8 +52,8 @@ describe("TaxesSection extra2", () => {
     renderWithProviders(<TaxesSection orgId="1" />);
 
     expect(await screen.findByText("PPN 11%")).toBeInTheDocument();
-    expect(screen.getByText("Fixed")).toBeInTheDocument();
-    expect(screen.getByText("Purchase")).toBeInTheDocument();
+    expect(screen.getByText("Tetap")).toBeInTheDocument();
+    expect(screen.getByText("Pembelian")).toBeInTheDocument();
     expect(screen.getByText("✓")).toBeInTheDocument();
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
@@ -67,7 +67,7 @@ describe("TaxesSection extra2", () => {
     renderWithProviders(<TaxesSection orgId="1" />);
 
     expect(await screen.findByText("tax boom")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 
   it("deletes a tax and refetches", async () => {
@@ -82,8 +82,8 @@ describe("TaxesSection extra2", () => {
     renderWithProviders(<TaxesSection orgId="1" />);
 
     await screen.findByText("PPN 11%");
-    await user.click(screen.getAllByRole("button", { name: "Delete" })[0]!);
-    await user.click(await screen.findByRole("button", { name: "Delete" }));
+    await user.click(screen.getAllByRole("button", { name: "Hapus" })[0]!);
+    await user.click(await screen.findByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(deleteCalls).toBe(1));
   });
@@ -93,19 +93,19 @@ describe("TaxesSection extra2", () => {
     server.use(
       http.post("*/api/v1/organizations/:organizationId/taxes", () => {
         createCalls += 1;
-        return HttpResponse.json({ success: true, message: "Created.", data: {} }, { status: 201 });
+        return HttpResponse.json({ success: true, message: "Dibuat.", data: {} }, { status: 201 });
       }),
     );
     const user = userEvent.setup();
     renderWithProviders(<TaxesSection orgId="1" />);
 
     await screen.findByText("PPN 11%");
-    await user.click(screen.getByRole("button", { name: "Add tax" }));
+    await user.click(screen.getByRole("button", { name: "Tambah pajak" }));
     const dialog = await screen.findByRole("dialog");
 
     const nameInput = within(dialog).getAllByRole("textbox")[0]!;
     await user.type(nameInput, "New Tax");
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(createCalls).toBe(1));
   });
@@ -115,10 +115,10 @@ describe("TaxesSection extra2", () => {
     renderWithProviders(<TaxesSection orgId="1" />);
 
     await screen.findByText("PPN 11%");
-    await user.click(screen.getByRole("button", { name: "Add tax" }));
+    await user.click(screen.getByRole("button", { name: "Tambah pajak" }));
     const dialog = await screen.findByRole("dialog");
 
-    expect(within(dialog).getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(within(dialog).getByRole("button", { name: "Simpan" })).toBeDisabled();
   });
 
   it("updates an existing tax from the edit dialog", async () => {
@@ -133,10 +133,10 @@ describe("TaxesSection extra2", () => {
     renderWithProviders(<TaxesSection orgId="1" />);
 
     await screen.findByText("PPN 11%");
-    await user.click(screen.getAllByRole("button", { name: "Edit" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Ubah" })[0]!);
 
-    expect(await screen.findByText("Edit tax")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(await screen.findByText("Ubah pajak")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(updateCalls).toBe(1));
   });
@@ -147,10 +147,10 @@ describe("TaxesSection extra2", () => {
     renderWithProviders(<TaxesSection orgId="1" />);
 
     await screen.findByText("Group Tax");
-    await user.click(screen.getAllByRole("button", { name: "Edit" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Ubah" })[0]!);
     const dialog = await screen.findByRole("dialog");
 
-    expect(screen.getAllByText("Group").length).toBeGreaterThan(1);
+    expect(screen.getAllByText("Kelompok").length).toBeGreaterThan(1);
     const amountInput = within(dialog).getAllByRole("spinbutton")[0]!;
     expect(amountInput).toBeDisabled();
   });

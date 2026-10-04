@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   CommandDialog,
   CommandEmpty,
@@ -19,6 +20,8 @@ export type OrgCommandDialogProps = {
 
 export function OrgCommandDialog({ open, onOpenChange }: OrgCommandDialogProps) {
   const router = useRouter();
+  const t = useTranslations("Search");
+  const tx = t as unknown as (key: string) => string;
   const { has } = usePermissions();
 
   const visibleItems = orgNavItems.filter(
@@ -29,13 +32,13 @@ export function OrgCommandDialog({ open, onOpenChange }: OrgCommandDialogProps) 
     <CommandDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Search"}
-      description={"Search across your organization"}
+      title={tx("title")}
+      description={tx("description")}
     >
-      <CommandInput placeholder={"Search..."} />
+      <CommandInput placeholder={t("placeholder")} />
       <CommandList>
-        <CommandEmpty>{"No results found."}</CommandEmpty>
-        <CommandGroup heading={"Pages"}>
+        <CommandEmpty>{tx("noResults")}</CommandEmpty>
+        <CommandGroup heading={tx("pages")}>
           {visibleItems.map((item) => {
             const Icon = item.icon;
             const label = navLabel(item.key);

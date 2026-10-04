@@ -9,16 +9,17 @@ import (
 	"github.com/jalusw/swantara/apps/service/internal/asset"
 	"github.com/jalusw/swantara/apps/service/internal/helper"
 	"github.com/jalusw/swantara/apps/service/internal/httpx"
+	"github.com/jalusw/swantara/apps/service/internal/kernel/dao"
 	"github.com/jalusw/swantara/apps/service/internal/reference"
 )
 
 type AssetCategoryHandler struct {
-	categories asset.AssetCategoryService
+	categories dao.CRUD[reference.AssetCategory]
 	svc        asset.AssetService
 }
 
 func NewAssetCategoryHandler(
-	categories asset.AssetCategoryService,
+	categories dao.CRUD[reference.AssetCategory],
 	svc asset.AssetService,
 ) AssetCategoryHandler {
 	return AssetCategoryHandler{categories: categories, svc: svc}

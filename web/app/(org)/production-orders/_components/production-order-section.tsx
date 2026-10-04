@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
@@ -13,15 +14,11 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils/style";
 import { MoFormDialog } from "./production-order-form-dialog";
-import {
-  type MoState,
-  moProgress,
-  moProgressColor,
-  moStateLabel,
-  moStateTone,
-} from "./production-order-utils";
+import { type MoState, moProgress, moProgressColor, moStateTone } from "./production-order-utils";
 
 export function MoSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("ProductionOrders");
+  const moState = (state: string) => (t as unknown as (k: string) => string)(`state_${state}`);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const moQuery = useOrgListQuery<{ productionOrders: ProductionOrder[] }, Record<string, never>>(
@@ -41,7 +38,7 @@ export function MoSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<ProductionOrder>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("colName"),
       cell: ({ row }) => (
         <a
           href={`/production-orders/${row.original.id}`}
@@ -53,7 +50,7 @@ export function MoSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "itemId",
-      header: "Item",
+      header: t("colItem"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {productMap.get(row.original.itemId) ?? `#${row.original.itemId}`}
@@ -62,19 +59,19 @@ export function MoSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "qtyToProduce",
-      header: "Qty to Produce",
+      header: t("colQtyToProduce"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums ">{row.original.qtyToProduce}</span>,
     },
     {
       accessorKey: "qtyProduced",
-      header: "Qty Produced",
+      header: t("colQtyProduced"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums">{row.original.qtyProduced}</span>,
     },
     {
       accessorKey: "progress",
-      header: "Progress",
+      header: t("colProgress"),
       meta: { align: "right" },
       cell: ({ row }) => {
         const progress = moProgress(row.original);
@@ -90,7 +87,7 @@ export function MoSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "origin",
-      header: "Origin",
+      header: t("colOrigin"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.origin ? String(row.original.origin) : "—"}
@@ -99,7 +96,7 @@ export function MoSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "datePlannedStart",
-      header: "Planned Start",
+      header: t("colPlannedStart"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.datePlannedStart ? formatDate(row.original.datePlannedStart) : "—"}
@@ -108,12 +105,12 @@ export function MoSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("colStatus"),
       cell: ({ row }) => {
         const state = row.original.state as MoState;
         return (
           <Badge variant="outline" className={moStateTone(state)}>
-            {moStateLabel(state)}
+            {moState(state)}
           </Badge>
         );
       },
@@ -129,18 +126,18 @@ export function MoSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "confirmed", label: "Confirmed" },
-          { value: "planned", label: "Planned" },
-          { value: "in_progress", label: "In Progress" },
-          { value: "done", label: "Done" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: moState("draft") },
+          { value: "confirmed", label: moState("confirmed") },
+          { value: "planned", label: moState("planned") },
+          { value: "in_progress", label: moState("in_progress") },
+          { value: "done", label: moState("done") },
+          { value: "cancelled", label: moState("cancelled") },
         ]}
-        searchPlaceholder={"Search manufacturing orders..."}
-        filterLabel={"State"}
-        allLabel={"All"}
-        ariaLabel={"Manufacturing Orders"}
-        emptyTitle={"No manufacturing orders yet"}
+        searchPlaceholder={t("searchPlaceholder")}
+        filterLabel={t("colStatus")}
+        allLabel={t("allOrders")}
+        ariaLabel={t("title")}
+        emptyTitle={t("emptyTitle")}
         status={
           moQuery.isLoading
             ? { type: "loading" }
@@ -155,7 +152,7 @@ export function MoSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New Manufacturing Order"}</span>
+            <span>{t("newOrder")}</span>
           </Button>
         }
       />

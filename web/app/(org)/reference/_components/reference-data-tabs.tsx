@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs";
 import { CurrenciesSection } from "./currencies-section";
 import { DimensionsSection } from "./dimensions-section";
@@ -16,12 +17,14 @@ const tabs = [
 ] as const;
 
 export function ReferenceDataTabs({ orgId }: { orgId: string }) {
+  const t = useTranslations("Reference");
+  const tabLabel = (id: string) => (t as unknown as (k: string) => string)(`tab_${id}`);
   return (
     <Tabs defaultValue="currencies">
       <TabsList variant="line">
         {tabs.map((tab) => (
           <TabsTrigger key={tab.id} value={tab.id}>
-            {String(tab.id)}
+            {tabLabel(tab.id)}
           </TabsTrigger>
         ))}
       </TabsList>

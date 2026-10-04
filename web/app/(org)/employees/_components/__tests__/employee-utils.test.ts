@@ -77,7 +77,7 @@ describe("employee-utils", () => {
     });
 
     it("should format contract", () => {
-      expect(employmentTypeLabel("contract")).toBe("Contract");
+      expect(employmentTypeLabel("contract")).toBe("Kontrak");
     });
   });
 

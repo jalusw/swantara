@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
@@ -11,11 +12,13 @@ import { StateBadge } from "@/components/state-badge";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { Contact, Project } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
-import { humanizeKey } from "@/lib/utils/case";
 import { ProjectFormDialog } from "./project-form-dialog";
-import { billingTypeLabel, projectStateTone } from "./project-utils";
+import { projectStateTone } from "./project-utils";
 
 export function ProjectsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Projects");
+  const tCommon = useTranslations("Common");
+  const dyn = (key: string) => (t as unknown as (k: string) => string)(key);
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -40,7 +43,7 @@ export function ProjectsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<Project>[] = [
     {
       accessorKey: "name",
-      header: "Project",
+      header: t("colProject"),
       cell: ({ row }) => (
         <button
           type="button"
@@ -53,23 +56,23 @@ export function ProjectsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "contactId",
-      header: "Customer",
+      header: t("colCustomer"),
       cell: ({ row }) => contactMap.get(row.original.contactId) ?? "—",
     },
     {
       accessorKey: "billingType",
-      header: "Billing type",
+      header: t("colBillingType"),
       cell: ({ row }) => (
-        <Badge variant="secondary">{billingTypeLabel(row.original.billingType)}</Badge>
+        <Badge variant="secondary">{dyn(`billing_${row.original.billingType}`)}</Badge>
       ),
     },
     {
       accessorKey: "state",
-      header: "Status",
+      header: t("colStatus"),
       cell: ({ row }) => (
         <StateBadge
           tone={projectStateTone(row.original.state)}
-          label={humanizeKey(String(row.original.state))}
+          label={dyn(`state_${row.original.state}`)}
         />
       ),
     },
@@ -82,7 +85,7 @@ export function ProjectsSection({ orgId }: { orgId: string }) {
           variant="ghost"
           onClick={() => router.push(`/projects/${row.original.id}`)}
         >
-          {"Edit project"}
+          {t("openProject")}
         </Button>
       ),
     },
@@ -97,16 +100,16 @@ export function ProjectsSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "open", label: "Open" },
-          { value: "closed", label: "Closed" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: dyn("state_draft") },
+          { value: "open", label: dyn("state_open") },
+          { value: "closed", label: dyn("state_closed") },
+          { value: "cancelled", label: dyn("state_cancelled") },
         ]}
-        searchPlaceholder={"Search projects…"}
-        filterLabel={"Status"}
-        allLabel={"All projects"}
-        ariaLabel={"All projects"}
-        emptyTitle={"No projects"}
+        searchPlaceholder={t("searchPlaceholder")}
+        filterLabel={t("filterStatus")}
+        allLabel={t("allProjects")}
+        ariaLabel={t("allProjects")}
+        emptyTitle={t("emptyTitle")}
         status={
           isLoading
             ? { type: "loading" }
@@ -121,7 +124,7 @@ export function ProjectsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New project"}</span>
+            <span>{tCommon("add")}</span>
           </Button>
         }
       />

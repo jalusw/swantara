@@ -70,7 +70,7 @@ describe("GiftCardDetail branches", () => {
   it("renders the not-found state when the card is missing", async () => {
     useHandlers({ card: null });
     renderWithProviders(<GiftCardDetail orgId="1" giftCardId="9" />);
-    expect(await screen.findByText("Gift card not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Kartu hadiah tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("renders transactions with order fallbacks", async () => {
@@ -83,7 +83,7 @@ describe("GiftCardDetail branches", () => {
     });
     renderWithProviders(<GiftCardDetail orgId="1" giftCardId="1" />);
     await screen.findByRole("heading", { name: "GC-1001" });
-    await user.click(screen.getByRole("tab", { name: "Transactions" }));
+    await user.click(screen.getByRole("tab", { name: "Transaksi" }));
     expect(await screen.findByText("#12")).toBeInTheDocument();
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
@@ -103,7 +103,7 @@ describe("GiftCardDetail branches", () => {
     renderWithProviders(<GiftCardDetail orgId="1" giftCardId="1" />);
     await screen.findByRole("heading", { name: "GC-1001" });
     expect(screen.queryByRole("button", { name: "Redeem" })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Refund" }));
+    await user.click(screen.getByRole("button", { name: "Pengembalian dana" }));
     await waitFor(() => expect(actions).toEqual(["refund"]));
   });
 
@@ -112,7 +112,7 @@ describe("GiftCardDetail branches", () => {
     renderWithProviders(<GiftCardDetail orgId="1" giftCardId="1" />);
     await screen.findByRole("heading", { name: "GC-1001" });
     expect(screen.queryByRole("button", { name: "Redeem" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Refund" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Pengembalian dana" })).not.toBeInTheDocument();
   });
 
   it("renders populated relations", async () => {

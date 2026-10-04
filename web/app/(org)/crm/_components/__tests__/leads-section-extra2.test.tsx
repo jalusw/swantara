@@ -80,9 +80,9 @@ describe("LeadsSection extra2", () => {
     renderWithProviders(<LeadsSection orgId="1" />);
 
     await screen.findByText("Lead 1");
-    await user.click(screen.getAllByRole("button", { name: "Promote to opportunity" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Promosikan ke peluang" })[0]!);
 
-    expect(await screen.findByText("Promote lead to opportunity")).toBeInTheDocument();
+    expect(await screen.findByText("Promosikan prospek menjadi peluang")).toBeInTheDocument();
   });
 
   it("hides the promote action for closed or non-lead rows", async () => {
@@ -94,7 +94,7 @@ describe("LeadsSection extra2", () => {
     renderWithProviders(<LeadsSection orgId="1" />);
 
     await screen.findByText("Lead 3");
-    expect(screen.getAllByRole("button", { name: "Promote to opportunity" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Promosikan ke peluang" })).toHaveLength(1);
   });
 
   it("deletes a lead from the row actions", async () => {
@@ -109,8 +109,11 @@ describe("LeadsSection extra2", () => {
     renderWithProviders(<LeadsSection orgId="1" />);
 
     await screen.findByText("Lead 1");
-    await user.click(screen.getAllByRole("button", { name: "Delete lead" })[0]!);
-    await user.click(await screen.findByRole("button", { name: "Delete" }));
+    const deleteTriggers = screen
+      .getAllByRole("button", { name: "Hapus prospek" })
+      .filter((el) => el.getAttribute("aria-haspopup") === "dialog");
+    await user.click(deleteTriggers[0]!);
+    await user.click(await screen.findByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(deleteCalls).toBe(1));
   });
@@ -120,9 +123,9 @@ describe("LeadsSection extra2", () => {
     renderWithProviders(<LeadsSection orgId="1" />);
 
     await screen.findByText("Lead 1");
-    await user.click(screen.getAllByRole("button", { name: "Edit lead" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Ubah prospek" })[0]!);
 
-    expect(await screen.findByText("Edit lead")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Ubah prospek" })).toBeInTheDocument();
   });
 
   it("shows the error state with retry", async () => {
@@ -134,6 +137,6 @@ describe("LeadsSection extra2", () => {
     renderWithProviders(<LeadsSection orgId="1" />);
 
     expect(await screen.findByText("lead boom")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 });

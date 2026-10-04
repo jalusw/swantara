@@ -2,6 +2,7 @@
 
 import { ArrowLeft, CheckCircle2, Play, XCircle } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -23,7 +24,6 @@ import {
   type MoState,
   moProgress,
   moProgressColor,
-  moStateLabel,
   moStateTone,
 } from "../../_components/production-order-utils";
 import { ConsumeDialog } from "./consume-dialog";
@@ -36,6 +36,9 @@ export function MoDetailSection({
   orgId: string;
   productionOrderId: string;
 }) {
+  const t = useTranslations("ProductionOrders");
+  const tCommon = useTranslations("Common");
+  const moState = (state: string) => (t as unknown as (k: string) => string)(`state_${state}`);
   const [consumeOpen, setConsumeOpen] = useState(false);
   const [produceOpen, setProduceOpen] = useState(false);
 
@@ -92,17 +95,17 @@ export function MoDetailSection({
     }
 
     void promise.then(() => {
-      toast.success(String(action));
+      toast.success(t("saved"));
       void moQuery.refetch();
     });
   }
 
   if (moQuery.isLoading) {
-    return <div className="text-muted-foreground">{"Loading..."}</div>;
+    return <div className="text-muted-foreground">{tCommon("loading")}</div>;
   }
 
   if (!productionOrder) {
-    return <div className="text-muted-foreground">{"Manufacturing order not found"}</div>;
+    return <div className="text-muted-foreground">{t("orderNotFound")}</div>;
   }
 
   return (
@@ -111,7 +114,7 @@ export function MoDetailSection({
         <Button variant="ghost" size="sm" asChild>
           <Link href={"/production-orders"}>
             <ArrowLeft />
-            <span>{"Back to orders"}</span>
+            <span>{t("backToOrders")}</span>
           </Link>
         </Button>
       </div>
@@ -122,42 +125,42 @@ export function MoDetailSection({
             <div className="flex items-center gap-3">
               <CardTitle>{productionOrder.name ?? `MO-${productionOrder.id}`}</CardTitle>
               <Badge variant="outline" className={moStateTone(state)}>
-                {moStateLabel(state)}
+                {moState(state)}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
               {canConfirmMo(state) ? (
                 <Button size="sm" onClick={() => handleAction("confirm")}>
                   <CheckCircle2 />
-                  <span>{"Confirm"}</span>
+                  <span>{t("confirmAction")}</span>
                 </Button>
               ) : null}
               {canPlanMo(state) ? (
                 <Button size="sm" onClick={() => handleAction("plan")}>
                   <Play />
-                  <span>{"Plan"}</span>
+                  <span>{t("planAction")}</span>
                 </Button>
               ) : null}
               {canStartMo(state) ? (
                 <Button size="sm" onClick={() => handleAction("start")}>
                   <Play />
-                  <span>{"Start"}</span>
+                  <span>{t("startAction")}</span>
                 </Button>
               ) : null}
               {canProduceMo(state) ? (
                 <>
                   <Button size="sm" onClick={() => setConsumeOpen(true)}>
-                    <span>{"Consume"}</span>
+                    <span>{t("consumeAction")}</span>
                   </Button>
                   <Button size="sm" onClick={() => setProduceOpen(true)}>
-                    <span>{"Produce"}</span>
+                    <span>{t("produceAction")}</span>
                   </Button>
                 </>
               ) : null}
               {canCancelMo(state) ? (
                 <Button size="sm" variant="destructive" onClick={() => handleAction("cancel")}>
                   <XCircle />
-                  <span>{"Cancel"}</span>
+                  <span>{tCommon("cancel")}</span>
                 </Button>
               ) : null}
             </div>
@@ -165,17 +168,17 @@ export function MoDetailSection({
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">{"Item"}</span>
+            <span className="text-xs text-muted-foreground">{t("colItem")}</span>
             <span className="">{productionOrder.itemId ? `#${productionOrder.itemId}` : "—"}</span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">{"Quantity"}</span>
+            <span className="text-xs text-muted-foreground">{t("qty")}</span>
             <span className=" tabular-nums">
               {productionOrder.qtyProduced} / {productionOrder.qtyToProduce}
             </span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">{"Planned Start"}</span>
+            <span className="text-xs text-muted-foreground">{t("colPlannedStart")}</span>
             <span className="">
               {productionOrder.datePlannedStart
                 ? formatDateTime(productionOrder.datePlannedStart)
@@ -183,7 +186,7 @@ export function MoDetailSection({
             </span>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">{"Planned End"}</span>
+            <span className="text-xs text-muted-foreground">{t("plannedEnd")}</span>
             <span className="">
               {productionOrder.datePlannedFinish
                 ? formatDateTime(productionOrder.datePlannedFinish)
@@ -191,7 +194,7 @@ export function MoDetailSection({
             </span>
           </div>
           <div className="sm:col-span-2 flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">{"Progress"}</span>
+            <span className="text-xs text-muted-foreground">{t("colProgress")}</span>
             <div className="flex items-center gap-2">
               <Progress value={progress} className="flex-1" />
               <span className={cn("text-sm tabular-nums", moProgressColor(progress))}>
@@ -204,20 +207,20 @@ export function MoDetailSection({
 
       <Card>
         <CardHeader>
-          <CardTitle>{"Components"}</CardTitle>
+          <CardTitle>{t("componentsTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           {components.length === 0 ? (
-            <div className="text-muted-foreground text-sm">{"No components defined"}</div>
+            <div className="text-muted-foreground text-sm">{t("noComponents")}</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-muted-foreground">
-                    <th className="pb-2 pr-4 ">{"Component"}</th>
-                    <th className="pb-2 pr-4 text-right ">{"Planned"}</th>
-                    <th className="pb-2 pr-4 text-right ">{"Consumed"}</th>
-                    <th className="pb-2 ">{"Progress"}</th>
+                    <th className="pb-2 pr-4 ">{t("colComponent")}</th>
+                    <th className="pb-2 pr-4 text-right ">{t("colPlanned")}</th>
+                    <th className="pb-2 pr-4 text-right ">{t("colConsumed")}</th>
+                    <th className="pb-2 ">{t("colProgress")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -255,21 +258,21 @@ export function MoDetailSection({
 
       <Card>
         <CardHeader>
-          <CardTitle>{"Work Orders"}</CardTitle>
+          <CardTitle>{t("workOrdersTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           {shopTasks.length === 0 ? (
-            <div className="text-muted-foreground text-sm">{"No work orders"}</div>
+            <div className="text-muted-foreground text-sm">{t("noWorkOrders")}</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-muted-foreground">
-                    <th className="pb-2 pr-4 ">{"Work Order"}</th>
-                    <th className="pb-2 pr-4 ">{"Work Center"}</th>
-                    <th className="pb-2 pr-4 text-right ">{"Planned Duration"}</th>
-                    <th className="pb-2 pr-4 text-right ">{"Actual Duration"}</th>
-                    <th className="pb-2 ">{"State"}</th>
+                    <th className="pb-2 pr-4 ">{t("colWorkOrder")}</th>
+                    <th className="pb-2 pr-4 ">{t("colWorkCenter")}</th>
+                    <th className="pb-2 pr-4 text-right ">{t("colPlannedDuration")}</th>
+                    <th className="pb-2 pr-4 text-right ">{t("colActualDuration")}</th>
+                    <th className="pb-2 ">{t("colStatus")}</th>
                   </tr>
                 </thead>
                 <tbody>

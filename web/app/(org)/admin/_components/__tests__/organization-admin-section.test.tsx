@@ -11,33 +11,14 @@ describe("OrganizationAdminSection", () => {
   it("renders the organization profile with the current-org badge", async () => {
     renderWithProviders(<OrganizationAdminSection orgId="1" />);
 
-    expect(await screen.findByText("Organization profile")).toBeInTheDocument();
-    expect(screen.getByText("Current organization")).toBeInTheDocument();
-    expect(screen.getByText("Danger zone")).toBeInTheDocument();
+    expect(await screen.findByText("Profil organisasi")).toBeInTheDocument();
+    expect(screen.getByText("Organisasi saat ini")).toBeInTheDocument();
   });
 
   it("shows the not-found state for an unknown organization", async () => {
     renderWithProviders(<OrganizationAdminSection orgId="999" />);
 
-    expect(await screen.findByText("Organization not found.")).toBeInTheDocument();
-  });
-
-  it("disables the danger action for the active organization", async () => {
-    renderWithProviders(<OrganizationAdminSection orgId="1" />);
-
-    await screen.findByText("Organization profile");
-    expect(
-      screen.getByText("You cannot disable the organization you are currently working in."),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Disable organization" })).toBeDisabled();
-  });
-
-  it("enables the danger action for a non-active organization", async () => {
-    renderWithProviders(<OrganizationAdminSection orgId="2" />);
-
-    await screen.findByText("Organization profile");
-    expect(screen.queryByText("Current organization")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Disable organization" })).toBeEnabled();
+    expect(await screen.findByText("Organisasi tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("saves profile changes", async () => {
@@ -51,23 +32,34 @@ describe("OrganizationAdminSection", () => {
     const user = userEvent.setup();
     renderWithProviders(<OrganizationAdminSection orgId="1" />);
 
-    await screen.findByText("Organization profile");
-    await user.type(screen.getByPlaceholderText("Name"), "Acme Inc");
-    await user.type(screen.getByPlaceholderText("Legal name"), "Acme Inc LLC");
-    await user.click(screen.getByRole("combobox", { name: "Parent organization" }));
+    await screen.findByText("Profil organisasi");
+    const nameInput = await screen.findByPlaceholderText("Nama");
+    await user.clear(nameInput);
+    await user.type(nameInput, "Acme Inc");
+    await user.type(screen.getByPlaceholderText("Nama badan hukum"), "Acme Inc LLC");
+    await user.click(screen.getByRole("combobox", { name: "Organisasi induk" }));
     await user.click(await screen.findByRole("option", { name: "PT Nusantara" }));
-    await user.click(screen.getByRole("combobox", { name: "Base currency" }));
+    await user.click(screen.getByRole("combobox", { name: "Mata uang dasar" }));
     await user.click(await screen.findByRole("option", { name: "US Dollar (USD)" }));
-    await user.click(screen.getByRole("combobox", { name: "Country" }));
-    await user.click(await screen.findByRole("option", { name: "United States" }));
-    await user.type(screen.getByPlaceholderText("Tax ID"), "TAX-1");
-    await user.click(screen.getByRole("combobox", { name: "Timezone" }));
+    await user.click(screen.getByRole("combobox", { name: "Negara" }));
+    await user.click(await screen.findByRole("option", { name: "Amerika Serikat" }));
+    await user.type(screen.getByPlaceholderText("ID pajak"), "TAX-1");
+    await user.click(screen.getByRole("combobox", { name: "Zona waktu" }));
     await user.click(await screen.findByRole("option", { name: "UTC" }));
-    await user.click(screen.getByRole("combobox", { name: "Tax year starts in" }));
-    await user.click(await screen.findByRole("option", { name: "January" }));
-    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    await user.click(screen.getByRole("combobox", { name: "Awal tahun pajak" }));
+    await user.click(await screen.findByRole("option", { name: "Januari" }));
+    await user.click(screen.getByRole("button", { name: "Simpan perubahan" }));
 
     await waitFor(() => expect(updateCalls).toHaveLength(1));
-    expect(updateCalls[0]).toMatchObject({ name: "Acme Inc" });
+    expect(updateCalls[0]).toMatchObject({
+      name: "Acme Inc",
+      legal_name: "Acme Inc LLC",
+      parent_id: 2,
+      base_currency: "USD",
+      country_code: "US",
+      tax_id: "TAX-1",
+      timezone: "UTC",
+      tax_year_start_month: 1,
+    });
   });
 });

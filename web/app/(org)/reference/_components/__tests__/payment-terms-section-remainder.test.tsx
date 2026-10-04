@@ -16,7 +16,7 @@ describe("PaymentTermsSection remainder", () => {
     );
     renderWithProviders(<PaymentTermsSection orgId="1" />);
 
-    expect(await screen.findByText("No payment terms")).toBeInTheDocument();
+    expect(await screen.findByText("Tidak ada syarat pembayaran")).toBeInTheDocument();
   });
 
   it("shows the error state with retry when loading fails", async () => {
@@ -31,7 +31,7 @@ describe("PaymentTermsSection remainder", () => {
     expect(await screen.findByText("Term load failed.")).toBeInTheDocument();
 
     server.resetHandlers();
-    await user.click(screen.getByRole("button", { name: /retry|try again/i }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     expect(await screen.findByText("Net 30")).toBeInTheDocument();
   });
@@ -40,26 +40,26 @@ describe("PaymentTermsSection remainder", () => {
     const user = userEvent.setup();
     renderWithProviders(<PaymentTermsSection orgId="1" />);
 
-    await user.click(screen.getByRole("button", { name: "Add term" }));
-    await user.type(screen.getByLabelText("Name"), "Empty term");
-    await user.click(screen.getAllByRole("button", { name: "Remove line" })[0]!);
-    await user.click(screen.getByRole("button", { name: "Save term" }));
+    await user.click(screen.getByRole("button", { name: "Tambah syarat" }));
+    await user.type(screen.getByLabelText("Nama"), "Empty term");
+    await user.click(screen.getAllByRole("button", { name: "Hapus baris" })[0]!);
+    await user.click(screen.getByRole("button", { name: "Simpan syarat" }));
 
-    expect(await screen.findByText("Add at least one line.")).toBeInTheDocument();
+    expect(await screen.findByText("Tambahkan minimal satu baris.")).toBeInTheDocument();
   });
 
   it("adds and removes lines in the dialog", async () => {
     const user = userEvent.setup();
     renderWithProviders(<PaymentTermsSection orgId="1" />);
 
-    await user.click(screen.getByRole("button", { name: "Add term" }));
-    expect(screen.getAllByLabelText("Value").length).toBe(1);
+    await user.click(screen.getByRole("button", { name: "Tambah syarat" }));
+    expect(screen.getAllByLabelText("Nilai").length).toBe(1);
 
-    await user.click(screen.getByRole("button", { name: "Add line" }));
-    expect(screen.getAllByLabelText("Value").length).toBe(2);
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
+    expect(screen.getAllByLabelText("Nilai").length).toBe(2);
 
-    await user.click(screen.getAllByRole("button", { name: "Remove line" })[1]!);
-    expect(screen.getAllByLabelText("Value").length).toBe(1);
+    await user.click(screen.getAllByRole("button", { name: "Hapus baris" })[1]!);
+    expect(screen.getAllByLabelText("Nilai").length).toBe(1);
   });
 
   it("saves a fixed-amount term without percent validation", async () => {
@@ -67,13 +67,13 @@ describe("PaymentTermsSection remainder", () => {
     renderWithProviders(<PaymentTermsSection orgId="1" />);
 
     await screen.findByText("Net 30");
-    await user.click(screen.getByRole("button", { name: "Add term" }));
-    await user.type(screen.getByLabelText("Name"), "Fixed 500");
-    await user.click(screen.getByLabelText("Type"));
-    await user.click(await screen.findByRole("option", { name: "Fixed" }));
-    await user.type(screen.getAllByLabelText("Value")[0]!, "500");
-    await user.type(screen.getAllByLabelText("Due days")[0]!, "15");
-    await user.click(screen.getByRole("button", { name: "Save term" }));
+    await user.click(screen.getByRole("button", { name: "Tambah syarat" }));
+    await user.type(screen.getByLabelText("Nama"), "Fixed 500");
+    await user.click(screen.getByLabelText("Jenis"));
+    await user.click(await screen.findByRole("option", { name: "Tetap" }));
+    await user.type(screen.getAllByLabelText("Nilai")[0]!, "500");
+    await user.type(screen.getAllByLabelText("Hari jatuh tempo")[0]!, "15");
+    await user.click(screen.getByRole("button", { name: "Simpan syarat" }));
 
     expect(await screen.findByText("Fixed 500")).toBeInTheDocument();
   });
@@ -90,17 +90,17 @@ describe("PaymentTermsSection remainder", () => {
     renderWithProviders(<PaymentTermsSection orgId="1" />);
 
     await screen.findByText("Net 30");
-    await user.click(screen.getAllByRole("button", { name: "Edit" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Ubah" })[0]!);
 
-    expect(await screen.findByText("Edit payment term")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah syarat pembayaran")).toBeInTheDocument();
 
-    const nameInput = screen.getByLabelText("Name");
+    const nameInput = screen.getByLabelText("Nama");
     await user.clear(nameInput);
     await user.type(nameInput, "Net 45");
-    await user.click(screen.getByRole("button", { name: "Add line" }));
-    await user.type(screen.getAllByLabelText("Value")[0]!, "100");
-    await user.type(screen.getAllByLabelText("Due days")[0]!, "45");
-    await user.click(screen.getByRole("button", { name: "Save term" }));
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
+    await user.type(screen.getAllByLabelText("Nilai")[0]!, "100");
+    await user.type(screen.getAllByLabelText("Hari jatuh tempo")[0]!, "45");
+    await user.click(screen.getByRole("button", { name: "Simpan syarat" }));
 
     await waitFor(() => expect(updated).toMatchObject({ name: "Net 45" }));
   });
@@ -115,9 +115,9 @@ describe("PaymentTermsSection remainder", () => {
     renderWithProviders(<PaymentTermsSection orgId="1" />);
 
     await screen.findByText("Net 30");
-    await user.click(screen.getAllByRole("button", { name: "Delete" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Hapus" })[0]!);
     const dialog = screen.getByRole("alertdialog");
-    await user.click(within(dialog).getByRole("button", { name: "Delete" }));
+    await user.click(within(dialog).getByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(screen.getByText("Net 30")).toBeInTheDocument());
   });

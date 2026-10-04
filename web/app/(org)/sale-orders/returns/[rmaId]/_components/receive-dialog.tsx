@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { JournalDateDialog } from "@/components/journal-date-dialog";
 import type { Journal } from "@/lib/services/swantara";
@@ -23,6 +24,8 @@ export function ReceiveDialog({
   journals,
   onSave,
 }: ReceiveDialogProps) {
+  const t = useTranslations("Sales");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
 
   const inventoryJournals = journals.filter((j) => j.type === "purchase");
@@ -34,21 +37,21 @@ export function ReceiveDialog({
         date: params.date,
       }),
     onSuccess: () => {
-      toast.success("Return received successfully");
+      toast.success(t("returnReceived"));
       void queryClient.invalidateQueries({ queryKey: ["rmas", orgId] });
       onSave();
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("saveFailed"));
     },
   });
 
   return (
     <JournalDateDialog
-      title={"Receive Return"}
-      description={"Receive the returned goods into inventory."}
-      confirmLabel={"Receive"}
-      cancelLabel={"Cancel"}
+      title={t("receiveReturn")}
+      description={t("receiveReturnDescription")}
+      confirmLabel={t("actionReceive")}
+      cancelLabel={tCommon("cancel")}
       open={open}
       onOpenChange={onOpenChange}
       onConfirm={(journalId, date) => receiveMutation.mutate({ journalId, date })}

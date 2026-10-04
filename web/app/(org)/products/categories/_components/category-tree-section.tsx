@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FolderIcon, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -24,13 +25,14 @@ import { TreeView } from "@/components/tree-view";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { ItemCategory } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
-import { humanizeKey } from "@/lib/utils/case";
 import { logger } from "@/lib/utils/logger";
 import {
   costMethods,
   type StubItemCategory,
   valuationModes,
 } from "../../_components/products-data";
+
+type TFn = (key: string, values?: Record<string, string | number>) => string;
 
 type AccountField =
   | "incomeAccountId"
@@ -49,18 +51,10 @@ const accountFields: AccountField[] = [
   "cogsAccountId",
 ];
 
-const accountLabels: Record<AccountField, string> = {
-  incomeAccountId: "incomeAccount",
-  expenseAccountId: "expenseAccount",
-  stockCostAccountId: "stockValuationAccount",
-  stockInputAccountId: "stockInputAccount",
-  stockOutputAccountId: "stockOutputAccount",
-  cogsAccountId: "cogsAccount",
-};
-
-const buildSchema = () =>
-  z.object({
-    name: z.string().min(1, "Enter a category name."),
+function useCategorySchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  return z.object({
+    name: z.string().min(1, t("validationCategoryNameRequired")),
     parentId: z.string(),
     costMethod: z.enum(["none", ...costMethods]),
     valuation: z.enum(["none", ...valuationModes]),
@@ -71,8 +65,9 @@ const buildSchema = () =>
     stockOutputAccountId: z.string(),
     cogsAccountId: z.string(),
   });
+}
 
-type Values = z.infer<ReturnType<typeof buildSchema>>;
+type Values = z.infer<ReturnType<typeof useCategorySchema>>;
 
 function toCategoryRow(category: ItemCategory): StubItemCategory {
   return {
@@ -94,6 +89,9 @@ function toCategoryRow(category: ItemCategory): StubItemCategory {
 }
 
 export function CategoryTreeSection({ orgId }: { orgId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  const tCommon = useTranslations("Common");
+  const schema = useCategorySchema();
   const [editing, setEditing] = useState<StubItemCategory | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -114,7 +112,7 @@ export function CategoryTreeSection({ orgId }: { orgId: string }) {
   }));
 
   const form = useForm<Values>({
-    resolver: zodResolver(buildSchema()),
+    resolver: zodResolver(schema),
     defaultValues: emptyValues(),
   });
 
@@ -147,7 +145,7 @@ export function CategoryTreeSection({ orgId }: { orgId: string }) {
     ) as Pick<StubItemCategory, AccountField>;
 
     if (editing) {
-      void getSwantaraService()
+      return getSwantaraService()
         .productCategories.update(Number(orgId), Number(editing.id), {
           name: values.name,
           parentId: values.parentId === "" ? null : Number(values.parentId),
@@ -167,16 +165,16 @@ export function CategoryTreeSection({ orgId }: { orgId: string }) {
           cogsAccountId: accounts.cogsAccountId ? Number(accounts.cogsAccountId) : null,
         })
         .then(() => {
-          toast.success("Category saved.");
+          toast.success(t("toastCategorySaved"));
           setOpen(false);
           void categoriesQuery.refetch();
         })
         .catch((error) => {
           logger.error("Failed to update category", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastCategoryFailed"));
         });
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .productCategories.create(Number(orgId), {
           name: values.name,
           parentId: values.parentId === "" ? null : Number(values.parentId),
@@ -196,20 +194,20 @@ export function CategoryTreeSection({ orgId }: { orgId: string }) {
           cogsAccountId: accounts.cogsAccountId ? Number(accounts.cogsAccountId) : null,
         })
         .then(() => {
-          toast.success("Category saved.");
+          toast.success(t("toastCategorySaved"));
           setOpen(false);
           void categoriesQuery.refetch();
         })
         .catch((error) => {
           logger.error("Failed to create category", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastCategoryFailed"));
         });
     }
   }
 
   function deleteCategory(category: StubItemCategory) {
     if (categories.some((row) => row.parentId === category.id)) {
-      toast.error("Delete or move subcategories first.");
+      toast.error(t("deleteCategoryBlocked"));
       return;
     }
     void getSwantaraService()
@@ -219,17 +217,17 @@ export function CategoryTreeSection({ orgId }: { orgId: string }) {
       })
       .catch((error) => {
         logger.error("Failed to delete category", error);
-        toast.error("Could not disable the organization.");
+        toast.error(t("toastCategoryFailed"));
       });
   }
 
   const tree: TreeNode[] = buildTree(categories, (category) => (
     <RowActions
-      editLabel={"Edit"}
-      deleteLabel={"Delete"}
-      confirmTitle={"Delete this category?"}
-      confirmDescription={"The category will be removed from the catalog."}
-      confirmLabel={"Delete"}
+      editLabel={tCommon("edit")}
+      deleteLabel={tCommon("delete")}
+      confirmTitle={t("deleteCategoryTitle")}
+      confirmDescription={t("deleteCategoryDescription")}
+      confirmLabel={tCommon("delete")}
       onEdit={() => openEdit(category)}
       onDelete={() => deleteCategory(category)}
     />
@@ -240,43 +238,41 @@ export function CategoryTreeSection({ orgId }: { orgId: string }) {
       <div className="flex justify-end">
         <Button size="sm" onClick={openCreate}>
           <Plus />
-          <span>{"Add category"}</span>
+          <span>{t("addCategory")}</span>
         </Button>
       </div>
 
       {categoriesQuery.isLoading ? (
-        <p className="text-sm text-muted-foreground">{"Loading..."}</p>
+        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
       ) : tree.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{"No categories yet."}</p>
+        <p className="text-sm text-muted-foreground">{t("categoriesEmpty")}</p>
       ) : (
         <TreeView
           items={tree}
           defaultExpandedIds={categories.map((category) => category.id)}
-          aria-label={"Item categories"}
+          aria-label={t("categoriesTitle")}
         />
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit category" : "New category"}</DialogTitle>
-            <DialogDescription>
-              {"Organize products into a tree with accounting defaults per category."}
-            </DialogDescription>
+            <DialogTitle>{editing ? t("editCategory") : t("newCategory")}</DialogTitle>
+            <DialogDescription>{t("categoriesDescription")}</DialogDescription>
           </DialogHeader>
           <Form form={form} onSubmit={handleSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="name" label={"Name"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+              <FormField name="name" label={t("fieldName")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
               </FormField>
-              <FormField name="parentId" label={"Parent category"}>
+              <FormField name="parentId" label={t("fieldParentCategory")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Parent category"}>
-                      <SelectValue placeholder={"No parent (top level)"} />
+                    <SelectTrigger id={id} aria-label={t("fieldParentCategory")}>
+                      <SelectValue placeholder={t("noParent")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">{"No parent (top level)"}</SelectItem>
+                      <SelectItem value="">{t("noParent")}</SelectItem>
                       {categories
                         .filter((row) => row.id !== editing?.id)
                         .map((row) => (
@@ -288,32 +284,32 @@ export function CategoryTreeSection({ orgId }: { orgId: string }) {
                   </Select>
                 )}
               </FormField>
-              <FormField name="costMethod" label={"Cost method"}>
+              <FormField name="costMethod" label={t("fieldCostMethod")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Cost method"}>
+                    <SelectTrigger id={id} aria-label={t("fieldCostMethod")}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {["none", ...costMethods].map((method) => (
                         <SelectItem key={method} value={method}>
-                          {String(method)}
+                          {(t as unknown as (k: string) => string)(`costMethod_${method}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 )}
               </FormField>
-              <FormField name="valuation" label={"Valuation"}>
+              <FormField name="valuation" label={t("fieldValuation")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Valuation"}>
+                    <SelectTrigger id={id} aria-label={t("fieldValuation")}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {["none", ...valuationModes].map((mode) => (
                         <SelectItem key={mode} value={mode}>
-                          {String(mode)}
+                          {(t as unknown as (k: string) => string)(`valuationMode_${mode}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -324,15 +320,20 @@ export function CategoryTreeSection({ orgId }: { orgId: string }) {
                 <FormField
                   key={field}
                   name={field}
-                  label={humanizeKey(String(accountLabels[field]))}
+                  label={(t as unknown as (k: string) => string)(`categoryAccountField_${field}`)}
                 >
                   {({ field: accountField, id }) => (
                     <Select value={accountField.value} onValueChange={accountField.onChange}>
-                      <SelectTrigger id={id} aria-label={humanizeKey(String(accountLabels[field]))}>
-                        <SelectValue placeholder={"No account"} />
+                      <SelectTrigger
+                        id={id}
+                        aria-label={(t as unknown as (k: string) => string)(
+                          `categoryAccountField_${field}`,
+                        )}
+                      >
+                        <SelectValue placeholder={t("noAccount")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">{"No account"}</SelectItem>
+                        <SelectItem value="">{t("noAccount")}</SelectItem>
                         {glAccountOptions.map((account) => (
                           <SelectItem key={account.id} value={account.id}>
                             {account.name}
@@ -346,9 +347,9 @@ export function CategoryTreeSection({ orgId }: { orgId: string }) {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>
-                {"Cancel"}
+                {tCommon("cancel")}
               </Button>
-              <SubmitButton>{"Save category"}</SubmitButton>
+              <SubmitButton>{t("saveCategory")}</SubmitButton>
             </DialogFooter>
           </Form>
         </DialogContent>

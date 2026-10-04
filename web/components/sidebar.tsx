@@ -21,9 +21,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "./button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./sheet";
 
-const SIDEBAR_WIDTH_COLLAPSED = 64;
+const SIDEBAR_WIDTH_COLLAPSED = 72;
 const SIDEBAR_WIDTH_EXPANDED = 256;
-const SIDEBAR_WIDTH_MIN = 64;
+const SIDEBAR_WIDTH_MIN = 72;
 const SIDEBAR_WIDTH_MAX = 480;
 const SIDEBAR_STORAGE_KEY = "swantara:sidebar:width";
 
@@ -372,7 +372,7 @@ function SidebarInset({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       data-slot="sidebar-inset"
-      className={cn("flex min-w-0 flex-1 flex-col", className)}
+      className={cn("flex min-h-svh min-w-0 flex-1 flex-col", className)}
       {...props}
     />
   );

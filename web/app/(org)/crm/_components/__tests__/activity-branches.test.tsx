@@ -94,7 +94,7 @@ describe("ActivityFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit activity")).toBeInTheDocument();
+    expect(await screen.findByText("Aktivitas")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Kickoff call")).toBeInTheDocument();
     expect(screen.getByDisplayValue("2026-02-01")).toBeInTheDocument();
   });
@@ -106,8 +106,8 @@ describe("ActivityFormDialog branches", () => {
       <ActivityFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Add activity");
-    await user.click(screen.getByRole("combobox", { name: "Lead / opportunity" }));
+    await screen.findByText("Aktivitas");
+    await user.click(screen.getByRole("combobox", { name: "Prospek atau peluang" }));
 
     expect(await screen.findByRole("option", { name: "Big Lead" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Hot Deal" })).toBeInTheDocument();
@@ -121,8 +121,8 @@ describe("ActivityFormDialog branches", () => {
       <ActivityFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add activity");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Aktivitas");
+    await user.click(screen.getByRole("button", { name: "Tambah Aktivitas" }));
 
     await waitFor(() => expect(onSave).not.toHaveBeenCalled());
   });
@@ -135,9 +135,9 @@ describe("ActivityFormDialog branches", () => {
       <ActivityFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add activity");
-    await user.type(screen.getByLabelText("Summary"), "Quick note");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Aktivitas");
+    await user.type(screen.getByLabelText("Ringkasan"), "Quick note");
+    await user.click(screen.getByRole("button", { name: "Tambah Aktivitas" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -150,17 +150,17 @@ describe("ActivityFormDialog branches", () => {
       <ActivityFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add activity");
-    await user.click(screen.getByRole("combobox", { name: "Lead / opportunity" }));
+    await screen.findByText("Aktivitas");
+    await user.click(screen.getByRole("combobox", { name: "Prospek atau peluang" }));
     await user.click(await screen.findByRole("option", { name: "Hot Deal" }));
-    await user.click(screen.getByRole("combobox", { name: "Contact" }));
+    await user.click(screen.getByRole("combobox", { name: "Kontak" }));
     await user.click(await screen.findByRole("option", { name: "Globex" }));
-    await user.click(screen.getByRole("combobox", { name: "Type" }));
-    await user.click(await screen.findByRole("option", { name: "Call" }));
-    await user.type(screen.getByLabelText("Summary"), "Kickoff call");
-    await user.type(screen.getByLabelText("Note"), "Discuss scope");
-    await user.type(screen.getByLabelText("Due date"), "2026-02-01");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("combobox", { name: "Jenis" }));
+    await user.click(await screen.findByRole("option", { name: "Panggilan" }));
+    await user.type(screen.getByLabelText("Ringkasan"), "Kickoff call");
+    await user.type(screen.getByLabelText("Catatan", { selector: "textarea" }), "Discuss scope");
+    await user.type(screen.getByLabelText("Tanggal jatuh tempo"), "2026-02-01");
+    await user.click(screen.getByRole("button", { name: "Tambah Aktivitas" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -173,11 +173,11 @@ describe("ActivityFormDialog branches", () => {
       <ActivityFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add activity");
-    await user.type(screen.getByLabelText("Summary"), "Quick note");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Aktivitas");
+    await user.type(screen.getByLabelText("Ringkasan"), "Quick note");
+    await user.click(screen.getByRole("button", { name: "Tambah Aktivitas" }));
 
-    await waitFor(() => expect(screen.getByText("Add activity")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Aktivitas")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -195,8 +195,8 @@ describe("ActivityFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit activity");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Aktivitas");
+    await user.click(screen.getByRole("button", { name: "Simpan perubahan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -215,9 +215,9 @@ describe("ActivityFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit activity");
+    await screen.findByText("Aktivitas");
     await user.clear(screen.getByDisplayValue("Discuss scope"));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan perubahan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -236,10 +236,10 @@ describe("ActivityFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit activity");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Aktivitas");
+    await user.click(screen.getByRole("button", { name: "Simpan perubahan" }));
 
-    await waitFor(() => expect(screen.getByText("Edit activity")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Aktivitas")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -250,7 +250,7 @@ describe("ActivityFormDialog branches", () => {
       <ActivityFormDialog open={true} onOpenChange={onOpenChange} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Add activity");
+    await screen.findByText("Aktivitas");
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);

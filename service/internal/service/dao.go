@@ -43,6 +43,7 @@ func (d serviceContractDAO) UpdateTx(ctx context.Context, tx *gorm.DB, entity *S
 
 type ServiceOrderDAO interface {
 	dao.CRUD[ServiceOrder]
+	CreateTx(ctx context.Context, tx *gorm.DB, entity *ServiceOrder) (*ServiceOrder, error)
 	UpdateTx(ctx context.Context, tx *gorm.DB, entity *ServiceOrder) (*ServiceOrder, error)
 }
 
@@ -53,6 +54,13 @@ type serviceOrderDAO struct {
 
 func NewServiceOrderDAO(db *gorm.DB) ServiceOrderDAO {
 	return serviceOrderDAO{Base: dao.NewBase[ServiceOrder](db), db: db}
+}
+
+func (d serviceOrderDAO) CreateTx(ctx context.Context, tx *gorm.DB, entity *ServiceOrder) (*ServiceOrder, error) {
+	if err := tx.WithContext(ctx).Create(entity).Error; err != nil {
+		return nil, err
+	}
+	return entity, nil
 }
 
 func (d serviceOrderDAO) UpdateTx(ctx context.Context, tx *gorm.DB, entity *ServiceOrder) (*ServiceOrder, error) {

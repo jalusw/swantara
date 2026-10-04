@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
@@ -17,19 +18,18 @@ export function SaleOrderDeliveryTab({
   linkedShipment,
   onDeliver,
 }: SaleOrderDeliveryTabProps) {
+  const t = useTranslations("Sales");
   return (
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{"Delivery"}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {"Pick, pack and ship the order. Validates moves and posts COGS."}
-          </p>
+          <CardTitle className="text-base">{t("tabDelivery")}</CardTitle>
+          <p className="text-sm text-muted-foreground">{t("deliverDescription")}</p>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           {linkedShipment ? (
             <div className="flex items-center gap-2">
-              <span className="text-sm">{"Linked shipment"}:</span>
+              <span className="text-sm">{t("linkedShipment")}:</span>
               <a
                 href={`/stock/shipments/${linkedShipment.id}`}
                 className="text-sm text-primary underline"
@@ -39,32 +39,28 @@ export function SaleOrderDeliveryTab({
               <Badge variant="outline">{linkedShipment.state}</Badge>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              {"No shipment yet — confirm the order to create one."}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("noShipmentHint")}</p>
           )}
           {canDeliver(order.state) ? (
             <Button size="sm" onClick={onDeliver}>
-              {"Ship / Deliver"}
+              {t("deliverTitle")}
             </Button>
           ) : (
-            <p className="text-xs text-muted-foreground">
-              {"Confirm the order to enable delivery."}
-            </p>
+            <p className="text-xs text-muted-foreground">{t("confirmToDeliverHint")}</p>
           )}
         </CardContent>
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{"Delivery status"}</CardTitle>
+          <CardTitle className="text-base">{t("deliveryStatusTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 text-sm">
             <span>
-              {"Delivery"}: <Badge variant="outline">{String(order.deliveryStatus)}</Badge>
+              {t("tableDelivery")}: <Badge variant="outline">{String(order.deliveryStatus)}</Badge>
             </span>
             <span>
-              {"Invoicing"}: <Badge variant="outline">{String(order.invoiceStatus)}</Badge>
+              {t("tableInvoicing")}: <Badge variant="outline">{String(order.invoiceStatus)}</Badge>
             </span>
           </div>
         </CardContent>

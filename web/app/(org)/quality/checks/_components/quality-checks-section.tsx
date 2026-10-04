@@ -1,6 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Button } from "@/components/button";
@@ -9,14 +10,13 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { QualityCheck } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
-import {
-  canRecordResult,
-  checkResultLabel,
-  checkResultTone,
-} from "../../_components/quality-utils";
+import { canRecordResult, checkResultTone } from "../../_components/quality-utils";
 import { RecordResultDialog } from "./record-result-dialog";
 
 export function QualityChecksSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Quality");
+  const resultLabel = (result: string) =>
+    (t as unknown as (k: string) => string)(`result_${result}`);
   const [resultDialogCheck, setResultDialogCheck] = useState<QualityCheck | null>(null);
 
   const query = useOrgListQuery<{ checks: QualityCheck[] }, Record<string, never>>(
@@ -31,38 +31,38 @@ export function QualityChecksSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<QualityCheck>[] = [
     {
       accessorKey: "id",
-      header: "Check",
+      header: t("colCheck"),
       cell: ({ row }) => `#${row.original.id}`,
     },
     {
       accessorKey: "itemId",
-      header: "Item",
+      header: t("colItem"),
       cell: ({ row }) => (row.original.itemId ? `Item #${row.original.itemId}` : "—"),
     },
     {
       accessorKey: "shipmentId",
-      header: "Shipment",
+      header: t("colShipment"),
       cell: ({ row }) => (row.original.shipmentId ? `#${row.original.shipmentId}` : "—"),
     },
     {
       accessorKey: "productionOrderId",
-      header: "MO",
+      header: t("colProductionOrder"),
       cell: ({ row }) =>
         row.original.productionOrderId ? `#${row.original.productionOrderId}` : "—",
     },
     {
       accessorKey: "result",
-      header: "Result",
+      header: t("colResult"),
       cell: ({ row }) => (
         <StateBadge
           tone={checkResultTone(row.original.result)}
-          label={checkResultLabel(row.original.result)}
+          label={resultLabel(row.original.result)}
         />
       ),
     },
     {
       accessorKey: "checkedAt",
-      header: "Checked at",
+      header: t("colCheckedAt"),
       cell: ({ row }) => (row.original.checkedAt ? formatDate(row.original.checkedAt) : "—"),
     },
     {
@@ -71,7 +71,7 @@ export function QualityChecksSection({ orgId }: { orgId: string }) {
       cell: ({ row }) =>
         canRecordResult(row.original) ? (
           <Button size="sm" variant="ghost" onClick={() => setResultDialogCheck(row.original)}>
-            {"Record result"}
+            {t("recordResult")}
           </Button>
         ) : null,
     },
@@ -86,15 +86,15 @@ export function QualityChecksSection({ orgId }: { orgId: string }) {
         searchKeys={["result"]}
         statusKey="result"
         statusOptions={[
-          { value: "pending", label: checkResultLabel("pending") },
-          { value: "pass", label: checkResultLabel("pass") },
-          { value: "fail", label: checkResultLabel("fail") },
+          { value: "pending", label: resultLabel("pending") },
+          { value: "pass", label: resultLabel("pass") },
+          { value: "fail", label: resultLabel("fail") },
         ]}
-        searchPlaceholder={"Search quality checks…"}
-        filterLabel={"Result"}
-        allLabel={"All checks"}
-        ariaLabel={"Quality Checks"}
-        emptyTitle={"No quality checks"}
+        searchPlaceholder={t("checksSearchPlaceholder")}
+        filterLabel={t("colResult")}
+        allLabel={t("allChecks")}
+        ariaLabel={t("checksTitle")}
+        emptyTitle={t("checksEmpty")}
         status={
           isLoading
             ? { type: "loading" }

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -15,22 +16,28 @@ import type { Employee, ExpenseCategory, Item } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { getLocalDateString } from "@/lib/utils";
 
-const expenseLineSchema = z.object({
-  categoryId: z.string(),
-  itemId: z.string(),
-  description: z.string(),
-  expenseDate: z.string().min(1),
-  quantity: z.string().min(1),
-  unitPrice: z.string().min(1),
-  reimbursable: z.boolean(),
-});
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
+function useExpenseLineSchema() {
+  return z.object({
+    categoryId: z.string(),
+    itemId: z.string(),
+    description: z.string(),
+    expenseDate: z.string().min(1),
+    quantity: z.string().min(1),
+    unitPrice: z.string().min(1),
+    reimbursable: z.boolean(),
+  });
+}
 
 function useExpenseFormSchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Expenses");
+  const lineSchema = useExpenseLineSchema();
   return z.object({
-    name: z.string().min(1, "Name is required"),
-    employeeId: z.string().min(1, "Employee is required"),
+    name: z.string().min(1, t("validationNameRequired")),
+    employeeId: z.string().min(1, t("validationEmployeeRequired")),
     paymentMode: z.enum(["own_account", "organization_account"]),
-    lines: z.array(expenseLineSchema).min(1, "At least one line is required"),
+    lines: z.array(lineSchema).min(1, t("validationLinesRequired")),
   });
 }
 type ExpenseFormValues = z.infer<ReturnType<typeof useExpenseFormSchema>>;
@@ -46,6 +53,8 @@ export function ExpenseFormDialog({
   orgId: string;
   onSave: () => void;
 }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Expenses");
+  const tCommon = useTranslations("Common");
   const linePrefix = useId();
 
   const employeesQuery = useOrgListQuery<{ employees: Employee[] }, Record<string, never>>(
@@ -93,58 +102,59 @@ export function ExpenseFormDialog({
     name: "lines",
   });
 
-  function handleSubmit(values: ExpenseFormValues) {
-    void toast.promise(
-      getSwantaraService().expenseReports.create(Number(orgId), {
-        name: values.name,
-        employeeId: Number(values.employeeId),
-        paymentMode: values.paymentMode,
-        lines: values.lines.map((l) => ({
-          categoryId: l.categoryId ? Number(l.categoryId) : null,
-          itemId: l.itemId ? Number(l.itemId) : null,
-          description: l.description,
-          expenseDate: l.expenseDate,
-          quantity: Number(l.quantity),
-          unitPrice: Number(l.unitPrice),
-          taxIds: [],
-          currencyCode: "USD",
-          dimensionId: null,
-          projectId: null,
-          reimbursable: l.reimbursable,
-          receiptAttachmentId: null,
-        })),
-      }),
-      {
-        loading: "Saving…",
-        success: () => {
-          onSave();
-          return "Expense report created";
-        },
-        error: "Failed to create expense report",
+  async function handleSubmit(values: ExpenseFormValues) {
+    const request = getSwantaraService().expenseReports.create(Number(orgId), {
+      name: values.name,
+      employeeId: Number(values.employeeId),
+      paymentMode: values.paymentMode,
+      lines: values.lines.map((l) => ({
+        categoryId: l.categoryId ? Number(l.categoryId) : null,
+        itemId: l.itemId ? Number(l.itemId) : null,
+        description: l.description,
+        expenseDate: l.expenseDate,
+        quantity: Number(l.quantity),
+        unitPrice: Number(l.unitPrice),
+        taxIds: [],
+        currencyCode: "USD",
+        dimensionId: null,
+        projectId: null,
+        reimbursable: l.reimbursable,
+        receiptAttachmentId: null,
+      })),
+    });
+    toast.promise(request, {
+      loading: t("saving"),
+      success: () => {
+        onSave();
+        return t("toastReportCreated");
       },
-    );
+      error: t("toastReportFailed"),
+    });
+    await request.catch(() => {});
   }
 
   return (
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Create expense report"}
-      description={"Description"}
+      title={t("newReport")}
+      description={t("reportDialogDescription")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-2xl"
     >
       <div className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField name="name" label={"Name"}>
-            {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+          <FormField name="name" label={t("fieldName")}>
+            {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
           </FormField>
-          <FormField name="employeeId" label={"Employee"}>
+          <FormField name="employeeId" label={t("fieldEmployee")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Employee"}>
-                  <SelectValue placeholder={"Select employee"} />
+                <SelectTrigger id={id} aria-label={t("fieldEmployee")}>
+                  <SelectValue placeholder={t("selectEmployee")} />
                 </SelectTrigger>
                 <SelectContent>
                   {employees.map((e) => (
@@ -156,15 +166,19 @@ export function ExpenseFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="paymentMode" label={"Payment mode"}>
+          <FormField name="paymentMode" label={t("fieldPaymentMode")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Payment mode"}>
+                <SelectTrigger id={id} aria-label={t("fieldPaymentMode")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="own_account">{"Own account"}</SelectItem>
-                  <SelectItem value="organization_account">{"Organization account"}</SelectItem>
+                  <SelectItem value="own_account">
+                    {(t as unknown as (k: string) => string)("paymentMode_own_account")}
+                  </SelectItem>
+                  <SelectItem value="organization_account">
+                    {(t as unknown as (k: string) => string)("paymentMode_organization_account")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -173,7 +187,7 @@ export function ExpenseFormDialog({
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm">{"Expense lines"}</span>
+            <span className="text-sm">{t("expenseLines")}</span>
             <Button
               type="button"
               size="sm"
@@ -190,7 +204,7 @@ export function ExpenseFormDialog({
                 })
               }
             >
-              {"Add line"}
+              {t("addLine")}
             </Button>
           </div>
           {fields.map((field, index) => (
@@ -203,14 +217,17 @@ export function ExpenseFormDialog({
                   htmlFor={`${linePrefix}-category-${index}`}
                   className="text-muted-foreground text-xs"
                 >
-                  {"Category"}
+                  {t("fieldCategory")}
                 </label>
                 <Select
                   value={form.watch(`lines.${index}.categoryId`)}
                   onValueChange={(v) => form.setValue(`lines.${index}.categoryId`, v ?? "")}
                 >
-                  <SelectTrigger id={`${linePrefix}-category-${index}`} aria-label={"Category"}>
-                    <SelectValue placeholder={"Select category"} />
+                  <SelectTrigger
+                    id={`${linePrefix}-category-${index}`}
+                    aria-label={t("fieldCategory")}
+                  >
+                    <SelectValue placeholder={t("selectCategory")} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((c) => (
@@ -226,14 +243,14 @@ export function ExpenseFormDialog({
                   htmlFor={`${linePrefix}-item-${index}`}
                   className="text-muted-foreground text-xs"
                 >
-                  {"Item"}
+                  {t("fieldItem")}
                 </label>
                 <Select
                   value={form.watch(`lines.${index}.itemId`)}
                   onValueChange={(v) => form.setValue(`lines.${index}.itemId`, v ?? "")}
                 >
-                  <SelectTrigger id={`${linePrefix}-item-${index}`} aria-label={"Item"}>
-                    <SelectValue placeholder={"Select item"} />
+                  <SelectTrigger id={`${linePrefix}-item-${index}`} aria-label={t("fieldItem")}>
+                    <SelectValue placeholder={t("selectItem")} />
                   </SelectTrigger>
                   <SelectContent>
                     {products.map((p) => (
@@ -249,7 +266,7 @@ export function ExpenseFormDialog({
                   htmlFor={`${linePrefix}-date-${index}`}
                   className="text-muted-foreground text-xs"
                 >
-                  {"Date"}
+                  {t("colDate")}
                 </label>
                 <Input
                   id={`${linePrefix}-date-${index}`}
@@ -262,7 +279,7 @@ export function ExpenseFormDialog({
                   htmlFor={`${linePrefix}-qty-${index}`}
                   className="text-muted-foreground text-xs"
                 >
-                  {"Quantity"}
+                  {t("colQuantity")}
                 </label>
                 <Input
                   id={`${linePrefix}-qty-${index}`}
@@ -276,7 +293,7 @@ export function ExpenseFormDialog({
                   htmlFor={`${linePrefix}-price-${index}`}
                   className="text-muted-foreground text-xs"
                 >
-                  {"Unit price"}
+                  {t("colUnitPrice")}
                 </label>
                 <Input
                   id={`${linePrefix}-price-${index}`}
@@ -292,6 +309,7 @@ export function ExpenseFormDialog({
                 size="sm"
                 onClick={() => remove(index)}
                 disabled={fields.length <= 1}
+                aria-label={tCommon("delete")}
               >
                 ×
               </Button>

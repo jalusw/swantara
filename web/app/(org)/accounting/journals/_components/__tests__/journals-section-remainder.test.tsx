@@ -35,7 +35,7 @@ const accounts = [
     id: 1,
     organization_id: 1,
     code: "1000",
-    name: "Cash",
+    name: "Kas",
     type: "cash",
     reconcilable: false,
     currency_code: null,
@@ -81,7 +81,7 @@ describe("JournalsSection remainder", () => {
     expect(await screen.findByText("Journal load failed.")).toBeInTheDocument();
 
     useJournalsHandlers();
-    await user.click(screen.getByRole("button", { name: /retry|try again/i }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     expect(await screen.findByText("Sales Journal")).toBeInTheDocument();
   });
@@ -91,11 +91,11 @@ describe("JournalsSection remainder", () => {
     renderWithProviders(<JournalsSection orgId="1" />);
 
     await screen.findByText("Sales Journal");
-    await user.click(screen.getByRole("button", { name: /add journal/i }));
+    await user.click(screen.getByRole("button", { name: /tambah jurnal/i }));
 
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByText("Create journal")).toBeInTheDocument();
-    expect(within(dialog).getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(within(dialog).getByText("Buat jurnal")).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: "Simpan" })).toBeDisabled();
   });
 
   it("creates a journal from the dialog", async () => {
@@ -104,7 +104,7 @@ describe("JournalsSection remainder", () => {
       http.post("*/api/v1/organizations/:organizationId/journals", async ({ request }) => {
         created = await request.json();
         return HttpResponse.json(
-          { success: true, message: "Created.", data: { journal: journals[0] } },
+          { success: true, message: "Dibuat.", data: { journal: journals[0] } },
           { status: 201 },
         );
       }),
@@ -113,13 +113,13 @@ describe("JournalsSection remainder", () => {
     renderWithProviders(<JournalsSection orgId="1" />);
 
     await screen.findByText("Sales Journal");
-    await user.click(screen.getByRole("button", { name: /add journal/i }));
+    await user.click(screen.getByRole("button", { name: /tambah jurnal/i }));
 
     const dialog = await screen.findByRole("dialog");
     const nameInput = within(dialog).getAllByRole("textbox")[0]!;
     await user.type(nameInput, "Petty Cash");
 
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(created).toMatchObject({ name: "Petty Cash" }));
   });
@@ -130,10 +130,10 @@ describe("JournalsSection remainder", () => {
 
     await screen.findByText("Sales Journal");
     const table = screen.getByRole("table");
-    await user.click(within(table).getAllByRole("button", { name: "Edit" })[0]!);
+    await user.click(within(table).getAllByRole("button", { name: "Ubah" })[0]!);
 
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByText("Edit journal")).toBeInTheDocument();
+    expect(within(dialog).getByText("Ubah jurnal")).toBeInTheDocument();
     expect(within(dialog).getByDisplayValue("Sales Journal")).toBeInTheDocument();
   });
 
@@ -150,10 +150,10 @@ describe("JournalsSection remainder", () => {
 
     await screen.findByText("Sales Journal");
     const table = screen.getByRole("table");
-    await user.click(within(table).getAllByRole("button", { name: "Delete" })[0]!);
+    await user.click(within(table).getAllByRole("button", { name: "Hapus" })[0]!);
 
     const confirm = await screen.findByRole("alertdialog");
-    await user.click(within(confirm).getByRole("button", { name: "Delete" }));
+    await user.click(within(confirm).getByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(deletedId).toBe(1));
   });

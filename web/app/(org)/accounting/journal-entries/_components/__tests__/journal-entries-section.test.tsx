@@ -92,7 +92,7 @@ describe("JournalEntriesSection", () => {
     renderWithProviders(<JournalEntriesSection orgId="1" />);
 
     await screen.findByText("JE-001");
-    await user.type(screen.getByPlaceholderText("Search journal entries..."), "002");
+    await user.type(screen.getByPlaceholderText("Cari entri jurnal..."), "002");
 
     expect(await screen.findByText("JE-002")).toBeInTheDocument();
   });
@@ -102,9 +102,9 @@ describe("JournalEntriesSection", () => {
     renderWithProviders(<JournalEntriesSection orgId="1" />);
 
     await screen.findByText("JE-001");
-    await user.click(screen.getByRole("button", { name: "New entry" }));
+    await user.click(screen.getByRole("button", { name: "Entri baru" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Create journal entry")).toBeInTheDocument();
+    expect(screen.getByText("Buat entri jurnal")).toBeInTheDocument();
   });
 });

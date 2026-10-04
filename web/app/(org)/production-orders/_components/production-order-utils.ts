@@ -7,15 +7,15 @@ export function moStateLabel(state: MoState): string {
     case "draft":
       return "Draft";
     case "confirmed":
-      return "Confirmed";
+      return "Dikonfirmasi";
     case "planned":
-      return "Planned";
+      return "Direncanakan";
     case "in_progress":
-      return "In Progress";
+      return "Berjalan";
     case "done":
-      return "Done";
+      return "Selesai";
     case "cancelled":
-      return "Cancelled";
+      return "Dibatalkan";
     default:
       return state;
   }

@@ -67,8 +67,8 @@ describe("CustomersTable", () => {
     renderWithProviders(<CustomersTable orgId="1" />);
 
     await screen.findByText("Acme Corp");
-    await user.click(screen.getByRole("button", { name: "Add customer" }));
+    await user.click(screen.getByRole("button", { name: "Tambah Pelanggan" }));
 
-    expect(await screen.findByRole("heading", { name: "New customer" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Pelanggan baru" })).toBeInTheDocument();
   });
 });

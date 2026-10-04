@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Field } from "@/components/field";
@@ -12,6 +13,8 @@ import { type RegisterFormSchema, useRegisterFormStore } from "../_hooks/use-reg
 export function NameStep() {
   const { control } = useFormContext<RegisterFormSchema>();
   const step = useRegisterFormStore((s) => s.step);
+  const t = useTranslations("Auth");
+  const tx = t as unknown as (key: string) => string;
   const firstNameId = useId();
   const lastNameId = useId();
 
@@ -28,7 +31,7 @@ export function NameStep() {
           const errorId = fieldState.error ? `${firstNameId}-error` : undefined;
           return (
             <Field>
-              <Label htmlFor={firstNameId}>{"First Name"}</Label>
+              <Label htmlFor={firstNameId}>{tx("firstName")}</Label>
               <Input
                 id={firstNameId}
                 type="text"
@@ -58,7 +61,7 @@ export function NameStep() {
           const errorId = fieldState.error ? `${lastNameId}-error` : undefined;
           return (
             <Field>
-              <Label htmlFor={lastNameId}>{"Last Name"}</Label>
+              <Label htmlFor={lastNameId}>{tx("lastName")}</Label>
               <Input
                 id={lastNameId}
                 type="text"

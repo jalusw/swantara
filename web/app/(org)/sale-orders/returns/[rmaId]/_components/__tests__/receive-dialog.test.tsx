@@ -51,8 +51,8 @@ describe("ReceiveDialog", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Receive Return" })).toBeInTheDocument();
-    expect(screen.getByText("Receive the returned goods into inventory.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Terima Retur" })).toBeInTheDocument();
+    expect(screen.getByText("Terima barang yang dikembalikan ke persediaan.")).toBeInTheDocument();
   });
 
   it("closes through the cancel button", async () => {
@@ -69,7 +69,7 @@ describe("ReceiveDialog", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

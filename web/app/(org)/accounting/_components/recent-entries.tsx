@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/table";
 import { DEFAULT_CURRENCY } from "@/lib/constants/currency";
@@ -18,20 +19,25 @@ function Tag({ tone }: { tone: "income" | "expense" }) {
 }
 
 export function RecentEntries({ entries }: { entries: ReturnType<typeof getMockEntries> }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Accounting");
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{"Recent entries"}</CardTitle>
-        <CardDescription>{"The latest ledger entries posted to your books."}</CardDescription>
+        <CardTitle>{t("recentEntriesTitle")}</CardTitle>
+        <CardDescription>{t("recentEntriesDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{"Date"}</TableHead>
-              <TableHead>{"Description"}</TableHead>
-              <TableHead className="text-right">{"Debit"}</TableHead>
-              <TableHead className="text-right">{"Credit"}</TableHead>
+              <TableHead>{t("colDate")}</TableHead>
+              <TableHead>{t("colDescription")}</TableHead>
+              <TableHead className="text-right">{t("colDebit")}</TableHead>
+              <TableHead className="text-right">{t("colCredit")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

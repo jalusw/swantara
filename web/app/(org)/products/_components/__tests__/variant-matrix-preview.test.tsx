@@ -6,8 +6,10 @@ import { VariantMatrixPreview } from "../variant-matrix-preview";
 
 describe("VariantMatrixPreview", () => {
   it("shows a message when no attributes are defined", () => {
-    renderWithProviders(<VariantMatrixPreview templateName="Item" attributes={[]} />);
-    expect(screen.getByText(/No attributes defined/)).toBeInTheDocument();
+    renderWithProviders(<VariantMatrixPreview templateName="Barang" attributes={[]} />);
+    expect(
+      screen.getByText("Tambahkan atribut dengan nilai untuk melihat pratinjau varian."),
+    ).toBeInTheDocument();
   });
 
   it("renders the cartesian item of attributes as rows", () => {
@@ -16,7 +18,7 @@ describe("VariantMatrixPreview", () => {
       { id: "a2", name: "Size", values: ["S", "M"] },
     ];
     renderWithProviders(<VariantMatrixPreview templateName="Tee" attributes={attributes} />);
-    expect(screen.getByText("Generated variants (4)")).toBeInTheDocument();
+    expect(screen.getByText("4 varian akan dibuat.")).toBeInTheDocument();
     expect(screen.getByText("Color: Red · Size: S")).toBeInTheDocument();
     expect(screen.getByText("Color: Blue · Size: M")).toBeInTheDocument();
   });
@@ -25,7 +27,7 @@ describe("VariantMatrixPreview", () => {
     const attributes: AttributeRow[] = [{ id: "a1", name: "Color", values: ["Red", "RED"] }];
     renderWithProviders(<VariantMatrixPreview templateName="Tee" attributes={attributes} />);
     expect(screen.getByRole("alert")).toBeInTheDocument();
-    expect(screen.getByText(/more than once/i)).toBeInTheDocument();
+    expect(screen.getByText(/SKU duplikat ditemukan/)).toBeInTheDocument();
   });
 
   it("does not show a duplicate alert when SKUs are unique", () => {

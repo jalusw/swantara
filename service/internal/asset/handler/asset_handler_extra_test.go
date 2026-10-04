@@ -74,12 +74,12 @@ func assetCategoryCRUDWithList(category *reference.AssetCategory) dao.CRUDMock[r
 }
 
 func emptyHandler() AssetCategoryHandler {
-	return NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	return NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 }
 
 func TestAssetHandler_ListCategories_ReturnsTenantScopedCategories(t *testing.T) {
 	category := assetCategoryWithTenant()
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryCRUDWithList(category)), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(assetCategoryCRUDWithList(category), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodGet, "/asset-categories/", "")
@@ -121,7 +121,7 @@ func TestAssetHandler_ListCategories_ReturnsServerError(t *testing.T) {
 			return nil, errors.New("db down")
 		},
 	}
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(categories), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(categories, handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodGet, "/asset-categories/", "")
@@ -135,7 +135,7 @@ func TestAssetHandler_ListCategories_ReturnsServerError(t *testing.T) {
 
 func TestAssetHandler_GetCategory_ReturnsCategory(t *testing.T) {
 	category := assetCategoryWithTenant()
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryCRUDWithList(category)), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(assetCategoryCRUDWithList(category), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodGet, "/asset-categories/1", "")
@@ -151,7 +151,7 @@ func TestAssetHandler_GetCategory_ReturnsNotFoundForForeignOrganization(t *testi
 	category := assetCategoryWithTenant()
 	other := uint64(99)
 	category.OrganizationID = &other
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryCRUDWithList(category)), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(assetCategoryCRUDWithList(category), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodGet, "/asset-categories/1", "")
@@ -169,7 +169,7 @@ func TestAssetHandler_GetCategory_ReturnsServerError(t *testing.T) {
 			return nil, errors.New("db down")
 		},
 	}
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(categories), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(categories, handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodGet, "/asset-categories/1", "")
@@ -182,7 +182,7 @@ func TestAssetHandler_GetCategory_ReturnsServerError(t *testing.T) {
 }
 
 func TestAssetHandler_CreateCategory_CreatesCategory(t *testing.T) {
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryCRUDWithList(assetCategoryWithTenant())), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(assetCategoryCRUDWithList(assetCategoryWithTenant()), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"name":"Computer","asset_account_id":1500,"depreciation_account_id":1510,"expense_account_id":6600,"gain_account_id":4500,"loss_account_id":6000,"method":"linear","method_number":5,"method_period":"month"}`
@@ -227,7 +227,7 @@ func TestAssetHandler_CreateCategory_ReturnsServerError(t *testing.T) {
 			return nil, errors.New("db down")
 		},
 	}
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(categories), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(categories, handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"name":"Computer","method":"linear","method_number":5,"method_period":"month"}`
@@ -248,7 +248,7 @@ func TestAssetHandler_ListAssets_ReturnsAssets(t *testing.T) {
 			},
 		},
 	}
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodGet, "/fixed-assets/", "")
@@ -292,7 +292,7 @@ func TestAssetHandler_ListAssets_ReturnsServerError(t *testing.T) {
 			},
 		},
 	}
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodGet, "/fixed-assets/", "")
@@ -312,7 +312,7 @@ func TestAssetHandler_GetAsset_ReturnsAsset(t *testing.T) {
 			},
 		},
 	}
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodGet, "/fixed-assets/1", "")
@@ -332,7 +332,7 @@ func TestAssetHandler_GetAsset_ReturnsNotFoundForForeignOrganization(t *testing.
 			},
 		},
 	}
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodGet, "/fixed-assets/1", "")
@@ -352,7 +352,7 @@ func TestAssetHandler_GetAsset_ReturnsServerError(t *testing.T) {
 			},
 		},
 	}
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodGet, "/fixed-assets/1", "")

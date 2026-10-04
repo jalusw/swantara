@@ -34,7 +34,7 @@ describe("TaskFormDialog", () => {
       />,
     );
 
-    expect(await screen.findByText("New task")).toBeInTheDocument();
+    expect(await screen.findByText("Tugas baru")).toBeInTheDocument();
   });
 
   it("renders name field", async () => {
@@ -48,7 +48,7 @@ describe("TaskFormDialog", () => {
       />,
     );
 
-    await screen.findByText("New task");
-    expect(screen.getByLabelText("Task")).toBeInTheDocument();
+    await screen.findByText("Tugas baru");
+    expect(screen.getByLabelText("Nama tugas")).toBeInTheDocument();
   });
 });

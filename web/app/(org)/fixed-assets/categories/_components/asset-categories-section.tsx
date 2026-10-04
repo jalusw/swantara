@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -13,6 +14,7 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { AssetCategoryFormDialog } from "./asset-category-form-dialog";
 
 export function AssetCategoriesSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("FixedAssets");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editCategory, setEditCategory] = useState<AssetCategory | null>(null);
 
@@ -39,20 +41,28 @@ export function AssetCategoriesSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<AssetCategory>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: () => t("colName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "method",
-      header: "Depreciation method",
-      cell: ({ row }) => <Badge variant="outline">{String(row.original.method ?? "linear")}</Badge>,
+      header: () => t("colDepreciationMethod"),
+      cell: ({ row }) => (
+        <Badge variant="outline">
+          {(t as unknown as (k: string) => string)(
+            `categoryMethod_${row.original.method ?? "linear"}`,
+          )}
+        </Badge>
+      ),
     },
     {
       accessorKey: "methodPeriod",
-      header: "Period",
+      header: () => t("colPeriod"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
-          {row.original.methodPeriod ? String(row.original.methodPeriod) : "—"}
+          {row.original.methodPeriod
+            ? (t as unknown as (k: string) => string)(`methodPeriod_${row.original.methodPeriod}`)
+            : "—"}
         </span>
       ),
     },
@@ -61,7 +71,7 @@ export function AssetCategoriesSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
+          editLabel={t("actionEdit")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -82,9 +92,9 @@ export function AssetCategoriesSection({ orgId }: { orgId: string }) {
         data={categories}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
-        searchPlaceholder={"Search categories…"}
-        ariaLabel={"All categories"}
-        emptyTitle={"No asset categories yet"}
+        searchPlaceholder={t("searchCategories")}
+        ariaLabel={t("allCategories")}
+        emptyTitle={t("emptyCategories")}
         status={
           isLoading
             ? { type: "loading" }
@@ -105,7 +115,7 @@ export function AssetCategoriesSection({ orgId }: { orgId: string }) {
             }}
           >
             <Plus />
-            <span>{"Add category"}</span>
+            <span>{t("addCategory")}</span>
           </Button>
         }
       />

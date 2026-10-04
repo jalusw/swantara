@@ -46,8 +46,8 @@ describe("ApprovalRequestsSection", () => {
 
     expect(await screen.findByText("AR-1")).toBeInTheDocument();
     expect(screen.getByText("sale_order")).toBeInTheDocument();
-    expect(screen.getByText("Pending")).toBeInTheDocument();
-    expect(screen.getByText("Refused")).toBeInTheDocument();
+    expect(screen.getByText("Menunggu persetujuan")).toBeInTheDocument();
+    expect(screen.getByText("Ditolak")).toBeInTheDocument();
   });
 
   it("navigates to the detail page from the view action", async () => {
@@ -55,7 +55,7 @@ describe("ApprovalRequestsSection", () => {
     renderWithProviders(<ApprovalRequestsSection />);
 
     await screen.findByText("AR-1");
-    await user.click(screen.getAllByRole("button", { name: "View" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Lihat" })[0]!);
 
     expect(navigationMock.push).toHaveBeenCalledWith("/approval-requests/1");
   });
@@ -65,7 +65,7 @@ describe("ApprovalRequestsSection", () => {
     renderWithProviders(<ApprovalRequestsSection />);
 
     await screen.findByText("AR-1");
-    await user.type(screen.getByPlaceholderText("Search approvals…"), "purchase_order");
+    await user.type(screen.getByPlaceholderText("Cari persetujuan…"), "purchase_order");
 
     expect(await screen.findByText("AR-2")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("AR-1")).not.toBeInTheDocument());
@@ -79,7 +79,7 @@ describe("ApprovalRequestsSection", () => {
     );
     renderWithProviders(<ApprovalRequestsSection />);
 
-    expect(await screen.findByText("No approval requests")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada permintaan persetujuan")).toBeInTheDocument();
   });
 
   it("shows the error state with retry and refetches", async () => {
@@ -101,7 +101,7 @@ describe("ApprovalRequestsSection", () => {
     renderWithProviders(<ApprovalRequestsSection />);
 
     expect(await screen.findByText("approval boom")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Retry" }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     expect(await screen.findByText("AR-1")).toBeInTheDocument();
     expect(calls).toBe(2);

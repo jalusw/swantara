@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -45,6 +46,7 @@ function CustomerDefaultsPanel({
   contactId: string;
   onRefetch: () => void;
 }) {
+  const t = useTranslations("Contacts");
   const schema = useCustomerDefaultsFormSchema();
 
   const form = useForm<CustomerDefaultsFormValues>({
@@ -55,7 +57,7 @@ function CustomerDefaultsPanel({
   });
 
   function handleSubmit(values: CustomerDefaultsFormValues) {
-    void getSwantaraService()
+    return getSwantaraService()
       .contacts.customer(Number(orgId), Number(contactId), {
         customerPaymentTermId: null,
         creditLimit: values.creditLimit ? Number(values.creditLimit) : null,
@@ -63,24 +65,24 @@ function CustomerDefaultsPanel({
         active: true,
       })
       .then(() => {
-        toast.success("Defaults saved.");
+        toast.success(t("defaultsSaved"));
         onRefetch();
       })
       .catch(() => {
-        toast.error("Something went wrong. Please try again.");
+        toast.error(t("saveFailedTryAgain"));
       });
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{"Customer"}</CardTitle>
-        <CardDescription>{"Enables the customer role and its defaults."}</CardDescription>
+        <CardTitle>{t("customerDefaultsTitle")}</CardTitle>
+        <CardDescription>{t("customerDefaultsDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField name="creditLimit" label={"Credit limit"}>
+            <FormField name="creditLimit" label={t("fieldCreditLimit")}>
               {({ field, id }) => (
                 <Input
                   {...field}
@@ -88,12 +90,12 @@ function CustomerDefaultsPanel({
                   type="number"
                   step="any"
                   inputMode="decimal"
-                  placeholder={"Credit limit"}
+                  placeholder={t("fieldCreditLimit")}
                 />
               )}
             </FormField>
           </div>
-          <SubmitButton>{"Save defaults"}</SubmitButton>
+          <SubmitButton>{t("saveDefaults")}</SubmitButton>
         </Form>
       </CardContent>
     </Card>
@@ -114,6 +116,7 @@ function SupplierDefaultsPanel({
   contactId: string;
   onRefetch: () => void;
 }) {
+  const t = useTranslations("Contacts");
   const schema = useSupplierDefaultsFormSchema();
 
   const form = useForm<SupplierDefaultsFormValues>({
@@ -122,30 +125,30 @@ function SupplierDefaultsPanel({
   });
 
   function handleSubmit(_values: SupplierDefaultsFormValues) {
-    void getSwantaraService()
+    return getSwantaraService()
       .contacts.supplier(Number(orgId), Number(contactId), {
         vendorPaymentTermId: null,
         payableAccountId: null,
         active: true,
       })
       .then(() => {
-        toast.success("Defaults saved.");
+        toast.success(t("defaultsSaved"));
         onRefetch();
       })
       .catch(() => {
-        toast.error("Something went wrong. Please try again.");
+        toast.error(t("saveFailedTryAgain"));
       });
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{"Supplier"}</CardTitle>
-        <CardDescription>{"Enables the supplier role and its defaults."}</CardDescription>
+        <CardTitle>{t("supplierDefaultsTitle")}</CardTitle>
+        <CardDescription>{t("supplierDefaultsDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form form={form} onSubmit={handleSubmit}>
-          <SubmitButton>{"Save defaults"}</SubmitButton>
+          <SubmitButton>{t("saveDefaults")}</SubmitButton>
         </Form>
       </CardContent>
     </Card>

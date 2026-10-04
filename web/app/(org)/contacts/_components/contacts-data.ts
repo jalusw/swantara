@@ -51,27 +51,36 @@ export type StubContact = {
   bankAccounts: StubContactBankAccount[];
 };
 
-export const paymentTermOptions = [
-  { id: "pt1", name: "Net 30" },
-  { id: "pt2", name: "50/50 split" },
-  { id: "pt3", name: "Due on receipt" },
-];
+export type ContactOption = { id: string; name: string };
+export type ContactCountryOption = { code: string; name: string };
 
-export const accountOptions = [
-  { id: "acc-1100", name: "1100 · Accounts receivable" },
-  { id: "acc-1200", name: "1200 · Trade receivables" },
-  { id: "acc-2100", name: "2100 · Accounts payable" },
-];
+export function getPaymentTermOptions(t: (key: string) => string): ContactOption[] {
+  return [
+    { id: "pt1", name: t("paymentTermNet30") },
+    { id: "pt2", name: t("paymentTerm5050Split") },
+    { id: "pt3", name: t("paymentTermDueOnReceipt") },
+  ];
+}
+
+export function getAccountOptions(t: (key: string) => string): ContactOption[] {
+  return [
+    { id: "acc-1100", name: t("accountReceivable1100") },
+    { id: "acc-1200", name: t("tradeReceivables1200") },
+    { id: "acc-2100", name: t("accountPayable2100") },
+  ];
+}
 
 export const currencyOptions = ["USD", "IDR", "EUR", "SGD", "GBP"];
 
-export const countryCodeOptions = [
-  { code: "US", name: "United States" },
-  { code: "ID", name: "Indonesia" },
-  { code: "SG", name: "Singapore" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "DE", name: "Germany" },
-];
+export function getCountryCodeOptions(t: (key: string) => string): ContactCountryOption[] {
+  return [
+    { code: "US", name: t("country_US") },
+    { code: "ID", name: t("country_ID") },
+    { code: "SG", name: t("country_SG") },
+    { code: "GB", name: t("country_GB") },
+    { code: "DE", name: t("country_DE") },
+  ];
+}
 
 export const initialContacts: StubContact[] = [
   {
@@ -104,7 +113,7 @@ export const initialContacts: StubContact[] = [
         type: "billing",
         line1: "10 Anson Road",
         line2: "#26-08 International Plaza",
-        city: "Singapore",
+        city: "Singapura",
         state: "",
         postalCode: "079903",
         countryCode: "SG",
@@ -115,7 +124,7 @@ export const initialContacts: StubContact[] = [
         type: "shipping",
         line1: "51 Changi South Ave 2",
         line2: "Warehouse Block B",
-        city: "Singapore",
+        city: "Singapura",
         state: "",
         postalCode: "486103",
         countryCode: "SG",

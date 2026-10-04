@@ -30,13 +30,13 @@ export function giftCardStateTone(
 export function formatGiftCardState(state: GiftCardState): string {
   switch (state) {
     case "active":
-      return "Active";
+      return "Aktif";
     case "used":
       return "Used";
     case "expired":
       return "Expired";
     case "cancelled":
-      return "Cancelled";
+      return "Dibatalkan";
     default:
       return state;
   }

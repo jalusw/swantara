@@ -75,7 +75,7 @@ describe("EmployeesTable", () => {
     renderWithProviders(<EmployeesTable orgId="1" />);
 
     await screen.findByText("EMP-0001");
-    await user.type(screen.getByPlaceholderText("Search employees…"), "0002");
+    await user.type(screen.getByPlaceholderText("Cari karyawan…"), "0002");
 
     expect(await screen.findByText("EMP-0002")).toBeInTheDocument();
   });
@@ -85,7 +85,7 @@ describe("EmployeesTable", () => {
     renderWithProviders(<EmployeesTable orgId="1" />);
 
     await screen.findByText("EMP-0001");
-    await user.click(screen.getByRole("button", { name: "Add employee" }));
+    await user.click(screen.getByRole("button", { name: "Tambah Karyawan" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

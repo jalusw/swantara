@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { useOrgListQuery, useOrgQuery } from "@/lib/hooks/use-org-query";
@@ -22,6 +23,7 @@ export type ReminderAction = {
 };
 
 export function useSaleOrderDetail(orgId: string, saleOrderId: string) {
+  const t = useTranslations("Sales");
   const numericOrgId = Number(orgId);
 
   const orderQuery = useOrgQuery<{ order: SaleOrder }>("saleOrder", saleOrderId, (organizationId) =>
@@ -88,10 +90,10 @@ export function useSaleOrderDetail(orgId: string, saleOrderId: string) {
     void getSwantaraService()
       .saleOrders.send(numericOrgId, order.id)
       .then(() => {
-        toast.success("Quotation sent.");
+        toast.success(t("quotationSent"));
         refreshOrder();
       })
-      .catch(() => toast.error("Could not send the quotation."));
+      .catch(() => toast.error(t("quotationSendFailed")));
   }
 
   function confirm() {
@@ -99,11 +101,11 @@ export function useSaleOrderDetail(orgId: string, saleOrderId: string) {
     void getSwantaraService()
       .saleOrders.confirm(numericOrgId, order.id)
       .then(() => {
-        toast.success("Order confirmed — reservation and shipment created.");
+        toast.success(t("orderConfirmed"));
         refreshOrder();
         void shipmentsQuery.refetch();
       })
-      .catch(() => toast.error("Could not confirm the order."));
+      .catch(() => toast.error(t("orderConfirmFailed")));
   }
 
   function cancel() {
@@ -111,10 +113,10 @@ export function useSaleOrderDetail(orgId: string, saleOrderId: string) {
     void getSwantaraService()
       .saleOrders.cancel(numericOrgId, order.id)
       .then(() => {
-        toast.success("Order cancelled.");
+        toast.success(t("orderCancelled"));
         refreshOrder();
       })
-      .catch(() => toast.error("Could not cancel the order."));
+      .catch(() => toast.error(t("orderCancelFailed")));
   }
 
   function markDone() {
@@ -122,10 +124,10 @@ export function useSaleOrderDetail(orgId: string, saleOrderId: string) {
     void getSwantaraService()
       .saleOrders.done(numericOrgId, order.id)
       .then(() => {
-        toast.success("Order marked done.");
+        toast.success(t("orderDone"));
         refreshOrder();
       })
-      .catch(() => toast.error("Could not mark the order done."));
+      .catch(() => toast.error(t("orderDoneFailed")));
   }
 
   function deliver(values: { journalId: string; date: string }) {
@@ -136,11 +138,11 @@ export function useSaleOrderDetail(orgId: string, saleOrderId: string) {
         date: values.date || null,
       })
       .then(() => {
-        toast.success("Delivery posted — COGS and stock updated.");
+        toast.success(t("deliveryPosted"));
         refreshOrder();
         void shipmentsQuery.refetch();
       })
-      .catch(() => toast.error("Could not post the delivery."));
+      .catch(() => toast.error(t("deliveryFailed")));
   }
 
   function invoice(values: { journalId: string; date: string }) {
@@ -151,10 +153,10 @@ export function useSaleOrderDetail(orgId: string, saleOrderId: string) {
         date: values.date || null,
       })
       .then(() => {
-        toast.success("Invoice created.");
+        toast.success(t("invoiceCreated"));
         refreshOrder();
       })
-      .catch(() => toast.error("Could not create the invoice."));
+      .catch(() => toast.error(t("invoiceFailed")));
   }
 
   function pay(values: { journalId: string; amount: string; date: string }) {
@@ -166,20 +168,20 @@ export function useSaleOrderDetail(orgId: string, saleOrderId: string) {
         date: values.date || null,
       })
       .then(() => {
-        toast.success("Payment created and allocated.");
+        toast.success(t("paymentCreated"));
         refreshOrder();
       })
-      .catch(() => toast.error("Could not create the payment."));
+      .catch(() => toast.error(t("paymentFailed")));
   }
 
   function generateReminder() {
     void getSwantaraService()
       .reminder.generate(numericOrgId, { organizationId: numericOrgId, asOf: null })
       .then(() => {
-        toast.success("Reminder actions generated.");
+        toast.success(t("reminderGenerated"));
         void reminderQuery.refetch();
       })
-      .catch(() => toast.error("Could not generate reminders."));
+      .catch(() => toast.error(t("reminderFailed")));
   }
 
   return {

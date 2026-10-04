@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -21,9 +22,12 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { InvoiceSummary, Journal } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney, getLocalDateString } from "@/lib/utils";
-import { type InvoiceState, invoiceStateLabel, invoiceStateTone } from "./invoice-utils";
+import { type InvoiceState, invoiceStateTone } from "./invoice-utils";
+
+type TFn = (key: string, values?: Record<string, string | number>) => string;
 
 export function InvoicesSection({ orgId }: { orgId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const invoicesQuery = useOrgListQuery<{ invoices: InvoiceSummary[] }, Record<string, never>>(
@@ -40,7 +44,7 @@ export function InvoicesSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<InvoiceSummary>[] = [
     {
       accessorKey: "name",
-      header: "Number",
+      header: () => t("colNumber"),
       cell: ({ row }) => (
         <a
           href={`/accounting/invoices/${row.original.id}`}
@@ -52,14 +56,14 @@ export function InvoicesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "contactId",
-      header: "Contact ID",
+      header: () => t("colContact"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">{`#${row.original.contactId}`}</span>
       ),
     },
     {
       accessorKey: "invoiceDate",
-      header: "Invoice date",
+      header: () => t("colInvoiceDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.invoiceDate ? formatDate(row.original.invoiceDate) : "—"}
@@ -68,7 +72,7 @@ export function InvoicesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "amountTotal",
-      header: "Total",
+      header: () => t("colTotal"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums ">{formatMoney(row.original.amountTotal)}</span>
@@ -76,7 +80,7 @@ export function InvoicesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "amountResidual",
-      header: "Remaining",
+      header: () => t("colRemaining"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums">{formatMoney(row.original.amountResidual)}</span>
@@ -84,12 +88,12 @@ export function InvoicesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: () => t("colStatus"),
       cell: ({ row }) => {
         const state = row.original.state as InvoiceState;
         return (
           <Badge variant="outline" className={invoiceStateTone(state)}>
-            {invoiceStateLabel(state)}
+            {(t as unknown as (k: string) => string)(`invoiceState_${state}`)}
           </Badge>
         );
       },
@@ -105,15 +109,21 @@ export function InvoicesSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "posted", label: "Posted" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: (t as unknown as (k: string) => string)("invoiceState_draft") },
+          {
+            value: "posted",
+            label: (t as unknown as (k: string) => string)("invoiceState_posted"),
+          },
+          {
+            value: "cancelled",
+            label: (t as unknown as (k: string) => string)("invoiceState_cancelled"),
+          },
         ]}
-        searchPlaceholder={"Search invoices..."}
-        filterLabel={"State"}
-        allLabel={"All"}
-        ariaLabel={"Accounts"}
-        emptyTitle={"No invoices found."}
+        searchPlaceholder={t("searchInvoices")}
+        filterLabel={t("colStatus")}
+        allLabel={t("filterAll")}
+        ariaLabel={t("invoicesTitle")}
+        emptyTitle={t("invoicesEmpty")}
         status={
           invoicesQuery.isLoading
             ? { type: "loading" }
@@ -128,7 +138,7 @@ export function InvoicesSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New invoice"}</span>
+            <span>{t("newInvoice")}</span>
           </Button>
         }
       />
@@ -171,6 +181,8 @@ function InvoiceFormDialog({
   const [lines, setLines] = useState<
     { id: string; description: string; qty: string; unitPrice: string }[]
   >([{ id: "1", description: "", qty: "1", unitPrice: "" }]);
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
+  const tCommon = useTranslations("Common");
 
   useEffect(() => {
     if (!open) return;
@@ -224,32 +236,38 @@ function InvoiceFormDialog({
           })),
       })
       .then(() => {
-        toast.success("Invoice created successfully");
+        toast.success(t("toastInvoiceCreated"));
         onSave();
       });
   }
 
   const invoiceTypes = [
-    { value: "customer_invoice", label: "Customer invoice" },
-    { value: "vendor_bill", label: "Supplier bill" },
+    {
+      value: "customer_invoice",
+      label: (t as unknown as (k: string) => string)("invoiceType_customer_invoice"),
+    },
+    {
+      value: "vendor_bill",
+      label: (t as unknown as (k: string) => string)("invoiceType_vendor_bill"),
+    },
   ] as const;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>{"Create invoice"}</DialogTitle>
-          <DialogDescription>{"Create a new invoice with line items."}</DialogDescription>
+          <DialogTitle>{t("createInvoice")}</DialogTitle>
+          <DialogDescription>{t("createInvoiceDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Invoice type"}</span>
+              <span className="text-sm">{t("fieldInvoiceType")}</span>
               <Select
                 value={invoiceType}
                 onValueChange={(v) => setInvoiceType(v as "customer_invoice" | "vendor_bill")}
               >
-                <SelectTrigger aria-label={"Invoice type"}>
+                <SelectTrigger aria-label={t("fieldInvoiceType")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -262,7 +280,7 @@ function InvoiceFormDialog({
               </Select>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Contact Id"}</span>
+              <span className="text-sm">{t("colContact")}</span>
               <Input
                 value={contactId}
                 onChange={(e) => setContactId(e.target.value)}
@@ -273,10 +291,10 @@ function InvoiceFormDialog({
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Journal"}</span>
+              <span className="text-sm">{t("fieldJournal")}</span>
               <Select value={journalId} onValueChange={(v) => setJournalId(v ?? "")}>
-                <SelectTrigger aria-label={"Journal"}>
-                  <SelectValue placeholder={"Select a journal"} />
+                <SelectTrigger aria-label={t("fieldJournal")}>
+                  <SelectValue placeholder={t("selectJournal")} />
                 </SelectTrigger>
                 <SelectContent>
                   {journals.map((j) => (
@@ -288,7 +306,7 @@ function InvoiceFormDialog({
               </Select>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Invoice date"}</span>
+              <span className="text-sm">{t("colInvoiceDate")}</span>
               <Input
                 type="date"
                 value={invoiceDate}
@@ -296,30 +314,28 @@ function InvoiceFormDialog({
               />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Reference"}</span>
+              <span className="text-sm">{t("colReference")}</span>
               <Input value={reference} onChange={(e) => setReference(e.target.value)} />
             </div>
           </div>
           <div className="flex flex-col gap-3 rounded-md border p-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm">{"Invoice lines"}</h3>
+              <h3 className="text-sm">{t("invoiceLines")}</h3>
               <Button type="button" variant="outline" size="sm" onClick={addLine}>
-                {"Add line"}
+                {t("addLine")}
               </Button>
             </div>
             {lines.map((line) => (
               <div key={line.id} className="grid gap-2 rounded-md border p-3 sm:grid-cols-12">
                 <div className="sm:col-span-5">
-                  <span className="text-xs text-muted-foreground">
-                    {"Create a new invoice with line items."}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{t("colDescription")}</span>
                   <Input
                     value={line.description}
                     onChange={(e) => updateLine(line.id, { description: e.target.value })}
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <span className="text-xs text-muted-foreground">{"Quantity"}</span>
+                  <span className="text-xs text-muted-foreground">{t("colQuantity")}</span>
                   <Input
                     value={line.qty}
                     onChange={(e) => updateLine(line.id, { qty: e.target.value })}
@@ -329,7 +345,7 @@ function InvoiceFormDialog({
                   />
                 </div>
                 <div className="sm:col-span-3">
-                  <span className="text-xs text-muted-foreground">{"Unit price"}</span>
+                  <span className="text-xs text-muted-foreground">{t("colUnitPrice")}</span>
                   <Input
                     value={line.unitPrice}
                     onChange={(e) => updateLine(line.id, { unitPrice: e.target.value })}
@@ -345,24 +361,24 @@ function InvoiceFormDialog({
                     size="sm"
                     onClick={() => removeLine(line.id)}
                   >
-                    {"Remove"}
+                    {tCommon("delete")}
                   </Button>
                 </div>
               </div>
             ))}
             <div className="flex justify-end text-sm">
               <span>
-                {"Subtotal"}: {formatMoney(subtotal)}
+                {t("subtotal")}: {formatMoney(subtotal)}
               </span>
             </div>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={!contactId || !journalId}>
-            {"Create"}
+            {t("createAction")}
           </Button>
         </DialogFooter>
       </DialogContent>

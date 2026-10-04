@@ -57,7 +57,7 @@ describe("CountDetail branches2", () => {
     seedCount(null, []);
     renderWithProviders(<CountDetail orgId="1" countId="99" />);
 
-    expect(await screen.findByText("Count not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Opname tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("renders zero-diff and non-zero diff branches", async () => {
@@ -65,7 +65,7 @@ describe("CountDetail branches2", () => {
     renderWithProviders(<CountDetail orgId="1" countId="11" />);
 
     await screen.findAllByText("IC-0011");
-    expect(screen.getByText("Difference preview")).toBeInTheDocument();
+    expect(screen.getByText("Pratinjau selisih")).toBeInTheDocument();
   });
 
   it("posts the count through the confirm branch", async () => {
@@ -81,8 +81,8 @@ describe("CountDetail branches2", () => {
     renderWithProviders(<CountDetail orgId="1" countId="11" />);
 
     await screen.findAllByText("IC-0011");
-    await user.click(screen.getByRole("button", { name: "Post count" }));
-    const confirmButtons = await screen.findAllByRole("button", { name: "Post count" });
+    await user.click(screen.getByRole("button", { name: "Posting opname" }));
+    const confirmButtons = await screen.findAllByRole("button", { name: "Posting opname" });
     const last = confirmButtons[confirmButtons.length - 1];
     if (last) {
       await user.click(last);
@@ -96,6 +96,6 @@ describe("CountDetail branches2", () => {
     renderWithProviders(<CountDetail orgId="1" countId="11" />);
 
     await screen.findAllByText("IC-0011");
-    expect(screen.queryByRole("button", { name: "Post count" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Posting opname" })).not.toBeInTheDocument();
   });
 });

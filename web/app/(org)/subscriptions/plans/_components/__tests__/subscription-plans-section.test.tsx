@@ -35,7 +35,7 @@ describe("SubscriptionPlansSection", () => {
     renderWithProviders(<SubscriptionPlansSection orgId="1" />);
 
     await screen.findByText("Monthly Basic");
-    await user.type(screen.getByPlaceholderText(/Search plans/), "Annual");
+    await user.type(screen.getByPlaceholderText(/Cari paket/), "Annual");
 
     expect(await screen.findByText("Annual Pro")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Monthly Basic")).not.toBeInTheDocument());

@@ -6,7 +6,7 @@ export default async function LeaveLayout({ children }: { children: React.ReactN
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
       <PageHeader
-        title={"Leave"}
+        title={"Cuti"}
         description={"Leave types and employee leave requests with approvals."}
       />
       <Suspense fallback={null}>

@@ -161,7 +161,7 @@ beforeEach(() => {});
 
 async function chooseJournal(user: ReturnType<typeof userEvent.setup>) {
   const dialog = await screen.findByRole("dialog");
-  await user.click(within(dialog).getByLabelText("Journal"));
+  await user.click(within(dialog).getByLabelText("Jurnal"));
   await user.click(await screen.findByRole("option", { name: "Delivery Journal \u2014 general" }));
   return dialog;
 }
@@ -173,7 +173,7 @@ describe("SaleOrderDetail branches4", () => {
 
     await screen.findAllByText("SO-0007");
     expect(screen.queryByRole("button", { name: "Send" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Confirm" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Konfirmasi" })).toBeNull();
   });
 
   it("falls back to generated names when the order name and lines are missing", async () => {
@@ -181,7 +181,7 @@ describe("SaleOrderDetail branches4", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     expect((await screen.findAllByText("SO-7")).length).toBeGreaterThan(0);
-    expect(screen.getByText("No lines")).toBeInTheDocument();
+    expect(screen.getByText("Belum ada baris")).toBeInTheDocument();
   });
 
   it("falls back for null line products and unnamed shipments", async () => {
@@ -198,7 +198,7 @@ describe("SaleOrderDetail branches4", () => {
 
     await screen.findAllByText("SO-0007");
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
-    await user.click(screen.getByRole("tab", { name: "Delivery" }));
+    await user.click(screen.getByRole("tab", { name: "Pengiriman" }));
 
     expect(await screen.findByText(/PK-3/)).toBeInTheDocument();
   });
@@ -209,11 +209,11 @@ describe("SaleOrderDetail branches4", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Delivery" }));
-    await user.click(await screen.findByRole("button", { name: "Ship / Deliver" }));
+    await user.click(screen.getByRole("tab", { name: "Pengiriman" }));
+    await user.click(await screen.findByRole("button", { name: "Kirim / Antar" }));
 
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    await user.click(within(dialog).getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
@@ -234,14 +234,14 @@ describe("SaleOrderDetail branches4", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Delivery" }));
-    await user.click(await screen.findByRole("button", { name: "Ship / Deliver" }));
+    await user.click(screen.getByRole("tab", { name: "Pengiriman" }));
+    await user.click(await screen.findByRole("button", { name: "Kirim / Antar" }));
 
     const dialog = await chooseJournal(user);
     const dateInput = dialog.querySelector('input[type="date"]');
     if (!dateInput) throw new Error("Expected date input");
     await user.clear(dateInput);
-    await user.click(within(dialog).getByRole("button", { name: "Ship / Deliver" }));
+    await user.click(within(dialog).getByRole("button", { name: "Kirim / Antar" }));
 
     await waitFor(() => expect(delivered).toMatchObject({ journal_id: 2, date: null }));
   });
@@ -256,10 +256,10 @@ describe("SaleOrderDetail branches4", () => {
     const invoicingTab = tabs[2];
     if (!invoicingTab) throw new Error("Expected invoicing tab");
     await user.click(invoicingTab);
-    await user.click(await screen.findByRole("button", { name: "Create invoice" }));
+    await user.click(await screen.findByRole("button", { name: "Buat faktur" }));
 
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    await user.click(within(dialog).getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
@@ -270,11 +270,11 @@ describe("SaleOrderDetail branches4", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Payments" }));
-    await user.click(await screen.findByRole("button", { name: "Collect payment" }));
+    await user.click(screen.getByRole("tab", { name: "Pembayaran" }));
+    await user.click(await screen.findByRole("button", { name: "Tarik pembayaran" }));
 
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    await user.click(within(dialog).getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });

@@ -65,8 +65,8 @@ describe("ActivitiesSection", () => {
     const table = screen.getByRole("table");
     expect(within(table).getByText("Intro call with Acme")).toBeInTheDocument();
     expect(within(table).getByText("Onsite demo at Nusantara")).toBeInTheDocument();
-    expect(screen.getByText("Call")).toBeInTheDocument();
-    expect(screen.getByText("Activity timeline")).toBeInTheDocument();
+    expect(screen.getByText("Panggilan")).toBeInTheDocument();
+    expect(screen.getByText("Linimasa aktivitas")).toBeInTheDocument();
   });
 
   it("filters activities through the search box", async () => {
@@ -75,7 +75,7 @@ describe("ActivitiesSection", () => {
 
     await screen.findAllByText("Intro call with Acme");
     const table = screen.getByRole("table");
-    await user.type(screen.getByPlaceholderText("Search activities…"), "Onsite demo");
+    await user.type(screen.getByPlaceholderText("Cari aktivitas…"), "Onsite demo");
 
     expect(await within(table).findByText("Onsite demo at Nusantara")).toBeInTheDocument();
     await waitFor(() =>
@@ -88,7 +88,7 @@ describe("ActivitiesSection", () => {
     renderWithProviders(<ActivitiesSection orgId="1" />);
 
     await screen.findAllByText("Intro call with Acme");
-    await user.click(screen.getByRole("button", { name: "Add activity" }));
+    await user.click(screen.getByRole("button", { name: "Tambah Aktivitas" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

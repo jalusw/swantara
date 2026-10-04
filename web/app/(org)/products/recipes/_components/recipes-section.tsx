@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -45,6 +46,12 @@ function toProductRow(item: Item): StubItem {
 }
 
 export function BomsSection({ orgId }: { orgId: string }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Products");
+  const tCommon = useTranslations("Common");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<StubBom | null>(null);
 
@@ -95,17 +102,17 @@ export function BomsSection({ orgId }: { orgId: string }) {
         }
         renderActions={(recipe) => (
           <RowActions
-            editLabel={"Edit"}
-            deleteLabel={"Delete"}
-            confirmTitle={"Delete this bill of materials?"}
-            confirmDescription={"The bill of materials will be removed."}
-            confirmLabel="OK"
+            editLabel={tCommon("edit")}
+            deleteLabel={tCommon("delete")}
+            confirmTitle={t("deleteRecipeTitle")}
+            confirmDescription={t("deleteRecipeDescription")}
+            confirmLabel={tCommon("confirm")}
             onEdit={() => setEditing(recipe)}
             onDelete={() => {
               void getSwantaraService()
                 .recipes.delete(Number(orgId), Number(recipe.id))
                 .then(() => void bomsQuery.refetch())
-                .catch(() => toast.error("Could not disable the organization."));
+                .catch(() => toast.error(t("toastFailed")));
             }}
           />
         )}
@@ -113,7 +120,7 @@ export function BomsSection({ orgId }: { orgId: string }) {
       <div className="flex justify-end">
         <Button size="sm" onClick={() => setCreating(true)}>
           <Plus />
-          <span>{"Add BoM"}</span>
+          <span>{t("addRecipe")}</span>
         </Button>
       </div>
       {creating ? (

@@ -88,7 +88,7 @@ describe("MoDetailSection", () => {
     renderWithProviders(<MoDetailSection orgId="1" productionOrderId="1" />);
 
     await screen.findByText("MO-0001 Chair Assembly");
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
 
     await waitFor(() => expect(confirmCalled).toBe(true));
   });

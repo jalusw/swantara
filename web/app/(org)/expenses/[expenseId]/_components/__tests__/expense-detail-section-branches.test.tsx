@@ -82,14 +82,14 @@ describe("ExpenseDetail branches", () => {
     useHandlers();
     renderWithProviders(<ExpenseDetail orgId="1" expenseId="7" />);
     expect((await screen.findAllByText("Trip to Jakarta")).length).toBeGreaterThan(0);
-    expect(screen.getByRole("button", { name: "Submit" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Approve" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ajukan" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Setujui" })).not.toBeInTheDocument();
   });
 
   it("renders the not-found state when the report is missing", async () => {
     useHandlers({ report: null });
     renderWithProviders(<ExpenseDetail orgId="1" expenseId="9" />);
-    expect(await screen.findByText("Expense report not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Klaim biaya tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("submits a draft report", async () => {
@@ -97,7 +97,7 @@ describe("ExpenseDetail branches", () => {
     const { actions } = useHandlers();
     renderWithProviders(<ExpenseDetail orgId="1" expenseId="7" />);
     await screen.findAllByText("Trip to Jakarta");
-    await user.click(screen.getByRole("button", { name: "Submit" }));
+    await user.click(screen.getByRole("button", { name: "Ajukan" }));
     await waitFor(() => expect(actions).toContain("submit"));
   });
 
@@ -105,8 +105,8 @@ describe("ExpenseDetail branches", () => {
     useHandlers({ report: { ...BASE_REPORT, state: "submitted" } });
     renderWithProviders(<ExpenseDetail orgId="1" expenseId="7" />);
     await screen.findAllByText("Trip to Jakarta");
-    expect(screen.getByRole("button", { name: "Approve" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Refuse" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Setujui" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Tolak" })).toBeInTheDocument();
   });
 
   it("renders post for approved reports", async () => {
@@ -114,7 +114,7 @@ describe("ExpenseDetail branches", () => {
     const { actions } = useHandlers({ report: { ...BASE_REPORT, state: "approved" } });
     renderWithProviders(<ExpenseDetail orgId="1" expenseId="7" />);
     await screen.findAllByText("Trip to Jakarta");
-    await user.click(screen.getByRole("button", { name: "Post" }));
+    await user.click(screen.getByRole("button", { name: "Posting" }));
     await waitFor(() => expect(actions).toContain("post"));
   });
 
@@ -123,8 +123,8 @@ describe("ExpenseDetail branches", () => {
     const { actions } = useHandlers({ report: { ...BASE_REPORT, state: "posted" } });
     renderWithProviders(<ExpenseDetail orgId="1" expenseId="7" />);
     await screen.findAllByText("Trip to Jakarta");
-    await user.click(screen.getByRole("button", { name: "Reimburse" }));
-    await user.click(screen.getByRole("button", { name: "Bill" }));
+    await user.click(screen.getByRole("button", { name: "Ganti biaya" }));
+    await user.click(screen.getByRole("button", { name: "Tagihkan" }));
     await waitFor(() => expect(actions).toContain("reimburse"));
     await waitFor(() => expect(actions).toContain("bill"));
   });
@@ -144,7 +144,7 @@ describe("ExpenseDetail branches", () => {
     await screen.findAllByText("Trip to Jakarta");
     expect(screen.getByText("#9")).toBeInTheDocument();
     expect(screen.getByText("#11")).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: "Lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris" }));
     expect(await screen.findByText("Hotel stay")).toBeInTheDocument();
     expect(screen.getByText("✓")).toBeInTheDocument();
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
@@ -155,7 +155,7 @@ describe("ExpenseDetail branches", () => {
     useHandlers();
     renderWithProviders(<ExpenseDetail orgId="1" expenseId="7" />);
     await screen.findAllByText("Trip to Jakarta");
-    await user.click(screen.getByRole("tab", { name: "Lines" }));
-    expect(await screen.findByText("No expense lines.")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Baris" }));
+    expect(await screen.findByText("Belum ada baris biaya")).toBeInTheDocument();
   });
 });

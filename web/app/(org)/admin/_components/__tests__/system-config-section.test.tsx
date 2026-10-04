@@ -51,12 +51,12 @@ describe("SystemConfigSection", () => {
     renderWithProviders(<SystemConfigSection orgId="1" />);
 
     await screen.findByText("app.name");
-    const editButton = screen.getAllByRole("button", { name: "Edit" })[0];
+    const editButton = screen.getAllByRole("button", { name: "Ubah" })[0];
     if (editButton === undefined) {
       throw new Error("Expected an Edit button");
     }
     await user.click(editButton);
 
-    expect(await screen.findByText("Edit configuration")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah konfigurasi")).toBeInTheDocument();
   });
 });

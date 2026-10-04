@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { OrgSubNav } from "@/app/(org)/_components/org-subnav";
 
 const SUBSCRIPTIONS_TABS = [
@@ -8,5 +9,6 @@ const SUBSCRIPTIONS_TABS = [
 ] as const;
 
 export function SubscriptionsSubNav() {
-  return <OrgSubNav label={"Subscriptions"} tabs={SUBSCRIPTIONS_TABS} />;
+  const t = useTranslations("Subscriptions");
+  return <OrgSubNav label={t("title")} tabs={SUBSCRIPTIONS_TABS} />;
 }

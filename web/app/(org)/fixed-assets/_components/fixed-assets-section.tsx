@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -13,11 +14,11 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { FixedAsset } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { FixedAssetFormDialog } from "./fixed-asset-form-dialog";
 import { fixedAssetStateTone } from "./fixed-asset-utils";
 
 export function FixedAssetsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("FixedAssets");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -37,7 +38,7 @@ export function FixedAssetsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<FixedAsset>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: () => t("colName"),
       cell: ({ row }) => (
         <a
           href={`/fixed-assets/${row.original.id}`}
@@ -49,7 +50,7 @@ export function FixedAssetsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "purchaseValue",
-      header: "Purchase value",
+      header: () => t("colPurchaseValue"),
       cell: ({ row }) => (
         <span className="text-sm tabular-nums">
           {formatMoney(row.original.purchaseValue, { currency: DEFAULT_CURRENCY })}
@@ -58,7 +59,7 @@ export function FixedAssetsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "acquisitionDate",
-      header: "Acquisition date",
+      header: () => t("colAcquisitionDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.acquisitionDate ? formatDate(String(row.original.acquisitionDate)) : "—"}
@@ -67,7 +68,7 @@ export function FixedAssetsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: () => t("colStatus"),
       cell: ({ row }) => {
         const tone = fixedAssetStateTone(row.original.state);
         return (
@@ -85,7 +86,7 @@ export function FixedAssetsSection({ orgId }: { orgId: string }) {
                       : ""
             }
           >
-            {humanizeKey(String(row.original.state))}
+            {(t as unknown as (k: string) => string)(`assetState_${row.original.state}`)}
           </Badge>
         );
       },
@@ -95,7 +96,7 @@ export function FixedAssetsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("actionView")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -115,16 +116,22 @@ export function FixedAssetsSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "running", label: "Running" },
-          { value: "sold", label: "Sold" },
-          { value: "disposed", label: "Disposed" },
+          { value: "draft", label: (t as unknown as (k: string) => string)("assetState_draft") },
+          {
+            value: "running",
+            label: (t as unknown as (k: string) => string)("assetState_running"),
+          },
+          { value: "sold", label: (t as unknown as (k: string) => string)("assetState_sold") },
+          {
+            value: "disposed",
+            label: (t as unknown as (k: string) => string)("assetState_disposed"),
+          },
         ]}
-        searchPlaceholder={"Search assets…"}
-        filterLabel={"State"}
-        allLabel={"All assets"}
-        ariaLabel={"Fixed assets"}
-        emptyTitle={"No fixed assets yet"}
+        searchPlaceholder={t("searchAssets")}
+        filterLabel={t("colStatus")}
+        allLabel={t("allAssets")}
+        ariaLabel={t("layoutTitle")}
+        emptyTitle={t("emptyAssets")}
         status={
           assetsQuery.isLoading
             ? { type: "loading" }
@@ -139,7 +146,7 @@ export function FixedAssetsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Register asset"}</span>
+            <span>{t("registerAsset")}</span>
           </Button>
         }
       />

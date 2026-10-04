@@ -86,8 +86,8 @@ describe("PurchaseOrderFormDialog", () => {
       <PurchaseOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(screen.getByText("New purchase order")).toBeInTheDocument();
-    expect(screen.getByText("Order lines")).toBeInTheDocument();
+    expect(screen.getByText("Pesanan pembelian baru")).toBeInTheDocument();
+    expect(screen.getByText("Baris pesanan")).toBeInTheDocument();
   });
 
   it("requires a supplier before saving", async () => {
@@ -97,9 +97,9 @@ describe("PurchaseOrderFormDialog", () => {
       <PurchaseOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Select a supplier.")).toBeInTheDocument();
+    expect(await screen.findByText("Pemasok wajib dipilih.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 });

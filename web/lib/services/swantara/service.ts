@@ -14,6 +14,7 @@ import {
   FixedAssets,
   Inventory,
   MaintenancePlans,
+  OutsideProcessingOrders,
   Planning,
   PriceBooks,
   ProductCategories,
@@ -26,7 +27,6 @@ import {
   QualityPoints,
   ServiceContracts,
   ServiceOrders,
-  OutsideProcessingOrders,
   SupplierProducts,
   SupplierQuoteRequests,
 } from "./catalog";

@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -14,11 +15,12 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { Subscription, SubscriptionMetrics } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { SubscriptionFormDialog } from "./subscription-form-dialog";
 import { subscriptionStateTone } from "./subscription-utils";
 
 export function SubscriptionsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Subscriptions");
+  const subState = (state: string) => (t as unknown as (k: string) => string)(`state_${state}`);
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -44,7 +46,7 @@ export function SubscriptionsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<Subscription>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("colName"),
       cell: ({ row }) => (
         <a
           href={`/subscriptions/${row.original.id}`}
@@ -65,7 +67,7 @@ export function SubscriptionsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "dateStart",
-      header: "Start date",
+      header: t("colStartDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.dateStart ? formatDate(String(row.original.dateStart)) : "—"}
@@ -74,7 +76,7 @@ export function SubscriptionsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "nextInvoiceDate",
-      header: "Next invoice",
+      header: t("colNextInvoice"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.nextInvoiceDate ? formatDate(String(row.original.nextInvoiceDate)) : "—"}
@@ -83,7 +85,7 @@ export function SubscriptionsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("colStatus"),
       cell: ({ row }) => {
         const tone = subscriptionStateTone(row.original.state);
         return (
@@ -101,7 +103,7 @@ export function SubscriptionsSection({ orgId }: { orgId: string }) {
                       : ""
             }
           >
-            {humanizeKey(String(row.original.state))}
+            {subState(row.original.state)}
           </Badge>
         );
       },
@@ -111,7 +113,7 @@ export function SubscriptionsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("view")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -148,7 +150,7 @@ export function SubscriptionsSection({ orgId }: { orgId: string }) {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>{"Churned"}</CardTitle>
+              <CardTitle>{t("churned")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold tabular-nums">{metrics.churned}</p>
@@ -156,7 +158,7 @@ export function SubscriptionsSection({ orgId }: { orgId: string }) {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>{"Churn rate"}</CardTitle>
+              <CardTitle>{t("churnRate")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold tabular-nums">
@@ -183,17 +185,17 @@ export function SubscriptionsSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "active", label: "Active" },
-          { value: "paused", label: "Paused" },
-          { value: "churned", label: "Churned" },
-          { value: "closed", label: "Closed" },
+          { value: "draft", label: subState("draft") },
+          { value: "active", label: subState("active") },
+          { value: "paused", label: subState("paused") },
+          { value: "churned", label: subState("churned") },
+          { value: "closed", label: subState("closed") },
         ]}
-        searchPlaceholder={"Search subscriptions…"}
-        filterLabel={"State"}
-        allLabel={"All subscriptions"}
-        ariaLabel={"Subscriptions"}
-        emptyTitle={"No subscriptions yet"}
+        searchPlaceholder={t("searchPlaceholder")}
+        filterLabel={t("colStatus")}
+        allLabel={t("allSubscriptions")}
+        ariaLabel={t("title")}
+        emptyTitle={t("emptyTitle")}
         status={
           subsQuery.isLoading
             ? { type: "loading" }
@@ -208,7 +210,7 @@ export function SubscriptionsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Create subscription"}</span>
+            <span>{t("newSubscription")}</span>
           </Button>
         }
       />

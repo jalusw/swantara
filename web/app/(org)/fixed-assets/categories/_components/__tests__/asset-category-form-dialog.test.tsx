@@ -50,8 +50,8 @@ describe("AssetCategoryFormDialog", () => {
       />,
     );
 
-    expect(await screen.findByText("Create asset category")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Buat kategori aset")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("creates a new asset category", async () => {
@@ -67,8 +67,8 @@ describe("AssetCategoryFormDialog", () => {
       />,
     );
 
-    await user.type(await screen.findByLabelText("Name"), "IT Equipment");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByLabelText("Nama"), "IT Equipment");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("3"));
   });

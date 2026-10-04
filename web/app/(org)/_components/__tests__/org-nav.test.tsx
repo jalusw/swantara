@@ -40,11 +40,11 @@ describe("OrgNav", () => {
       </OrgActiveProvider>,
     );
 
-    expect(await screen.findByRole("link", { name: "Dashboard" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Dasbor" })).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByRole("button", { name: "CRM" })).toBeNull());
-    expect(screen.queryByRole("link", { name: "Sales" })).toBeNull();
-    await waitFor(() => expect(screen.queryByRole("link", { name: "Employees" })).toBeNull());
-    expect(screen.queryByRole("link", { name: "Members" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Penjualan" })).toBeNull();
+    await waitFor(() => expect(screen.queryByRole("link", { name: "Karyawan" })).toBeNull());
+    expect(screen.queryByRole("link", { name: "Anggota" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Billing" })).toBeNull();
   });
 });

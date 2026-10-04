@@ -23,8 +23,8 @@ describe("InboundCostFormDialog", () => {
       <InboundCostFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    expect(await screen.findByText("Create landed cost")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Buat biaya masuk")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("appends another cost line", async () => {
@@ -33,8 +33,8 @@ describe("InboundCostFormDialog", () => {
       <InboundCostFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    await screen.findByText("Create landed cost");
-    await user.click(screen.getByRole("button", { name: "Add line" }));
+    await screen.findByText("Buat biaya masuk");
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
 
     expect(screen.getAllByLabelText("Amount").length).toBe(2);
   });

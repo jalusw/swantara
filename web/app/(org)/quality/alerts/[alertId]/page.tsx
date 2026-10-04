@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { BackLink } from "@/components/back-link";
 import { requireActiveOrgId } from "@/lib/server/active-org";
 import { QualityAlertDetail } from "./_components/quality-alert-detail-section";
@@ -7,11 +8,12 @@ export default async function OrgQualityAlertDetailPage({
 }: {
   params: Promise<{ alertId: string }>;
 }) {
+  const t = await getTranslations("Quality");
   const { alertId } = await params;
   const id = String(await requireActiveOrgId());
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <BackLink href={"/quality/alerts"}>{"Back to alerts"}</BackLink>
+      <BackLink href={"/quality/alerts"}>{t("backToAlerts")}</BackLink>
       <QualityAlertDetail orgId={id} alertId={alertId} />
     </div>
   );

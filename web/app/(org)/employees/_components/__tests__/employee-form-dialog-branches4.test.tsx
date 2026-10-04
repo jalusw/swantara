@@ -81,9 +81,9 @@ describe("EmployeeFormDialog branches4", () => {
       />,
     );
 
-    await screen.findByText("Edit employee");
-    await user.type(screen.getByPlaceholderText("Name"), "Budi Santoso");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah karyawan");
+    await user.type(screen.getByPlaceholderText("Nama"), "Budi Santoso");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(saved).toBe(true));
     expect(updated.length).toBe(1);
@@ -107,13 +107,13 @@ describe("EmployeeFormDialog branches4", () => {
       />,
     );
 
-    await screen.findByText("Add employee");
-    await user.type(screen.getByPlaceholderText("Name"), "Siti Rahayu");
-    await user.type(screen.getByPlaceholderText("Employee number"), "EMP-0101");
+    await screen.findByText("Tambah Karyawan");
+    await user.type(screen.getByPlaceholderText("Nama"), "Siti Rahayu");
+    await user.type(screen.getByPlaceholderText("Nomor karyawan"), "EMP-0101");
     const wage = screen.getByPlaceholderText("0");
     await user.type(wage, "7500");
     await user.clear(wage);
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(saved).toBe(true));
     expect(created.length).toBe(1);

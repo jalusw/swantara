@@ -54,10 +54,10 @@ describe("SupplierQuoteRequestFormDialog remainder", () => {
     renderDialog();
 
     expect(screen.getAllByText("Item").length).toBe(1);
-    await user.click(screen.getByRole("button", { name: "Add line" }));
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
     expect(screen.getAllByText("Item").length).toBe(2);
 
-    await user.click(screen.getAllByRole("button", { name: "Remove" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Hapus" })[0]!);
     expect(screen.getAllByText("Item").length).toBe(1);
   });
 
@@ -65,9 +65,9 @@ describe("SupplierQuoteRequestFormDialog remainder", () => {
     const user = userEvent.setup();
     renderDialog();
 
-    await user.click(screen.getByRole("button", { name: "Remove" }));
+    await user.click(screen.getByRole("button", { name: "Hapus" }));
 
-    expect(screen.getByText("Add at least one line.")).toBeInTheDocument();
+    expect(screen.getByText("Tambahkan minimal satu baris.")).toBeInTheDocument();
   });
 
   it("blocks saving when every line was removed", async () => {
@@ -75,8 +75,8 @@ describe("SupplierQuoteRequestFormDialog remainder", () => {
     const onSave = vi.fn();
     renderDialog(onSave);
 
-    await user.click(screen.getByRole("button", { name: "Remove" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Hapus" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     expect(onSave).not.toHaveBeenCalled();
   });
@@ -89,7 +89,7 @@ describe("SupplierQuoteRequestFormDialog remainder", () => {
         async ({ request }) => {
           created = await request.json();
           return HttpResponse.json(
-            { success: true, message: "Created.", data: {} },
+            { success: true, message: "Dibuat.", data: {} },
             { status: 201 },
           );
         },
@@ -100,7 +100,7 @@ describe("SupplierQuoteRequestFormDialog remainder", () => {
     renderDialog(onSave);
 
     const dialog = screen.getByRole("dialog");
-    await user.click(within(dialog).getByLabelText("Supplier"));
+    await user.click(within(dialog).getByLabelText("Pemasok"));
     await user.click(await screen.findByRole("option", { name: "Acme Supplier" }));
     await user.type(within(dialog).getByPlaceholderText("USD"), "USD");
 
@@ -111,7 +111,7 @@ describe("SupplierQuoteRequestFormDialog remainder", () => {
     await user.clear(qtyInput);
     await user.type(qtyInput, "3");
 
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
     expect(created).toMatchObject({
@@ -134,7 +134,7 @@ describe("SupplierQuoteRequestFormDialog remainder", () => {
     const dialog = screen.getByRole("dialog");
     await user.click(within(dialog).getByLabelText("Item 1"));
     await user.click(await screen.findByRole("option", { name: "Finished Widget" }));
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).not.toHaveBeenCalled());
     expect(screen.getByRole("dialog")).toBeInTheDocument();
@@ -145,7 +145,7 @@ describe("SupplierQuoteRequestFormDialog remainder", () => {
     renderDialog();
 
     const dialog = screen.getByRole("dialog");
-    const description = within(dialog).getByPlaceholderText("Description");
+    const description = within(dialog).getByPlaceholderText("Deskripsi");
     await user.type(description, "Urgent restock");
     expect(description).toHaveValue("Urgent restock");
   });

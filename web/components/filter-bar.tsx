@@ -1,6 +1,7 @@
 "use client";
 
 import { CalendarDaysIcon, ChevronDownIcon, FilterIcon, RotateCcwIcon, XIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useId, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils/formatters";
@@ -91,6 +92,11 @@ export function FilterBar({
   className,
   actions,
 }: FilterBarProps) {
+  const tFilters = useTranslations("Filters" as unknown as "Common");
+  const tx = tFilters as unknown as (
+    key: string,
+    values?: Record<string, string | number>,
+  ) => string;
   const activeFilters = useMemo(() => {
     return config.filter((filter) => isFilterActive(filters[filter.id] as FilterValue));
   }, [config, filters]);
@@ -114,7 +120,8 @@ export function FilterBar({
             value={typeof searchValue === "string" ? searchValue : ""}
             onChange={(event) => onFilterChange(searchFilter.id, event.target.value || null)}
             placeholder={
-              searchFilter.placeholder ?? `Filter by ${searchFilter.label.toLowerCase()}…`
+              searchFilter.placeholder ??
+              tx("filterBy", { label: searchFilter.label.toLowerCase() })
             }
             aria-label={searchFilter.label}
             className="min-h-11 min-w-40 flex-1 px-3 py-0"
@@ -126,11 +133,13 @@ export function FilterBar({
             size="sm"
             aria-expanded={expanded}
             aria-controls={panelId}
-            aria-label={`Filters${activeCount ? `, ${activeCount} active` : ""}`}
+            aria-label={
+              activeCount > 0 ? tx("filtersActive", { count: activeCount }) : tx("filters")
+            }
             onClick={() => setExpanded((prev) => !prev)}
           >
             <FilterIcon aria-hidden />
-            Filters
+            {tx("filters")}
             {activeCount > 0 ? (
               <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-xs">
                 {activeCount}
@@ -144,7 +153,7 @@ export function FilterBar({
         ) : null}
 
         {onReset && activeCount === 0 && otherFilters.length > 0 && !searchFilter ? (
-          <span className="text-xs text-muted-foreground">No active filters</span>
+          <span className="text-xs text-muted-foreground">{tx("noActiveFilters")}</span>
         ) : null}
         {actions ? (
           <div className="ml-auto flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
@@ -158,7 +167,7 @@ export function FilterBar({
           className="rounded-lg border border-border bg-muted/30 p-3"
         >
           <div className="flex items-center justify-between gap-2">
-            <p className="text-sm">Filters</p>
+            <p className="text-sm">{tx("filters")}</p>
             {onReset && activeCount > 0 ? (
               <Button
                 variant="ghost"
@@ -167,7 +176,7 @@ export function FilterBar({
                 className="min-h-11 h-11 gap-1 px-2.5 text-xs"
               >
                 <RotateCcwIcon className="size-3.5" aria-hidden />
-                Clear all
+                {tx("clearAll")}
               </Button>
             ) : null}
           </div>
@@ -188,7 +197,9 @@ export function FilterBar({
                       type="search"
                       value={typeof value === "string" ? value : ""}
                       onChange={(event) => onFilterChange(filter.id, event.target.value || null)}
-                      placeholder={filter.placeholder ?? `Filter by ${filter.label.toLowerCase()}…`}
+                      placeholder={
+                        filter.placeholder ?? tx("filterBy", { label: filter.label.toLowerCase() })
+                      }
                       aria-label={filter.label}
                       className="min-h-11"
                     />
@@ -212,7 +223,7 @@ export function FilterBar({
                       className="min-h-11 rounded-md border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 ring-offset-2 ring-offset-background focus-visible:ring-ring"
                     >
                       <option value="">
-                        {filter.placeholder ?? `All ${filter.label.toLowerCase()}`}
+                        {filter.placeholder ?? tx("all", { label: filter.label.toLowerCase() })}
                       </option>
                       {filter.options.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -231,7 +242,7 @@ export function FilterBar({
                     <DateRangePicker
                       selected={toRangeValue(value)}
                       onSelect={(range) => onFilterChange(filter.id, range ?? null)}
-                      placeholder={filter.placeholder ?? "Date range"}
+                      placeholder={filter.placeholder ?? tx("dateRange")}
                       className="w-full"
                     />
                   </div>
@@ -246,7 +257,7 @@ export function FilterBar({
         // biome-ignore lint/a11y/useSemanticElements: active filters group uses div for layout
         <div
           role="group"
-          aria-label="Active filters"
+          aria-label={tx("activeFilters")}
           className="flex flex-wrap items-center gap-1.5"
         >
           {activeFilters.map((filter) => {
@@ -259,7 +270,7 @@ export function FilterBar({
                 </span>
                 <button
                   type="button"
-                  aria-label={`Remove ${filter.label} filter`}
+                  aria-label={tx("removeFilter", { label: filter.label })}
                   onClick={() => onFilterChange(filter.id, null)}
                   className="relative ml-1 grid size-5 place-items-center rounded-full hover:bg-muted-foreground/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring after:absolute after:-inset-3 after:content-['']"
                 >
@@ -276,7 +287,7 @@ export function FilterBar({
               className="min-h-11 h-11 gap-1 px-2.5 text-xs"
             >
               <RotateCcwIcon className="size-3.5" aria-hidden />
-              Clear all
+              {tx("clearAll")}
             </Button>
           ) : null}
         </div>

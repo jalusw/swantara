@@ -51,8 +51,10 @@ describe("MoFormDialog", () => {
       />,
     );
 
-    expect(await screen.findByText("Create Manufacturing Order")).toBeInTheDocument();
-    expect(screen.getByLabelText("Quantity to Produce")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Perintah produksi baru" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Jml untuk diproduksi")).toBeInTheDocument();
   });
 
   it("updates the quantity field", async () => {
@@ -67,7 +69,7 @@ describe("MoFormDialog", () => {
       />,
     );
 
-    const qty = await screen.findByLabelText("Quantity to Produce");
+    const qty = await screen.findByLabelText("Jml untuk diproduksi");
     await user.clear(qty);
     await user.type(qty, "25");
 

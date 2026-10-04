@@ -49,7 +49,7 @@ describe("DataTable (TanStack)", () => {
   it("sorts rows when a sortable header is clicked", async () => {
     const user = userEvent.setup();
     renderTable({ enableSorting: true });
-    await user.click(screen.getByRole("button", { name: "Sort by Name" }));
+    await user.click(screen.getByRole("button", { name: "Urutkan berdasarkan Name" }));
     const cells = screen.getAllByRole("cell");
     expect(cells[0]).toHaveTextContent("Alpha");
     expect(cells[2]).toHaveTextContent("Zeta");
@@ -59,7 +59,7 @@ describe("DataTable (TanStack)", () => {
     const user = userEvent.setup();
     const onSelectionChange = vi.fn();
     renderTable({ enableRowSelection: true, onSelectionChange });
-    await user.click(screen.getByRole("checkbox", { name: "Select row a" }));
+    await user.click(screen.getByRole("checkbox", { name: "Pilih baris a" }));
     expect(onSelectionChange).toHaveBeenCalledWith(["a"]);
   });
 
@@ -77,7 +77,7 @@ describe("DataTable (TanStack)", () => {
     const user = userEvent.setup();
     renderTable({ enablePagination: true, initialPageSize: 1 });
     expect(screen.getByText("Zeta")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await user.click(screen.getByRole("button", { name: "Halaman berikutnya" }));
     expect(screen.getByText("Alpha")).toBeInTheDocument();
   });
 });

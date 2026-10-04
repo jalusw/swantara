@@ -32,15 +32,15 @@ describe("ApprovalWidget", () => {
   it("renders steps with their decision badges", () => {
     renderWithProviders(<ApprovalWidget approvalRequest={makeRequest()} orgId="1" />);
 
-    expect(screen.getByText("Step 1")).toBeInTheDocument();
-    expect(screen.getByText("Step 2")).toBeInTheDocument();
-    expect(screen.getByText("Approved")).toBeInTheDocument();
-    expect(screen.getAllByText("Pending").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Langkah 1")).toBeInTheDocument();
+    expect(screen.getByText("Langkah 2")).toBeInTheDocument();
+    expect(screen.getByText("Disetujui")).toBeInTheDocument();
+    expect(screen.getAllByText("Menunggu").length).toBeGreaterThanOrEqual(1);
   });
 
   it("shows no-steps message when steps array is empty", () => {
     renderWithProviders(<ApprovalWidget approvalRequest={makeRequest({ steps: [] })} orgId="1" />);
 
-    expect(screen.getByText("No approval steps configured.")).toBeInTheDocument();
+    expect(screen.getByText("Tidak ada langkah")).toBeInTheDocument();
   });
 });

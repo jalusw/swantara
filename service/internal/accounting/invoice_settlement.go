@@ -116,7 +116,7 @@ func (s InvoiceService) DeductDownPayment(ctx context.Context, request DeductDow
 			Amount:           deduct,
 		}
 		var err error
-		link, err = s.downPayments.Create(ctx, link)
+		link, err = s.downPayments.CreateTx(ctx, tx, link)
 		if err != nil {
 			return err
 		}
@@ -189,7 +189,7 @@ func (s InvoiceService) ApplyCredit(ctx context.Context, request ApplyCreditRequ
 			Amount:         settle,
 		}
 		var err error
-		applied, err = s.creditApplications.Create(ctx, applied)
+		applied, err = s.creditApplications.CreateTx(ctx, tx, applied)
 		if err != nil {
 			return err
 		}
@@ -297,7 +297,7 @@ func (s InvoiceService) ContraSettle(ctx context.Context, request ContraSettleRe
 			EntryID:           helper.Ptr(entry.ID),
 			Date:              &settleDate,
 		}
-		settlement, err = s.contraSettlements.Create(ctx, settlement)
+		settlement, err = s.contraSettlements.CreateTx(ctx, tx, settlement)
 		if err != nil {
 			return err
 		}

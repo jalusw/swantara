@@ -105,11 +105,11 @@ function seedForm(opportunities: unknown[] = wonOpportunities) {
 }
 
 async function fillRequired(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("combobox", { name: "Customer" }));
+  await user.click(screen.getByRole("combobox", { name: "Pelanggan" }));
   await user.click(await screen.findByRole("option", { name: "Bluebird Trading" }));
-  await user.click(screen.getByRole("combobox", { name: "Opportunity (won)" }));
+  await user.click(screen.getByRole("combobox", { name: "Peluang dimenangkan" }));
   await user.click(await screen.findByRole("option", { name: "Big Deal" }));
-  await user.click(screen.getByRole("combobox", { name: "Item variant 1" }));
+  await user.click(screen.getByRole("combobox", { name: "Item 1" }));
   await user.click(await screen.findByRole("option", { name: /Canvas Tote/ }));
 }
 
@@ -138,7 +138,7 @@ describe("SaleOrderFormDialog extra2", () => {
 
     await screen.findByRole("dialog");
     await fillRequired(user);
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(createCalls).toBe(1));
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("12"));
@@ -163,14 +163,16 @@ describe("SaleOrderFormDialog extra2", () => {
     );
 
     await screen.findByRole("dialog");
-    await user.click(screen.getByRole("combobox", { name: "Customer" }));
+    await user.click(screen.getByRole("combobox", { name: "Pelanggan" }));
     await user.click(await screen.findByRole("option", { name: "Bluebird Trading" }));
-    await user.click(screen.getByRole("combobox", { name: "Opportunity (won)" }));
+    await user.click(screen.getByRole("combobox", { name: "Peluang dimenangkan" }));
     await user.click(await screen.findByRole("option", { name: "Big Deal" }));
-    await user.click(screen.getByRole("button", { name: "Remove" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Hapus baris" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.queryByText("Select a customer.")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByText("Pelanggan wajib dipilih.")).not.toBeInTheDocument(),
+    );
     expect(createCalls).toBe(0);
     expect(onSave).not.toHaveBeenCalled();
   });
@@ -198,7 +200,7 @@ describe("SaleOrderFormDialog extra2", () => {
     const qtyInput = screen.getAllByRole("spinbutton")[0]!;
     await user.clear(qtyInput);
     await user.type(qtyInput, "0");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     expect(createCalls).toBe(0);
     expect(onSave).not.toHaveBeenCalled();
@@ -211,10 +213,10 @@ describe("SaleOrderFormDialog extra2", () => {
     );
 
     await screen.findByRole("dialog");
-    await user.click(screen.getByRole("combobox", { name: "Item variant 1" }));
+    await user.click(screen.getByRole("combobox", { name: "Item 1" }));
     await user.click(await screen.findByRole("option", { name: /Canvas Tote/ }));
 
-    expect(await screen.findByText("1 variants — using template price")).toBeInTheDocument();
+    expect(await screen.findByText("1 varian — menggunakan harga templat")).toBeInTheDocument();
   });
 
   it("shows only won opportunities in the opportunity picker", async () => {
@@ -224,7 +226,7 @@ describe("SaleOrderFormDialog extra2", () => {
     );
 
     await screen.findByRole("dialog");
-    await user.click(screen.getByRole("combobox", { name: "Opportunity (won)" }));
+    await user.click(screen.getByRole("combobox", { name: "Peluang dimenangkan" }));
 
     expect(await screen.findByRole("option", { name: "Big Deal" })).toBeInTheDocument();
     expect(screen.queryByRole("option", { name: "Lost Deal" })).not.toBeInTheDocument();
@@ -257,7 +259,7 @@ describe("SaleOrderFormDialog extra2", () => {
     await user.type(discountInput, "10");
     expect(discountInput).toHaveValue(10);
 
-    const descriptionInput = screen.getByPlaceholderText("Description");
+    const descriptionInput = screen.getByPlaceholderText("Deskripsi");
     await user.type(descriptionInput, "Gift wrap");
     expect(descriptionInput).toHaveValue("Gift wrap");
   });

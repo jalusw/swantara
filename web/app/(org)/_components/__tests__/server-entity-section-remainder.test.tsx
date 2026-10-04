@@ -35,7 +35,7 @@ function renderTable(props?: {
       fetcher={fetchWidgets}
       selectData={(response) => response.widgets}
       columns={[
-        { accessorKey: "name", header: "Name" },
+        { accessorKey: "name", header: "Nama" },
         { accessorKey: "id", header: "Id" },
       ]}
       getRowId={(row) => String(row.id)}
@@ -44,7 +44,7 @@ function renderTable(props?: {
       statusOptions={props?.statusOptions}
       searchPlaceholder="Search widgets..."
       filterLabel="Status"
-      allLabel="All"
+      allLabel="Semua"
       ariaLabel="Widgets"
       emptyTitle="No widgets"
       exportFileName={props?.exportFileName}
@@ -61,7 +61,7 @@ describe("ServerEntityTable remainder", () => {
         resource="testWidgetsEmpty"
         fetcher={async () => ({ widgets: [] })}
         selectData={(response) => response.widgets}
-        columns={[{ accessorKey: "name", header: "Name" }]}
+        columns={[{ accessorKey: "name", header: "Nama" }]}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
         searchPlaceholder="Search widgets..."
@@ -81,7 +81,7 @@ describe("ServerEntityTable remainder", () => {
           throw new Error("boom");
         }}
         selectData={(response) => response.widgets}
-        columns={[{ accessorKey: "name", header: "Name" }]}
+        columns={[{ accessorKey: "name", header: "Nama" }]}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
         searchPlaceholder="Search widgets..."
@@ -97,9 +97,9 @@ describe("ServerEntityTable remainder", () => {
     renderTable({ statusOptions: [{ value: "Alpha Widget", label: "Alpha" }] });
 
     expect(await screen.findByText("Alpha Widget")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Filters" }));
+    await user.click(screen.getByRole("button", { name: "Filter" }));
 
-    expect(await screen.findByPlaceholderText("Filter id…")).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText("Filter berdasarkan id…")).toBeInTheDocument();
   });
 
   it("exports the visible rows to csv", async () => {
@@ -107,7 +107,7 @@ describe("ServerEntityTable remainder", () => {
     renderTable({ exportFileName: "widgets-export" });
 
     await screen.findByText("Alpha Widget");
-    await user.click(screen.getByRole("button", { name: /export/i }));
+    await user.click(screen.getByRole("button", { name: /ekspor/i }));
 
     await waitFor(() =>
       expect(exportCsv).toHaveBeenCalledWith(
@@ -123,7 +123,7 @@ describe("ServerEntityTable remainder", () => {
     renderTable();
 
     await screen.findByText("Alpha Widget");
-    await user.click(screen.getByRole("button", { name: /name/i }));
+    await user.click(screen.getByRole("button", { name: /nama/i }));
 
     expect(await screen.findByText("Beta Widget")).toBeInTheDocument();
   });

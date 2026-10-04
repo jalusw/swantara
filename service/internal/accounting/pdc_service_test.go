@@ -173,3 +173,51 @@ func TestPdcService_ClearFromHeldFails(t *testing.T) {
 		t.Fatalf("error = %v, want %v", err, ErrPdcInvalidState)
 	}
 }
+
+func TestPdcService_ClearWritesPaymentInsideTransaction(t *testing.T) {
+	stored := heldPdc(7)
+	stored.State = PdcStateDeposited
+	instruments := PdcInstrumentDAOMock{
+		CRUDMock: dao.CRUDMock[PdcInstrument]{
+			FindFunc: func(_ context.Context, _ uint64) (*PdcInstrument, error) {
+				return stored, nil
+			},
+		},
+		UpdateTxFunc: func(_ context.Context, _ *gorm.DB, instrument *PdcInstrument) (*PdcInstrument, error) {
+			return instrument, nil
+		},
+	}
+	outsideTx := errors.New("write outside transaction")
+	payments := PaymentCreatorMock{
+		CreateFunc: func(context.Context, CreatePaymentRequest) (*Payment, error) {
+			t.Error("payment created outside the transaction")
+			return nil, outsideTx
+		},
+		CreateTxFunc: func(_ context.Context, _ *gorm.DB, request CreatePaymentRequest) (*Payment, error) {
+			if request.Amount != 500 {
+				t.Errorf("payment amount = %v, want 500", request.Amount)
+			}
+			return &Payment{Base: model.Base{ID: 44}}, nil
+		},
+	}
+	var runs int
+	svc := NewPdcService(instruments, payments, TransactionerMock{
+		RunFunc: func(_ context.Context, fn func(tx *gorm.DB) error) error {
+			runs++
+			return fn(nil)
+		},
+	})
+	cleared, err := svc.Clear(context.Background(), 7, 10)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if runs != 1 {
+		t.Errorf("transaction runs = %d, want 1", runs)
+	}
+	if cleared.State != PdcStateCleared {
+		t.Errorf("state = %s, want cleared", cleared.State)
+	}
+	if cleared.PaymentID == nil || *cleared.PaymentID != 44 {
+		t.Errorf("payment = %v, want 44", cleared.PaymentID)
+	}
+}

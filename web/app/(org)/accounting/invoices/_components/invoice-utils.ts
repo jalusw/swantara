@@ -24,9 +24,9 @@ export function invoiceStateLabel(state: InvoiceState): string {
     case "draft":
       return "Draft";
     case "posted":
-      return "Posted";
+      return "Diposting";
     case "cancelled":
-      return "Cancelled";
+      return "Dibatalkan";
     default:
       return state;
   }
@@ -41,7 +41,7 @@ export function paymentStateLabel(state: PaymentState): string {
     case "partial":
       return "Partially Paid";
     case "paid":
-      return "Paid";
+      return "Lunas";
     case "reversed":
       return "Reversed";
     default:

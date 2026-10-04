@@ -109,8 +109,8 @@ describe("SaleOrderFormDialog", () => {
     renderDialog();
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Order lines")).toBeInTheDocument();
-    expect(screen.getAllByText("Select item").length).toBeGreaterThan(0);
+    expect(screen.getByText("Baris pesanan")).toBeInTheDocument();
+    expect(screen.getAllByText("Pilih barang").length).toBeGreaterThan(0);
   });
 
   it("adds another line when requested", async () => {
@@ -118,9 +118,9 @@ describe("SaleOrderFormDialog", () => {
     renderDialog();
 
     await screen.findByRole("dialog");
-    await user.click(screen.getByRole("button", { name: "Add line" }));
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
 
-    expect(screen.getAllByText("Select item")).toHaveLength(2);
+    expect(screen.getAllByText("Pilih barang")).toHaveLength(2);
   });
 
   it("removes a line when requested", async () => {
@@ -128,10 +128,10 @@ describe("SaleOrderFormDialog", () => {
     renderDialog();
 
     await screen.findByRole("dialog");
-    await user.click(screen.getByRole("button", { name: "Add line" }));
-    expect(screen.getAllByText("Select item")).toHaveLength(2);
-    await user.click(screen.getAllByRole("button", { name: "Remove" })[0]!);
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
+    expect(screen.getAllByText("Pilih barang")).toHaveLength(2);
+    await user.click(screen.getAllByRole("button", { name: "Hapus baris" })[0]!);
 
-    expect(screen.getAllByText("Select item")).toHaveLength(1);
+    expect(screen.getAllByText("Pilih barang")).toHaveLength(1);
   });
 });

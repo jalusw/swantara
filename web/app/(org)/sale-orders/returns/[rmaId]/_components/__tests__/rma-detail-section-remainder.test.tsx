@@ -135,7 +135,7 @@ describe("RmaDetailSection remainder", () => {
     renderWithProviders(<RmaDetailSection orgId="1" rmaId="9" />);
 
     await screen.findByText("RMA-0009");
-    await user.click(screen.getByRole("button", { name: "Done" }));
+    await user.click(screen.getByRole("button", { name: "Selesai" }));
 
     await waitFor(() => expect(doneCalled).toBe(true));
   });
@@ -153,7 +153,7 @@ describe("RmaDetailSection remainder", () => {
     renderWithProviders(<RmaDetailSection orgId="1" rmaId="9" />);
 
     await screen.findByText("RMA-0009");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(cancelCalled).toBe(true));
   });
@@ -164,13 +164,10 @@ describe("RmaDetailSection remainder", () => {
     renderWithProviders(<RmaDetailSection orgId="1" rmaId="9" />);
 
     await screen.findByText("RMA-0009");
-    const receiveButtons = screen
-      .getAllByRole("button")
-      .filter((b) => /receive/i.test(b.textContent ?? ""));
-    expect(receiveButtons.length).toBeGreaterThan(0);
-    await user.click(receiveButtons[0]!);
+    const receiveButton = screen.getByRole("button", { name: "Terima" });
+    await user.click(receiveButton);
 
-    expect(await screen.findByText("Receive Return")).toBeInTheDocument();
+    expect(await screen.findByText("Terima Retur")).toBeInTheDocument();
   });
 
   it("opens the refund dialog for a received rma", async () => {
@@ -179,13 +176,10 @@ describe("RmaDetailSection remainder", () => {
     renderWithProviders(<RmaDetailSection orgId="1" rmaId="9" />);
 
     await screen.findByText("RMA-0009");
-    const refundButtons = screen
-      .getAllByRole("button")
-      .filter((b) => /refund/i.test(b.textContent ?? ""));
-    expect(refundButtons.length).toBeGreaterThan(0);
-    await user.click(refundButtons[0]!);
+    const refundButton = screen.getByRole("button", { name: "Kembalikan dana" });
+    await user.click(refundButton);
 
-    expect(await screen.findByText("Refund Return")).toBeInTheDocument();
+    expect(await screen.findByText("Refund Retur")).toBeInTheDocument();
   });
 
   it("navigates back with the back button", async () => {
@@ -212,7 +206,7 @@ describe("RmaDetailSection remainder", () => {
     renderWithProviders(<RmaDetailSection orgId="1" rmaId="9" />);
 
     await screen.findByText("RMA-0009");
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
 
     await waitFor(() => expect(screen.getByText("RMA-0009")).toBeInTheDocument());
   });

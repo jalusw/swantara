@@ -1,6 +1,7 @@
 "use client";
 
 import { Pencil } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -15,50 +16,51 @@ import { ContactFormDialog } from "./contact-form-dialog";
 import { ContactOverview } from "./contact-overview";
 
 export function ContactDetail({ orgId, contactId }: { orgId: string; contactId: string }) {
+  const t = useTranslations("Contacts");
   const [editOpen, setEditOpen] = useState(false);
 
   const contactQuery = useContactQuery(orgId, contactId);
   const contact = contactQuery.data;
 
   if (contactQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   }
 
   if (!contact) {
-    return <p className="text-sm text-muted-foreground">{"Contact not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("contactNotFound")}</p>;
   }
 
   const displayName = contact.displayName || contact.name;
 
   function handleEditSave() {
     setEditOpen(false);
-    toast.success("Contact saved.");
+    toast.success(t("contactSaved"));
     void contactQuery.refetch();
   }
 
   const status = (
     <Badge variant={contact.active ? "default" : "outline"}>
-      {contact.active ? "Active" : "Inactive"}
+      {contact.active ? t("statusActive") : t("statusInactive")}
     </Badge>
   );
 
   return (
     <>
       <RecordLayout
-        breadcrumbItems={[{ label: "Contacts", href: "/contacts" }, { label: displayName }]}
+        breadcrumbItems={[{ label: t("title"), href: "/contacts" }, { label: displayName }]}
         title={displayName}
         description={contact.isOrganization ? contact.name : undefined}
         status={status}
         actions={
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>
             <Pencil />
-            <span>{"Edit"}</span>
+            <span>{t("edit")}</span>
           </Button>
         }
         tabs={[
           {
             id: "overview",
-            label: "Overview",
+            label: t("tabOverview"),
             content: (
               <ContactOverview
                 orgId={orgId}
@@ -70,7 +72,7 @@ export function ContactDetail({ orgId, contactId }: { orgId: string; contactId: 
           },
           {
             id: "addresses",
-            label: "Addresses",
+            label: t("tabAddresses"),
             content: (
               <ContactAddresses
                 orgId={orgId}
@@ -81,7 +83,7 @@ export function ContactDetail({ orgId, contactId }: { orgId: string; contactId: 
           },
           {
             id: "bank-accounts",
-            label: "Bank accounts",
+            label: t("tabBankAccounts"),
             content: (
               <ContactBankAccounts
                 orgId={orgId}
@@ -92,7 +94,7 @@ export function ContactDetail({ orgId, contactId }: { orgId: string; contactId: 
           },
           {
             id: "defaults",
-            label: "Defaults",
+            label: t("tabDefaults"),
             content: (
               <ContactDefaults
                 orgId={orgId}

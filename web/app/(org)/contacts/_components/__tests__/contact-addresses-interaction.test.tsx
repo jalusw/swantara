@@ -54,9 +54,9 @@ describe("ContactAddresses", () => {
 
     expect(await screen.findByText("Jl. Sudirman 1")).toBeInTheDocument();
     expect(screen.getByText("Jl. Thamrin 9")).toBeInTheDocument();
-    expect(screen.getByText("Billing")).toBeInTheDocument();
-    expect(screen.getByText("Shipping")).toBeInTheDocument();
-    expect(screen.getByText("Default")).toBeInTheDocument();
+    expect(screen.getByText("Penagihan")).toBeInTheDocument();
+    expect(screen.getByText("Pengiriman")).toBeInTheDocument();
+    expect(screen.getByText("Bawaan")).toBeInTheDocument();
   });
 
   it("opens the create dialog from the add button", async () => {
@@ -64,8 +64,8 @@ describe("ContactAddresses", () => {
     renderWithProviders(<ContactAddresses orgId="1" contactId="1" onRefetch={() => {}} />);
 
     await screen.findByText("Jl. Sudirman 1");
-    await user.click(screen.getByRole("button", { name: "Add address" }));
+    await user.click(screen.getByRole("button", { name: "Tambah alamat" }));
 
-    expect(await screen.findByText("New address")).toBeInTheDocument();
+    expect(await screen.findByText("Alamat baru")).toBeInTheDocument();
   });
 });

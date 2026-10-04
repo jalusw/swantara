@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,12 +24,13 @@ const subscriptionLineSchema = z.object({
 });
 
 function useSubscriptionFormSchema() {
+  const t = useTranslations("Subscriptions");
   return z.object({
-    name: z.string().min(1, "Name is required"),
-    contactId: z.string().min(1, "Customer is required"),
-    planId: z.string().min(1, "Plan is required"),
-    currencyCode: z.string().min(1, "Currency is required"),
-    lines: z.array(subscriptionLineSchema).min(1, "At least one line is required"),
+    name: z.string().min(1, t("validation_nameRequired")),
+    contactId: z.string().min(1, t("validation_customerRequired")),
+    planId: z.string().min(1, t("validation_planRequired")),
+    currencyCode: z.string().min(1, t("validation_currencyRequired")),
+    lines: z.array(subscriptionLineSchema).min(1, t("validation_linesRequired")),
   });
 }
 type SubscriptionFormValues = z.infer<ReturnType<typeof useSubscriptionFormSchema>>;
@@ -44,6 +46,8 @@ export function SubscriptionFormDialog({
   orgId: string;
   onSave: (id: string) => void;
 }) {
+  const t = useTranslations("Subscriptions");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
   const linePrefix = useId();
 
@@ -101,10 +105,10 @@ export function SubscriptionFormDialog({
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["subscriptions", Number(orgId)] });
       onSave(String(result.subscription.id));
-      toast.success("Subscription created");
+      toast.success(t("created"));
     },
     onError: () => {
-      toast.error("Failed to create subscription");
+      toast.error(t("createFailed"));
     },
   });
 
@@ -116,22 +120,25 @@ export function SubscriptionFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Create subscription"}
-      description={"Set up a new subscription with lines."}
+      title={t("newSubscription")}
+      description={t("formDescription")}
       form={form}
       onSubmit={handleSubmit}
+      isPending={createMutation.isPending}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-2xl"
     >
       <div className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField name="name" label={"Name"}>
-            {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+          <FormField name="name" label={t("fieldName")}>
+            {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
           </FormField>
-          <FormField name="contactId" label={"Customer"}>
+          <FormField name="contactId" label={t("customer")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Customer"}>
-                  <SelectValue placeholder={"Select customer"} />
+                <SelectTrigger id={id} aria-label={t("customer")}>
+                  <SelectValue placeholder={t("selectCustomer")} />
                 </SelectTrigger>
                 <SelectContent>
                   {contacts.map((p) => (
@@ -143,11 +150,11 @@ export function SubscriptionFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="planId" label={"Plan"}>
+          <FormField name="planId" label={t("plan")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Plan"}>
-                  <SelectValue placeholder={"Select plan"} />
+                <SelectTrigger id={id} aria-label={t("plan")}>
+                  <SelectValue placeholder={t("selectPlan")} />
                 </SelectTrigger>
                 <SelectContent>
                   {plans.map((p) => (
@@ -159,14 +166,14 @@ export function SubscriptionFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="currencyCode" label={"Currency"}>
+          <FormField name="currencyCode" label={t("currency")}>
             {({ field, id }) => <Input {...field} id={id} placeholder={"USD"} />}
           </FormField>
         </div>
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm">{"Lines"}</span>
+            <span className="text-sm">{t("lines")}</span>
             <Button
               type="button"
               size="sm"
@@ -180,7 +187,7 @@ export function SubscriptionFormDialog({
                 })
               }
             >
-              {"Add line"}
+              {t("addLine")}
             </Button>
           </div>
           {fields.map((field, index) => (
@@ -193,14 +200,14 @@ export function SubscriptionFormDialog({
                   htmlFor={`${linePrefix}-item-${index}`}
                   className="text-muted-foreground text-xs"
                 >
-                  {"Item"}
+                  {t("item")}
                 </label>
                 <Select
                   value={form.watch(`lines.${index}.itemId`)}
                   onValueChange={(v) => form.setValue(`lines.${index}.itemId`, v ?? "")}
                 >
-                  <SelectTrigger id={`${linePrefix}-item-${index}`} aria-label={"Item"}>
-                    <SelectValue placeholder={"Select item"} />
+                  <SelectTrigger id={`${linePrefix}-item-${index}`} aria-label={t("item")}>
+                    <SelectValue placeholder={t("selectItem")} />
                   </SelectTrigger>
                   <SelectContent>
                     {products.map((p) => (
@@ -216,7 +223,7 @@ export function SubscriptionFormDialog({
                   htmlFor={`${linePrefix}-qty-${index}`}
                   className="text-muted-foreground text-xs"
                 >
-                  {"Qty"}
+                  {t("qty")}
                 </label>
                 <Input
                   id={`${linePrefix}-qty-${index}`}
@@ -230,7 +237,7 @@ export function SubscriptionFormDialog({
                   htmlFor={`${linePrefix}-price-${index}`}
                   className="text-muted-foreground text-xs"
                 >
-                  {"Price"}
+                  {t("price")}
                 </label>
                 <Input
                   id={`${linePrefix}-price-${index}`}
@@ -245,7 +252,7 @@ export function SubscriptionFormDialog({
                   htmlFor={`${linePrefix}-discount-${index}`}
                   className="text-muted-foreground text-xs"
                 >
-                  {"Discount %"}
+                  {t("discountPct")}
                 </label>
                 <Input
                   id={`${linePrefix}-discount-${index}`}

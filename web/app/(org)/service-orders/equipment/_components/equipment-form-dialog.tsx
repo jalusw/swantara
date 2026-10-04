@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -14,8 +15,9 @@ import type { Contact, Item } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 
 function useEquipmentFormSchema() {
+  const t = useTranslations("Service");
   return z.object({
-    name: z.string().min(1, "Name is required"),
+    name: z.string().min(1, t("validation_nameRequired")),
     itemId: z.string().optional(),
     ownerContactId: z.string().optional(),
     location: z.string().optional(),
@@ -36,6 +38,8 @@ export function EquipmentFormDialog({
   orgId: string;
   onSave: (id: string) => void;
 }) {
+  const t = useTranslations("Service");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
 
   const contactsQuery = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
@@ -80,10 +84,10 @@ export function EquipmentFormDialog({
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["equipments", Number(orgId)] });
       onSave(String(result.equipment.id));
-      toast.success("Equipment created");
+      toast.success(t("equipmentCreated"));
     },
     onError: () => {
-      toast.error("Failed to create equipment");
+      toast.error(t("createFailed"));
     },
   });
 
@@ -95,25 +99,28 @@ export function EquipmentFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Create equipment"}
-      description={"Manage equipment and asset tracking."}
+      title={t("newEquipment")}
+      description={t("equipmentFormDescription")}
       form={form}
       onSubmit={handleSubmit}
+      isPending={createMutation.isPending}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-2xl"
     >
       <div className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField name="name" label={"Name"}>
-            {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+          <FormField name="name" label={t("fieldName")}>
+            {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
           </FormField>
-          <FormField name="category" label={"Category"}>
-            {({ field, id }) => <Input {...field} id={id} placeholder={"Category"} />}
+          <FormField name="category" label={t("category")}>
+            {({ field, id }) => <Input {...field} id={id} placeholder={t("category")} />}
           </FormField>
-          <FormField name="itemId" label={"Item"}>
+          <FormField name="itemId" label={t("item")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Item"}>
-                  <SelectValue placeholder={"Select item"} />
+                <SelectTrigger id={id} aria-label={t("item")}>
+                  <SelectValue placeholder={t("selectItem")} />
                 </SelectTrigger>
                 <SelectContent>
                   {products.map((p) => (
@@ -125,11 +132,11 @@ export function EquipmentFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="ownerContactId" label={"Owner"}>
+          <FormField name="ownerContactId" label={t("owner")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Owner"}>
-                  <SelectValue placeholder={"Select customer"} />
+                <SelectTrigger id={id} aria-label={t("owner")}>
+                  <SelectValue placeholder={t("selectCustomer")} />
                 </SelectTrigger>
                 <SelectContent>
                   {contacts.map((p) => (
@@ -141,13 +148,13 @@ export function EquipmentFormDialog({
               </Select>
             )}
           </FormField>
-          <FormField name="location" label={"Location"}>
-            {({ field, id }) => <Input {...field} id={id} placeholder={"Location"} />}
+          <FormField name="location" label={t("location")}>
+            {({ field, id }) => <Input {...field} id={id} placeholder={t("location")} />}
           </FormField>
-          <FormField name="installDate" label={"Install date"}>
+          <FormField name="installDate" label={t("installDate")}>
             {({ field, id }) => <Input {...field} id={id} type="date" />}
           </FormField>
-          <FormField name="warrantyEnd" label={"Warranty end"}>
+          <FormField name="warrantyEnd" label={t("warrantyEnd")}>
             {({ field, id }) => <Input {...field} id={id} type="date" />}
           </FormField>
         </div>

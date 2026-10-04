@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Check, LogOut, Moon, Settings, Sun, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/avatar";
 import {
@@ -33,6 +34,7 @@ export function OrgUserMenu() {
   const queryClient = useQueryClient();
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
+  const t = useTranslations("UserMenu");
   const initials = currentUser.name
     .split(" ")
     .map((part) => part[0])
@@ -55,7 +57,7 @@ export function OrgUserMenu() {
       await clearActiveOrg();
       router.push("/login");
     } catch {
-      toast.error("Failed to log out. Please try again.");
+      toast.error(t("logoutFailed"));
     }
   };
 
@@ -67,7 +69,7 @@ export function OrgUserMenu() {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                aria-label={"Account menu"}
+                aria-label={t("accountMenu")}
                 className="rounded-full outline-none ring-ring transition-shadow focus-visible:ring-3 ring-offset-2 ring-offset-background focus-visible:ring-ring"
               >
                 <Avatar size="default">
@@ -91,27 +93,27 @@ export function OrgUserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href={"/profile"} />}>
           <UserRound />
-          {"Profile"}
+          {t("profile")}
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link href={"/settings"} />}>
           <Settings />
-          {"Settings"}
+          {t("settings")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Sun />
-            {"Theme"}
+            {t("theme")}
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuItem onClick={() => setTheme("light")}>
               <Sun />
-              <span>{"Light"}</span>
+              <span>{t("light")}</span>
               {theme === "light" && <Check className="ml-auto" />}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setTheme("dark")}>
               <Moon />
-              <span>{"Dark"}</span>
+              <span>{t("dark")}</span>
               {theme === "dark" && <Check className="ml-auto" />}
             </DropdownMenuItem>
           </DropdownMenuSubContent>
@@ -119,7 +121,7 @@ export function OrgUserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleLogout}>
           <LogOut />
-          {"Log out"}
+          {t("logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -12,11 +12,11 @@ export function projectStateLabel(state: ProjectState): string {
     case "draft":
       return "Draft";
     case "open":
-      return "Open";
+      return "Buka";
     case "closed":
-      return "Closed";
+      return "Ditutup";
     case "cancelled":
-      return "Cancelled";
+      return "Dibatalkan";
     default:
       return state;
   }
@@ -25,11 +25,11 @@ export function projectStateLabel(state: ProjectState): string {
 export function billingTypeLabel(type: Project["billingType"]): string {
   switch (type) {
     case "fixed":
-      return "Fixed";
+      return "Tetap";
     case "time_material":
       return "Time & Material";
     case "milestone":
-      return "Milestone";
+      return "Tonggak";
     default:
       return type;
   }
@@ -78,9 +78,9 @@ export function taskStageLabel(stage: TaskStage): string {
     case "todo":
       return "To Do";
     case "in_progress":
-      return "In Progress";
+      return "Berjalan";
     case "done":
-      return "Done";
+      return "Selesai";
     default:
       return stage;
   }
@@ -89,15 +89,15 @@ export function taskStageLabel(stage: TaskStage): string {
 export function taskPriorityLabel(priority: number): string {
   switch (priority) {
     case 0:
-      return "None";
+      return "Tidak ada";
     case 1:
-      return "Low";
+      return "Rendah";
     case 2:
-      return "Medium";
+      return "Sedang";
     case 3:
-      return "High";
+      return "Tinggi";
     case 4:
-      return "Urgent";
+      return "Mendesak";
     default:
       return String(priority);
   }

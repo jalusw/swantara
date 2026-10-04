@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { FormProvider } from "react-hook-form";
 import { cn } from "@/lib/utils/style";
 import { useRegisterForm, useRegisterFormStore } from "../_hooks/use-register-form";
@@ -11,8 +12,12 @@ import { PasswordStep } from "./password-step";
 const stepOrder = ["name", "email", "password"] as const;
 
 function StepProgress({ step }: { step: string }) {
+  const t = useTranslations("Auth");
+  const tx = t as unknown as (key: string, values?: Record<string, string | number>) => string;
   const current = stepOrder.indexOf(step as (typeof stepOrder)[number]) + 1;
   const total = stepOrder.length;
+  const stepLabel =
+    step === "name" ? tx("firstName") : step === "email" ? t("email") : t("password");
   return (
     <div className="mb-6" aria-live="polite" aria-atomic="true">
       <div className="flex items-center gap-2">
@@ -28,8 +33,7 @@ function StepProgress({ step }: { step: string }) {
         ))}
       </div>
       <p className="mt-2 text-sm text-muted-foreground">
-        Step {current} of {total} —{" "}
-        {step === "name" ? "First Name" : step === "email" ? "Email" : "Password"}
+        {tx("stepCounter", { current, total })} — {stepLabel}
       </p>
     </div>
   );

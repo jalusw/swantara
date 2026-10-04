@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -14,6 +15,8 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { JobPositionFormDialog } from "./job-position-form-dialog";
 
 export function JobPositionsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Employees");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<JobPosition | null>(null);
 
@@ -49,12 +52,12 @@ export function JobPositionsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<JobPosition>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "departmentId",
-      header: "Department",
+      header: t("tableDepartment"),
       cell: ({ row }) => (
         <Badge variant="secondary">
           {departments.find((dept) => dept.id === row.original.departmentId)?.name ?? "—"}
@@ -66,16 +69,16 @@ export function JobPositionsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Delete position"}
-          confirmDescription={"Are you sure you want to delete this position?"}
+          editLabel={tCommon("edit")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("deletePositionTitle")}
+          confirmDescription={t("deletePositionDescription")}
           onEdit={() => handleOpenEdit(row.original)}
           onDelete={() =>
             void getSwantaraService()
               .jobPositions.delete(Number(orgId), row.original.id)
               .then(() => void query.refetch())
-              .catch(() => toast.error("Something went wrong."))
+              .catch(() => toast.error(t("deleteFailed")))
           }
         />
       ),
@@ -89,12 +92,12 @@ export function JobPositionsSection({ orgId }: { orgId: string }) {
         data={jobPositions}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
-        searchPlaceholder={"Search positions…"}
+        searchPlaceholder={t("searchPositionsPlaceholder")}
         filterLabel=""
         statusOptions={[]}
         allLabel=""
-        ariaLabel={"Job positions"}
-        emptyTitle={"No positions found"}
+        ariaLabel={t("jobPositionsTitle")}
+        emptyTitle={t("noPositions")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -109,7 +112,7 @@ export function JobPositionsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={handleOpenCreate}>
             <Plus />
-            <span>{"Add position"}</span>
+            <span>{t("addPosition")}</span>
           </Button>
         }
       />

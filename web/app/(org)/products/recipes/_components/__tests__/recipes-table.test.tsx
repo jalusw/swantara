@@ -61,7 +61,7 @@ describe("BomsTable", () => {
     const user = userEvent.setup();
     renderWithProviders(<BomsTable recipes={recipes} templates={templates} />);
 
-    await user.type(screen.getByPlaceholderText("Search bills of materials…"), "BOM-002");
+    await user.type(screen.getByPlaceholderText("Cari resep"), "BOM-002");
 
     await waitFor(() => expect(screen.queryByText("BOM-001")).not.toBeInTheDocument());
     expect(screen.getAllByText("BOM-002").length).toBeGreaterThan(0);

@@ -1,6 +1,7 @@
 "use client";
 
 import { FileDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/button";
@@ -13,23 +14,28 @@ import { cn } from "@/lib/utils/style";
 import { ProfitAndLossRows } from "../_components/profit-and-loss-rows";
 
 export default function ProfitAndLossPage() {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Reports");
   const { data } = useProfitAndLoss();
   const pl = data?.profitAndLoss;
   const rows = pl?.rows ?? [];
 
   function handleExportCsv() {
-    const headers = ["Code", "Account", "Type", "Amount"];
+    const headers = [t("colCode"), t("colAccount"), t("fieldType"), t("colAmount")];
     const csvRows = rows.map((r) => [r.code, r.name, r.accountType, r.amount]);
     exportCsv("profit-and-loss", headers, csvRows);
   }
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <BackLink href={"/reports"}>{"Back to reports"}</BackLink>
+      <BackLink href={"/reports"}>{t("backToReports")}</BackLink>
 
       <PageHeader
-        title={"Profit & Loss"}
-        description={"Income and expenses for the current period."}
+        title={t("profitAndLossTitle")}
+        description={t("profitAndLossDescription")}
         actions={
           <Button
             variant="outline"
@@ -38,7 +44,7 @@ export default function ProfitAndLossPage() {
             disabled={rows.length === 0}
           >
             <FileDown className="size-4" aria-hidden />
-            {"Export CSV"}
+            {t("exportCsv")}
           </Button>
         }
       />
@@ -47,7 +53,7 @@ export default function ProfitAndLossPage() {
         <section className="grid gap-3 sm:grid-cols-3">
           <Card>
             <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground">{"Revenue"}</p>
+              <p className="text-xs text-muted-foreground">{t("revenue")}</p>
               <p className="font-heading text-lg font-bold text-success">
                 {formatMoney(pl.revenue, { currency: DEFAULT_CURRENCY })}
               </p>
@@ -55,7 +61,7 @@ export default function ProfitAndLossPage() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground">{"Gross profit"}</p>
+              <p className="text-xs text-muted-foreground">{t("grossProfit")}</p>
               <p className="font-heading text-lg font-bold">
                 {formatMoney(pl.grossProfit, { currency: DEFAULT_CURRENCY })}
               </p>
@@ -63,7 +69,7 @@ export default function ProfitAndLossPage() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground">{"Net income"}</p>
+              <p className="text-xs text-muted-foreground">{t("netIncome")}</p>
               <p
                 className={cn(
                   "font-heading text-lg font-bold",

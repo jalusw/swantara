@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
 import { StateBadge } from "@/components/state-badge";
@@ -11,6 +12,9 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
 
 export function ApprovalRequestsSection() {
+  const t = useTranslations("ApprovalRequests");
+  const tCommon = useTranslations("Common");
+  const requestState = (state: string) => (t as unknown as (k: string) => string)(`state_${state}`);
   const router = useRouter();
 
   const query = useOrgListQuery<{ approvalRequests: ApprovalRequest[] }, Record<string, never>>(
@@ -35,40 +39,40 @@ export function ApprovalRequestsSection() {
     },
     {
       accessorKey: "ownerType",
-      header: "Type",
+      header: t("colType"),
       cell: ({ row }) => <span className="text-muted-foreground">{row.original.ownerType}</span>,
     },
     {
       accessorKey: "ownerId",
-      header: "Record",
+      header: t("colRecord"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{`#${row.original.ownerId}`}</span>
       ),
     },
     {
       accessorKey: "requestedBy",
-      header: "Requested by",
+      header: t("colRequestedBy"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{`#${row.original.requestedBy}`}</span>
       ),
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("colStatus"),
       cell: ({ row }) => (
         <StateBadge
           value={row.original.state}
           statuses={{
-            pending: { label: "Pending", tone: "warning" },
-            approved: { label: "Approved", tone: "success" },
-            refused: { label: "Refused", tone: "danger" },
+            pending: { label: requestState("pending"), tone: "warning" },
+            approved: { label: requestState("approved"), tone: "success" },
+            refused: { label: requestState("refused"), tone: "danger" },
           }}
         />
       ),
     },
     {
       accessorKey: "createdAt",
-      header: "Created",
+      header: t("colCreatedAt"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">{formatDate(row.original.createdAt)}</span>
       ),
@@ -78,10 +82,10 @@ export function ApprovalRequestsSection() {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
-          deleteLabel={"Deleted"}
-          confirmTitle={"Delete this activity?"}
-          confirmDescription={"The activity will be removed permanently."}
+          editLabel={t("view")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("deleteTitle")}
+          confirmDescription={t("deleteDescription")}
           onEdit={() => router.push(`/approval-requests/${row.original.id}`)}
         />
       ),
@@ -100,15 +104,15 @@ export function ApprovalRequestsSection() {
         searchKeys={["ownerType"]}
         statusKey="state"
         statusOptions={[
-          { value: "pending", label: "Pending" },
-          { value: "approved", label: "Approved" },
-          { value: "refused", label: "Refused" },
+          { value: "pending", label: requestState("pending") },
+          { value: "approved", label: requestState("approved") },
+          { value: "refused", label: requestState("refused") },
         ]}
-        searchPlaceholder={"Search approvals…"}
-        filterLabel={"State"}
-        allLabel={"All requests"}
-        ariaLabel={"Approval requests"}
-        emptyTitle={"No approval requests"}
+        searchPlaceholder={t("searchPlaceholder")}
+        filterLabel={t("colStatus")}
+        allLabel={t("allRequests")}
+        ariaLabel={t("title")}
+        emptyTitle={t("emptyTitle")}
         status={
           isLoading
             ? { type: "loading" }

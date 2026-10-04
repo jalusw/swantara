@@ -5,7 +5,7 @@ import { PayrollSubNav } from "./_components/payroll-subnav";
 export default async function PayrollLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <PageHeader title={"Payroll"} description={"Salary rules, payroll runs, and payslips."} />
+      <PageHeader title={"Penggajian"} description={"Salary rules, payroll runs, and payslips."} />
       <Suspense fallback={null}>
         <PayrollSubNav />
       </Suspense>

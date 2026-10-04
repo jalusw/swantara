@@ -55,7 +55,7 @@ describe("ServiceContractDetail", () => {
 
     expect(await screen.findByRole("heading", { name: "ACME Maintenance" })).toBeInTheDocument();
     expect(screen.getByText("24/7 support")).toBeInTheDocument();
-    expect(screen.getByText("Draft")).toBeInTheDocument();
+    expect(screen.getByText("Draf")).toBeInTheDocument();
   });
 
   it("activates the contract from the action button", async () => {
@@ -63,7 +63,7 @@ describe("ServiceContractDetail", () => {
     renderWithProviders(<ServiceContractDetail orgId="1" contractId="1" />);
 
     await screen.findByRole("heading", { name: "ACME Maintenance" });
-    await user.click(screen.getByRole("button", { name: "Activate" }));
+    await user.click(screen.getByRole("button", { name: "Aktifkan" }));
 
     await waitFor(() => expect(activateCalled).toBe(true));
   });

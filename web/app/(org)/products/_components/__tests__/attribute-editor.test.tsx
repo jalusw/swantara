@@ -25,9 +25,9 @@ describe("AttributeEditor", () => {
     const user = userEvent.setup();
     renderEditor([]);
 
-    await user.click(screen.getByRole("button", { name: "Add attribute" }));
+    await user.click(screen.getByRole("button", { name: "Tambah atribut" }));
 
-    expect(screen.getByPlaceholderText("Attribute")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Atribut")).toBeInTheDocument();
   });
 
   it("edits attribute values through the inputs", async () => {
@@ -43,7 +43,7 @@ describe("AttributeEditor", () => {
     const user = userEvent.setup();
     renderEditor([{ id: "a1", name: "Color", values: ["Red"] }]);
 
-    await user.click(screen.getByRole("button", { name: "Remove" }));
+    await user.click(screen.getByRole("button", { name: "Hapus" }));
 
     expect(screen.queryByDisplayValue("Color")).not.toBeInTheDocument();
   });

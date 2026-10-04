@@ -28,21 +28,21 @@ describe("CashSection branches", () => {
   it("renders seeded cash and ar-ap values", async () => {
     useCashHandlers(CASH, AR_AP);
     renderWithProviders(<CashSection />);
-    expect(await screen.findByText("IDR 125,000.00")).toBeInTheDocument();
-    expect(screen.getByText("IDR 15,000.00")).toBeInTheDocument();
-    expect(screen.getByText("IDR 140,000.00")).toBeInTheDocument();
+    expect(await screen.findByText("Rp 125.000,00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 15.000,00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 140.000,00")).toBeInTheDocument();
     expect(screen.getByText("32.5d")).toBeInTheDocument();
     expect(screen.getByText("28.3d")).toBeInTheDocument();
-    expect(screen.getByText("12.0% Overdue AR")).toBeInTheDocument();
-    expect(screen.getByText("8.0% Overdue AP")).toBeInTheDocument();
+    expect(screen.getByText("12.0% piutang tertunggak")).toBeInTheDocument();
+    expect(screen.getByText("8.0% utang tertunggak")).toBeInTheDocument();
   });
 
   it("renders chart regions with formatted values", async () => {
     useCashHandlers(CASH, AR_AP);
     renderWithProviders(<CashSection />);
-    await screen.findByText("IDR 125,000.00");
-    expect(screen.getByRole("img", { name: /Cash/ })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: /Receivables/ })).toBeInTheDocument();
+    await screen.findByText("Rp 125.000,00");
+    expect(screen.getByRole("img", { name: /Kas/ })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /^Piutang & Utang/ })).toBeInTheDocument();
   });
 
   it("falls back to placeholders when cash kpi is missing", async () => {
@@ -55,7 +55,7 @@ describe("CashSection branches", () => {
   it("falls back to placeholders when ar-ap kpi is missing", async () => {
     useCashHandlers(CASH, null);
     renderWithProviders(<CashSection />);
-    expect(await screen.findByText("IDR 125,000.00")).toBeInTheDocument();
+    expect(await screen.findByText("Rp 125.000,00")).toBeInTheDocument();
     expect((await screen.findAllByText("—")).length).toBeGreaterThan(0);
   });
 

@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -29,21 +30,29 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatNumber, getLocalDateString } from "@/lib/utils";
 import { logger } from "@/lib/utils/logger";
 
-const schema = z.object({
-  itemId: z.string().min(1),
-  supplierId: z.string().min(1),
-  vendorSku: z.string(),
-  price: z.string(),
-  currencyCode: z.string(),
-  leadTimeDays: z.string(),
-  priority: z.string(),
-  minQty: z.string(),
-  validFrom: z.string(),
-  validTo: z.string(),
-});
-type Values = z.infer<typeof schema>;
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
+function useSupplierCatalogSchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  return z.object({
+    itemId: z.string().min(1, t("validationItemRequired")),
+    supplierId: z.string().min(1, t("validationSupplierRequired")),
+    vendorSku: z.string(),
+    price: z.string(),
+    currencyCode: z.string(),
+    leadTimeDays: z.string(),
+    priority: z.string(),
+    minQty: z.string(),
+    validFrom: z.string(),
+    validTo: z.string(),
+  });
+}
+type Values = z.infer<ReturnType<typeof useSupplierCatalogSchema>>;
 
 export function SupplierCatalogSection({ orgId }: { orgId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  const tCommon = useTranslations("Common");
+  const schema = useSupplierCatalogSchema();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<SupplierProduct | null>(null);
 
@@ -142,32 +151,32 @@ export function SupplierCatalogSection({ orgId }: { orgId: string }) {
     };
 
     if (editing) {
-      void getSwantaraService()
+      return getSwantaraService()
         .supplierProducts.update(Number(orgId), editing.id, base)
         .then(() => {
-          toast.success("Supplier item added.");
+          toast.success(t("toastSupplierItemSaved"));
           setDialogOpen(false);
           setEditing(null);
           void query.refetch();
         })
         .catch((error) => {
           logger.error("Failed to update supplier item", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastFailed"));
         });
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .supplierProducts.create(Number(orgId), {
           ...base,
           itemId: Number(values.itemId),
         })
         .then(() => {
-          toast.success("Supplier item added.");
+          toast.success(t("toastSupplierItemSaved"));
           setDialogOpen(false);
           void query.refetch();
         })
         .catch((error) => {
           logger.error("Failed to create supplier item", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastFailed"));
         });
     }
   }
@@ -176,38 +185,38 @@ export function SupplierCatalogSection({ orgId }: { orgId: string }) {
     void getSwantaraService()
       .supplierProducts.delete(Number(orgId), item.id)
       .then(() => {
-        toast.success("Supplier item removed.");
+        toast.success(t("toastSupplierItemRemoved"));
         void query.refetch();
       })
       .catch((error) => {
         logger.error("Failed to delete supplier item", error);
-        toast.error("Could not disable the organization.");
+        toast.error(t("toastFailed"));
       });
   }
 
   const columns: ColumnDef<SupplierProduct>[] = [
     {
       accessorKey: "itemId",
-      header: "Item",
+      header: () => t("fieldItem"),
       cell: ({ row }) => <span className="">{productName(row.original.itemId)}</span>,
     },
     {
       accessorKey: "supplierId",
-      header: "Supplier",
+      header: () => t("fieldSupplier"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
-          {"Supplier #"} {row.original.supplierId}
+          {t("supplierLabel", { id: row.original.supplierId })}
         </span>
       ),
     },
     {
       accessorKey: "vendorSku",
-      header: "Supplier SKU",
+      header: () => t("fieldVendorSku"),
       cell: ({ row }) => <span className="font-mono text-xs">{row.original.vendorSku ?? "—"}</span>,
     },
     {
       accessorKey: "price",
-      header: "Price",
+      header: () => t("fieldPrice"),
       cell: ({ row }) => (
         <span className="tabular-nums">
           {row.original.price != null ? formatNumber(row.original.price) : "—"}
@@ -216,7 +225,7 @@ export function SupplierCatalogSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "leadTimeDays",
-      header: "Lead time (days)",
+      header: () => t("fieldLeadTime"),
       cell: ({ row }) => (
         <span className="tabular-nums">
           {row.original.leadTimeDays != null ? `${row.original.leadTimeDays}d` : "—"}
@@ -225,12 +234,12 @@ export function SupplierCatalogSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "priority",
-      header: "Priority",
+      header: () => t("fieldPriority"),
       cell: ({ row }) => <Badge variant="secondary">{row.original.priority}</Badge>,
     },
     {
       accessorKey: "validTo",
-      header: "Valid to",
+      header: () => t("fieldEndDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {row.original.validTo ? formatDate(new Date(row.original.validTo)) : "—"}
@@ -242,11 +251,11 @@ export function SupplierCatalogSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit supplier item"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Remove this supplier item?"}
-          confirmDescription={"The link between this supplier and item will be removed."}
-          confirmLabel="OK"
+          editLabel={t("editSupplierItem")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("removeSupplierItemTitle")}
+          confirmDescription={t("removeSupplierItemDescription")}
+          confirmLabel={tCommon("confirm")}
           onEdit={() => openEdit(row.original)}
           onDelete={() => handleDelete(row.original)}
         />
@@ -259,10 +268,8 @@ export function SupplierCatalogSection({ orgId }: { orgId: string }) {
       <Card>
         <CardHeader className="flex-row items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <CardTitle>{"Supplier catalog"}</CardTitle>
-            <CardDescription>
-              {"Item-to-supplier pricing, lead times, and priority."}
-            </CardDescription>
+            <CardTitle>{t("supplierCatalogTitle")}</CardTitle>
+            <CardDescription>{t("supplierCatalogDescription")}</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
@@ -271,10 +278,10 @@ export function SupplierCatalogSection({ orgId }: { orgId: string }) {
             data={items}
             getRowId={(row) => String(row.id)}
             searchKeys={["vendorSku"]}
-            searchPlaceholder={"Search supplier products…"}
-            filterLabel={"Priority"}
-            allLabel={"All supplier products"}
-            ariaLabel={"All supplier products"}
+            searchPlaceholder={t("searchSupplierProducts")}
+            filterLabel={t("fieldPriority")}
+            allLabel={t("allSupplierProducts")}
+            ariaLabel={t("allSupplierProducts")}
             statusOptions={[]}
             status={
               query.isLoading
@@ -290,7 +297,7 @@ export function SupplierCatalogSection({ orgId }: { orgId: string }) {
             actions={
               <Button size="sm" onClick={openCreate}>
                 <Plus />
-                <span>{"Add supplier item"}</span>
+                <span>{t("addSupplierItem")}</span>
               </Button>
             }
           />
@@ -300,19 +307,17 @@ export function SupplierCatalogSection({ orgId }: { orgId: string }) {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit supplier item" : "New supplier item"}</DialogTitle>
-            <DialogDescription>
-              {"Link a supplier to a item with pricing and lead time."}
-            </DialogDescription>
+            <DialogTitle>{editing ? t("editSupplierItem") : t("newSupplierItem")}</DialogTitle>
+            <DialogDescription>{t("supplierItemDialogDescription")}</DialogDescription>
           </DialogHeader>
           <Form form={form} onSubmit={handleSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
               {!editing ? (
-                <FormField name="itemId" label={"Item"}>
+                <FormField name="itemId" label={t("fieldItem")}>
                   {({ field, id }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id={id} aria-label={"Item"}>
-                        <SelectValue placeholder={"Item"} />
+                      <SelectTrigger id={id} aria-label={t("fieldItem")}>
+                        <SelectValue placeholder={t("fieldItem")} />
                       </SelectTrigger>
                       <SelectContent>
                         {products.map((p) => (
@@ -325,55 +330,61 @@ export function SupplierCatalogSection({ orgId }: { orgId: string }) {
                   )}
                 </FormField>
               ) : (
-                <FormField name="itemId" label={"Item"}>
+                <FormField name="itemId" label={t("fieldItem")}>
                   {({ field, id }) => (
                     <Input {...field} id={id} disabled value={productName(Number(field.value))} />
                   )}
                 </FormField>
               )}
-              <FormField name="supplierId" label={"Supplier"}>
+              <FormField name="supplierId" label={t("fieldSupplier")}>
                 {({ field, id }) => (
-                  <Input {...field} id={id} type="number" placeholder={"Supplier"} />
+                  <Input {...field} id={id} type="number" placeholder={t("fieldSupplier")} />
                 )}
               </FormField>
-              <FormField name="vendorSku" label={"Supplier SKU"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Supplier SKU"} />}
+              <FormField name="vendorSku" label={t("fieldVendorSku")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldVendorSku")} />}
               </FormField>
-              <FormField name="price" label={"Price"}>
+              <FormField name="price" label={t("fieldPrice")}>
                 {({ field, id }) => (
-                  <Input {...field} id={id} type="number" step="any" placeholder={"Price"} />
+                  <Input
+                    {...field}
+                    id={id}
+                    type="number"
+                    step="any"
+                    placeholder={t("fieldPrice")}
+                  />
                 )}
               </FormField>
-              <FormField name="currencyCode" label={"Currency"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Currency"} />}
+              <FormField name="currencyCode" label={t("colCurrency")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("colCurrency")} />}
               </FormField>
-              <FormField name="leadTimeDays" label={"Lead time (days)"}>
+              <FormField name="leadTimeDays" label={t("fieldLeadTime")}>
                 {({ field, id }) => (
-                  <Input {...field} id={id} type="number" placeholder={"Lead time (days)"} />
+                  <Input {...field} id={id} type="number" placeholder={t("fieldLeadTime")} />
                 )}
               </FormField>
-              <FormField name="priority" label={"Priority"}>
+              <FormField name="priority" label={t("fieldPriority")}>
                 {({ field, id }) => (
-                  <Input {...field} id={id} type="number" placeholder={"Priority"} />
+                  <Input {...field} id={id} type="number" placeholder={t("fieldPriority")} />
                 )}
               </FormField>
-              <FormField name="minQty" label={"Min. quantity"}>
+              <FormField name="minQty" label={t("fieldMinQty")}>
                 {({ field, id }) => (
-                  <Input {...field} id={id} type="number" placeholder={"Min. quantity"} />
+                  <Input {...field} id={id} type="number" placeholder={t("fieldMinQty")} />
                 )}
               </FormField>
-              <FormField name="validFrom" label={"Valid from"}>
+              <FormField name="validFrom" label={t("fieldStartDate")}>
                 {({ field, id }) => <Input {...field} id={id} type="date" />}
               </FormField>
-              <FormField name="validTo" label={"Valid to"}>
+              <FormField name="validTo" label={t("fieldEndDate")}>
                 {({ field, id }) => <Input {...field} id={id} type="date" />}
               </FormField>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                {"Cancel"}
+                {tCommon("cancel")}
               </Button>
-              <SubmitButton>{"Save"}</SubmitButton>
+              <SubmitButton>{tCommon("save")}</SubmitButton>
             </DialogFooter>
           </Form>
         </DialogContent>

@@ -18,11 +18,11 @@ export function equipmentStateTone(
 export function formatEquipmentState(state: string): string {
   switch (state) {
     case "active":
-      return "Active";
+      return "Aktif";
     case "inactive":
-      return "Inactive";
+      return "Nonaktif";
     case "maintenance":
-      return "Maintenance";
+      return "Perawatan";
     case "retired":
       return "Retired";
     default:

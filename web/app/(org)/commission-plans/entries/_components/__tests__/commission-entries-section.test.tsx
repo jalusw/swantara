@@ -54,10 +54,10 @@ describe("CommissionEntriesSection", () => {
 
     expect(await screen.findByText("#11")).toBeInTheDocument();
     expect(screen.getByText("#12")).toBeInTheDocument();
-    expect(await screen.findByText("Draft")).toBeInTheDocument();
-    expect(screen.getByText("Confirmed")).toBeInTheDocument();
-    expect(screen.getByText("Paid")).toBeInTheDocument();
-    expect(screen.getByText("Cancelled")).toBeInTheDocument();
+    expect(await screen.findByText("Draf")).toBeInTheDocument();
+    expect(screen.getByText("Dikonfirmasi")).toBeInTheDocument();
+    expect(screen.getByText("Lunas")).toBeInTheDocument();
+    expect(screen.getByText("Dibatalkan")).toBeInTheDocument();
   });
 
   it("totals commission amounts across entries", async () => {
@@ -65,14 +65,14 @@ describe("CommissionEntriesSection", () => {
     renderWithProviders(<CommissionEntriesSection orgId="1" />);
 
     await screen.findByText("#11");
-    expect(screen.getByText("IDR 300.00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 300,00")).toBeInTheDocument();
   });
 
   it("shows the empty state when no entries exist", async () => {
     seedEntries({ commission_entries: [] });
     renderWithProviders(<CommissionEntriesSection orgId="1" />);
 
-    expect(await screen.findByText("No commission entries yet")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada entri komisi")).toBeInTheDocument();
   });
 
   it("shows the error state with retry on load failure", async () => {
@@ -86,6 +86,6 @@ describe("CommissionEntriesSection", () => {
     seedEntries({});
     renderWithProviders(<CommissionEntriesSection orgId="1" />);
 
-    expect(await screen.findByText("No commission entries yet")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada entri komisi")).toBeInTheDocument();
   });
 });

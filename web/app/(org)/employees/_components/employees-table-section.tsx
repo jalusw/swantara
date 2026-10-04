@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -49,6 +50,8 @@ function initials(name: string) {
 }
 
 export function EmployeesTable({ orgId }: { orgId: string }) {
+  const t = useTranslations("Employees");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
@@ -63,7 +66,7 @@ export function EmployeesTable({ orgId }: { orgId: string }) {
     setDialogOpen(false);
     setEditingEmployee(null);
     void query.refetch();
-    toast.success("Employee saved");
+    toast.success(t("saved"));
   }
 
   function handleEdit(employee: EmployeeRow) {
@@ -78,15 +81,23 @@ export function EmployeesTable({ orgId }: { orgId: string }) {
     void getSwantaraService()
       .employees.delete(Number(orgId), Number(employee.id))
       .then(() => {
-        toast.success("Employee deleted");
+        toast.success(t("deleted"));
         void query.refetch();
       });
+  }
+
+  function statusLabel(status: EmployeeRow["status"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`status.${status}`);
+    } catch {
+      return humanizeKey(String(status));
+    }
   }
 
   const columns: ColumnDef<EmployeeRow>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
       cell: ({ row }) => (
         <a
           href={`/employees/${row.original.id}`}
@@ -104,17 +115,17 @@ export function EmployeesTable({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "role",
-      header: "Role",
+      header: t("tableRole"),
       cell: ({ row }) => <span className="text-muted-foreground">{row.original.role || "—"}</span>,
     },
     {
       accessorKey: "department",
-      header: "Department",
+      header: t("tableDepartment"),
       cell: ({ row }) => <Badge variant="secondary">{row.original.department || "—"}</Badge>,
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: t("tableStatus"),
       cell: ({ row }) => {
         const toneMap: Record<EmployeeRow["status"], "success" | "danger"> = {
           active: "success",
@@ -123,21 +134,21 @@ export function EmployeesTable({ orgId }: { orgId: string }) {
         return (
           <StateBadge
             tone={toneMap[row.original.status]}
-            label={humanizeKey(String(row.original.status))}
+            label={statusLabel(row.original.status)}
           />
         );
       },
     },
     {
       accessorKey: "location",
-      header: "Location",
+      header: t("tableLocation"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{row.original.location || "—"}</span>
       ),
     },
     {
       accessorKey: "joined",
-      header: "Joined",
+      header: t("tableJoined"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{row.original.joined || "—"}</span>
       ),
@@ -147,10 +158,10 @@ export function EmployeesTable({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Delete employee"}
-          confirmDescription={"Are you sure you want to delete this employee?"}
+          editLabel={tCommon("edit")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("deleteEmployeeTitle")}
+          confirmDescription={t("deleteEmployeeDescription")}
           onEdit={() => handleEdit(row.original)}
           onDelete={() => handleDelete(row.original)}
         />
@@ -167,13 +178,13 @@ export function EmployeesTable({ orgId }: { orgId: string }) {
         searchKeys={["name", "email", "role", "department"]}
         statusKey="status"
         statusOptions={[
-          { value: "active", label: "Active" },
-          { value: "inactive", label: "Inactive" },
+          { value: "active", label: t("statusActive") },
+          { value: "inactive", label: t("statusInactive") },
         ]}
-        searchPlaceholder={"Search employees…"}
-        filterLabel={"Filter by status"}
-        allLabel={"All statuses"}
-        ariaLabel={"All employees"}
+        searchPlaceholder={t("searchPlaceholder")}
+        filterLabel={t("filterByStatus")}
+        allLabel={t("allStatuses")}
+        ariaLabel={t("allEmployees")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -194,7 +205,7 @@ export function EmployeesTable({ orgId }: { orgId: string }) {
             }}
           >
             <Plus />
-            <span>{"Add employee"}</span>
+            <span>{t("addEmployee")}</span>
           </Button>
         }
       />

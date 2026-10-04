@@ -52,7 +52,7 @@ describe("PosOrderDetail", () => {
     renderWithProviders(<PosOrderDetail orgId="1" orderId="10" />);
 
     expect(await screen.findByRole("heading", { name: "POS-001" })).toBeInTheDocument();
-    expect(screen.getByText("Order info")).toBeInTheDocument();
+    expect(screen.getByText("Info pesanan")).toBeInTheDocument();
   });
 
   it("shows payments on the payments tab", async () => {
@@ -60,8 +60,8 @@ describe("PosOrderDetail", () => {
     renderWithProviders(<PosOrderDetail orgId="1" orderId="10" />);
 
     await screen.findByRole("heading", { name: "POS-001" });
-    await user.click(screen.getByRole("tab", { name: "Payments" }));
+    await user.click(screen.getByRole("tab", { name: "Pembayaran" }));
 
-    expect(await screen.findByText("Cash")).toBeInTheDocument();
+    expect(await screen.findByText("Tunai")).toBeInTheDocument();
   });
 });

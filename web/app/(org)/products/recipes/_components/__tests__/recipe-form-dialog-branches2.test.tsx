@@ -90,7 +90,7 @@ describe("BomFormDialog branches2", () => {
       />,
     );
 
-    expect(screen.getByText("Edit bill of materials")).toBeInTheDocument();
+    expect(screen.getByText("Ubah resep")).toBeInTheDocument();
   });
 
   it("adds and removes component lines", async () => {
@@ -106,14 +106,14 @@ describe("BomFormDialog branches2", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Add component" }));
-    const removeButtons = screen.getAllByRole("button", { name: "Remove line" });
+    await user.click(screen.getByRole("button", { name: "Tambah komponen" }));
+    const removeButtons = screen.getAllByRole("button", { name: "Hapus baris" });
     expect(removeButtons.length).toBeGreaterThanOrEqual(2);
     const first = removeButtons[0];
     if (first) {
       await user.click(first);
     }
-    expect(screen.getAllByRole("button", { name: "Remove line" }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole("button", { name: "Hapus baris" }).length).toBeGreaterThanOrEqual(1);
   });
 
   it("updates the scrap-inclusive total on both qty branches", async () => {
@@ -129,15 +129,15 @@ describe("BomFormDialog branches2", () => {
       />,
     );
 
-    expect(await screen.findByText(/Total incl\. scrap:/)).toBeInTheDocument();
-    const qtyInputs = screen.getAllByLabelText("Quantity");
+    expect(await screen.findByText(/Total termasuk scrap:/)).toBeInTheDocument();
+    const qtyInputs = screen.getAllByLabelText("Kuantitas");
     const firstQty = qtyInputs[0];
     if (firstQty) {
       await user.clear(firstQty);
       await user.type(firstQty, "4");
     }
     await waitFor(() => {
-      expect(screen.getByText(/Total incl\. scrap:/)).toBeInTheDocument();
+      expect(screen.getByText(/Total termasuk scrap:/)).toBeInTheDocument();
     });
   });
 
@@ -162,22 +162,22 @@ describe("BomFormDialog branches2", () => {
       />,
     );
 
-    await user.click(screen.getByRole("combobox", { name: "Item" }));
+    await user.click(screen.getByRole("combobox", { name: "Produk" }));
     await user.click(await screen.findByRole("option", { name: "Finished Widget" }));
     const dialog = screen.getByRole("dialog");
-    const componentBoxes = within(dialog).getAllByRole("combobox", { name: "Component" });
+    const componentBoxes = within(dialog).getAllByRole("combobox", { name: "Komponen" });
     const firstComponent = componentBoxes[0];
     if (firstComponent) {
       await user.click(firstComponent);
       await user.click(await screen.findByRole("option", { name: "Raw Material" }));
     }
-    const qtyInputs = within(dialog).getAllByLabelText("Quantity");
+    const qtyInputs = within(dialog).getAllByLabelText("Kuantitas");
     const lineQty = qtyInputs[qtyInputs.length - 1];
     if (lineQty) {
       await user.clear(lineQty);
       await user.type(lineQty, "2");
     }
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
     expect(createBody).toMatchObject({ item_id: 5 });
@@ -215,7 +215,7 @@ describe("BomFormDialog branches2", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
     await waitFor(() => expect(onSave).toHaveBeenCalled());
     expect(updateBody).toMatchObject({ item_id: 5 });
   });

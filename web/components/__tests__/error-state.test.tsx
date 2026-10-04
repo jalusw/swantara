@@ -11,7 +11,7 @@ describe("ErrorState", () => {
     renderWithProviders(<ErrorState onReset={onReset} />);
 
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /try again/i }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     expect(onReset).toHaveBeenCalledOnce();
   });
@@ -19,11 +19,14 @@ describe("ErrorState", () => {
   it("links to support and back home", () => {
     renderWithProviders(<ErrorState onReset={() => {}} />);
 
-    expect(screen.getByRole("link", { name: /contact support/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Hubungi dukungan" })).toHaveAttribute(
       "href",
       "/support",
     );
-    expect(screen.getByRole("link", { name: /back to home/i })).toHaveAttribute("href", "/login");
+    expect(screen.getByRole("link", { name: "Kembali ke beranda" })).toHaveAttribute(
+      "href",
+      "/login",
+    );
   });
 
   it("shows the message and digest when provided", () => {

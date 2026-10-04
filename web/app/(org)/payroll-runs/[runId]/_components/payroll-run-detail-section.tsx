@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
@@ -20,6 +21,8 @@ import {
 } from "../../_components/payroll-utils";
 
 export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: string }) {
+  const t = useTranslations("Payroll");
+  const tCommon = useTranslations("Common");
   const runQuery = useOrgListQuery<{ run: PayrollRun; payslips: Payslip[] }, Record<string, never>>(
     "payrollRun",
     (organizationId) => getSwantaraService().payrollRuns.get(organizationId, Number(runId)),
@@ -29,14 +32,22 @@ export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: strin
   const payslips = runQuery.data?.payslips ?? [];
 
   if (runQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (!run) {
-    return <p className="text-sm text-muted-foreground">{"Payroll run not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("runNotFound")}</p>;
   }
 
   const tone = payrollRunStateTone(run.state);
+
+  function stateLabel(state: PayrollRun["state"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`runState.${state}`);
+    } catch {
+      return humanizeKey(String(state));
+    }
+  }
 
   function handleAction(action: "confirm" | "pay" | "close") {
     const service = getSwantaraService().payrollRuns;
@@ -50,12 +61,12 @@ export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: strin
           date: getLocalDateString(),
         }),
         {
-          loading: "Processing…",
+          loading: t("processing"),
           success: () => {
             void runQuery.refetch();
-            return "Payroll run confirmed";
+            return t("runConfirmed");
           },
-          error: "Action failed",
+          error: t("actionFailed"),
         },
       );
     } else if (action === "pay") {
@@ -65,22 +76,22 @@ export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: strin
           date: getLocalDateString(),
         }),
         {
-          loading: "Processing…",
+          loading: t("processing"),
           success: () => {
             void runQuery.refetch();
-            return "Payroll run paid";
+            return t("runPaid");
           },
-          error: "Action failed",
+          error: t("actionFailed"),
         },
       );
     } else {
       void toast.promise(service.close(orgNum, runNum), {
-        loading: "Processing…",
+        loading: t("processing"),
         success: () => {
           void runQuery.refetch();
-          return "Payroll run closed";
+          return t("runClosed");
         },
-        error: "Action failed",
+        error: t("actionFailed"),
       });
     }
   }
@@ -89,17 +100,17 @@ export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: strin
     <div className="flex items-center gap-2">
       {canConfirm(run.state) ? (
         <Button size="sm" onClick={() => handleAction("confirm")}>
-          {"Confirm"}
+          {t("actionConfirm")}
         </Button>
       ) : null}
       {canPay(run.state) ? (
         <Button size="sm" onClick={() => handleAction("pay")}>
-          {"Pay"}
+          {t("actionPay")}
         </Button>
       ) : null}
       {canClose(run.state) ? (
         <Button size="sm" variant="outline" onClick={() => handleAction("close")}>
-          {"Close"}
+          {t("actionClose")}
         </Button>
       ) : null}
     </div>
@@ -108,7 +119,7 @@ export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: strin
   return (
     <RecordLayout
       breadcrumbItems={[
-        { label: "Payroll runs", href: "/payroll-runs" },
+        { label: t("title"), href: "/payroll-runs" },
         { label: run.name ?? `PR-${run.id}` },
       ]}
       title={run.name ?? `PR-${run.id}`}
@@ -125,19 +136,19 @@ export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: strin
                   : ""
           }
         >
-          {humanizeKey(String(run.state))}
+          {stateLabel(run.state)}
         </Badge>
       }
       actions={stateActions}
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: t("tabOverview"),
           content: (
             <div className="grid gap-4 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Period"}</CardTitle>
+                  <CardTitle>{t("tablePeriod")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">
@@ -147,7 +158,7 @@ export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: strin
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Gross total"}</CardTitle>
+                  <CardTitle>{t("grossTotal")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold tabular-nums">
@@ -157,7 +168,7 @@ export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: strin
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Net total"}</CardTitle>
+                  <CardTitle>{t("netTotal")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold tabular-nums">
@@ -170,11 +181,11 @@ export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: strin
         },
         {
           id: "payslips",
-          label: "Payslips",
+          label: t("payslipsTitle"),
           content: (
             <div className="space-y-3">
               {payslips.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{"No payslips computed yet"}</p>
+                <p className="text-sm text-muted-foreground">{t("emptyPayslips")}</p>
               ) : (
                 payslips.map((payslip) => <PayslipCard key={payslip.id} payslip={payslip} />)
               )}
@@ -187,24 +198,25 @@ export function PayrollRunDetail({ orgId, runId }: { orgId: string; runId: strin
 }
 
 function PayslipCard({ payslip }: { payslip: Payslip }) {
+  const t = useTranslations("Payroll");
   return (
     <Card>
       <CardContent>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm">
-              {"Employee"} #{payslip.employeeId}
+              {t("fieldEmployee")} #{payslip.employeeId}
             </p>
             <p className="text-xs text-muted-foreground">
-              {"Contract"} #{payslip.contractId}
+              {t("fieldContract")} #{payslip.contractId}
             </p>
           </div>
           <div className="text-right">
             <p className="text-sm tabular-nums">
-              {"Gross"}: {formatNumber(payslip.gross)}
+              {t("grossTotal")}: {formatNumber(payslip.gross)}
             </p>
             <p className="text-sm tabular-nums">
-              {"Net"}: {formatNumber(payslip.net)}
+              {t("netTotal")}: {formatNumber(payslip.net)}
             </p>
           </div>
         </div>
@@ -213,9 +225,9 @@ function PayslipCard({ payslip }: { payslip: Payslip }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-muted-foreground">
-                  <th className="text-left">{"Rule"}</th>
-                  <th className="text-left">{"Category"}</th>
-                  <th className="text-right">{"Amount"}</th>
+                  <th className="text-left">{t("tableRule")}</th>
+                  <th className="text-left">{t("tableCategory")}</th>
+                  <th className="text-right">{t("tableAmount")}</th>
                 </tr>
               </thead>
               <tbody>

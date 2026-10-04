@@ -90,9 +90,9 @@ describe("SupplierCatalogSection branches2", () => {
     renderWithProviders(<SupplierCatalogSection orgId="1" />);
 
     await screen.findByText("VEN-TOTE-001");
-    await user.click(screen.getByRole("button", { name: "Edit supplier item" }));
+    await user.click(screen.getByRole("button", { name: "Ubah produk pemasok" }));
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(updateBody).not.toBeNull());
   });
@@ -110,8 +110,8 @@ describe("SupplierCatalogSection branches2", () => {
     renderWithProviders(<SupplierCatalogSection orgId="1" />);
 
     await screen.findByText("VEN-TOTE-001");
-    await user.click(screen.getByRole("button", { name: "Delete" }));
-    await user.click(await screen.findByRole("button", { name: "OK" }));
+    await user.click(screen.getByRole("button", { name: "Hapus" }));
+    await user.click(await screen.findByRole("button", { name: "Konfirmasi" }));
 
     await waitFor(() => expect(deleteCalls).toBe(1));
   });
@@ -121,7 +121,7 @@ describe("SupplierCatalogSection branches2", () => {
     const user = userEvent.setup();
     renderWithProviders(<SupplierCatalogSection orgId="1" />);
 
-    await user.click(await screen.findByRole("button", { name: "Add supplier item" }));
-    expect(await screen.findByText("New supplier item")).toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: "Tambah produk pemasok" }));
+    expect(await screen.findByText("Produk pemasok baru")).toBeInTheDocument();
   });
 });

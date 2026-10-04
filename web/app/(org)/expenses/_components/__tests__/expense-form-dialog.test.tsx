@@ -60,8 +60,8 @@ describe("ExpenseFormDialog", () => {
       <ExpenseFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(await screen.findByText("Create expense report")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Klaim biaya baru")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("accepts a report name", async () => {
@@ -70,7 +70,7 @@ describe("ExpenseFormDialog", () => {
       <ExpenseFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    const nameInput = await screen.findByLabelText("Name");
+    const nameInput = await screen.findByLabelText("Nama");
     await user.type(nameInput, "Trip to Jakarta");
 
     expect(nameInput).toHaveValue("Trip to Jakarta");

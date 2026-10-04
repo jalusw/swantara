@@ -2,28 +2,26 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Button } from "@/components/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/dialog";
-import { Form, FormField, SubmitButton } from "@/components/form";
+import { Badge } from "@/components/badge";
+import { EntityFormDialog } from "@/components/entity-form-dialog";
+import { FormField } from "@/components/form";
 import { Input } from "@/components/input";
+import { Progress } from "@/components/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/select";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { CrmStage, PromoteLeadRequest } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
+import { formatNumber } from "@/lib/utils";
+import { CrmFormDivider, CrmFormSection } from "./crm-form-section";
 
 function usePromoteFormSchema() {
+  const t = useTranslations("Crm");
   return z.object({
-    stageId: z.string().min(1, "Select a stage."),
+    stageId: z.string().min(1, t("validationStageRequired")),
     expectedRevenue: z.string().refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0),
     probability: z
       .string()
@@ -47,6 +45,7 @@ export function PromoteDialog({
   prospectId: string;
   onPromoted: () => void;
 }) {
+  const t = useTranslations("Crm");
   const queryClient = useQueryClient();
   const stagesQuery = useOrgListQuery<{ stages: CrmStage[] }, Record<string, never>>(
     "crmStages",
@@ -67,17 +66,30 @@ export function PromoteDialog({
     },
   });
 
+  const watchedStageId = form.watch("stageId");
+  const watchedRevenue = form.watch("expectedRevenue");
+  const watchedProbability = form.watch("probability");
+  const selectedStage = stages.find((s) => String(s.id) === watchedStageId);
+  const effectiveProbability =
+    watchedProbability === "" ? selectedStage?.probability : Number(watchedProbability);
+  const weightedValue =
+    !Number.isNaN(Number(watchedRevenue)) &&
+    effectiveProbability != null &&
+    !Number.isNaN(Number(effectiveProbability))
+      ? (Number(watchedRevenue) * Number(effectiveProbability)) / 100
+      : 0;
+
   const promoteMutation = useMutation({
     mutationFn: (payload: PromoteLeadRequest) =>
       getSwantaraService().crmLeads.promote(Number(orgId), Number(prospectId), payload),
     onSuccess: () => {
-      toast.success("Lead promoted.");
+      toast.success(t("leadPromoted"));
       void queryClient.invalidateQueries({ queryKey: ["crmLeads"] });
       void queryClient.invalidateQueries({ queryKey: ["crmOpportunities"] });
       onPromoted();
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -95,62 +107,87 @@ export function PromoteDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{"Promote lead to opportunity"}</DialogTitle>
-          <DialogDescription>
-            {"Assign a stage and sales context to qualify this lead."}
-          </DialogDescription>
-        </DialogHeader>
-        <Form form={form} onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-4">
-            <FormField name="stageId" label={"Stage"}>
-              {({ field, id }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Stage"}>
-                    <SelectValue placeholder={"Stage"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stages.map((stage) => (
-                      <SelectItem key={stage.id} value={String(stage.id)}>
-                        {stage.name} — {stage.probability}%
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </FormField>
-            <FormField name="expectedRevenue" label={"Expected revenue"}>
-              {({ field, id }) => <Input {...field} id={id} type="number" step="any" min="0" />}
-            </FormField>
-            <FormField name="probability" label={"Probability %"}>
-              {({ field, id }) => (
-                <Input
-                  {...field}
-                  id={id}
-                  type="number"
-                  min="0"
-                  max="100"
-                  placeholder={"auto from stage"}
-                />
-              )}
-            </FormField>
-            <FormField name="priority" label={"Priority"}>
-              {({ field, id }) => <Input {...field} id={id} type="number" min="0" />}
-            </FormField>
-            <FormField name="expectedClose" label={"Expected close"}>
-              {({ field, id }) => <Input {...field} id={id} type="date" />}
-            </FormField>
+    <EntityFormDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("promoteTitle")}
+      description={t("promoteDescription")}
+      badge={<Badge variant="default">{t("opportunityBadge")}</Badge>}
+      form={form}
+      onSubmit={handleSubmit}
+      isPending={promoteMutation.isPending}
+      submitLabel={t("promoteSubmit")}
+      footerHint={
+        selectedStage
+          ? t("promoteStageHint", { probability: selectedStage.probability })
+          : t("promoteEmptyHint")
+      }
+      className="sm:max-w-xl"
+    >
+      <CrmFormSection title={t("sectionPlacement")} description={t("placementHint")}>
+        <FormField
+          name="stageId"
+          label={t("tableStage")}
+          description={
+            selectedStage
+              ? t("stageDefaultHint", { probability: selectedStage.probability })
+              : t("stageRequiredHint")
+          }
+          className="sm:col-span-2"
+        >
+          {({ field, id }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger id={id} aria-label={t("tableStage")}>
+                <SelectValue placeholder={t("selectStage")} />
+              </SelectTrigger>
+              <SelectContent>
+                {stages.map((stage) => (
+                  <SelectItem key={stage.id} value={String(stage.id)}>
+                    {stage.name} — {stage.probability}%
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </FormField>
+      </CrmFormSection>
+
+      <CrmFormDivider />
+
+      <CrmFormSection title={t("sectionDealValue")} description={t("dealValueHint")}>
+        <FormField name="expectedRevenue" label={t("tableExpectedRevenue")}>
+          {({ field, id }) => <Input {...field} id={id} type="number" step="any" min="0" />}
+        </FormField>
+        <FormField
+          name="probability"
+          label={t("probabilityLabel")}
+          description={t("probabilityEmptyHint")}
+        >
+          {({ field, id }) => (
+            <Input
+              {...field}
+              id={id}
+              type="number"
+              min="0"
+              max="100"
+              placeholder={t("probabilityAutoPlaceholder")}
+            />
+          )}
+        </FormField>
+        <div className="rounded-lg border bg-muted/40 p-3 sm:col-span-2">
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="text-xs font-medium text-muted-foreground">{t("weightedValue")}</p>
+            <p className="text-sm font-semibold tabular-nums">{formatNumber(weightedValue)}</p>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
-            </Button>
-            <SubmitButton>{"Promote"}</SubmitButton>
-          </DialogFooter>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          <Progress value={Number(effectiveProbability) || 0} className="mt-2" />
+        </div>
+        <FormField name="priority" label={t("fieldPriority")} description={t("priorityHint")}>
+          {({ field, id }) => <Input {...field} id={id} type="number" min="0" />}
+        </FormField>
+        <FormField name="expectedClose" label={t("tableExpectedClose")}>
+          {({ field, id }) => <Input {...field} id={id} type="date" />}
+        </FormField>
+      </CrmFormSection>
+    </EntityFormDialog>
   );
 }

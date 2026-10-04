@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -21,9 +22,12 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { BankStatement, Journal } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney, getLocalDateString } from "@/lib/utils";
-import { bankStatementStateLabel, bankStatementStateTone } from "./statement-utils";
+import { bankStatementStateTone } from "./statement-utils";
+
+type TFn = (key: string, values?: Record<string, string | number>) => string;
 
 export function BankStatementsSection({ orgId }: { orgId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const statementsQuery = useOrgListQuery<
@@ -46,7 +50,7 @@ export function BankStatementsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<BankStatement>[] = [
     {
       accessorKey: "name",
-      header: "Reference",
+      header: () => t("colReference"),
       cell: ({ row }) => (
         <a
           href={`/accounting/bank-statements/${row.original.id}`}
@@ -58,7 +62,7 @@ export function BankStatementsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "journalId",
-      header: "Bank journal",
+      header: () => t("colBankJournal"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {journalMap.get(row.original.journalId ?? 0) ?? `#${row.original.journalId}`}
@@ -67,7 +71,7 @@ export function BankStatementsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "date",
-      header: "Date",
+      header: () => t("colDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.date ? formatDate(row.original.date) : "—"}
@@ -76,7 +80,7 @@ export function BankStatementsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "balanceStart",
-      header: "Opening balance",
+      header: () => t("colBalanceStart"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
@@ -86,7 +90,7 @@ export function BankStatementsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "balanceEnd",
-      header: "Closing balance",
+      header: () => t("colBalanceEnd"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums ">{formatMoney(row.original.balanceEnd)}</span>
@@ -94,10 +98,10 @@ export function BankStatementsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: () => t("colStatus"),
       cell: ({ row }) => (
         <Badge variant="outline" className={bankStatementStateTone(row.original.state)}>
-          {bankStatementStateLabel(row.original.state)}
+          {(t as unknown as (k: string) => string)(`statementState_${row.original.state}`)}
         </Badge>
       ),
     },
@@ -112,16 +116,25 @@ export function BankStatementsSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "open", label: "Open" },
-          { value: "reconciled", label: "Reconciled" },
-          { value: "cancelled", label: "Cancelled" },
+          {
+            value: "draft",
+            label: (t as unknown as (k: string) => string)("statementState_draft"),
+          },
+          { value: "open", label: (t as unknown as (k: string) => string)("statementState_open") },
+          {
+            value: "reconciled",
+            label: (t as unknown as (k: string) => string)("statementState_reconciled"),
+          },
+          {
+            value: "cancelled",
+            label: (t as unknown as (k: string) => string)("statementState_cancelled"),
+          },
         ]}
-        searchPlaceholder={"Search statements..."}
-        filterLabel={"State"}
-        allLabel={"All"}
-        ariaLabel={"Accounts"}
-        emptyTitle={"No bank statements found."}
+        searchPlaceholder={t("searchStatements")}
+        filterLabel={t("colStatus")}
+        allLabel={t("filterAll")}
+        ariaLabel={t("bankStatementsTitle")}
+        emptyTitle={t("statementsEmpty")}
         status={
           statementsQuery.isLoading
             ? { type: "loading" }
@@ -136,7 +149,7 @@ export function BankStatementsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New statement"}</span>
+            <span>{t("newStatement")}</span>
           </Button>
         }
       />
@@ -170,6 +183,8 @@ function StatementFormDialog({
   const [journalId, setJournalId] = useState("");
   const [date, setDate] = useState(getLocalDateString());
   const [balanceStart, setBalanceStart] = useState("0");
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
+  const tCommon = useTranslations("Common");
 
   useEffect(() => {
     if (!open) return;
@@ -191,25 +206,25 @@ function StatementFormDialog({
         lines: [],
       })
       .then(() => {
-        toast.success("Bank statement created successfully");
+        toast.success(t("toastStatementCreated"));
         onSave();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("toastStatementFailed")));
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"Create bank statement"}</DialogTitle>
-          <DialogDescription>{"Create a new bank statement for reconciliation."}</DialogDescription>
+          <DialogTitle>{t("createStatement")}</DialogTitle>
+          <DialogDescription>{t("createStatementDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Bank journal"}</span>
+            <span className="text-sm">{t("colBankJournal")}</span>
             <Select value={journalId} onValueChange={(v) => setJournalId(v ?? "")}>
-              <SelectTrigger aria-label={"Bank journal"}>
-                <SelectValue placeholder={"Select a journal"} />
+              <SelectTrigger aria-label={t("colBankJournal")}>
+                <SelectValue placeholder={t("selectJournal")} />
               </SelectTrigger>
               <SelectContent>
                 {journals.map((j) => (
@@ -222,16 +237,16 @@ function StatementFormDialog({
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Reference"}</span>
+              <span className="text-sm">{t("colReference")}</span>
               <Input value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Date"}</span>
+              <span className="text-sm">{t("colDate")}</span>
               <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Opening balance"}</span>
+            <span className="text-sm">{t("colBalanceStart")}</span>
             <Input
               value={balanceStart}
               onChange={(e) => setBalanceStart(e.target.value)}
@@ -242,10 +257,10 @@ function StatementFormDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={!journalId}>
-            {"Create"}
+            {t("createAction")}
           </Button>
         </DialogFooter>
       </DialogContent>

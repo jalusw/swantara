@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -37,6 +38,10 @@ export function RecordResultDialog({
   check: QualityCheck;
   onSave: () => void;
 }) {
+  const t = useTranslations("Quality");
+  const tCommon = useTranslations("Common");
+  const resultLabel = (result: string) =>
+    (t as unknown as (k: string) => string)(`result_${result}`);
   const form = useForm<RecordResultValues>({
     resolver: zodResolver(recordResultSchema),
     defaultValues: {
@@ -46,26 +51,26 @@ export function RecordResultDialog({
   });
 
   function handleSubmit(values: RecordResultValues) {
-    void getSwantaraService()
+    return getSwantaraService()
       .qualityChecks.result(Number(orgId), check.id, {
         pass: values.pass === "pass",
         measuredValue: values.measuredValue,
         checkedBy: null,
       })
       .then(() => onSave())
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => void toast.error(t("saveFailed")));
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{"Record Result"}</DialogTitle>
-          <DialogDescription>{`Record result for check #${check.id}`}</DialogDescription>
+          <DialogTitle>{t("recordResult")}</DialogTitle>
+          <DialogDescription>{t("recordResultFor", { id: check.id })}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4">
-            <FormField name="pass" label={"Result"}>
+            <FormField name="pass" label={t("colResult")}>
               {({ field, id }) => (
                 <div className="flex gap-2" id={id}>
                   <Button
@@ -73,19 +78,19 @@ export function RecordResultDialog({
                     variant={field.value === "pass" ? "default" : "outline"}
                     onClick={() => field.onChange("pass")}
                   >
-                    {"Pass"}
+                    {resultLabel("pass")}
                   </Button>
                   <Button
                     type="button"
                     variant={field.value === "fail" ? "destructive" : "outline"}
                     onClick={() => field.onChange("fail")}
                   >
-                    {"Fail"}
+                    {resultLabel("fail")}
                   </Button>
                 </div>
               )}
             </FormField>
-            <FormField name="measuredValue" label={"Measured value"}>
+            <FormField name="measuredValue" label={t("measuredValue")}>
               {({ field, id }) => (
                 <Input
                   {...field}
@@ -95,16 +100,16 @@ export function RecordResultDialog({
                   inputMode="decimal"
                   value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
-                  placeholder={"Enter value"}
+                  placeholder={t("measuredValuePlaceholder")}
                 />
               )}
             </FormField>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Save"}</SubmitButton>
+            <SubmitButton>{tCommon("save")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

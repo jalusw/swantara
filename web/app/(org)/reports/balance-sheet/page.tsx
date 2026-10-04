@@ -1,6 +1,7 @@
 "use client";
 
 import { FileDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/button";
@@ -12,31 +13,36 @@ import { exportCsv, formatMoney } from "@/lib/utils";
 import { BalanceSheetSections } from "../_components/balance-sheet-sections";
 
 export default function BalanceSheetPage() {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Reports");
   const { data } = useBalanceSheet();
   const bs = data?.balanceSheet;
 
   function handleExportCsv() {
     if (!bs) return;
-    const headers = ["Assets", "Code", "Account", "Type", "Balance"];
+    const headers = [t("assets"), t("colCode"), t("colAccount"), t("fieldType"), t("colBalance")];
     const allRows = [
-      ...bs.assets.map((r) => ["Assets", r.code, r.name, r.accountType, r.balance]),
-      ...bs.liabilities.map((r) => ["Liabilities", r.code, r.name, r.accountType, r.balance]),
-      ...bs.equity.map((r) => ["Equity", r.code, r.name, r.accountType, r.balance]),
+      ...bs.assets.map((r) => [t("assets"), r.code, r.name, r.accountType, r.balance]),
+      ...bs.liabilities.map((r) => [t("liabilities"), r.code, r.name, r.accountType, r.balance]),
+      ...bs.equity.map((r) => [t("equity"), r.code, r.name, r.accountType, r.balance]),
     ];
     exportCsv("balance-sheet", headers, allRows);
   }
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <BackLink href={"/reports"}>{"Back to reports"}</BackLink>
+      <BackLink href={"/reports"}>{t("backToReports")}</BackLink>
 
       <PageHeader
-        title={"Balance Sheet"}
-        description={"Assets, liabilities, and equity as of today."}
+        title={t("balanceSheetTitle")}
+        description={t("balanceSheetDescription")}
         actions={
           <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={!bs}>
             <FileDown className="size-4" aria-hidden />
-            {"Export CSV"}
+            {t("exportCsv")}
           </Button>
         }
       />
@@ -45,7 +51,7 @@ export default function BalanceSheetPage() {
         <section className="grid gap-3 sm:grid-cols-3">
           <Card>
             <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground">{"Total assets"}</p>
+              <p className="text-xs text-muted-foreground">{t("totalAssets")}</p>
               <p className="font-heading text-lg font-bold">
                 {formatMoney(bs.totalAssets, { currency: DEFAULT_CURRENCY })}
               </p>
@@ -53,7 +59,7 @@ export default function BalanceSheetPage() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground">{"Total liabilities"}</p>
+              <p className="text-xs text-muted-foreground">{t("totalLiabilities")}</p>
               <p className="font-heading text-lg font-bold">
                 {formatMoney(bs.totalLiabilities, { currency: DEFAULT_CURRENCY })}
               </p>
@@ -61,7 +67,7 @@ export default function BalanceSheetPage() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground">{"Total equity"}</p>
+              <p className="text-xs text-muted-foreground">{t("totalEquity")}</p>
               <p className="font-heading text-lg font-bold">
                 {formatMoney(bs.totalEquity, { currency: DEFAULT_CURRENCY })}
               </p>

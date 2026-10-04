@@ -68,9 +68,9 @@ describe("CategoryTreeSection", () => {
     renderWithProviders(<CategoryTreeSection orgId="1" />);
 
     await screen.findByText("Raw Materials");
-    await user.click(screen.getByRole("button", { name: "Add category" }));
+    await user.click(screen.getByRole("button", { name: "Tambah kategori" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("New category")).toBeInTheDocument();
+    expect(screen.getByText("Kategori baru")).toBeInTheDocument();
   });
 });

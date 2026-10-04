@@ -71,7 +71,7 @@ describe("ServiceOrdersSection", () => {
     renderWithProviders(<ServiceOrdersSection orgId="1" />);
 
     await screen.findByText("AC Repair Visit");
-    await user.type(screen.getByPlaceholderText("Search service orders…"), "Elevator");
+    await user.type(screen.getByPlaceholderText("Cari pesanan layanan…"), "Elevator");
 
     expect(await screen.findByText("Elevator Maintenance")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("AC Repair Visit")).not.toBeInTheDocument());

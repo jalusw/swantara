@@ -13,7 +13,7 @@ beforeEach(() => {
       HttpResponse.json(
         {
           success: true,
-          message: "Created.",
+          message: "Dibuat.",
           data: {
             run: {
               id: 2,
@@ -40,8 +40,10 @@ describe("PlanningRunDialog", () => {
   it("renders the run form", async () => {
     renderDialog(() => {});
 
-    expect(await screen.findByRole("heading", { name: "Run Planning" })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Optional name")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Jalankan perencanaan" }),
+    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Nama (opsional)")).toBeInTheDocument();
   });
 
   it("starts a run on submit", async () => {
@@ -49,9 +51,9 @@ describe("PlanningRunDialog", () => {
     const user = userEvent.setup();
     renderDialog(onSave);
 
-    await screen.findByRole("heading", { name: "Run Planning" });
-    await user.type(screen.getByPlaceholderText("Optional name"), "January run");
-    await user.click(screen.getByRole("button", { name: "Run Planning" }));
+    await screen.findByRole("heading", { name: "Jalankan perencanaan" });
+    await user.type(screen.getByPlaceholderText("Nama (opsional)"), "January run");
+    await user.click(screen.getByRole("button", { name: "Jalankan perencanaan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
   });

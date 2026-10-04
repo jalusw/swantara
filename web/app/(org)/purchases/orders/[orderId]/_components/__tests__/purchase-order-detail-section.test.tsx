@@ -110,10 +110,10 @@ describe("PurchaseOrderDetail", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Receipt" }));
+    await user.click(screen.getByRole("tab", { name: "Penerimaan" }));
 
     expect(
-      await screen.findByText("Receive goods against this purchase order."),
+      await screen.findByText("Terima barang untuk pesanan pembelian ini."),
     ).toBeInTheDocument();
   });
 });

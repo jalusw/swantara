@@ -121,9 +121,9 @@ describe("PurchaseRequestsSection", () => {
     renderWithProviders(<PurchaseRequestsSection orgId="1" />);
 
     await screen.findByText("PR-0001");
-    await user.click(screen.getByRole("button", { name: "New request" }));
+    await user.click(screen.getByRole("button", { name: "Permintaan baru" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("New purchase request")).toBeInTheDocument();
+    expect(screen.getByText("Permintaan pembelian baru")).toBeInTheDocument();
   });
 });

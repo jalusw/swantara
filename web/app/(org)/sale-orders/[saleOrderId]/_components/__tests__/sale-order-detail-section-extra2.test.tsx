@@ -60,7 +60,7 @@ const journals = [
   {
     id: 1,
     organization_id: 1,
-    name: "Cash",
+    name: "Kas",
     code: "CASH",
     type: "cash",
     default_account_id: null,
@@ -103,8 +103,8 @@ function seedSaleOrder(orderOverrides = {}, lists = {}) {
 }
 
 async function selectJournal(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("combobox", { name: "Journal" }));
-  await user.click(await screen.findByRole("option", { name: "Cash — cash" }));
+  await user.click(screen.getByRole("combobox", { name: "Jurnal" }));
+  await user.click(await screen.findByRole("option", { name: "Kas — cash" }));
 }
 
 beforeEach(() => {});
@@ -123,7 +123,7 @@ describe("SaleOrderDetail extra2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
 
     await waitFor(() => expect(confirmCalls).toBe(1));
   });
@@ -141,7 +141,7 @@ describe("SaleOrderDetail extra2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(cancelCalls).toBe(1));
   });
@@ -159,11 +159,11 @@ describe("SaleOrderDetail extra2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Delivery" }));
-    await user.click(await screen.findByRole("button", { name: "Ship / Deliver" }));
+    await user.click(screen.getByRole("tab", { name: "Pengiriman" }));
+    await user.click(await screen.findByRole("button", { name: "Kirim / Antar" }));
     const dialog = await screen.findByRole("dialog");
     await selectJournal(user);
-    await user.click(within(dialog).getByRole("button", { name: "Ship / Deliver" }));
+    await user.click(within(dialog).getByRole("button", { name: "Kirim / Antar" }));
 
     await waitFor(() => expect(deliverCalls).toBe(1));
   });
@@ -181,11 +181,11 @@ describe("SaleOrderDetail extra2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
-    await user.click(await screen.findByRole("button", { name: "Create invoice" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
+    await user.click(await screen.findByRole("button", { name: "Buat faktur" }));
     const dialog = await screen.findByRole("dialog");
     await selectJournal(user);
-    await user.click(within(dialog).getByRole("button", { name: "Create invoice" }));
+    await user.click(within(dialog).getByRole("button", { name: "Buat faktur" }));
 
     await waitFor(() => expect(invoiceCalls).toBe(1));
   });
@@ -203,12 +203,12 @@ describe("SaleOrderDetail extra2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Payments" }));
-    await user.click(await screen.findByRole("button", { name: "Collect payment" }));
+    await user.click(screen.getByRole("tab", { name: "Pembayaran" }));
+    await user.click(await screen.findByRole("button", { name: "Tarik pembayaran" }));
     const dialog = await screen.findByRole("dialog");
     await selectJournal(user);
     await user.type(within(dialog).getByRole("spinbutton"), "50");
-    await user.click(within(dialog).getByRole("button", { name: "Collect payment" }));
+    await user.click(within(dialog).getByRole("button", { name: "Tarik pembayaran" }));
 
     await waitFor(() => expect(payCalls).toBe(1));
   });
@@ -226,8 +226,8 @@ describe("SaleOrderDetail extra2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Reminder" }));
-    await user.click(await screen.findByRole("button", { name: "Generate reminder" }));
+    await user.click(screen.getByRole("tab", { name: "Pengingat" }));
+    await user.click(await screen.findByRole("button", { name: "Buat pengingat" }));
 
     await waitFor(() => expect(generateCalls).toBe(1));
   });
@@ -238,9 +238,9 @@ describe("SaleOrderDetail extra2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Reminder" }));
+    await user.click(screen.getByRole("tab", { name: "Pengingat" }));
 
-    expect(await screen.findByText("No reminder actions.")).toBeInTheDocument();
+    expect(await screen.findByText("Tidak ada pengingat")).toBeInTheDocument();
   });
 
   it("hints that delivery needs confirmation for draft orders", async () => {
@@ -249,12 +249,14 @@ describe("SaleOrderDetail extra2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Delivery" }));
+    await user.click(screen.getByRole("tab", { name: "Pengiriman" }));
 
     expect(
-      await screen.findByText("No shipment yet — confirm the order to create one."),
+      await screen.findByText("Belum ada pengiriman — konfirmasi pesanan untuk membuatnya."),
     ).toBeInTheDocument();
-    expect(screen.getByText("Confirm the order to enable delivery.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Konfirmasi pesanan untuk mengaktifkan pengiriman."),
+    ).toBeInTheDocument();
   });
 
   it("falls back to ids when contact and price_book names are unknown", async () => {

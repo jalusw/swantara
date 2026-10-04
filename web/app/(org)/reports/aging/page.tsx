@@ -1,6 +1,7 @@
 "use client";
 
 import { FileDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { BackLink } from "@/components/back-link";
 import { Badge } from "@/components/badge";
@@ -13,24 +14,29 @@ import { exportCsv, formatMoney } from "@/lib/utils";
 import { agingBucketSortKey, agingTotalByType, groupAgingByType } from "@/lib/utils/report-utils";
 
 export default function AgingReportPage() {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Reports");
   const { data, isLoading } = useAgingReport();
   const rows = data?.rows ?? [];
   const grouped = groupAgingByType(rows);
   const grandTotal = agingTotalByType(rows);
 
   function handleExportCsv() {
-    const headers = ["Type", "Age bucket", "Currency", "Amount"];
+    const headers = [t("colType"), t("colAgeBucket"), t("colCurrency"), t("colAmount")];
     const csvRows = rows.map((r) => [r.type, r.bucket, r.currencyCode, r.amount]);
     exportCsv("aging-report", headers, csvRows);
   }
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <BackLink href={"/reports"}>{"Back to reports"}</BackLink>
+      <BackLink href={"/reports"}>{t("backToReports")}</BackLink>
 
       <PageHeader
-        title={"Accounts Aging"}
-        description={"Outstanding receivables and payables by age bucket."}
+        title={t("agingTitle")}
+        description={t("agingDescription")}
         actions={
           <Button
             variant="outline"
@@ -39,14 +45,14 @@ export default function AgingReportPage() {
             disabled={rows.length === 0}
           >
             <FileDown className="size-4" aria-hidden />
-            {"Export CSV"}
+            {t("exportCsv")}
           </Button>
         }
       />
 
       <Card>
         <CardContent className="p-4">
-          <p className="text-xs text-muted-foreground">{"Grand total"}</p>
+          <p className="text-xs text-muted-foreground">{t("grandTotal")}</p>
           <p className="font-heading text-lg font-bold">
             {formatMoney(grandTotal, { currency: DEFAULT_CURRENCY })}
           </p>
@@ -56,13 +62,13 @@ export default function AgingReportPage() {
       {isLoading ? (
         <Card>
           <CardContent className="p-6 text-center text-muted-foreground">
-            {"Loading aging report…"}
+            {t("loadingAging")}
           </CardContent>
         </Card>
       ) : rows.length === 0 ? (
         <Card>
           <CardContent className="p-6 text-center text-muted-foreground">
-            {"No aging data available."}
+            {t("agingEmpty")}
           </CardContent>
         </Card>
       ) : (
@@ -83,10 +89,14 @@ export default function AgingReportPage() {
                     <thead>
                       <tr className="border-b border-border">
                         <th className="px-3 py-2 text-left text-muted-foreground">
-                          {"Age bucket"}
+                          {t("colAgeBucket")}
                         </th>
-                        <th className="px-3 py-2 text-left text-muted-foreground">{"Currency"}</th>
-                        <th className="px-3 py-2 text-right text-muted-foreground">{"Amount"}</th>
+                        <th className="px-3 py-2 text-left text-muted-foreground">
+                          {t("colCurrency")}
+                        </th>
+                        <th className="px-3 py-2 text-right text-muted-foreground">
+                          {t("colAmount")}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>

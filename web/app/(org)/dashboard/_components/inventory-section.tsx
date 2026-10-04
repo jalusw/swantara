@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { BarChart } from "@/components/bar-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
@@ -11,6 +12,7 @@ import { formatMoney, formatNumber } from "@/lib/utils";
 import { KpiCard } from "./kpi-card";
 
 export function InventoryOverview() {
+  const t = useTranslations("Dashboard");
   const inventoryKpi = useInventoryKpi();
   const inv = inventoryKpi.data?.kpi;
 
@@ -18,53 +20,53 @@ export function InventoryOverview() {
     () =>
       inv
         ? [
-            { label: "On-hand value", value: inv.onHandValue },
-            { label: "On-hand qty", value: inv.onHandQuantity },
+            { label: t("onHandValue"), value: inv.onHandValue },
+            { label: t("onHandQty"), value: inv.onHandQuantity },
           ]
         : [
-            { label: "On-hand value", value: 0 },
-            { label: "On-hand qty", value: 0 },
+            { label: t("onHandValue"), value: 0 },
+            { label: t("onHandQty"), value: 0 },
           ],
-    [inv],
+    [inv, t],
   );
 
   const stockComposition = useMemo(
     () =>
       inv
         ? [
-            { label: "On-hand qty", value: inv.onHandQuantity },
-            { label: "Products", value: inv.productCount },
+            { label: t("onHandQty"), value: inv.onHandQuantity },
+            { label: t("products"), value: inv.productCount },
           ]
         : [
-            { label: "On-hand qty", value: 0 },
-            { label: "Products", value: 0 },
+            { label: t("onHandQty"), value: 0 },
+            { label: t("products"), value: 0 },
           ],
-    [inv],
+    [inv, t],
   );
 
   return (
     <div className="grid gap-4 grid-cols-12">
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle>{"Inventory"}</CardTitle>
-          <CardDescription>{"On-hand value, quantity and catalog breadth."}</CardDescription>
+          <CardTitle>{t("inventoryTitle")}</CardTitle>
+          <CardDescription>{t("inventoryDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-12">
           <KpiCard
             className="col-span-12 rounded-xl border border-border bg-card p-4 bg-primary/[0.04] border-primary/15"
-            label={"On-hand value"}
+            label={t("onHandValue")}
           >
             {inv ? formatMoney(inv.onHandValue, { currency: DEFAULT_CURRENCY }) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-4"
-            label={"On-hand qty"}
+            label={t("onHandQty")}
           >
             {inv ? formatNumber(inv.onHandQuantity) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-4"
-            label={"Products"}
+            label={t("products")}
           >
             {inv ? formatNumber(inv.productCount) : "—"}
           </KpiCard>
@@ -72,28 +74,28 @@ export function InventoryOverview() {
       </Card>
       <Card className="col-span-12 lg:col-span-7">
         <CardHeader>
-          <CardTitle className="text-sm">{"On-hand breakdown"}</CardTitle>
-          <CardDescription>{"Value vs quantity"}</CardDescription>
+          <CardTitle className="text-sm">{t("onHandBreakdown")}</CardTitle>
+          <CardDescription>{t("valueVsQty")}</CardDescription>
         </CardHeader>
         <CardContent>
           <BarChart
             data={inventoryData}
-            ariaLabel={"Inventory"}
+            ariaLabel={t("inventoryTitle")}
             valueFormatter={(value) => formatNumber(value)}
           />
         </CardContent>
       </Card>
       <Card className="col-span-12 lg:col-span-5">
         <CardHeader>
-          <CardTitle className="text-sm">{"Catalog breadth"}</CardTitle>
-          <CardDescription>{"Quantity vs products"}</CardDescription>
+          <CardTitle className="text-sm">{t("catalogBreadth")}</CardTitle>
+          <CardDescription>{t("qtyVsProducts")}</CardDescription>
         </CardHeader>
         <CardContent>
           <DonutChart
             data={stockComposition}
-            ariaLabel={"Inventory"}
+            ariaLabel={t("inventoryTitle")}
             valueFormatter={(value) => formatNumber(value)}
-            centerLabel={"Products"}
+            centerLabel={t("products")}
           />
         </CardContent>
       </Card>
@@ -102,6 +104,7 @@ export function InventoryOverview() {
 }
 
 export function InventoryHealthSection() {
+  const t = useTranslations("Dashboard");
   const ratioKpi = useInventoryRatioKpi();
   const ratio = ratioKpi.data?.kpi;
 
@@ -109,55 +112,55 @@ export function InventoryHealthSection() {
     () =>
       ratio
         ? [
-            { label: "Turnover", value: ratio.turnover },
-            { label: "Days on hand", value: ratio.daysOnHand },
-            { label: "Stockouts", value: ratio.stockoutCount },
+            { label: t("turnover"), value: ratio.turnover },
+            { label: t("daysOnHand"), value: ratio.daysOnHand },
+            { label: t("stockouts"), value: ratio.stockoutCount },
           ]
         : [
-            { label: "Turnover", value: 0 },
-            { label: "Days on hand", value: 0 },
-            { label: "Stockouts", value: 0 },
+            { label: t("turnover"), value: 0 },
+            { label: t("daysOnHand"), value: 0 },
+            { label: t("stockouts"), value: 0 },
           ],
-    [ratio],
+    [ratio, t],
   );
 
   const healthFlow = useMemo(
     () =>
       ratio
         ? [
-            { label: "Turnover", value: ratio.turnover },
-            { label: "Days on hand", value: ratio.daysOnHand },
+            { label: t("turnover"), value: ratio.turnover },
+            { label: t("daysOnHand"), value: ratio.daysOnHand },
           ]
         : [
-            { label: "Turnover", value: 0 },
-            { label: "Days on hand", value: 0 },
+            { label: t("turnover"), value: 0 },
+            { label: t("daysOnHand"), value: 0 },
           ],
-    [ratio],
+    [ratio, t],
   );
 
   return (
     <div className="grid gap-4 grid-cols-12">
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle>{"Inventory health"}</CardTitle>
-          <CardDescription>{"Turnover, days on hand and stockouts."}</CardDescription>
+          <CardTitle>{t("healthTitle")}</CardTitle>
+          <CardDescription>{t("healthDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-12">
           <KpiCard
             className="col-span-6 lg:col-span-4 rounded-xl border border-border bg-card p-4"
-            label={"Turnover"}
+            label={t("turnover")}
           >
             {ratio ? ratio.turnover.toFixed(2) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 lg:col-span-4 rounded-xl border border-border bg-card p-4"
-            label={"Days on hand"}
+            label={t("daysOnHand")}
           >
             {ratio ? `${ratio.daysOnHand.toFixed(1)}d` : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-12 lg:col-span-4 rounded-xl border border-border bg-card p-4 bg-amber-500/10 border-amber-500/20"
-            label={"Stockouts"}
+            label={t("stockouts")}
           >
             {ratio ? String(ratio.stockoutCount) : "—"}
           </KpiCard>
@@ -165,26 +168,26 @@ export function InventoryHealthSection() {
       </Card>
       <Card className="col-span-12 lg:col-span-7">
         <CardHeader>
-          <CardTitle className="text-sm">{"Health metrics"}</CardTitle>
-          <CardDescription>{"Turnover, days and stockouts"}</CardDescription>
+          <CardTitle className="text-sm">{t("healthMetrics")}</CardTitle>
+          <CardDescription>{t("healthMetricsDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <BarChart
             data={ratioData}
-            ariaLabel={"Inventory health"}
+            ariaLabel={t("healthTitle")}
             valueFormatter={(value) => formatNumber(value)}
           />
         </CardContent>
       </Card>
       <Card className="col-span-12 lg:col-span-5">
         <CardHeader>
-          <CardTitle className="text-sm">{"Flow"}</CardTitle>
-          <CardDescription>{"Turnover vs days on hand"}</CardDescription>
+          <CardTitle className="text-sm">{t("flowTitle")}</CardTitle>
+          <CardDescription>{t("turnoverVsDays")}</CardDescription>
         </CardHeader>
         <CardContent>
           <LineChart
             data={healthFlow}
-            ariaLabel={"Inventory health"}
+            ariaLabel={t("healthTitle")}
             valueFormatter={(value) => formatNumber(value)}
           />
         </CardContent>

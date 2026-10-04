@@ -73,7 +73,7 @@ describe("PaymentsSection", () => {
     renderWithProviders(<PaymentsSection />);
 
     await screen.findByText("PAY-001");
-    await user.type(screen.getByPlaceholderText("Search payments..."), "002");
+    await user.type(screen.getByPlaceholderText("Cari pembayaran..."), "002");
 
     expect(await screen.findByText("PAY-002")).toBeInTheDocument();
   });

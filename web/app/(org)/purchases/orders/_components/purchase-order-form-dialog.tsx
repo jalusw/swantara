@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -27,8 +28,9 @@ type LineRow = {
 };
 
 function usePurchaseOrderFormSchema() {
+  const t = useTranslations("Purchases");
   return z.object({
-    supplierId: z.string().min(1, "Select a supplier."),
+    supplierId: z.string().min(1, t("validationSupplierRequired")),
     warehouseId: z.string(),
     vendorRef: z.string(),
     orderDate: z.string(),
@@ -50,6 +52,8 @@ export function PurchaseOrderFormDialog({
   orgId: string;
   onSave: () => void;
 }) {
+  const t = useTranslations("Purchases");
+  const tCommon = useTranslations("Common");
   const contactsQuery = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
     "contacts",
     (organizationId) => getSwantaraService().contacts.list(organizationId),
@@ -144,12 +148,12 @@ export function PurchaseOrderFormDialog({
 
   function handleSubmit(values: PurchaseOrderFormValues) {
     if (lines.length === 0) {
-      toast.error("Add at least one line.");
+      toast.error(t("addAtLeastOneLine"));
       return;
     }
     const invalid = lines.some((line) => !line.itemId || Number(line.qtyOrdered) <= 0);
     if (invalid) {
-      toast.error("Quantity must be greater than zero.");
+      toast.error(t("quantityMustBePositive"));
       return;
     }
     const request = {
@@ -176,31 +180,33 @@ export function PurchaseOrderFormDialog({
         dimensionId: null as number | null,
       })),
     };
-    void getSwantaraService()
+    return getSwantaraService()
       .purchaseOrders.create(Number(orgId), request)
       .then(() => {
-        toast.success("Purchase order created.");
+        toast.success(t("purchaseOrderCreated"));
         onSave();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => void toast.error(t("saveFailed")));
   }
 
   return (
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"New purchase order"}
-      description={"Create a purchase order for a supplier."}
+      title={t("newPurchaseOrder")}
+      description={t("newPurchaseOrderDescription")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-3xl"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField name="supplierId" label={"Supplier"}>
+        <FormField name="supplierId" label={t("tableSupplier")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Supplier"}>
-                <SelectValue placeholder={"Select supplier"} />
+              <SelectTrigger id={id} aria-label={t("tableSupplier")}>
+                <SelectValue placeholder={t("selectSupplier")} />
               </SelectTrigger>
               <SelectContent>
                 {contacts.map((p) => (
@@ -212,11 +218,11 @@ export function PurchaseOrderFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="warehouseId" label={"Warehouse"}>
+        <FormField name="warehouseId" label={t("fieldWarehouse")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Warehouse"}>
-                <SelectValue placeholder={"Select warehouse"} />
+              <SelectTrigger id={id} aria-label={t("fieldWarehouse")}>
+                <SelectValue placeholder={t("selectWarehouse")} />
               </SelectTrigger>
               <SelectContent>
                 {warehouses.map((w) => (
@@ -228,44 +234,44 @@ export function PurchaseOrderFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="vendorRef" label={"Supplier reference"}>
+        <FormField name="vendorRef" label={t("fieldVendorRef")}>
           {({ field, id }) => <Input {...field} id={id} />}
         </FormField>
-        <FormField name="orderDate" label={"Order date"}>
+        <FormField name="orderDate" label={t("tableOrderDate")}>
           {({ field, id }) => <Input {...field} id={id} type="date" />}
         </FormField>
-        <FormField name="expectedDate" label={"Expected date"}>
+        <FormField name="expectedDate" label={t("fieldExpectedDate")}>
           {({ field, id }) => <Input {...field} id={id} type="date" />}
         </FormField>
-        <FormField name="incoterm" label={"Incoterm"}>
+        <FormField name="incoterm" label={t("fieldIncoterm")}>
           {({ field, id }) => <Input {...field} id={id} />}
         </FormField>
-        <FormField name="note" label={"Note"}>
+        <FormField name="note" label={t("fieldNote")}>
           {({ field, id }) => <Textarea {...field} id={id} rows={2} />}
         </FormField>
       </div>
 
       <div className="mt-6 flex flex-col gap-3 rounded-md border p-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm">{"Order lines"}</h3>
+          <h3 className="text-sm">{t("orderLines")}</h3>
           <Button type="button" variant="outline" size="sm" onClick={addLine}>
-            {"Add line"}
+            {t("addLine")}
           </Button>
         </div>
         {lines.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{"Add at least one line."}</p>
+          <p className="text-sm text-muted-foreground">{t("addAtLeastOneLine")}</p>
         ) : null}
         <div className="flex flex-col gap-3">
           {lines.map((line, index) => (
             <div key={line.id} className="grid gap-2 rounded-md border p-3 sm:grid-cols-12">
               <div className="sm:col-span-4">
-                <span className="text-xs text-muted-foreground">{"Item"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldItem")}</span>
                 <Select
                   value={line.itemId}
                   onValueChange={(value) => updateLine(line.id, { itemId: value ?? "" })}
                 >
-                  <SelectTrigger aria-label={`${"Item"} ${index + 1}`}>
-                    <SelectValue placeholder={"Select item"} />
+                  <SelectTrigger aria-label={`${t("fieldItem")} ${index + 1}`}>
+                    <SelectValue placeholder={t("selectItem")} />
                   </SelectTrigger>
                   <SelectContent>
                     {products.map((p) => (
@@ -277,7 +283,7 @@ export function PurchaseOrderFormDialog({
                 </Select>
               </div>
               <div className="sm:col-span-2">
-                <span className="text-xs text-muted-foreground">{"Qty"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldQty")}</span>
                 <Input
                   value={line.qtyOrdered}
                   onChange={(e) => updateLine(line.id, { qtyOrdered: e.target.value })}
@@ -287,7 +293,7 @@ export function PurchaseOrderFormDialog({
                 />
               </div>
               <div className="sm:col-span-2">
-                <span className="text-xs text-muted-foreground">{"Unit price"}</span>
+                <span className="text-xs text-muted-foreground">{t("unitPrice")}</span>
                 <Input
                   value={line.unitPrice}
                   onChange={(e) => updateLine(line.id, { unitPrice: e.target.value })}
@@ -297,7 +303,7 @@ export function PurchaseOrderFormDialog({
                 />
               </div>
               <div className="sm:col-span-2">
-                <span className="text-xs text-muted-foreground">{"Discount %"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldDiscountPct")}</span>
                 <Input
                   value={line.discountPct}
                   onChange={(e) => updateLine(line.id, { discountPct: e.target.value })}
@@ -309,14 +315,14 @@ export function PurchaseOrderFormDialog({
               </div>
               <div className="sm:col-span-2 flex items-end">
                 <Button type="button" variant="ghost" size="sm" onClick={() => removeLine(line.id)}>
-                  {"Remove"}
+                  {tCommon("delete")}
                 </Button>
               </div>
               <div className="sm:col-span-12">
                 <Input
                   value={line.description}
                   onChange={(e) => updateLine(line.id, { description: e.target.value })}
-                  placeholder={"Description"}
+                  placeholder={t("fieldDescription")}
                 />
               </div>
             </div>

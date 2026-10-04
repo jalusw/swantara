@@ -35,7 +35,7 @@ export default function GlobalError({
   }, []);
 
   return (
-    <html lang="en" className={cn("antialiased", theme)} style={{ colorScheme }}>
+    <html lang="id" className={cn("antialiased", theme)} style={{ colorScheme }}>
       <body>
         <main className="grid min-h-dvh place-items-center px-4 py-16">
           <ErrorState
@@ -43,6 +43,14 @@ export default function GlobalError({
             digest={error.digest}
             onReset={reset}
             className="animate-fade-up"
+            labels={{
+              title: "Terjadi kesalahan",
+              description:
+                "Terjadi kesalahan tak terduga. Silakan coba lagi atau hubungi dukungan jika masalah berlanjut.",
+              retry: "Coba lagi",
+              contactSupport: "Hubungi dukungan",
+              backToHome: "Kembali ke beranda",
+            }}
           />
         </main>
       </body>

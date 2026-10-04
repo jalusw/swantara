@@ -34,7 +34,7 @@ describe("ProjectFormDialog", () => {
       <ProjectFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(await screen.findByText("New project")).toBeInTheDocument();
+    expect(await screen.findByText("Proyek baru")).toBeInTheDocument();
   });
 
   it("renders name field", async () => {
@@ -42,7 +42,7 @@ describe("ProjectFormDialog", () => {
       <ProjectFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("New project");
-    expect(screen.getByLabelText("Project name")).toBeInTheDocument();
+    await screen.findByText("Proyek baru");
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 });

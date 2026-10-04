@@ -73,7 +73,7 @@ describe("BomFormDialog branches3", () => {
       />,
     );
 
-    expect(await screen.findByText("New bill of materials")).toBeInTheDocument();
+    expect(await screen.findByText("Resep baru")).toBeInTheDocument();
   });
 
   it("renders edit title when initial is provided", async () => {
@@ -98,7 +98,7 @@ describe("BomFormDialog branches3", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit bill of materials")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah resep")).toBeInTheDocument();
   });
 
   it("adds and removes a line", async () => {
@@ -113,13 +113,13 @@ describe("BomFormDialog branches3", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
-    await user.click(screen.getByRole("button", { name: "Add component" }));
-    const removes = await screen.findAllByRole("button", { name: "Remove line" });
+    await screen.findByText("Resep baru");
+    await user.click(screen.getByRole("button", { name: "Tambah komponen" }));
+    const removes = await screen.findAllByRole("button", { name: "Hapus baris" });
     expect(removes.length).toBeGreaterThan(0);
     const first = removes[0];
     if (first) await user.click(first);
-    expect(screen.getByRole("button", { name: "Add component" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Tambah komponen" })).toBeInTheDocument();
   });
 
   it("shows total with scrap for positive quantities", async () => {
@@ -144,6 +144,6 @@ describe("BomFormDialog branches3", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit bill of materials")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah resep")).toBeInTheDocument();
   });
 });

@@ -40,7 +40,7 @@ const journals = [
   {
     id: 1,
     organization_id: 1,
-    name: "Cash",
+    name: "Kas",
     code: "CASH",
     type: "cash",
     default_account_id: null,
@@ -224,7 +224,7 @@ describe("SaleOrderDetail branches3", () => {
 
     await screen.findByRole("heading", { name: "SO-0007" });
     await user.click(tabs()[4]!);
-    const generate = screen.getByRole("button", { name: "Generate reminder" });
+    const generate = screen.getByRole("button", { name: "Buat pengingat" });
     await user.click(generate);
 
     expect(await screen.findByText("#9")).toBeInTheDocument();

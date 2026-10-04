@@ -1,9 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from "@/components/sidebar";
 import { useActiveModuleIds } from "@/lib/hooks/use-org-modules";
 import { usePermissions } from "@/lib/hooks/use-permissions";
-import { humanizeKey } from "@/lib/utils/case";
 import { ModuleCollapsible } from "./module-collapsible";
 import {
   type OrgNavGroup,
@@ -19,6 +19,13 @@ const groupOrder: OrgNavGroup[] = ["overview", "modules", "settings"];
 export function OrgNav() {
   const { has } = usePermissions();
   const activeModules = useActiveModuleIds();
+  const tNav = useTranslations("Nav");
+
+  const GROUP_LABELS: Record<OrgNavGroup, string> = {
+    overview: tNav("overview"),
+    modules: tNav("modules"),
+    settings: tNav("settings"),
+  };
 
   const visibleItems = orgNavItems.filter(
     (item) =>
@@ -43,7 +50,7 @@ export function OrgNav() {
           if (items.length === 0) return null;
           return (
             <SidebarGroup key={group}>
-              <SidebarGroupLabel>{humanizeKey(String(group))}</SidebarGroupLabel>
+              <SidebarGroupLabel>{GROUP_LABELS[group]}</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarTree items={items} />
               </SidebarGroupContent>

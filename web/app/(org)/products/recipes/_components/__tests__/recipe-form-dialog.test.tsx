@@ -78,8 +78,8 @@ describe("BomFormDialog", () => {
       />,
     );
 
-    expect(screen.getByText("New bill of materials")).toBeInTheDocument();
-    expect(screen.getByText("Components")).toBeInTheDocument();
+    expect(screen.getByText("Resep baru")).toBeInTheDocument();
+    expect(screen.getByText("Komponen", { selector: "p" })).toBeInTheDocument();
   });
 
   it("requires a item before saving", async () => {
@@ -95,9 +95,9 @@ describe("BomFormDialog", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Select a item.")).toBeInTheDocument();
+    expect(await screen.findByText("Silakan pilih produk.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 });

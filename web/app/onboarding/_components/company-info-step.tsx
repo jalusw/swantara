@@ -1,6 +1,7 @@
 "use client";
 
-import { useId } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useId, useMemo } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import {
   Combobox,
@@ -30,28 +31,47 @@ function countryCodeToFlag(code: string): string {
 
 export const countryOptions = [
   { code: "ID", name: "Indonesia" },
-  { code: "SG", name: "Singapore" },
-  { code: "US", name: "United States" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "DE", name: "Germany" },
+  { code: "SG", name: "Singapura" },
+  { code: "US", name: "Amerika Serikat" },
+  { code: "GB", name: "Britania Raya" },
+  { code: "DE", name: "Jerman" },
   { code: "MY", name: "Malaysia" },
   { code: "TH", name: "Thailand" },
-  { code: "PH", name: "Philippines" },
+  { code: "PH", name: "Filipina" },
   { code: "VN", name: "Vietnam" },
   { code: "AU", name: "Australia" },
-  { code: "JP", name: "Japan" },
-  { code: "KR", name: "South Korea" },
+  { code: "JP", name: "Jepang" },
+  { code: "KR", name: "Korea Selatan" },
 ].map((c) => ({ ...c, flag: countryCodeToFlag(c.code) }));
+
+function useLocalizedCountryOptions() {
+  const locale = useLocale();
+  return useMemo(
+    () =>
+      countryOptions.map((country) => {
+        try {
+          const name = new Intl.DisplayNames([locale], { type: "region" }).of(country.code);
+          return { ...country, name: name ?? country.name };
+        } catch {
+          return country;
+        }
+      }),
+    [locale],
+  );
+}
 
 export function CompanyInfoStep() {
   const { control } = useFormContext<OnboardingFormSchema>();
+  const t = useTranslations("Onboarding");
+  const tx = t as unknown as (key: string) => string;
+  const localizedCountries = useLocalizedCountryOptions();
   const nameId = useId();
   const countryId = useId();
 
   return (
     <QuestionnaireItem name="companyInfo" required>
-      <QuestionnaireTitle>{"Company Info"}</QuestionnaireTitle>
-      <QuestionnaireDescription>{"Tell us about your company."}</QuestionnaireDescription>
+      <QuestionnaireTitle>{tx("companyInfoTitle")}</QuestionnaireTitle>
+      <QuestionnaireDescription>{tx("companyInfoDescription")}</QuestionnaireDescription>
       <Controller
         name="name"
         control={control}
@@ -60,7 +80,7 @@ export function CompanyInfoStep() {
           const { value, onChange, onBlur, ref } = field;
           return (
             <Field>
-              <Label htmlFor={nameId}>{"Company Name"}</Label>
+              <Label htmlFor={nameId}>{tx("companyName")}</Label>
               <QuestionnaireInput
                 id={nameId}
                 type="text"
@@ -93,25 +113,25 @@ export function CompanyInfoStep() {
           const errorId = fieldState.error ? `${countryId}-error` : undefined;
           return (
             <Field>
-              <Label htmlFor={countryId}>{"Country"}</Label>
+              <Label htmlFor={countryId}>{tx("country")}</Label>
               <Combobox
-                items={countryOptions.map((country) => country.code)}
+                items={localizedCountries.map((country) => country.code)}
                 itemToStringLabel={(value) =>
-                  countryOptions.find((country) => country.code === value)?.name ?? ""
+                  localizedCountries.find((country) => country.code === value)?.name ?? ""
                 }
                 value={field.value}
                 onValueChange={(value) => field.onChange(value ?? "")}
               >
                 <ComboboxInput
                   id={countryId}
-                  placeholder={"Select country"}
+                  placeholder={tx("selectCountry")}
                   aria-invalid={Boolean(fieldState.error)}
                   aria-describedby={errorId}
                 />
                 <ComboboxContent>
                   <ComboboxList>
                     {(code: string) => {
-                      const country = countryOptions.find((c) => c.code === code);
+                      const country = localizedCountries.find((c) => c.code === code);
                       if (!country) return null;
                       return (
                         <ComboboxItem key={country.code} value={country.code}>
@@ -126,7 +146,7 @@ export function CompanyInfoStep() {
                       );
                     }}
                   </ComboboxList>
-                  <ComboboxEmpty>{"No results found"}</ComboboxEmpty>
+                  <ComboboxEmpty>{tx("noResults")}</ComboboxEmpty>
                 </ComboboxContent>
               </Combobox>
               <QuestionnaireInput

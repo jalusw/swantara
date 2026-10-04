@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { RecordLayout } from "@/components/record-layout";
 import { useOrgQuery } from "@/lib/hooks/use-org-query";
@@ -8,6 +9,8 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
 
 export function EquipmentDetail({ equipmentId }: { orgId: string; equipmentId: string }) {
+  const t = useTranslations("Service");
+  const tCommon = useTranslations("Common");
   const query = useOrgQuery<{ equipment: Equipment }>("equipment", equipmentId, (organizationId) =>
     getSwantaraService().equipments.get(organizationId, Number(equipmentId)),
   );
@@ -15,29 +18,29 @@ export function EquipmentDetail({ equipmentId }: { orgId: string; equipmentId: s
   const equipment = query.data?.equipment;
 
   if (query.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (!equipment) {
-    return <p className="text-sm text-muted-foreground">{"Equipment not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("equipmentNotFound")}</p>;
   }
 
   return (
     <RecordLayout
       breadcrumbItems={[
-        { label: "Equipments", href: "/service-orders/equipment" },
+        { label: t("equipmentTitle"), href: "/service-orders/equipment" },
         { label: equipment.name },
       ]}
       title={equipment.name}
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: t("tabOverview"),
           content: (
             <div className="grid gap-4 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Category"}</CardTitle>
+                  <CardTitle>{t("category")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">{equipment.category || "—"}</p>
@@ -45,7 +48,7 @@ export function EquipmentDetail({ equipmentId }: { orgId: string; equipmentId: s
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Location"}</CardTitle>
+                  <CardTitle>{t("location")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">{equipment.location || "—"}</p>
@@ -53,7 +56,7 @@ export function EquipmentDetail({ equipmentId }: { orgId: string; equipmentId: s
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Install date"}</CardTitle>
+                  <CardTitle>{t("installDate")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">
@@ -63,28 +66,28 @@ export function EquipmentDetail({ equipmentId }: { orgId: string; equipmentId: s
               </Card>
               <Card className="lg:col-span-3">
                 <CardHeader>
-                  <CardTitle>{"Details"}</CardTitle>
+                  <CardTitle>{t("detailsTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <dl className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Warranty end"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("warrantyEnd")}</dt>
                       <dd className="text-sm">
                         {equipment.warrantyEnd ? formatDate(String(equipment.warrantyEnd)) : "—"}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Owner"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("owner")}</dt>
                       <dd className="text-sm">
                         {equipment.ownerContactId ? `#${equipment.ownerContactId}` : "—"}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Item"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("item")}</dt>
                       <dd className="text-sm">{equipment.itemId ? `#${equipment.itemId}` : "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Fixed asset"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("fixedAsset")}</dt>
                       <dd className="text-sm">
                         {equipment.fixedAssetId ? `#${equipment.fixedAssetId}` : "—"}
                       </dd>

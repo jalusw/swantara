@@ -91,7 +91,7 @@ describe("SalaryRuleFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit salary rule")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah aturan gaji")).toBeInTheDocument();
     expect(screen.getByDisplayValue("base * 0.1")).toBeInTheDocument();
   });
 
@@ -107,7 +107,7 @@ describe("SalaryRuleFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit salary rule")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah aturan gaji")).toBeInTheDocument();
     expect(screen.getByDisplayValue("ALLOW")).toBeInTheDocument();
   });
 
@@ -126,8 +126,8 @@ describe("SalaryRuleFormDialog branches", () => {
       />,
     );
 
-    await screen.findByLabelText("Code");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByLabelText("Kode");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).not.toHaveBeenCalled());
   });
@@ -147,9 +147,9 @@ describe("SalaryRuleFormDialog branches", () => {
       />,
     );
 
-    await user.type(await screen.findByLabelText("Code"), "BASIC");
-    await user.type(screen.getByLabelText("Name"), "Basic Salary");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByLabelText("Kode"), "BASIC");
+    await user.type(screen.getByLabelText("Nama"), "Basic Salary");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -169,15 +169,15 @@ describe("SalaryRuleFormDialog branches", () => {
       />,
     );
 
-    await user.type(await screen.findByLabelText("Code"), "TAX");
-    await user.type(screen.getByLabelText("Name"), "Income Tax");
-    await user.click(screen.getByRole("combobox", { name: "Category" }));
+    await user.type(await screen.findByLabelText("Kode"), "TAX");
+    await user.type(screen.getByLabelText("Nama"), "Income Tax");
+    await user.click(screen.getByRole("combobox", { name: "Kategori" }));
     await user.click(
       await screen.findByRole("option", {
-        name: "Deduction",
+        name: "Potongan",
       }),
     );
-    await user.click(screen.getByRole("combobox", { name: "Compute type" }));
+    await user.click(screen.getByRole("combobox", { name: "Jenis perhitungan" }));
     await user.click(
       await screen.findByRole("option", {
         name: "Formula",
@@ -185,11 +185,11 @@ describe("SalaryRuleFormDialog branches", () => {
     );
     await user.type(screen.getByLabelText("Amount"), "10");
     await user.type(screen.getByLabelText("Formula"), "base * 0.1");
-    await user.click(screen.getByRole("combobox", { name: "Debit account" }));
+    await user.click(screen.getByRole("combobox", { name: "Akun debit" }));
     await user.click(await screen.findByRole("option", { name: "5000 Salary Expense" }));
-    await user.click(screen.getByRole("combobox", { name: "Credit account" }));
+    await user.click(screen.getByRole("combobox", { name: "Akun kredit" }));
     await user.click(await screen.findByRole("option", { name: "2000 Payable" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -209,11 +209,11 @@ describe("SalaryRuleFormDialog branches", () => {
       />,
     );
 
-    await user.type(await screen.findByLabelText("Code"), "BASIC");
-    await user.type(screen.getByLabelText("Name"), "Basic Salary");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByLabelText("Kode"), "BASIC");
+    await user.type(screen.getByLabelText("Nama"), "Basic Salary");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByLabelText("Code")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByLabelText("Kode")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -232,8 +232,8 @@ describe("SalaryRuleFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit salary rule");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah aturan gaji");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -253,9 +253,9 @@ describe("SalaryRuleFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit salary rule");
+    await screen.findByText("Ubah aturan gaji");
     await user.clear(screen.getByDisplayValue("base * 0.1"));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -275,10 +275,10 @@ describe("SalaryRuleFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit salary rule");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah aturan gaji");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("Edit salary rule")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Ubah aturan gaji")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -296,8 +296,8 @@ describe("SalaryRuleFormDialog branches", () => {
       />,
     );
 
-    await screen.findByLabelText("Code");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByLabelText("Kode");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

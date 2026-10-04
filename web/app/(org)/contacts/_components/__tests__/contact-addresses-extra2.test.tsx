@@ -42,15 +42,15 @@ describe("ContactAddresses extra2", () => {
     seedAddresses([]);
     renderWithProviders(<ContactAddresses orgId="1" contactId="1" onRefetch={() => {}} />);
 
-    expect(await screen.findByText("No addresses")).toBeInTheDocument();
+    expect(await screen.findByText("Tidak ada alamat")).toBeInTheDocument();
   });
 
   it("hides the default action for the default address", async () => {
     renderWithProviders(<ContactAddresses orgId="1" contactId="1" onRefetch={() => {}} />);
 
     await screen.findByText("Line 1");
-    expect(screen.getAllByRole("button", { name: "Set as default" })).toHaveLength(1);
-    expect(screen.getByText("Default")).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Jadikan bawaan" })).toHaveLength(1);
+    expect(screen.getByText("Bawaan")).toBeInTheDocument();
   });
 
   it("sets an address as default and refetches", async () => {
@@ -69,7 +69,7 @@ describe("ContactAddresses extra2", () => {
     renderWithProviders(<ContactAddresses orgId="1" contactId="1" onRefetch={onRefetch} />);
 
     await screen.findByText("Line 2");
-    await user.click(screen.getByRole("button", { name: "Set as default" }));
+    await user.click(screen.getByRole("button", { name: "Jadikan bawaan" }));
 
     await waitFor(() => expect(defaultCalls).toBe(1));
     await waitFor(() => expect(onRefetch).toHaveBeenCalled());
@@ -91,8 +91,8 @@ describe("ContactAddresses extra2", () => {
     renderWithProviders(<ContactAddresses orgId="1" contactId="1" onRefetch={onRefetch} />);
 
     await screen.findByText("Line 1");
-    await user.click(screen.getAllByRole("button", { name: "Delete" })[0]!);
-    await user.click(await screen.findByRole("button", { name: "Delete" }));
+    await user.click(screen.getAllByRole("button", { name: "Hapus" })[0]!);
+    await user.click(await screen.findByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(deleteCalls).toBe(1));
     await waitFor(() => expect(onRefetch).toHaveBeenCalled());
@@ -111,11 +111,11 @@ describe("ContactAddresses extra2", () => {
     renderWithProviders(<ContactAddresses orgId="1" contactId="1" onRefetch={onRefetch} />);
 
     await screen.findByText("Line 1");
-    await user.click(screen.getByRole("button", { name: "Add address" }));
+    await user.click(screen.getByRole("button", { name: "Tambah alamat" }));
     const dialog = await screen.findByRole("dialog");
 
-    await user.type(within(dialog).getByPlaceholderText("Address line 1"), "Jl. Baru 5");
-    await user.click(within(dialog).getByRole("button", { name: "Save address" }));
+    await user.type(within(dialog).getByPlaceholderText("Baris alamat 1"), "Jl. Baru 5");
+    await user.click(within(dialog).getByRole("button", { name: "Simpan alamat" }));
 
     await waitFor(() => expect(createCalls).toBe(1));
     await waitFor(() => expect(onRefetch).toHaveBeenCalled());
@@ -136,10 +136,10 @@ describe("ContactAddresses extra2", () => {
     renderWithProviders(<ContactAddresses orgId="1" contactId="1" onRefetch={() => {}} />);
 
     await screen.findByText("Line 1");
-    await user.click(screen.getAllByRole("button", { name: "Edit" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Ubah" })[0]!);
 
-    expect(await screen.findByText("Edit address")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Save address" }));
+    expect(await screen.findByText("Ubah alamat")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Simpan alamat" }));
 
     await waitFor(() => expect(updateCalls).toBe(1));
   });

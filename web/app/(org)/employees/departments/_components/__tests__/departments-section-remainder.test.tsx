@@ -59,7 +59,7 @@ describe("DepartmentsSection remainder", () => {
     expect(await screen.findByText("Department load failed.")).toBeInTheDocument();
 
     useDepartmentsHandlers();
-    await user.click(screen.getByRole("button", { name: /retry|try again/i }));
+    await user.click(screen.getByRole("button", { name: /coba lagi/i }));
 
     expect(await screen.findByText("Engineering")).toBeInTheDocument();
   });
@@ -71,7 +71,7 @@ describe("DepartmentsSection remainder", () => {
     await screen.findByText("Engineering");
     const rowMenus = screen.getAllByRole("button").filter((button) => !button.textContent);
     await user.click(rowMenus[0]!);
-    await user.click(await screen.findByRole("menuitem", { name: /edit/i }));
+    await user.click(await screen.findByRole("menuitem", { name: /ubah/i }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
@@ -90,10 +90,10 @@ describe("DepartmentsSection remainder", () => {
     await screen.findByText("Marketing");
     const rowMenus = screen.getAllByRole("button").filter((button) => !button.textContent);
     await user.click(rowMenus[1]!);
-    await user.click(await screen.findByRole("menuitem", { name: /delete/i }));
+    await user.click(await screen.findByRole("menuitem", { name: /hapus/i }));
 
     expect(await screen.findByRole("alertdialog")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /confirm|delete/i, hidden: false }));
+    await user.click(screen.getByRole("button", { name: /konfirmasi/i, hidden: false }));
 
     await waitFor(() => expect(deletedId).toBe(2));
   });
@@ -103,7 +103,7 @@ describe("DepartmentsSection remainder", () => {
     renderWithProviders(<DepartmentsSection orgId="1" />);
 
     await screen.findByText("Engineering");
-    await user.click(screen.getByRole("button", { name: /add department/i }));
+    await user.click(screen.getByRole("button", { name: /tambah departemen/i }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

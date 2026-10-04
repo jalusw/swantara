@@ -38,7 +38,7 @@ describe("InboundCostDetail", () => {
     renderWithProviders(<InboundCostDetail orgId="1" inboundCostId="1" />);
 
     expect(await screen.findByRole("heading", { name: "Freight January" })).toBeInTheDocument();
-    expect(screen.getByText("Draft")).toBeInTheDocument();
+    expect(screen.getByText("Draf")).toBeInTheDocument();
   });
 
   it("shows empty lines on the cost lines tab", async () => {

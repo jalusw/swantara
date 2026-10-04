@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
@@ -14,6 +15,7 @@ import { RmaFormDialog } from "./rma-form-dialog";
 import { type RmaState, rmaStateLabel, rmaStateTone, rmaTypeLabel } from "./rma-utils";
 
 export function RmasSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Sales");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const rmasQuery = useOrgListQuery<{ rmas: Rma[] }, Record<string, never>>(
@@ -23,10 +25,26 @@ export function RmasSection({ orgId }: { orgId: string }) {
 
   const rmas = rmasQuery.data?.rmas ?? [];
 
+  function rmaStateLabelText(state: RmaState): string {
+    try {
+      return (t as unknown as (k: string) => string)(`rmaState.${state}`);
+    } catch {
+      return rmaStateLabel(state);
+    }
+  }
+
+  function rmaTypeLabelText(type: Rma["type"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`rmaType.${type}`);
+    } catch {
+      return rmaTypeLabel(type);
+    }
+  }
+
   const columns: ColumnDef<Rma>[] = [
     {
       accessorKey: "name",
-      header: "Number",
+      header: t("tableNumber"),
       cell: ({ row }) => (
         <a
           href={`/sale-orders/returns/${row.original.id}`}
@@ -38,21 +56,21 @@ export function RmasSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "type",
-      header: "Type",
+      header: t("tableType"),
       cell: ({ row }) => (
-        <span className="text-muted-foreground text-sm">{rmaTypeLabel(row.original.type)}</span>
+        <span className="text-muted-foreground text-sm">{rmaTypeLabelText(row.original.type)}</span>
       ),
     },
     {
       accessorKey: "contactId",
-      header: "Contact",
+      header: t("fieldContact"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">{`#${row.original.contactId}`}</span>
       ),
     },
     {
       accessorKey: "originOrderType",
-      header: "Origin order",
+      header: t("fieldOriginOrderType"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.originOrderType && row.original.originOrderId
@@ -63,19 +81,19 @@ export function RmasSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "createdAt",
-      header: "Created",
+      header: t("tableCreated"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">{formatDate(row.original.createdAt)}</span>
       ),
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("tableStatus"),
       cell: ({ row }) => {
         const state = row.original.state as RmaState;
         return (
           <Badge variant="outline" className={rmaStateTone(state)}>
-            {rmaStateLabel(state)}
+            {rmaStateLabelText(state)}
           </Badge>
         );
       },
@@ -91,18 +109,18 @@ export function RmasSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "confirmed", label: "Confirmed" },
-          { value: "received", label: "Received" },
-          { value: "refunded", label: "Refunded" },
-          { value: "done", label: "Done" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: t("rmaStateDraft") },
+          { value: "confirmed", label: t("rmaStateConfirmed") },
+          { value: "received", label: t("rmaStateReceived") },
+          { value: "refunded", label: t("rmaStateRefunded") },
+          { value: "done", label: t("rmaStateDone") },
+          { value: "cancelled", label: t("rmaStateCancelled") },
         ]}
-        searchPlaceholder={"Search RMAs..."}
-        filterLabel={"State"}
-        allLabel={"All"}
-        ariaLabel={"Returns & RMA"}
-        emptyTitle={"No RMAs found."}
+        searchPlaceholder={t("searchRmasPlaceholder")}
+        filterLabel={t("tableStatus")}
+        allLabel={t("allLabel")}
+        ariaLabel={t("rmasTitle")}
+        emptyTitle={t("emptyRmas")}
         status={
           rmasQuery.isLoading
             ? { type: "loading" }
@@ -117,7 +135,7 @@ export function RmasSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New RMA"}</span>
+            <span>{t("newRma")}</span>
           </Button>
         }
       />

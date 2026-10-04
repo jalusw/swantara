@@ -4,6 +4,7 @@ import { initials } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
 import { Building2, Check, ChevronsUpDown, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import {
   DropdownMenu,
@@ -29,6 +30,8 @@ function OrgLogo({
   name?: string;
   className?: string;
 }) {
+  const tOrg = useTranslations("Organization" as unknown as "Common");
+  const tx = tOrg as unknown as (key: string, values?: Record<string, string>) => string;
   const fallbackSrc = useMemo(() => {
     if (!name) return null;
     return createAvatar(initials, {
@@ -46,7 +49,7 @@ function OrgLogo({
       // biome-ignore lint/performance/noImgElement: org logo from API or dicebear
       <img
         src={src}
-        alt={name ? `${name} logo` : "Organization logo"}
+        alt={name ? tx("logoAltWithName", { name }) : tx("logoAlt")}
         className={cn("size-8 shrink-0 rounded-lg object-cover", className)}
       />
     );
@@ -65,6 +68,8 @@ function OrgLogo({
 
 export function OrgBrand() {
   const router = useRouter();
+  const tOrg = useTranslations("Organization" as unknown as "Common");
+  const tx = tOrg as unknown as (key: string) => string;
   const [createOpen, setCreateOpen] = useState(false);
   const activeOrgId = useOrganizationId();
   const { data, isLoading } = useMeOrganizationsQuery();
@@ -89,19 +94,19 @@ export function OrgBrand() {
             <OrgLogo logo={current?.logo} name={current?.name} />
             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
               <span className="truncate text-sm">
-                {current?.name ?? (isLoading ? "…" : "Select organization")}
+                {current?.name ?? (isLoading ? "…" : tx("selectOrganization"))}
               </span>
-              <span className="truncate text-xs text-muted-foreground">{"Organizations"}</span>
+              <span className="truncate text-xs text-muted-foreground">{tx("label")}</span>
             </span>
             <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-56" align="start">
           <DropdownMenuGroup>
-            <DropdownMenuLabel>{"Organizations"}</DropdownMenuLabel>
+            <DropdownMenuLabel>{tx("label")}</DropdownMenuLabel>
             {organizations.length === 0 ? (
               <DropdownMenuItem disabled>
-                {isLoading ? "Loading organizations…" : "No organizations yet"}
+                {isLoading ? tx("loading") : tx("empty")}
               </DropdownMenuItem>
             ) : (
               organizations.map((org) => {
@@ -131,7 +136,7 @@ export function OrgBrand() {
             }}
           >
             <Plus />
-            {"Create organization"}
+            {tx("create")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

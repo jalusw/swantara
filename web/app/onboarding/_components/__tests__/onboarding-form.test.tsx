@@ -14,9 +14,9 @@ describe("OnboardingForm", () => {
   it("renders the company info step first", () => {
     renderWithProviders(<OnboardingForm />);
 
-    expect(screen.getByLabelText(/Company Name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Country/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Create Company/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Nama perusahaan/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Negara/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Buat Perusahaan/i })).toBeInTheDocument();
   });
 
   it("creates the company with the derived standard", async () => {
@@ -33,11 +33,11 @@ describe("OnboardingForm", () => {
     );
     renderWithProviders(<OnboardingForm />);
 
-    await user.type(screen.getByLabelText(/Company Name/i), "Acme Inc");
-    await user.click(screen.getByLabelText(/Country/i));
+    await user.type(screen.getByLabelText(/Nama perusahaan/i), "Acme Inc");
+    await user.click(screen.getByLabelText(/Negara/i));
     const listbox = await screen.findByRole("listbox");
     await user.click(within(listbox).getByText("Indonesia"));
-    await user.click(screen.getByRole("button", { name: /Create Company/i }));
+    await user.click(screen.getByRole("button", { name: /Buat Perusahaan/i }));
 
     expect(body).toMatchObject({
       name: "Acme Inc",

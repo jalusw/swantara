@@ -154,7 +154,7 @@ describe("PurchaseOrderDetail branches3", () => {
     expect(screen.getByText("VREF-1")).toBeInTheDocument();
     expect(screen.getByText("Main Warehouse")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("tab", { name: "Receipt" }));
+    await user.click(screen.getByRole("tab", { name: "Penerimaan" }));
     expect(await screen.findByText("PK-0009 — done")).toBeInTheDocument();
   });
 
@@ -164,7 +164,7 @@ describe("PurchaseOrderDetail branches3", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
 
     await waitFor(() => expect(confirmCalled).toBe(true));
   });
@@ -175,7 +175,7 @@ describe("PurchaseOrderDetail branches3", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(cancelCalled).toBe(true));
   });
@@ -185,7 +185,7 @@ describe("PurchaseOrderDetail branches3", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     expect((await screen.findAllByText("PO-0005")).length).toBeGreaterThan(0);
-    expect(screen.getByText("No lines.")).toBeInTheDocument();
+    expect(screen.getByText("Belum ada baris")).toBeInTheDocument();
   });
 
   it("opens the bill dialog when partially-billed lines exist", async () => {
@@ -214,8 +214,8 @@ describe("PurchaseOrderDetail branches3", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
-    await user.click(screen.getByRole("button", { name: "Create supplier bill" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
+    await user.click(screen.getByRole("button", { name: "Buat tagihan pemasok" }));
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
 
@@ -225,8 +225,8 @@ describe("PurchaseOrderDetail branches3", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Payments" }));
-    expect(await screen.findByRole("button", { name: "Make payment" })).toBeDisabled();
+    await user.click(screen.getByRole("tab", { name: "Pembayaran" }));
+    expect(await screen.findByRole("button", { name: "Buat pembayaran" })).toBeDisabled();
   });
 
   it("renders missing warehouse and dates with fallbacks", async () => {

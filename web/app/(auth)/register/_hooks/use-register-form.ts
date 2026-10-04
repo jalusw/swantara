@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { StatusCodes } from "http-status-codes";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useLayoutEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -22,7 +23,21 @@ import { type RegisterFormStore, useRegisterFormStore } from "./register-form-st
 export function useRegisterForm({
   defaultValues = registerFormDefaultValues,
 }: UseRegisterFormParams) {
-  const registerFormSchema = useRegisterFormSchema();
+  const t = useTranslations("Auth");
+  const tCommon = useTranslations("Common");
+  const tx = t as unknown as (key: string) => string;
+  const txCommon = tCommon as unknown as (
+    key: string,
+    values?: Record<string, string | number>,
+  ) => string;
+  const registerFormSchema = useRegisterFormSchema({
+    firstNameRequired: tx("firstNameRequired"),
+    invalidEmail: tx("invalidEmail"),
+    emailRequired: tx("emailRequired"),
+    passwordMinLength: tx("passwordMinLength"),
+    confirmPasswordMinLength: tx("confirmPasswordMinLength"),
+    passwordMismatch: tx("passwordMismatch"),
+  });
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -51,11 +66,11 @@ export function useRegisterForm({
           { email },
         );
         if (!response.data.data.available) {
-          form.setError("email", { message: "This email is already taken." });
+          form.setError("email", { message: tx("emailTaken") });
           return;
         }
       } catch {
-        toast.warning("Couldn't verify email right now. Please try again.");
+        toast.warning(tx("emailCheckFailed"));
       } finally {
         useRegisterFormStore.getState().setCheckingEmail(false);
       }
@@ -71,7 +86,7 @@ export function useRegisterForm({
       case "password":
         break;
     }
-  }, [form]);
+  }, [form, tx]);
 
   const goToPrevStep = useCallback(() => {
     const { step } = useRegisterFormStore.getState();
@@ -136,26 +151,26 @@ export function useRegisterForm({
 
         if (isEmailTaken) {
           useRegisterFormStore.getState().setStep("email");
-          form.setError("email", { message: "This email is already taken." });
+          form.setError("email", { message: tx("emailTaken") });
           return;
         }
 
         if (!error.response) {
-          toast.error("Network error. Please check your connection.");
+          toast.error(txCommon("networkError"));
           return;
         }
 
         if (status === StatusCodes.TOO_MANY_REQUESTS) {
           const retryAfter = error.response.headers?.["retry-after"];
           const seconds = retryAfter ? parseInt(retryAfter as string, 10) : undefined;
-          toast.warning("Too many requests. Please try again later.", {
-            description: seconds ? `Try again in ${seconds} seconds.` : undefined,
+          toast.warning(txCommon("rateLimited"), {
+            description: seconds ? txCommon("retryInSeconds", { seconds }) : undefined,
           });
           return;
         }
 
         if ((status ?? 0) >= StatusCodes.INTERNAL_SERVER_ERROR) {
-          toast.error("Something went wrong. Please try again later.");
+          toast.error(txCommon("serverError"));
           return;
         }
 
@@ -175,9 +190,9 @@ export function useRegisterForm({
             const isEmailMessage = message.includes("email");
             if (isEmailMessage) {
               useRegisterFormStore.getState().setStep("email");
-              form.setError("email", { message: "This email is already taken." });
+              form.setError("email", { message: tx("emailTaken") });
             } else {
-              toast.error(data?.message ?? "Registration failed. Please try again.");
+              toast.error(data?.message ?? tx("registrationFailed"));
             }
             return;
           }
@@ -185,14 +200,14 @@ export function useRegisterForm({
       }
 
       if (isNetworkError(error)) {
-        toast.error("Network error. Please check your connection.");
+        toast.error(txCommon("networkError"));
         return;
       }
       if (isServerError(error)) {
-        toast.error("Something went wrong. Please try again later.");
+        toast.error(txCommon("serverError"));
         return;
       }
-      form.setError("email", { message: "Registration failed. Please try again." });
+      form.setError("email", { message: tx("registrationFailed") });
       return;
     } finally {
       useRegisterFormStore.getState().setPending(false);

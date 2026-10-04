@@ -44,7 +44,7 @@ describe("FixedAssetDetail extra2", () => {
     seedAsset(null);
     renderWithProviders(<FixedAssetDetail orgId="1" assetId="1" />);
 
-    expect(await screen.findByText("Asset not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Aset tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("generates the depreciation schedule for a running asset", async () => {
@@ -60,7 +60,7 @@ describe("FixedAssetDetail extra2", () => {
     renderWithProviders(<FixedAssetDetail orgId="1" assetId="1" />);
 
     await screen.findByRole("heading", { name: "Laptop ThinkPad" });
-    await user.click(screen.getByRole("button", { name: "Generate schedule" }));
+    await user.click(screen.getByRole("button", { name: "Buat jadwal" }));
 
     await waitFor(() => expect(scheduleCalls).toBe(1));
   });
@@ -88,7 +88,7 @@ describe("FixedAssetDetail extra2", () => {
     renderWithProviders(<FixedAssetDetail orgId="1" assetId="1" />);
 
     await screen.findByRole("heading", { name: "Laptop ThinkPad" });
-    await user.click(screen.getByRole("button", { name: "Post depreciation" }));
+    await user.click(screen.getByRole("button", { name: "Posting penyusutan" }));
 
     await waitFor(() => expect(postCalls).toBe(1));
   });
@@ -118,11 +118,11 @@ describe("FixedAssetDetail extra2", () => {
     renderWithProviders(<FixedAssetDetail orgId="1" assetId="1" />);
 
     await screen.findByRole("heading", { name: "Laptop ThinkPad" });
-    await user.click(screen.getByRole("tab", { name: "Depreciation schedule" }));
+    await user.click(screen.getByRole("tab", { name: "Jadwal penyusutan" }));
 
-    expect(await screen.findByText("Next period to post")).toBeInTheDocument();
-    expect(screen.getAllByText("Posted").length).toBeGreaterThan(1);
-    expect(screen.getByText("Pending")).toBeInTheDocument();
+    expect(await screen.findByText("Periode berikutnya untuk diposting")).toBeInTheDocument();
+    expect(screen.getAllByText("Diposting").length).toBeGreaterThan(1);
+    expect(screen.getByText("Menunggu")).toBeInTheDocument();
   });
 
   it("disposes the asset through the dispose dialog", async () => {
@@ -138,10 +138,10 @@ describe("FixedAssetDetail extra2", () => {
     renderWithProviders(<FixedAssetDetail orgId="1" assetId="1" />);
 
     await screen.findByRole("heading", { name: "Laptop ThinkPad" });
-    await user.click(screen.getByRole("button", { name: "Dispose / Sell" }));
-    expect(await screen.findByText("Dispose / Sell asset")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Lepas / jual" }));
+    expect(await screen.findByText("Lepas / jual aset")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
 
     await waitFor(() => expect(disposeCalls).toBe(1));
   });
@@ -159,8 +159,8 @@ describe("FixedAssetDetail extra2", () => {
     renderWithProviders(<FixedAssetDetail orgId="1" assetId="1" />);
 
     await screen.findByRole("heading", { name: "Laptop ThinkPad" });
-    expect(screen.queryByRole("button", { name: "Generate schedule" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Post depreciation" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Dispose / Sell" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Buat jadwal" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Posting penyusutan" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Lepas / jual" })).not.toBeInTheDocument();
   });
 });

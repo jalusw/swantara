@@ -61,8 +61,8 @@ describe("QualityChecksSection", () => {
     renderWithProviders(<QualityChecksSection orgId="1" />);
 
     await screen.findByText("#11");
-    await user.click(screen.getByRole("button", { name: "Record result" }));
+    await user.click(screen.getByRole("button", { name: "Catat hasil" }));
 
-    expect(await screen.findByText("Record Result")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Catat hasil" })).toBeInTheDocument();
   });
 });

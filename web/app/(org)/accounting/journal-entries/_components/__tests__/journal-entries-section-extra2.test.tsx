@@ -50,7 +50,7 @@ function seedMoves(moves: unknown[] = [baseMove], fail = false) {
 }
 
 async function openCreateDialog(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(await screen.findByRole("button", { name: "New entry" }));
+  await user.click(await screen.findByRole("button", { name: "Entri baru" }));
   return screen.findByRole("dialog");
 }
 
@@ -91,8 +91,8 @@ describe("JournalEntriesSection extra2", () => {
     renderWithProviders(<JournalEntriesSection orgId="1" />);
 
     await screen.findByText("JE-001");
-    await user.click(screen.getByRole("button", { name: /Filters/ }));
-    await user.selectOptions(screen.getByRole("combobox", { name: "State" }), "posted");
+    await user.click(screen.getByRole("button", { name: "Filter" }));
+    await user.selectOptions(screen.getByRole("combobox", { name: "Status" }), "posted");
 
     expect(await screen.findByText("JE-002")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("JE-001")).not.toBeInTheDocument());
@@ -105,7 +105,7 @@ describe("JournalEntriesSection extra2", () => {
 
     expect(await screen.findByText("Boom.")).toBeInTheDocument();
     seedMoves();
-    await user.click(screen.getByRole("button", { name: "Retry" }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     expect(await screen.findByText("JE-001")).toBeInTheDocument();
   });
@@ -123,18 +123,18 @@ describe("JournalEntriesSection extra2", () => {
     renderWithProviders(<JournalEntriesSection orgId="1" />);
 
     const dialog = await openCreateDialog(user);
-    await user.click(within(dialog).getByRole("combobox", { name: "Journal" }));
+    await user.click(within(dialog).getByRole("combobox", { name: "Jurnal" }));
     await user.click(await screen.findByRole("option", { name: "General Journal" }));
 
-    const accountInputs = within(dialog).getAllByPlaceholderText("Account ID");
+    const accountInputs = within(dialog).getAllByPlaceholderText("ID akun (mis. 1010)");
     await user.type(accountInputs[0]!, "101");
     await user.type(accountInputs[1]!, "201");
     const debits = within(dialog).getAllByRole("spinbutton");
     await user.type(debits[0]!, "100");
     await user.type(debits[1]!, "100");
 
-    expect(await within(dialog).findByText("Balanced")).toBeInTheDocument();
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    expect(await within(dialog).findByText("Seimbang")).toBeInTheDocument();
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(createBodies).toHaveLength(1));
     expect(createBodies[0]).toMatchObject({ journal_id: 1 });
@@ -146,17 +146,17 @@ describe("JournalEntriesSection extra2", () => {
     renderWithProviders(<JournalEntriesSection orgId="1" />);
 
     const dialog = await openCreateDialog(user);
-    await user.click(within(dialog).getByRole("combobox", { name: "Journal" }));
+    await user.click(within(dialog).getByRole("combobox", { name: "Jurnal" }));
     await user.click(await screen.findByRole("option", { name: "General Journal" }));
 
-    const accountInputs = within(dialog).getAllByPlaceholderText("Account ID");
+    const accountInputs = within(dialog).getAllByPlaceholderText("ID akun (mis. 1010)");
     await user.type(accountInputs[0]!, "101");
     await user.type(accountInputs[1]!, "201");
     const debits = within(dialog).getAllByRole("spinbutton");
     await user.type(debits[0]!, "100");
 
-    expect(await within(dialog).findByText("Unbalanced")).toBeInTheDocument();
-    expect(within(dialog).getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(await within(dialog).findByText("Tidak seimbang")).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: "Simpan" })).toBeDisabled();
   });
 
   it("adds and removes entry lines in the dialog", async () => {
@@ -165,11 +165,11 @@ describe("JournalEntriesSection extra2", () => {
     renderWithProviders(<JournalEntriesSection orgId="1" />);
 
     const dialog = await openCreateDialog(user);
-    expect(within(dialog).getAllByPlaceholderText("Account ID")).toHaveLength(2);
-    await user.click(within(dialog).getByRole("button", { name: "Add line" }));
-    expect(within(dialog).getAllByPlaceholderText("Account ID")).toHaveLength(3);
-    await user.click(within(dialog).getAllByRole("button", { name: "Remove" })[0]!);
-    expect(within(dialog).getAllByPlaceholderText("Account ID")).toHaveLength(2);
+    expect(within(dialog).getAllByPlaceholderText("ID akun (mis. 1010)")).toHaveLength(2);
+    await user.click(within(dialog).getByRole("button", { name: "Tambah baris" }));
+    expect(within(dialog).getAllByPlaceholderText("ID akun (mis. 1010)")).toHaveLength(3);
+    await user.click(within(dialog).getAllByRole("button", { name: "Hapus" })[0]!);
+    expect(within(dialog).getAllByPlaceholderText("ID akun (mis. 1010)")).toHaveLength(2);
   });
 
   it("updates the reference and description fields", async () => {

@@ -11,8 +11,8 @@ describe("FormNavigation", () => {
 
     renderWithProviders(<FormNavigation />);
 
-    expect(screen.getByRole("button", { name: /next/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /back/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /lanjut/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /kembali/i })).not.toBeInTheDocument();
   });
 
   it("shows Back and Next on a middle step", () => {
@@ -20,8 +20,8 @@ describe("FormNavigation", () => {
 
     renderWithProviders(<FormNavigation />);
 
-    expect(screen.getByRole("button", { name: /back/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /next/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /kembali/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /lanjut/i })).toBeInTheDocument();
   });
 
   it("navigates backwards and forwards through steps", async () => {
@@ -34,10 +34,10 @@ describe("FormNavigation", () => {
 
     renderWithProviders(<FormNavigation />);
 
-    await user.click(screen.getByRole("button", { name: /back/i }));
+    await user.click(screen.getByRole("button", { name: /kembali/i }));
     expect(useRegisterFormStore.getState().step).toBe("name");
 
-    await user.click(screen.getByRole("button", { name: /next/i }));
+    await user.click(screen.getByRole("button", { name: /lanjut/i }));
     expect(useRegisterFormStore.getState().step).toBe("password");
   });
 
@@ -46,7 +46,7 @@ describe("FormNavigation", () => {
 
     renderWithProviders(<FormNavigation />);
 
-    const submit = screen.getByRole("button", { name: /register/i });
+    const submit = screen.getByRole("button", { name: /daftar/i });
     expect(submit).toBeInTheDocument();
   });
 });

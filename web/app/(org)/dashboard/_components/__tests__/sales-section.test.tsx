@@ -53,7 +53,7 @@ describe("SalesSection", () => {
     renderWithProviders(<SalesSection />);
 
     await screen.findAllByText("60.0%");
-    await user.click(screen.getByText("Sales"));
+    await user.click(screen.getByText("Penjualan"));
 
     expect((await screen.findAllByText("60.0%")).length).toBeGreaterThan(0);
   });
@@ -64,6 +64,6 @@ describe("PipelineSection", () => {
     renderWithProviders(<PipelineSection />);
 
     expect((await screen.findAllByText("50.0%")).length).toBeGreaterThan(0);
-    expect((await screen.findAllByText("Weighted pipeline")).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText("Pipa penjualan tertimbang")).length).toBeGreaterThan(0);
   });
 });

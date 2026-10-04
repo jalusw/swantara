@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -16,6 +17,7 @@ import { humanizeKey } from "@/lib/utils/case";
 import { PurchaseRequestFormDialog } from "./purchase-request-form-dialog";
 
 export function PurchaseRequestsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Purchases");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -45,10 +47,18 @@ export function PurchaseRequestsSection({ orgId }: { orgId: string }) {
     void requisitionsQuery.refetch();
   }
 
+  function stateLabel(state: PurchaseRequest["state"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`requisitionState.${state}`);
+    } catch {
+      return humanizeKey(String(state));
+    }
+  }
+
   const columns: ColumnDef<PurchaseRequest>[] = [
     {
       accessorKey: "name",
-      header: "Request",
+      header: t("tableRequest"),
       cell: ({ row }) => (
         <a
           href={`/purchases/requisitions/${row.original.id}`}
@@ -60,7 +70,7 @@ export function PurchaseRequestsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "requesterId",
-      header: "Requester",
+      header: t("tableRequester"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {contactMap.get(row.original.requesterId) ?? `#${row.original.requesterId}`}
@@ -69,7 +79,7 @@ export function PurchaseRequestsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "departmentId",
-      header: "Department",
+      header: t("tableDepartment"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {row.original.departmentId
@@ -80,7 +90,7 @@ export function PurchaseRequestsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "Status",
+      header: t("tableStatus"),
       cell: ({ row }) => (
         <Badge
           variant={
@@ -91,13 +101,13 @@ export function PurchaseRequestsSection({ orgId }: { orgId: string }) {
                 : "secondary"
           }
         >
-          {humanizeKey(String(row.original.state))}
+          {stateLabel(row.original.state)}
         </Badge>
       ),
     },
     {
       accessorKey: "neededBy",
-      header: "Needed by",
+      header: t("fieldNeededBy"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.neededBy ? formatDate(row.original.neededBy) : "—"}
@@ -106,7 +116,7 @@ export function PurchaseRequestsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "lines",
-      header: "Total qty",
+      header: t("tableTotalQty"),
       meta: { align: "right" },
       cell: ({ row }) => {
         const lines = row.original.lines ?? [];
@@ -119,10 +129,10 @@ export function PurchaseRequestsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit request"}
-          deleteLabel={"Delete request"}
-          confirmTitle={"Delete this request?"}
-          confirmDescription={"The purchase request will be removed. This cannot be undone."}
+          editLabel={t("editRequest")}
+          deleteLabel={t("deleteRequest")}
+          confirmTitle={t("deleteRequestTitle")}
+          confirmDescription={t("deleteRequestDescription")}
           onEdit={() => router.push(`/purchases/requisitions/${row.original.id}`)}
         />
       ),
@@ -148,17 +158,17 @@ export function PurchaseRequestsSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "confirmed", label: "Confirmed" },
-          { value: "approved", label: "Approved" },
-          { value: "done", label: "Done" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: t("requisitionStateDraft") },
+          { value: "confirmed", label: t("requisitionStateConfirmed") },
+          { value: "approved", label: t("requisitionStateApproved") },
+          { value: "done", label: t("requisitionStateDone") },
+          { value: "cancelled", label: t("requisitionStateCancelled") },
         ]}
-        searchPlaceholder={"Search requisitions…"}
-        filterLabel={"Status"}
-        allLabel={"All purchase requisitions"}
-        ariaLabel={"All purchase requisitions"}
-        emptyTitle={"No purchase requisitions"}
+        searchPlaceholder={t("searchRequisitionsPlaceholder")}
+        filterLabel={t("tableStatus")}
+        allLabel={t("allRequisitions")}
+        ariaLabel={t("allRequisitions")}
+        emptyTitle={t("emptyRequisitions")}
         status={
           isLoading
             ? { type: "loading" }
@@ -173,7 +183,7 @@ export function PurchaseRequestsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New request"}</span>
+            <span>{t("newRequest")}</span>
           </Button>
         }
       />

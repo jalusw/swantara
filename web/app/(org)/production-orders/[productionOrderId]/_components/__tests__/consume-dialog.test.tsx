@@ -55,7 +55,7 @@ describe("ConsumeDialog", () => {
       />,
     );
 
-    expect(await screen.findByText("Consume Materials")).toBeInTheDocument();
+    expect(await screen.findByText("Konsumsi bahan")).toBeInTheDocument();
     expect(screen.getByText("#3")).toBeInTheDocument();
   });
 
@@ -73,8 +73,8 @@ describe("ConsumeDialog", () => {
       />,
     );
 
-    await screen.findByText("Consume Materials");
-    await user.click(screen.getByRole("button", { name: "Consume" }));
+    await screen.findByText("Konsumsi bahan");
+    await user.click(screen.getByRole("button", { name: "Konsumsi" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });

@@ -16,9 +16,9 @@ describe("CreateOrganizationDialog", () => {
   it("renders name and country fields when open", async () => {
     renderWithProviders(<CreateOrganizationDialog open={true} onOpenChange={vi.fn()} />);
 
-    expect(await screen.findByText("Create organization")).toBeInTheDocument();
-    expect(screen.getByLabelText("Company name")).toBeInTheDocument();
-    expect(screen.getByLabelText("Country")).toBeInTheDocument();
+    expect(await screen.findByText("Buat organisasi")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama perusahaan")).toBeInTheDocument();
+    expect(screen.getByLabelText("Negara")).toBeInTheDocument();
   });
 
   it("creates an organization and navigates to its dashboard", async () => {
@@ -35,13 +35,13 @@ describe("CreateOrganizationDialog", () => {
     const onOpenChange = vi.fn();
     renderWithProviders(<CreateOrganizationDialog open={true} onOpenChange={onOpenChange} />);
 
-    await user.type(await screen.findByLabelText("Company name"), "Acme Inc");
-    await user.click(screen.getByLabelText("Country"));
+    await user.type(await screen.findByLabelText("Nama perusahaan"), "Acme Inc");
+    await user.click(screen.getByLabelText("Negara"));
     await user.click(await screen.findByRole("option", { name: "Indonesia" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => {
-      expect(toastSpy).toHaveBeenCalledWith("Organization created");
+      expect(toastSpy).toHaveBeenCalledWith("Organisasi dibuat");
     });
     expect(setActiveOrg).toHaveBeenCalledWith(9);
     expect(navigationMock.push).toHaveBeenCalledWith("/dashboard");

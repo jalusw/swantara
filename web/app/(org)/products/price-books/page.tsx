@@ -1,16 +1,17 @@
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/page-header";
 import { requireActiveOrgId } from "@/lib/server/active-org";
 import { PriceBooksSection } from "./_components/price-books-section";
 
 export default async function OrgPriceBooksPage() {
+  const t = await (getTranslations as unknown as (ns: string) => Promise<(key: string) => string>)(
+    "Products",
+  );
   const id = String(await requireActiveOrgId());
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <PageHeader
-        title={"PriceBooks"}
-        description={"Manage pricing rules for products across customers and channels."}
-      />
+      <PageHeader title={t("priceBooksTitle")} description={t("priceBooksDescription")} />
       <PriceBooksSection orgId={id} />
     </div>
   );

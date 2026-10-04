@@ -14,6 +14,7 @@ const (
 	ErrValidationCode            = "ERR_VALIDATION"
 	ErrConflictCode              = "ERR_CONFLICT"
 	ErrRateLimitCode             = "ERR_RATE_LIMIT"
+	ErrUnsupportedMediaTypeCode  = "ERR_UNSUPPORTED_MEDIA_TYPE"
 	DefaultSuccessMessage        = "Request processed successfully."
 	DefaultErrorMessage          = "Something went wrong. Please try again."
 	DefaultUnauthorizedMessage   = "Unauthorized. Please sign in to continue."

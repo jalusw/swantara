@@ -51,7 +51,7 @@ describe("ExpenseCategoriesSection", () => {
     renderWithProviders(<ExpenseCategoriesSection orgId="1" />);
 
     await screen.findByText("Travel");
-    await user.type(screen.getByPlaceholderText("Search categories…"), "Meals");
+    await user.type(screen.getByPlaceholderText("Cari kategori"), "Meals");
 
     expect((await screen.findAllByText("Meals")).length).toBeGreaterThan(0);
     await waitFor(() => expect(screen.queryByText("Travel")).not.toBeInTheDocument());

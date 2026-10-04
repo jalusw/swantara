@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -15,6 +16,8 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { CommissionPlanFormDialog } from "./commission-plan-form-dialog";
 
 export function CommissionPlansSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Commissions");
+  const tCommon = useTranslations("Common");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -25,6 +28,10 @@ export function CommissionPlansSection({ orgId }: { orgId: string }) {
 
   const plans = query.data?.commissionPlans ?? [];
 
+  function basisLabel(value: string): string {
+    return (t as unknown as (k: string) => string)(`basis_${value}`);
+  }
+
   function handleSave(id: string) {
     setDialogOpen(false);
     void query.refetch();
@@ -34,7 +41,7 @@ export function CommissionPlansSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<CommissionPlan>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("name"),
       cell: ({ row }) => (
         <a
           href={`/commission-plans/${row.original.id}`}
@@ -46,14 +53,16 @@ export function CommissionPlansSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "basis",
-      header: "Basis",
+      header: t("basis"),
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">{String(row.original.basis)}</span>
+        <span className="text-sm text-muted-foreground">
+          {basisLabel(String(row.original.basis))}
+        </span>
       ),
     },
     {
       accessorKey: "active",
-      header: "Active",
+      header: t("active"),
       cell: ({ row }) => (
         <Badge
           variant="outline"
@@ -63,7 +72,7 @@ export function CommissionPlansSection({ orgId }: { orgId: string }) {
               : "border-muted-foreground text-muted-foreground"
           }
         >
-          {row.original.active ? "Yes" : "No"}
+          {row.original.active ? tCommon("yes") : tCommon("no")}
         </Badge>
       ),
     },
@@ -72,7 +81,7 @@ export function CommissionPlansSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("actionView")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -88,7 +97,7 @@ export function CommissionPlansSection({ orgId }: { orgId: string }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>{"Total Plans"}</CardTitle>
+            <CardTitle>{t("totalPlans")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">{plans.length}</p>
@@ -100,9 +109,9 @@ export function CommissionPlansSection({ orgId }: { orgId: string }) {
         data={plans}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
-        searchPlaceholder={"Search plans…"}
-        ariaLabel={"Commission plans"}
-        emptyTitle={"No commission plans yet"}
+        searchPlaceholder={t("searchPlansPlaceholder")}
+        ariaLabel={t("plansLabel")}
+        emptyTitle={t("emptyPlans")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -117,7 +126,7 @@ export function CommissionPlansSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Create plan"}</span>
+            <span>{t("createPlan")}</span>
           </Button>
         }
       />

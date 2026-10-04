@@ -128,7 +128,7 @@ describe("PurchaseOrderDetail branches5", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    expect(screen.queryByRole("button", { name: "Confirm" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Konfirmasi" })).toBeNull();
   });
 
   it("falls back to generated names when the order name and lines are missing", async () => {
@@ -136,7 +136,7 @@ describe("PurchaseOrderDetail branches5", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     expect((await screen.findAllByText("PO-5")).length).toBeGreaterThan(0);
-    expect(screen.getByText("No lines.")).toBeInTheDocument();
+    expect(screen.getByText("Belum ada baris")).toBeInTheDocument();
   });
 
   it("falls back for unknown contacts, null products and unnamed shipments", async () => {
@@ -154,7 +154,7 @@ describe("PurchaseOrderDetail branches5", () => {
     await screen.findAllByText("PO-0005");
     expect(screen.getByText("#999")).toBeInTheDocument();
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
-    await user.click(screen.getByRole("tab", { name: "Receipt" }));
+    await user.click(screen.getByRole("tab", { name: "Penerimaan" }));
 
     expect(await screen.findByText(/PK-9/)).toBeInTheDocument();
   });
@@ -175,16 +175,16 @@ describe("PurchaseOrderDetail branches5", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Receipt" }));
-    await user.click(await screen.findByRole("button", { name: "Receive" }));
+    await user.click(screen.getByRole("tab", { name: "Penerimaan" }));
+    await user.click(await screen.findByRole("button", { name: "Terima" }));
 
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByLabelText("Journal"));
+    await user.click(within(dialog).getByLabelText("Jurnal"));
     await user.click(await screen.findByRole("option", { name: "Goods Journal \u2014 general" }));
     const dateInput = dialog.querySelector('input[type="date"]');
     if (!dateInput) throw new Error("Expected date input");
     await user.clear(dateInput);
-    await user.click(within(dialog).getByRole("button", { name: "Receive" }));
+    await user.click(within(dialog).getByRole("button", { name: "Terima" }));
 
     await waitFor(() => expect(received).toMatchObject({ journal_id: 2, date: null }));
   });
@@ -195,11 +195,11 @@ describe("PurchaseOrderDetail branches5", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Receipt" }));
-    await user.click(await screen.findByRole("button", { name: "Receive" }));
+    await user.click(screen.getByRole("tab", { name: "Penerimaan" }));
+    await user.click(await screen.findByRole("button", { name: "Terima" }));
 
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    await user.click(within(dialog).getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
@@ -220,17 +220,17 @@ describe("PurchaseOrderDetail branches5", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
-    await user.click(await screen.findByRole("button", { name: "Create supplier bill" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
+    await user.click(await screen.findByRole("button", { name: "Buat tagihan pemasok" }));
 
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByLabelText("Journal"));
+    await user.click(within(dialog).getByLabelText("Jurnal"));
     await user.click(await screen.findByRole("option", { name: "Goods Journal \u2014 general" }));
     await user.click(within(dialog).getByRole("checkbox"));
     const dateInput = dialog.querySelector('input[type="date"]');
     if (!dateInput) throw new Error("Expected date input");
     await user.clear(dateInput);
-    await user.click(within(dialog).getByRole("button", { name: "Create supplier bill" }));
+    await user.click(within(dialog).getByRole("button", { name: "Buat tagihan pemasok" }));
 
     await waitFor(() =>
       expect(billed).toMatchObject({ journal_id: 2, date: null, override: true }),
@@ -243,11 +243,11 @@ describe("PurchaseOrderDetail branches5", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
-    await user.click(await screen.findByRole("button", { name: "Create supplier bill" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
+    await user.click(await screen.findByRole("button", { name: "Buat tagihan pemasok" }));
 
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    await user.click(within(dialog).getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
@@ -268,16 +268,16 @@ describe("PurchaseOrderDetail branches5", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Payments" }));
-    await user.click(await screen.findByRole("button", { name: "Make payment" }));
+    await user.click(screen.getByRole("tab", { name: "Pembayaran" }));
+    await user.click(await screen.findByRole("button", { name: "Buat pembayaran" }));
 
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByLabelText("Journal"));
+    await user.click(within(dialog).getByLabelText("Jurnal"));
     await user.click(await screen.findByRole("option", { name: "Goods Journal \u2014 general" }));
     const dateInput = dialog.querySelector('input[type="date"]');
     if (!dateInput) throw new Error("Expected date input");
     await user.clear(dateInput);
-    await user.click(within(dialog).getByRole("button", { name: "Make payment" }));
+    await user.click(within(dialog).getByRole("button", { name: "Buat pembayaran" }));
 
     await waitFor(() => expect(paid).toMatchObject({ journal_id: 2, date: null }));
   });

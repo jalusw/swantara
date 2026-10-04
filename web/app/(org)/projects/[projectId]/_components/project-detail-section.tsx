@@ -1,6 +1,7 @@
 "use client";
 
 import { Pencil, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -31,10 +32,8 @@ import type {
 } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatNumber, getLocalDateString } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { ProjectFormDialog } from "../../_components/project-form-dialog";
 import {
-  billingTypeLabel,
   canCancelProject,
   canCloseProject,
   canOpenProject,
@@ -44,16 +43,10 @@ import {
 import { MilestoneFormDialog } from "./milestone-form-dialog";
 import { TaskFormDialog } from "./task-form-dialog";
 
-function getProjectStatuses() {
-  return {
-    draft: { label: "Draft", tone: "neutral" as const },
-    open: { label: "Open", tone: "info" as const },
-    closed: { label: "Closed", tone: "success" as const },
-    cancelled: { label: "Cancelled", tone: "danger" as const },
-  };
-}
-
 export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: string }) {
+  const t = useTranslations("Projects");
+  const tCommon = useTranslations("Common");
+  const dyn = (key: string) => (t as unknown as (k: string) => string)(key);
   const [editOpen, setEditOpen] = useState(false);
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<ProjectTask | null>(null);
@@ -121,10 +114,10 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
     void getSwantaraService()
       .projects.state(Number(orgId), project.id, { state: "open" })
       .then(() => {
-        toast.success("Project opened.");
+        toast.success(t("projectOpened"));
         void projectQuery.refetch();
       })
-      .catch(() => toast.error("Failed to update project state."));
+      .catch(() => toast.error(t("statusUpdateFailed")));
   }
 
   function handleClose() {
@@ -132,10 +125,10 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
     void getSwantaraService()
       .projects.state(Number(orgId), project.id, { state: "closed" })
       .then(() => {
-        toast.success("Project closed.");
+        toast.success(t("projectClosed"));
         void projectQuery.refetch();
       })
-      .catch(() => toast.error("Failed to update project state."));
+      .catch(() => toast.error(t("statusUpdateFailed")));
   }
 
   function handleCancel() {
@@ -143,10 +136,10 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
     void getSwantaraService()
       .projects.state(Number(orgId), project.id, { state: "cancelled" })
       .then(() => {
-        toast.success("Project cancelled.");
+        toast.success(t("projectCancelled"));
         void projectQuery.refetch();
       })
-      .catch(() => toast.error("Failed to update project state."));
+      .catch(() => toast.error(t("statusUpdateFailed")));
   }
 
   if (isLoading) {
@@ -154,7 +147,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
   }
 
   if (!project) {
-    return <p className="text-sm text-muted-foreground">{"Project not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("projectNotFound")}</p>;
   }
 
   const utilPct = summary ? utilizationPercent(summary) : 0;
@@ -164,27 +157,27 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <div>
-          <p className="text-sm text-muted-foreground">{"Customer"}</p>
+          <p className="text-sm text-muted-foreground">{t("customer")}</p>
           <p className="">{contactMap.get(project.contactId) ?? "—"}</p>
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">{"Manager"}</p>
+          <p className="text-sm text-muted-foreground">{t("manager")}</p>
           <p className="">{project.managerId ? (contactMap.get(project.managerId) ?? "—") : "—"}</p>
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">{"Billing type"}</p>
-          <Badge variant="secondary">{billingTypeLabel(project.billingType)}</Badge>
+          <p className="text-sm text-muted-foreground">{t("billingType")}</p>
+          <Badge variant="secondary">{dyn(`billing_${project.billingType}`)}</Badge>
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">{"Billable rate"}</p>
+          <p className="text-sm text-muted-foreground">{t("billableRate")}</p>
           <p className=" tabular-nums">{formatNumber(project.billableRate)}</p>
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">{"Start date"}</p>
+          <p className="text-sm text-muted-foreground">{t("startDate")}</p>
           <p className="">{formatDate(project.dateStart, { nullFallback: "—" })}</p>
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">{"End date"}</p>
+          <p className="text-sm text-muted-foreground">{t("endDate")}</p>
           <p className="">{formatDate(project.dateEnd, { nullFallback: "—" })}</p>
         </div>
       </div>
@@ -192,7 +185,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">{"Planned hours"}</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("plannedHours")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold tabular-nums">
@@ -202,7 +195,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">{"Effective hours"}</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("effectiveHours")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold tabular-nums">
@@ -212,7 +205,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">{"Utilization"}</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("utilization")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold tabular-nums">{utilPct}%</p>
@@ -220,7 +213,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">{"Margin %"}</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("marginPct")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold tabular-nums">{margPct}%</p>
@@ -242,11 +235,11 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
           }}
         >
           <Plus />
-          <span>{"New task"}</span>
+          <span>{t("newTask")}</span>
         </Button>
       </div>
       {tasks.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{"No tasks yet."}</p>
+        <p className="text-sm text-muted-foreground">{t("noTasks")}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {tasks.map((task) => (
@@ -254,13 +247,13 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
               <div className="flex flex-col gap-1">
                 <p className="">{task.name}</p>
                 <div className="flex gap-2 text-sm text-muted-foreground">
-                  <Badge variant="secondary">{humanizeKey(String(task.stage))}</Badge>
+                  <Badge variant="secondary">{dyn(`stage_${task.stage}`)}</Badge>
                   <span>
                     {task.effectiveHours}/{task.plannedHours}h
                   </span>
                   {task.deadline ? (
                     <span>
-                      {"Due"} {formatDate(task.deadline)}
+                      {t("due")} {formatDate(task.deadline)}
                     </span>
                   ) : null}
                 </div>
@@ -293,11 +286,11 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
           }}
         >
           <Plus />
-          <span>{"New milestone"}</span>
+          <span>{t("newMilestone")}</span>
         </Button>
       </div>
       {milestones.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{"No milestones yet."}</p>
+        <p className="text-sm text-muted-foreground">{t("noMilestones")}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {milestones.map((ms) => (
@@ -306,11 +299,11 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
                 <p className="">{ms.name}</p>
                 <div className="flex gap-2 text-sm text-muted-foreground">
                   <Badge variant={ms.reached ? "default" : "secondary"}>
-                    {ms.reached ? "Reached" : "Open"}
+                    {ms.reached ? t("milestoneReached") : t("milestoneOpen")}
                   </Badge>
                   {ms.deadline ? (
                     <span>
-                      {"Due"} {formatDate(ms.deadline)}
+                      {t("due")} {formatDate(ms.deadline)}
                     </span>
                   ) : null}
                 </div>
@@ -324,12 +317,12 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
                       reached: !ms.reached,
                     })
                     .then(() => {
-                      toast.success("Milestone updated.");
+                      toast.success(t("milestoneUpdated"));
                       void milestonesQuery.refetch();
                     });
                 }}
               >
-                {ms.reached ? "Mark unreached" : "Mark reached"}
+                {ms.reached ? t("markUnreached") : t("markReached")}
               </Button>
             </div>
           ))}
@@ -341,13 +334,13 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
   const timesheetsContent = (
     <div className="flex flex-col gap-4">
       {projectTimesheets.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{"No tasks yet."}</p>
+        <p className="text-sm text-muted-foreground">{t("noTimesheets")}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {projectTimesheets.map((ts) => (
             <div key={ts.id} className="flex items-center justify-between rounded-md border p-3">
               <div className="flex flex-col gap-1">
-                <p className="">{ts.description ?? "Timesheet entry"}</p>
+                <p className="">{ts.description ?? t("timesheetEntry")}</p>
                 <div className="flex gap-2 text-sm text-muted-foreground">
                   <span>{formatDate(ts.date)}</span>
                   <span>{ts.hours}h</span>
@@ -364,9 +357,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
     project.billingType === "time_material" ? (
       <BillingPanel project={project} summary={summary} />
     ) : (
-      <p className="text-sm text-muted-foreground">
-        {"Billing is only available for Time & Material projects."}
-      </p>
+      <p className="text-sm text-muted-foreground">{t("billingOnlyTimeMaterial")}</p>
     );
 
   const pnlContent = summary ? (
@@ -374,7 +365,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">{"Revenue"}</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("revenue")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">
@@ -384,7 +375,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">{"Cost"}</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("cost")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">{formatNumber(summary.costAmount)}</p>
@@ -392,7 +383,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">{"Margin"}</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("margin")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">
@@ -404,7 +395,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
       <div className="grid grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">{"Utilization"}</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">{t("utilization")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">{utilPct}%</p>
@@ -413,7 +404,7 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">
-              {"Planned vs Effective hours"}
+              {t("plannedVsEffective")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -425,53 +416,63 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
       </div>
     </div>
   ) : (
-    <p className="text-sm text-muted-foreground">{"No financial data available."}</p>
+    <p className="text-sm text-muted-foreground">{t("noFinancialData")}</p>
   );
 
   return (
     <>
       <RecordLayout
-        breadcrumbItems={[{ label: "All projects", href: "/projects" }, { label: project.name }]}
+        breadcrumbItems={[{ label: t("allProjects"), href: "/projects" }, { label: project.name }]}
         title={project.name}
-        status={<StateBadge value={project.state} statuses={getProjectStatuses()} />}
+        status={
+          <StateBadge
+            value={project.state}
+            statuses={{
+              draft: { label: dyn("state_draft"), tone: "neutral" },
+              open: { label: dyn("state_open"), tone: "info" },
+              closed: { label: dyn("state_closed"), tone: "success" },
+              cancelled: { label: dyn("state_cancelled"), tone: "danger" },
+            }}
+          />
+        }
         actions={
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>
               <Pencil />
-              <span>{"Edit project"}</span>
+              <span>{t("editProject")}</span>
             </Button>
             {canOpenProject(project.state) ? (
               <Button size="sm" onClick={handleOpen}>
-                {"Open"}
+                {t("actionOpen")}
               </Button>
             ) : null}
             {canCloseProject(project.state) ? (
               <Button size="sm" onClick={handleClose}>
-                {"Close"}
+                {t("actionClose")}
               </Button>
             ) : null}
             {canCancelProject(project.state) ? (
               <Button size="sm" variant="outline" onClick={handleCancel}>
-                {"Cancel"}
+                {tCommon("cancel")}
               </Button>
             ) : null}
           </div>
         }
         tabs={[
-          { id: "overview", label: "Overview", content: overviewContent },
-          { id: "tasks", label: "Tasks", content: tasksContent },
+          { id: "overview", label: t("tabOverview"), content: overviewContent },
+          { id: "tasks", label: t("tabTasks"), content: tasksContent },
           {
             id: "milestones",
-            label: "Milestones",
+            label: t("tabMilestones"),
             content: milestonesContent,
           },
           {
             id: "timesheets",
-            label: "Timesheets",
+            label: t("tabTimesheets"),
             content: timesheetsContent,
           },
-          { id: "billing", label: "Billing", content: billingContent },
-          { id: "pnl", label: "P&L", content: pnlContent },
+          { id: "billing", label: t("tabBilling"), content: billingContent },
+          { id: "pnl", label: t("tabPnl"), content: pnlContent },
         ]}
       />
       {editOpen ? (
@@ -532,13 +533,14 @@ export function ProjectDetail({ orgId, projectId }: { orgId: string; projectId: 
 }
 
 function BillingPanel({ project, summary }: { project: Project; summary: ProjectSummary | null }) {
+  const t = useTranslations("Projects");
   return (
     <div className="flex flex-col gap-4">
       {summary ? (
         <div className="grid grid-cols-2 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">{"Unbilled hours"}</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("unbilledHours")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold tabular-nums">
@@ -550,7 +552,7 @@ function BillingPanel({ project, summary }: { project: Project; summary: Project
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">{"Unbilled amount"}</CardTitle>
+              <CardTitle className="text-sm text-muted-foreground">{t("unbilledAmount")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold tabular-nums">
@@ -581,6 +583,8 @@ function BillingDialog({
   journalsQuery: ReturnType<typeof useOrgListQuery<{ journals: Journal[] }, Record<string, never>>>;
   onBilled: () => void;
 }) {
+  const t = useTranslations("Projects");
+  const tCommon = useTranslations("Common");
   const journalOptions = (
     (journalsQuery.data as { journals: Journal[] } | undefined)?.journals ?? []
   ).map((j: Journal) => ({
@@ -600,7 +604,12 @@ function BillingDialog({
         taxIds: [],
       })
       .then((result) => {
-        toast.success(`Invoice ${result.name} created for ${formatNumber(result.amountTotal)}.`);
+        toast.success(
+          t("invoiceCreated", {
+            name: result.name,
+            amount: formatNumber(result.amountTotal),
+          }),
+        );
         onBilled();
       });
   }
@@ -609,21 +618,21 @@ function BillingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{"Generate invoice"}</DialogTitle>
-          <DialogDescription>{"Projects, tasks, milestones and job costing."}</DialogDescription>
+          <DialogTitle>{t("generateInvoice")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div>
-            <p className="text-sm">{"Unbilled amount"}</p>
+            <p className="text-sm">{t("unbilledAmount")}</p>
             <p className="text-2xl font-bold tabular-nums">
               {summary ? formatNumber(summary.unbilledAmount) : "—"}
             </p>
           </div>
           <div>
-            <p className="text-sm">{"Journal"}</p>
+            <p className="text-sm">{t("journal")}</p>
             <Select value={journalId} onValueChange={(value) => setJournalId(value ?? "")}>
-              <SelectTrigger aria-label={"Journal"}>
-                <SelectValue placeholder={"Select journal"} />
+              <SelectTrigger aria-label={t("journal")}>
+                <SelectValue placeholder={t("selectJournal")} />
               </SelectTrigger>
               <SelectContent>
                 {journalOptions.map((j) => (
@@ -635,16 +644,16 @@ function BillingDialog({
             </Select>
           </div>
           <div>
-            <p className="text-sm">{"Date"}</p>
+            <p className="text-sm">{t("date")}</p>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
           <Button onClick={handleBill} disabled={!journalId}>
-            {"Generate invoice"}
+            {t("generateInvoice")}
           </Button>
         </DialogFooter>
       </DialogContent>

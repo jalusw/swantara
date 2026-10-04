@@ -46,7 +46,7 @@ const contacts = [
 ];
 
 const departments = [
-  { id: 2, organization_id: 1, name: "Procurement", created_at: STAMP, updated_at: STAMP },
+  { id: 2, organization_id: 1, name: "Pengadaan", created_at: STAMP, updated_at: STAMP },
 ];
 
 function seedDetail(req: unknown, approvals: unknown[] = []) {
@@ -75,7 +75,7 @@ describe("PurchaseRequestDetail extra2", () => {
     seedDetail(null);
     renderWithProviders(<PurchaseRequestDetail orgId="1" requestId="3" />);
 
-    expect(await screen.findByText("Purchase request not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Permintaan pembelian tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("confirms a draft request", async () => {
@@ -90,7 +90,7 @@ describe("PurchaseRequestDetail extra2", () => {
     renderWithProviders(<PurchaseRequestDetail orgId="1" requestId="3" />);
 
     await screen.findAllByText("PR-0003");
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
 
     await waitFor(() => expect(confirmCalls).toBe(1));
   });
@@ -108,8 +108,8 @@ describe("PurchaseRequestDetail extra2", () => {
     renderWithProviders(<PurchaseRequestDetail orgId="1" requestId="3" />);
 
     await screen.findAllByText("PR-0003");
-    expect(screen.queryByRole("button", { name: "Confirm" })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Approve" }));
+    expect(screen.queryByRole("button", { name: "Konfirmasi" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Setujui" }));
 
     await waitFor(() => expect(approveCalls).toBe(1));
   });
@@ -126,7 +126,7 @@ describe("PurchaseRequestDetail extra2", () => {
     renderWithProviders(<PurchaseRequestDetail orgId="1" requestId="3" />);
 
     await screen.findAllByText("PR-0003");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(cancelCalls).toBe(1));
   });
@@ -147,9 +147,9 @@ describe("PurchaseRequestDetail extra2", () => {
     renderWithProviders(<PurchaseRequestDetail orgId="1" requestId="3" />);
 
     await screen.findAllByText("PR-0003");
-    await user.click(screen.getByRole("button", { name: "Create QuoteRequest" }));
+    await user.click(screen.getByRole("button", { name: "Buat permintaan penawaran" }));
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "Create QuoteRequest" }));
+    await user.click(within(dialog).getByRole("button", { name: "Buat permintaan penawaran" }));
 
     await waitFor(() => expect(quoteRequestCalls).toBe(1));
   });
@@ -168,6 +168,6 @@ describe("PurchaseRequestDetail extra2", () => {
     renderWithProviders(<PurchaseRequestDetail orgId="1" requestId="3" />);
 
     await screen.findAllByText("PR-0003");
-    expect(await screen.findByText("No lines.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada baris")).toBeInTheDocument();
   });
 });

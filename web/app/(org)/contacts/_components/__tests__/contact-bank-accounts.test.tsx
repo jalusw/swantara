@@ -7,6 +7,6 @@ describe("ContactBankAccounts", () => {
   it("renders empty state", () => {
     renderWithProviders(<ContactBankAccounts orgId="1" contactId="1" onRefetch={() => {}} />);
 
-    expect(screen.getByText("No bank accounts")).toBeInTheDocument();
+    expect(screen.getByText("Tidak ada rekening bank")).toBeInTheDocument();
   });
 });

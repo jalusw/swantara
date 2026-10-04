@@ -81,7 +81,7 @@ describe("AttendanceSection", () => {
     renderWithProviders(<AttendanceSection orgId="1" />);
 
     await screen.findByText("EMP-0001");
-    await user.click(screen.getByRole("button", { name: "Check in" }));
+    await user.click(screen.getByRole("button", { name: "Absen masuk" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

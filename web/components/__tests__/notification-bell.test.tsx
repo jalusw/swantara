@@ -24,7 +24,7 @@ describe("NotificationBell", () => {
     const user = userEvent.setup();
     const onRead = vi.fn();
     renderWithProviders(<NotificationBell items={items} onRead={onRead} />);
-    await user.click(screen.getByRole("button", { name: /unread/ }));
+    await user.click(screen.getByRole("button", { name: /belum dibaca/ }));
     const item = await screen.findByRole("button", {
       name: /Invoice approved/,
     });
@@ -35,7 +35,7 @@ describe("NotificationBell", () => {
   it("renders a tooltip when tooltip prop is provided", async () => {
     const user = userEvent.setup();
     renderWithProviders(<NotificationBell items={items} tooltip="Notifications" />);
-    await user.hover(screen.getByRole("button", { name: /unread/ }));
+    await user.hover(screen.getByRole("button", { name: /belum dibaca/ }));
     expect(await screen.findByText("Notifications")).toBeInTheDocument();
   });
 });

@@ -117,7 +117,7 @@ describe("ChartTooltipContent branches", () => {
         <ChartTooltipContent active payload={payload()} hideLabel />
       </ChartContainer>,
     );
-    expect(screen.getByText("1,200")).toBeInTheDocument();
+    expect(screen.getByText("1.200")).toBeInTheDocument();
   });
 
   it("formats the label through labelFormatter", () => {
@@ -153,7 +153,7 @@ describe("ChartTooltipContent branches", () => {
         <ChartTooltipContent active payload={payload()} label="missing" />
       </ChartContainer>,
     );
-    expect(screen.getByText("1,200")).toBeInTheDocument();
+    expect(screen.getByText("1.200")).toBeInTheDocument();
   });
 
   it("uses a custom formatter for the item row", () => {
@@ -175,7 +175,7 @@ describe("ChartTooltipContent branches", () => {
         <ChartTooltipContent active payload={payload({ type: "none" })} />
       </ChartContainer>,
     );
-    expect(screen.queryByText("1,200")).not.toBeInTheDocument();
+    expect(screen.queryByText("1.200")).not.toBeInTheDocument();
   });
 
   it("renders the configured icon instead of the indicator", () => {
@@ -222,7 +222,7 @@ describe("ChartTooltipContent branches", () => {
         <ChartTooltipContent active payload={payload()} hideIndicator />
       </ChartContainer>,
     );
-    expect(screen.getByText("1,200")).toBeInTheDocument();
+    expect(screen.getByText("1.200")).toBeInTheDocument();
   });
 
   it("renders string values without locale formatting", () => {

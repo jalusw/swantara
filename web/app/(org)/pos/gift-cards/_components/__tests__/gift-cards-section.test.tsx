@@ -50,8 +50,8 @@ describe("GiftCardsSection", () => {
 
     expect(await screen.findByText("GC-1001")).toBeInTheDocument();
     expect(screen.getByText("GC-2002")).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
-    expect(screen.getByText("Used")).toBeInTheDocument();
+    expect(screen.getByText("Aktif")).toBeInTheDocument();
+    expect(screen.getByText("Terpakai")).toBeInTheDocument();
   });
 
   it("filters cards through the search box", async () => {
@@ -59,7 +59,7 @@ describe("GiftCardsSection", () => {
     renderWithProviders(<GiftCardsSection orgId="1" />);
 
     await screen.findByText("GC-1001");
-    await user.type(screen.getByPlaceholderText(/Search gift cards/), "2002");
+    await user.type(screen.getByPlaceholderText(/Cari kartu hadiah/), "2002");
 
     expect(await screen.findByText("GC-2002")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("GC-1001")).not.toBeInTheDocument());

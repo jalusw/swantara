@@ -110,7 +110,15 @@ func (m InvoiceInstallmentDAOMock) ListByInvoice(ctx context.Context, invoiceID 
 
 type InvoiceCreditApplicationDAOMock struct {
 	dao.CRUDMock[InvoiceCreditApplication]
+	CreateTxFunc      func(ctx context.Context, tx *gorm.DB, application *InvoiceCreditApplication) (*InvoiceCreditApplication, error)
 	ListByInvoiceFunc func(ctx context.Context, invoiceID uint64) ([]*InvoiceCreditApplication, error)
+}
+
+func (m InvoiceCreditApplicationDAOMock) CreateTx(ctx context.Context, tx *gorm.DB, application *InvoiceCreditApplication) (*InvoiceCreditApplication, error) {
+	if m.CreateTxFunc != nil {
+		return m.CreateTxFunc(ctx, tx, application)
+	}
+	return m.Create(ctx, application)
 }
 
 func (m InvoiceCreditApplicationDAOMock) ListByInvoice(ctx context.Context, invoiceID uint64) ([]*InvoiceCreditApplication, error) {
@@ -122,7 +130,15 @@ func (m InvoiceCreditApplicationDAOMock) ListByInvoice(ctx context.Context, invo
 
 type InvoiceContraSettlementDAOMock struct {
 	dao.CRUDMock[InvoiceContraSettlement]
+	CreateTxFunc      func(ctx context.Context, tx *gorm.DB, settlement *InvoiceContraSettlement) (*InvoiceContraSettlement, error)
 	ListByInvoiceFunc func(ctx context.Context, invoiceID uint64) ([]*InvoiceContraSettlement, error)
+}
+
+func (m InvoiceContraSettlementDAOMock) CreateTx(ctx context.Context, tx *gorm.DB, settlement *InvoiceContraSettlement) (*InvoiceContraSettlement, error) {
+	if m.CreateTxFunc != nil {
+		return m.CreateTxFunc(ctx, tx, settlement)
+	}
+	return m.Create(ctx, settlement)
 }
 
 func (m InvoiceContraSettlementDAOMock) ListByInvoice(ctx context.Context, invoiceID uint64) ([]*InvoiceContraSettlement, error) {
@@ -134,7 +150,15 @@ func (m InvoiceContraSettlementDAOMock) ListByInvoice(ctx context.Context, invoi
 
 type DownPaymentLinkDAOMock struct {
 	dao.CRUDMock[DownPaymentLink]
+	CreateTxFunc    func(ctx context.Context, tx *gorm.DB, link *DownPaymentLink) (*DownPaymentLink, error)
 	ListByFinalFunc func(ctx context.Context, finalInvoiceID uint64) ([]*DownPaymentLink, error)
+}
+
+func (m DownPaymentLinkDAOMock) CreateTx(ctx context.Context, tx *gorm.DB, link *DownPaymentLink) (*DownPaymentLink, error) {
+	if m.CreateTxFunc != nil {
+		return m.CreateTxFunc(ctx, tx, link)
+	}
+	return m.Create(ctx, link)
 }
 
 func (m DownPaymentLinkDAOMock) ListByFinal(ctx context.Context, finalInvoiceID uint64) ([]*DownPaymentLink, error) {

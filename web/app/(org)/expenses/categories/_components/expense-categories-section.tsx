@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -14,6 +15,12 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { ExpenseCategoryFormDialog } from "./expense-category-form-dialog";
 
 export function ExpenseCategoriesSection({ orgId }: { orgId: string }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Expenses");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editCategory, setEditCategory] = useState<ExpenseCategory | null>(null);
@@ -32,7 +39,7 @@ export function ExpenseCategoriesSection({ orgId }: { orgId: string }) {
       void queryClient.invalidateQueries({ queryKey: ["expenseCategories", Number(orgId)] });
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("toastFailed"));
     },
   });
 
@@ -50,7 +57,7 @@ export function ExpenseCategoriesSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<ExpenseCategory>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: () => t("fieldName"),
       cell: ({ row }) => (
         <button
           type="button"
@@ -66,10 +73,10 @@ export function ExpenseCategoriesSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Deleted"}
-          confirmTitle={"Delete this activity?"}
-          confirmDescription={"The activity will be removed permanently."}
+          editLabel={tCommon("edit")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("deleteCategoryTitle")}
+          confirmDescription={t("deleteCategoryDescription")}
           onEdit={() => handleEdit(row.original)}
           onDelete={() => deleteMutation.mutate(row.original.id)}
         />
@@ -84,10 +91,10 @@ export function ExpenseCategoriesSection({ orgId }: { orgId: string }) {
         data={categories}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
-        searchPlaceholder={"Search categories…"}
-        allLabel={"All categories"}
-        ariaLabel={"Expense categories"}
-        emptyTitle={"No expense categories yet"}
+        searchPlaceholder={t("searchCategories")}
+        allLabel={t("allCategories")}
+        ariaLabel={t("categoriesTitle")}
+        emptyTitle={t("categoriesEmpty")}
         status={
           categoriesQuery.isLoading
             ? { type: "loading" }
@@ -108,7 +115,7 @@ export function ExpenseCategoriesSection({ orgId }: { orgId: string }) {
             }}
           >
             <Plus />
-            <span>{"Create category"}</span>
+            <span>{t("newCategory")}</span>
           </Button>
         }
       />

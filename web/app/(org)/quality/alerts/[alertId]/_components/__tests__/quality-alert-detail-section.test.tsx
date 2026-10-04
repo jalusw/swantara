@@ -68,7 +68,7 @@ describe("QualityAlertDetail", () => {
     renderWithProviders(<QualityAlertDetail orgId="1" alertId="1" />);
 
     await screen.findByText("Leaking valve");
-    await user.click(screen.getByRole("button", { name: (name) => name.includes("Progress") }));
+    await user.click(screen.getByRole("button", { name: (name) => name.includes("Dalam proses") }));
 
     await waitFor(() => expect(transitionCalled).toBe(true));
   });

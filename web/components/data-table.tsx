@@ -25,9 +25,9 @@ import {
   InboxIcon,
   TriangleAlertIcon,
 } from "lucide-react";
+import { useMessages, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { UI_COPY } from "@/lib/constants/ui-copy";
 import { cn } from "@/lib/utils";
 import { getColumnLabel } from "@/lib/utils/table";
 import { Button } from "./button";
@@ -105,21 +105,23 @@ export type DataTableProps<TData, TValue> = {
 };
 
 function useDefaultLabels(): Required<DataTableLabels> {
+  const raw = useMessages() as unknown as { Tables?: Record<string, string> };
+  const messages = raw.Tables ?? {};
   return {
-    selectAll: "Select all rows",
-    selectRow: "Select row {id}",
-    sortBy: "Sort by {label}",
-    errorMessage: "Could not load rows.",
-    retry: "Retry",
-    emptyTitle: "No records found",
-    emptyDescription: "No records match your filters.",
-    rowsSelected: "{count} selected",
-    rowsPerPage: "Rows per page",
-    page: "Page",
-    of: "of",
-    pagePrevious: "Previous page",
-    pageNext: "Next page",
-    range: "{from}–{to} of {total}",
+    selectAll: messages.selectAll ?? "",
+    selectRow: messages.selectRow ?? "",
+    sortBy: messages.sortBy ?? "",
+    errorMessage: messages.errorMessage ?? "",
+    retry: messages.retry ?? "",
+    emptyTitle: messages.emptyTitle ?? "",
+    emptyDescription: messages.emptyDescription ?? "",
+    rowsSelected: messages.rowsSelected ?? "",
+    rowsPerPage: messages.rowsPerPage ?? "",
+    page: messages.page ?? "",
+    of: messages.of ?? "",
+    pagePrevious: messages.pagePrevious ?? "",
+    pageNext: messages.pageNext ?? "",
+    range: messages.range ?? "",
   };
 }
 
@@ -171,10 +173,13 @@ export function DataTable<TData, TValue>({
   onSelectionChange,
   status = { type: "none" },
   toolbar,
-  ariaLabel = UI_COPY.dataTable,
+  ariaLabel,
   className,
   labels,
 }: DataTableProps<TData, TValue>) {
+  const tAria = useTranslations("Tables" as unknown as "Common");
+  const txAria = tAria as unknown as (key: string) => string;
+  const resolvedAriaLabel = ariaLabel ?? txAria("ariaLabel");
   const translatedDefaults = useDefaultLabels();
   const t = { ...translatedDefaults, ...labels };
   const [internalSorting, setInternalSorting] = useState<SortingState>(initialSorting ?? []);
@@ -326,7 +331,7 @@ export function DataTable<TData, TValue>({
       {toolbar ? <div className="flex items-center gap-2">{toolbar}</div> : null}
 
       <div className="overflow-hidden rounded-xl border border-border">
-        <Table aria-label={ariaLabel}>
+        <Table aria-label={resolvedAriaLabel}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

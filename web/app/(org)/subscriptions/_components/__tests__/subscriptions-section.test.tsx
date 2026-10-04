@@ -60,8 +60,8 @@ describe("SubscriptionsSection", () => {
     expect(await screen.findByText("Acme Monthly")).toBeInTheDocument();
     expect(screen.getByText("Beta Annual")).toBeInTheDocument();
     expect(screen.getAllByText("MRR").length).toBeGreaterThan(0);
-    expect(screen.getByText("Active")).toBeInTheDocument();
-    expect(screen.getByText("Paused")).toBeInTheDocument();
+    expect(screen.getByText("Aktif")).toBeInTheDocument();
+    expect(screen.getByText("Dijeda")).toBeInTheDocument();
   });
 
   it("filters subscriptions through the search box", async () => {
@@ -69,7 +69,7 @@ describe("SubscriptionsSection", () => {
     renderWithProviders(<SubscriptionsSection orgId="1" />);
 
     await screen.findByText("Acme Monthly");
-    await user.type(screen.getByPlaceholderText(/Search subscriptions/), "Beta");
+    await user.type(screen.getByPlaceholderText(/Cari langganan/), "Beta");
 
     expect(await screen.findByText("Beta Annual")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Acme Monthly")).not.toBeInTheDocument());

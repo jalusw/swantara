@@ -46,7 +46,7 @@ describe("WarehouseTransferDetail", () => {
     renderWithProviders(<WarehouseTransferDetail orgId="1" warehouseTransferId="31" />);
 
     expect((await screen.findAllByText("TO-0031")).length).toBeGreaterThan(0);
-    expect(screen.getByText("Transfer legs")).toBeInTheDocument();
+    expect(screen.getByText("Tahapan transfer")).toBeInTheDocument();
   });
 
   it("sends the draft transfer on button click", async () => {
@@ -54,7 +54,7 @@ describe("WarehouseTransferDetail", () => {
     renderWithProviders(<WarehouseTransferDetail orgId="1" warehouseTransferId="31" />);
 
     await screen.findAllByText("TO-0031");
-    await user.click(screen.getByRole("button", { name: "Send" }));
+    await user.click(screen.getByRole("button", { name: "Kirim" }));
 
     expect(sendCalled).toBe(true);
   });

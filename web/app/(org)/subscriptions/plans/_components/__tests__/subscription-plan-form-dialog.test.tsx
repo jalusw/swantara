@@ -18,8 +18,8 @@ describe("SubscriptionPlanFormDialog", () => {
       />,
     );
 
-    expect(await screen.findByText("Create subscription plan")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Paket baru")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("closes without saving from the cancel button", async () => {
@@ -35,8 +35,8 @@ describe("SubscriptionPlanFormDialog", () => {
       />,
     );
 
-    await screen.findByText("Create subscription plan");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByText("Paket baru");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

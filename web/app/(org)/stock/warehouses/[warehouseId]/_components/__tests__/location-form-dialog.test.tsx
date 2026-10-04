@@ -18,8 +18,8 @@ describe("LocationFormDialog", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "New location" })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Lokasi baru" })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Nama")).toBeInTheDocument();
   });
 
   it("accepts a location name through typing", async () => {
@@ -34,7 +34,7 @@ describe("LocationFormDialog", () => {
       />,
     );
 
-    await user.type(screen.getByPlaceholderText("Name"), "WH/Overflow");
+    await user.type(screen.getByPlaceholderText("Nama"), "WH/Overflow");
 
     expect(screen.getByDisplayValue("WH/Overflow")).toBeInTheDocument();
   });

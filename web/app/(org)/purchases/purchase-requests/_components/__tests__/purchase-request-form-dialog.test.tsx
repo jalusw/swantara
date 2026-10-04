@@ -85,8 +85,8 @@ describe("PurchaseRequestFormDialog", () => {
       <PurchaseRequestFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(screen.getByText("New purchase request")).toBeInTheDocument();
-    expect(screen.getByText("Request lines")).toBeInTheDocument();
+    expect(screen.getByText("Permintaan pembelian baru")).toBeInTheDocument();
+    expect(screen.getByText("Baris permintaan")).toBeInTheDocument();
   });
 
   it("requires a requester before saving", async () => {
@@ -96,9 +96,9 @@ describe("PurchaseRequestFormDialog", () => {
       <PurchaseRequestFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Select a requester.")).toBeInTheDocument();
+    expect(await screen.findByText("Pilih pemohon.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 });

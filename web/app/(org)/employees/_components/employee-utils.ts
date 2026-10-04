@@ -27,7 +27,7 @@ export function employmentTypeLabel(type: Employee["employmentType"]): string {
     case "part_time":
       return "Part time";
     case "contract":
-      return "Contract";
+      return "Kontrak";
     default:
       return type;
   }

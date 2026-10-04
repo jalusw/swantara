@@ -110,11 +110,11 @@ describe("SupplierCatalogSection branches4", () => {
     renderWithProviders(<SupplierCatalogSection orgId="1" />);
 
     await screen.findByText("VEN-TOTE-001");
-    await user.click(screen.getByRole("button", { name: "Edit supplier item" }));
+    await user.click(screen.getByRole("button", { name: "Ubah produk pemasok" }));
     const dialog = await screen.findByRole("dialog");
 
-    expect(within(dialog).getByLabelText("Supplier SKU")).toHaveValue("VEN-TOTE-001");
-    expect(within(dialog).getByLabelText("Price")).toHaveValue(32.5);
+    expect(within(dialog).getByLabelText("SKU pemasok")).toHaveValue("VEN-TOTE-001");
+    expect(within(dialog).getByLabelText("Harga")).toHaveValue(32.5);
   });
 
   it("edits an item with every optional field missing", async () => {
@@ -123,14 +123,14 @@ describe("SupplierCatalogSection branches4", () => {
     renderWithProviders(<SupplierCatalogSection orgId="1" />);
 
     await screen.findByText("Ceramic Mug");
-    const edits = screen.getAllByRole("button", { name: "Edit supplier item" });
+    const edits = screen.getAllByRole("button", { name: "Ubah produk pemasok" });
     const edit = edits[edits.length - 1];
     if (!edit) throw new Error("Expected edit button");
     await user.click(edit);
     const dialog = await screen.findByRole("dialog");
 
-    expect(within(dialog).getByLabelText("Supplier SKU")).toHaveValue("");
-    expect(within(dialog).getByLabelText("Currency")).toHaveValue("USD");
+    expect(within(dialog).getByLabelText("SKU pemasok")).toHaveValue("");
+    expect(within(dialog).getByLabelText("Mata uang")).toHaveValue("USD");
   });
 
   it("creates a supplier item with dates and cleared numerics", async () => {
@@ -145,23 +145,23 @@ describe("SupplierCatalogSection branches4", () => {
     const user = userEvent.setup();
     renderWithProviders(<SupplierCatalogSection orgId="1" />);
 
-    await user.click(await screen.findByRole("button", { name: "Add supplier item" }));
+    await user.click(await screen.findByRole("button", { name: "Tambah produk pemasok" }));
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByRole("combobox", { name: "Item" }));
+    await user.click(within(dialog).getByRole("combobox", { name: "Produk" }));
     await user.click(await screen.findByRole("option", { name: "Canvas Tote" }));
-    await user.type(within(dialog).getByLabelText("Supplier"), "9");
-    await user.type(within(dialog).getByLabelText("Price"), "10");
-    await user.type(within(dialog).getByLabelText("Lead time (days)"), "3");
-    await user.clear(within(dialog).getByLabelText("Min. quantity"));
-    await user.clear(within(dialog).getByLabelText("Currency"));
-    await user.clear(within(dialog).getByLabelText("Priority"));
+    await user.type(within(dialog).getByLabelText("Pemasok"), "9");
+    await user.type(within(dialog).getByLabelText("Harga"), "10");
+    await user.type(within(dialog).getByLabelText("Waktu tunggu"), "3");
+    await user.clear(within(dialog).getByLabelText("Jumlah minimum"));
+    await user.clear(within(dialog).getByLabelText("Mata uang"));
+    await user.clear(within(dialog).getByLabelText("Prioritas"));
 
     const dates = dialog.querySelectorAll('input[type="date"]');
     if (dates.length !== 2) throw new Error("Expected date inputs");
     await user.type(dates[0] as HTMLElement, "2026-02-01");
     await user.type(dates[1] as HTMLElement, "2026-11-30");
 
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(bodies).toHaveLength(1));
     expect(bodies[0]).toMatchObject({

@@ -11,6 +11,7 @@ import (
 
 type EmployeeDAO interface {
 	dao.CRUD[Employee]
+	CreateTx(ctx context.Context, tx *gorm.DB, entity *Employee) (*Employee, error)
 }
 
 type employeeDAO struct {
@@ -21,8 +22,16 @@ func NewEmployeeDAO(db *gorm.DB) EmployeeDAO {
 	return employeeDAO{Base: dao.NewBase[Employee](db)}
 }
 
+func (d employeeDAO) CreateTx(ctx context.Context, tx *gorm.DB, entity *Employee) (*Employee, error) {
+	if err := tx.WithContext(ctx).Create(entity).Error; err != nil {
+		return nil, err
+	}
+	return entity, nil
+}
+
 type EmploymentContractDAO interface {
 	dao.CRUD[EmploymentContract]
+	CreateTx(ctx context.Context, tx *gorm.DB, entity *EmploymentContract) (*EmploymentContract, error)
 	ListByEmployee(ctx context.Context, employeeID uint64) ([]*EmploymentContract, error)
 	FindActiveByEmployee(ctx context.Context, employeeID uint64) (*EmploymentContract, error)
 	ListInOrg(ctx context.Context, q *query.Query, organizationID uint64) (*query.Page[EmploymentContract], error)
@@ -36,6 +45,13 @@ type employmentContractDAO struct {
 
 func NewEmploymentContractDAO(db *gorm.DB) EmploymentContractDAO {
 	return employmentContractDAO{Base: dao.NewBase[EmploymentContract](db), db: db}
+}
+
+func (d employmentContractDAO) CreateTx(ctx context.Context, tx *gorm.DB, entity *EmploymentContract) (*EmploymentContract, error) {
+	if err := tx.WithContext(ctx).Create(entity).Error; err != nil {
+		return nil, err
+	}
+	return entity, nil
 }
 
 func (d employmentContractDAO) ListByEmployee(ctx context.Context, employeeID uint64) ([]*EmploymentContract, error) {

@@ -47,7 +47,7 @@ describe("QualityAlertDetail branches", () => {
     useAlert(null);
     renderWithProviders(<QualityAlertDetail orgId="1" alertId="1" />);
 
-    expect(await screen.findByText("Quality alert not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Peringatan tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("renders fallbacks for a sparse in-progress alert and solves it", async () => {
@@ -73,10 +73,10 @@ describe("QualityAlertDetail branches", () => {
     const user = userEvent.setup();
     renderWithProviders(<QualityAlertDetail orgId="1" alertId="1" />);
 
-    expect(await screen.findByText("Alert #1")).toBeInTheDocument();
-    expect(screen.getByText("User #7")).toBeInTheDocument();
+    expect(await screen.findByText("Peringatan #1")).toBeInTheDocument();
+    expect(screen.getByText("Pengguna #7")).toBeInTheDocument();
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
-    await user.click(screen.getByRole("button", { name: (name) => name.includes("Solved") }));
+    await user.click(screen.getByRole("button", { name: (name) => name.includes("Selesai") }));
 
     await waitFor(() => expect(transitioned).toMatchObject({ state: "solved" }));
   });
@@ -86,6 +86,6 @@ describe("QualityAlertDetail branches", () => {
     renderWithProviders(<QualityAlertDetail orgId="1" alertId="1" />);
 
     expect(await screen.findByText("Leaking valve")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: (name) => name.includes("Solved") })).toBeNull();
+    expect(screen.queryByRole("button", { name: (name) => name.includes("Selesai") })).toBeNull();
   });
 });

@@ -20,7 +20,10 @@ const (
 )
 
 func BindAndValidate(c fiber.Ctx, request any) bool {
-	if err := c.Bind().Body(request); err != nil {
+	if !checkRequestFormatAllowed(c) {
+		return false
+	}
+	if err := BindBody(c, request); err != nil {
 		if writeErr := CreateBadRequestResponse(c, "", err); writeErr != nil {
 			RequestLog(c).Error("failed to write bind error response", "error", writeErr)
 		}
@@ -34,6 +37,34 @@ func BindAndValidate(c fiber.Ctx, request any) bool {
 		return false
 	}
 
+	return true
+}
+
+// BindAndValidateWithFormats opts the handler in to the given request body
+// formats before binding. JSON is the default.
+func BindAndValidateWithFormats(c fiber.Ctx, request any, formats ...Format) bool {
+	AllowRequestFormats(c, formats...)
+	return BindAndValidate(c, request)
+}
+
+func checkRequestFormatAllowed(c fiber.Ctx) bool {
+	if len(c.Body()) == 0 || isFormContentType(c) {
+		return true
+	}
+	bodyFormat := RequestBodyFormat(c)
+	if bodyFormat == "" {
+		if writeErr := CreateUnsupportedMediaTypeResponse(c, "Unsupported media type.", nil); writeErr != nil {
+			RequestLog(c).Error("failed to write unsupported media type response", "error", writeErr)
+		}
+		return false
+	}
+	if !IsRequestFormatAllowed(c, bodyFormat) {
+		RequestLog(c).Warn("unsupported request format", "format", string(bodyFormat))
+		if writeErr := CreateUnsupportedMediaTypeResponse(c, "Format "+string(bodyFormat)+" is not available for this endpoint.", nil); writeErr != nil {
+			RequestLog(c).Error("failed to write unsupported media type response", "error", writeErr)
+		}
+		return false
+	}
 	return true
 }
 

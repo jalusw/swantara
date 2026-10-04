@@ -2,6 +2,7 @@
 
 import { Search } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/button";
 import { useCommandPalette } from "@/components/command-palette";
 
@@ -14,6 +15,7 @@ const OrgCommandDialog = dynamic(
 
 export function OrgSearch() {
   const { open, setOpen } = useCommandPalette();
+  const t = useTranslations("Search");
 
   return (
     <>
@@ -23,7 +25,7 @@ export function OrgSearch() {
         onClick={() => setOpen(true)}
       >
         <Search aria-hidden />
-        <span className="truncate">{"Search..."}</span>
+        <span className="truncate">{t("placeholder")}</span>
         <kbd className="ml-auto rounded border border-border bg-muted px-1.5 py-0.5 font-sans text-[10px] ">
           ⌘K
         </kbd>

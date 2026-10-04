@@ -56,7 +56,7 @@ describe("DataTable branches2", () => {
         onColumnVisibilityChange={onColumnVisibilityChange}
       />,
     );
-    await user.click(screen.getByRole("button", { name: "Next page" }));
+    await user.click(screen.getByRole("button", { name: "Halaman berikutnya" }));
     expect(onPaginationChange).toHaveBeenCalled();
   });
 
@@ -90,8 +90,8 @@ describe("DataTable branches2", () => {
         enablePagination
       />,
     );
-    await user.click(screen.getByRole("checkbox", { name: "Select row 1" }));
-    expect(await screen.findByText(/1.*selected|selected.*1/i)).toBeInTheDocument();
+    await user.click(screen.getByRole("checkbox", { name: "Pilih baris 1" }));
+    expect(await screen.findByText(/1.*dipilih|dipilih.*1/i)).toBeInTheDocument();
   });
 
   it("renders manual pagination without pageCount and custom page sizes", () => {
@@ -105,7 +105,7 @@ describe("DataTable branches2", () => {
         pageSizeOptions={[5, 10]}
       />,
     );
-    expect(screen.getByText(/Page 1 of/)).toBeInTheDocument();
+    expect(screen.getByText(/Halaman 1 dari/)).toBeInTheDocument();
   });
 
   it("renders desc sort icon and aria-sort branches", async () => {
@@ -113,10 +113,10 @@ describe("DataTable branches2", () => {
     renderWithProviders(
       <DataTable columns={COLUMNS} data={ROWS} getRowId={(row) => row.id} enableSorting />,
     );
-    const sortButton = screen.getByRole("button", { name: "Sort by Name" });
+    const sortButton = screen.getByRole("button", { name: "Urutkan berdasarkan Name" });
     await user.click(sortButton);
     await user.click(sortButton);
-    expect(sortButton).toHaveAttribute("aria-label", "Sort by Name");
+    expect(sortButton).toHaveAttribute("aria-label", "Urutkan berdasarkan Name");
     expect(screen.getByRole("table")).toBeInTheDocument();
   });
 
@@ -130,6 +130,6 @@ describe("DataTable branches2", () => {
       />,
     );
     expect(screen.getByText("Nothing")).toBeInTheDocument();
-    expect(screen.queryByText(/Page 1 of/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Halaman 1 dari/)).not.toBeInTheDocument();
   });
 });

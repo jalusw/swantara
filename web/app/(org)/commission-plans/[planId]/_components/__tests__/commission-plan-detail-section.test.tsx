@@ -40,7 +40,7 @@ describe("CommissionPlanDetail", () => {
     renderWithProviders(<CommissionPlanDetail orgId="1" planId="1" />);
 
     expect(await screen.findByRole("heading", { name: "Retail Plan" })).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
+    expect(screen.getByText("Aktif")).toBeInTheDocument();
   });
 
   it("shows empty rules on the rules tab", async () => {
@@ -48,8 +48,8 @@ describe("CommissionPlanDetail", () => {
     renderWithProviders(<CommissionPlanDetail orgId="1" planId="1" />);
 
     await screen.findByRole("heading", { name: "Retail Plan" });
-    await user.click(screen.getByRole("tab", { name: "Rules" }));
+    await user.click(screen.getByRole("tab", { name: "Aturan" }));
 
-    expect(await screen.findByText("No rules configured.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada aturan.")).toBeInTheDocument();
   });
 });

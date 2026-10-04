@@ -29,7 +29,7 @@ describe("ConfirmationStep", () => {
   it("shows a review prompt when no values are present", () => {
     renderConfirmation();
 
-    expect(screen.getByText(/Review/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tinjau/i)).toBeInTheDocument();
   });
 
   it("lists the entered values", async () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/avatar";
@@ -45,6 +46,7 @@ function initialsFor(name: string): string {
 }
 
 export function MembersInviteDialog({ open, onOpenChange, onInvited }: MembersInviteDialogProps) {
+  const t = useTranslations("Settings");
   const organizationId = useOrganizationId();
   const queryClient = useQueryClient();
   const [query, setQuery] = useState("");
@@ -69,7 +71,7 @@ export function MembersInviteDialog({ open, onOpenChange, onInvited }: MembersIn
         organizationId: organizationId as number,
       }),
     onSuccess: () => {
-      toast.success("Member invited.");
+      toast.success(t("memberInvited"));
       void queryClient.invalidateQueries({ queryKey: ["members"] });
       setQuery("");
       setSelected(null);
@@ -77,7 +79,7 @@ export function MembersInviteDialog({ open, onOpenChange, onInvited }: MembersIn
       onInvited?.();
     },
     onError: () => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("inviteFailed"));
     },
   });
 
@@ -93,38 +95,34 @@ export function MembersInviteDialog({ open, onOpenChange, onInvited }: MembersIn
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Invite member</DialogTitle>
-          <DialogDescription>Search by username or name, then invite.</DialogDescription>
+          <DialogTitle>{t("inviteTitle")}</DialogTitle>
+          <DialogDescription>{t("inviteDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3">
           <Input
-            placeholder="Search by username or name…"
+            placeholder={t("inviteSearchPlaceholder")}
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);
               setSelected(null);
             }}
-            aria-label="Search users"
+            aria-label={t("searchUsers")}
           />
           {trimmed.length > 0 && trimmed.length < 2 && (
-            <p className="text-sm text-muted-foreground">Type at least 2 characters.</p>
+            <p className="text-sm text-muted-foreground">{t("minChars")}</p>
           )}
-          {blocked && (
-            <p className="text-sm text-muted-foreground">
-              No suggestions for email or phone. Search by username or name.
-            </p>
-          )}
+          {blocked && <p className="text-sm text-muted-foreground">{t("blockedQueryHint")}</p>}
           {enabled && searchQuery.isPending && (
-            <p className="text-sm text-muted-foreground">Loading...</p>
+            <p className="text-sm text-muted-foreground">{t("loadingUsers")}</p>
           )}
           {enabled && searchQuery.isError && (
-            <p className="text-sm text-muted-foreground">Failed to load. Please try again.</p>
+            <p className="text-sm text-muted-foreground">{t("loadFailed")}</p>
           )}
           {enabled &&
             !searchQuery.isPending &&
             !searchQuery.isError &&
             suggestions.length === 0 && (
-              <p className="text-sm text-muted-foreground">No users found.</p>
+              <p className="text-sm text-muted-foreground">{t("noUsersFound")}</p>
             )}
           {suggestions.length > 0 && (
             <ul className="flex max-h-64 flex-col gap-1 overflow-auto">
@@ -162,7 +160,7 @@ export function MembersInviteDialog({ open, onOpenChange, onInvited }: MembersIn
               if (selected) inviteMutation.mutate(selected.id);
             }}
           >
-            {inviteMutation.isPending ? "Inviting..." : "Invite"}
+            {inviteMutation.isPending ? t("inviting") : t("invite")}
           </Button>
         </DialogFooter>
       </DialogContent>

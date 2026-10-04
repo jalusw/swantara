@@ -58,7 +58,7 @@ describe("InvoicesSection branches3", () => {
     );
     renderWithProviders(<InvoicesSection orgId="1" />);
 
-    expect(await screen.findByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 
   it("opens the create dialog and adds a line", async () => {
@@ -66,11 +66,11 @@ describe("InvoicesSection branches3", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-1");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
 
     const dialog = await screen.findByRole("dialog");
     expect(dialog).toBeInTheDocument();
-    const addLine = screen.queryByRole("button", { name: "Add line" });
+    const addLine = screen.queryByRole("button", { name: "Tambah baris" });
     if (addLine) {
       await user.click(addLine);
       expect(screen.getAllByRole("dialog").length).toBeGreaterThan(0);
@@ -82,9 +82,9 @@ describe("InvoicesSection branches3", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-1");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
 
     await screen.findByRole("dialog");
-    expect(screen.getByRole("button", { name: "Create" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Buat" })).toBeDisabled();
   });
 });

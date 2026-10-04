@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -27,6 +28,12 @@ function toRow(rule: ReorderRule) {
 }
 
 export function ReorderRulesSection({ orgId }: { orgId: string }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Stock");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<ReorderRule | null>(null);
 
@@ -47,30 +54,30 @@ export function ReorderRulesSection({ orgId }: { orgId: string }) {
     void getSwantaraService()
       .inventory.deleteReorderRule(Number(orgId), Number(rule.id))
       .then(() => void rulesQuery.refetch())
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("toastFailed")));
   }
 
   const columns: ColumnDef<ReturnType<typeof toRow>>[] = [
     {
       accessorKey: "itemId",
-      header: "Item",
+      header: () => t("fieldItem"),
       cell: ({ row }) => <span>{row.original.itemId}</span>,
     },
     {
       accessorKey: "minQty",
-      header: "Min qty",
+      header: () => t("fieldMinQty"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums">{formatNumber(row.original.minQty)}</span>,
     },
     {
       accessorKey: "maxQty",
-      header: "Max qty",
+      header: () => t("fieldMaxQty"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums">{formatNumber(row.original.maxQty)}</span>,
     },
     {
       accessorKey: "qtyMultiple",
-      header: "Qty multiple",
+      header: () => t("fieldQtyMultiple"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums">{formatNumber(row.original.qtyMultiple)}</span>
@@ -78,7 +85,7 @@ export function ReorderRulesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "leadTimeDays",
-      header: "Lead time (days)",
+      header: () => t("fieldLeadTime"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {row.original.leadTimeDays != null ? `${row.original.leadTimeDays}d` : "—"}
@@ -86,19 +93,19 @@ export function ReorderRulesSection({ orgId }: { orgId: string }) {
       ),
     },
     activeColumn<ReturnType<typeof toRow>>({
-      header: "Active",
-      activeLabel: "Active",
-      inactiveLabel: "Inactive",
+      header: t("active"),
+      activeLabel: t("active"),
+      inactiveLabel: t("inactive"),
     }),
     {
       id: "actions",
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Delete this reorder rule?"}
-          confirmDescription={"This will remove the automatic replenishment rule for this item."}
+          editLabel={tCommon("edit")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("deleteReorderRuleTitle")}
+          confirmDescription={t("deleteReorderRuleDescription")}
           onEdit={() => {
             const rule = (rulesQuery.data?.rules ?? []).find(
               (r) => String(r.id) === row.original.id,
@@ -124,9 +131,9 @@ export function ReorderRulesSection({ orgId }: { orgId: string }) {
         data={rows}
         getRowId={(row) => row.id}
         searchKeys={["itemId"]}
-        searchPlaceholder={"Search reorder rules…"}
-        ariaLabel={"All reorder rules"}
-        emptyTitle={"No reorder rules found. Create one to set up automatic replenishment."}
+        searchPlaceholder={t("searchReorderRules")}
+        ariaLabel={t("allReorderRules")}
+        emptyTitle={t("reorderRulesEmpty")}
         status={
           isLoading
             ? { type: "loading" }
@@ -147,7 +154,7 @@ export function ReorderRulesSection({ orgId }: { orgId: string }) {
             }}
           >
             <Plus />
-            <span>{"Add rule"}</span>
+            <span>{t("addRule")}</span>
           </Button>
         }
       />

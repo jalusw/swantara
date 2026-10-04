@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeOffIcon } from "lucide-react";
-import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -38,7 +39,8 @@ function formatValue(value: unknown): string {
 }
 
 function useConfigEditorSchema() {
-  return z.object({ value: z.string().min(1, "Enter a value.") });
+  const t = useTranslations("Admin");
+  return z.object({ value: z.string().min(1, t("validation_valueRequired")) });
 }
 type ConfigEditorValues = z.infer<ReturnType<typeof useConfigEditorSchema>>;
 
@@ -51,6 +53,8 @@ function ConfigEditorDialog({
   orgId: string;
   onSaved: () => void;
 }) {
+  const t = useTranslations("Admin");
+  const tCommon = useTranslations("Common");
   const [open, setOpen] = useState(false);
   const sensitive = isSensitive(config.key);
 
@@ -61,6 +65,12 @@ function ConfigEditorDialog({
     defaultValues: { value: formatValue(config.value) },
   });
 
+  useEffect(() => {
+    if (open) {
+      form.reset({ value: formatValue(config.value) });
+    }
+  }, [open, config.value, form]);
+
   function handleSubmit(values: ConfigEditorValues) {
     let parsed: unknown = values.value;
     try {
@@ -69,34 +79,34 @@ function ConfigEditorDialog({
       parsed = values.value;
     }
 
-    void getSwantaraService()
+    return getSwantaraService()
       .systemConfigs.update(Number(orgId), config.id, { value: parsed })
       .then(() => {
-        toast.success("Configuration updated.");
+        toast.success(t("configUpdated"));
         setOpen(false);
         onSaved();
       })
       .catch((error) => {
         logger.error("Failed to update config", error);
-        toast.error("Could not disable the organization.");
+        toast.error(t("saveFailed"));
       });
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="outline" size="sm" />}>{"Edit"}</DialogTrigger>
+      <DialogTrigger render={<Button variant="outline" size="sm" />}>{t("edit")}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{"Edit configuration"}</DialogTitle>
+          <DialogTitle>{t("editConfig")}</DialogTitle>
           <DialogDescription className="font-mono text-xs">{config.key}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
-          <FormField name="value" label={"Value"}>
+          <FormField name="value" label={t("valueLabel")}>
             {({ field }) => (
               <Input
                 {...field}
                 type={sensitive ? "password" : "text"}
-                placeholder={"Enter value"}
+                placeholder={t("enterValue")}
                 autoComplete="off"
               />
             )}
@@ -104,14 +114,14 @@ function ConfigEditorDialog({
           {sensitive ? (
             <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <EyeOffIcon className="size-3.5" aria-hidden />
-              {"This value is sensitive and shown masked."}
+              {t("sensitiveHint")}
             </p>
           ) : null}
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Save"}</SubmitButton>
+            <SubmitButton>{tCommon("save")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>
@@ -120,6 +130,8 @@ function ConfigEditorDialog({
 }
 
 export function SystemConfigSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Admin");
+  const tCommon = useTranslations("Common");
   const [query, setQuery] = useState("");
 
   const configQuery = useOrgListQuery<{ systemConfigs: SystemConfig[] }, Record<string, never>>(
@@ -137,37 +149,37 @@ export function SystemConfigSection({ orgId }: { orgId: string }) {
     <Card>
       <CardHeader className="flex-row items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle>{"System configuration"}</CardTitle>
-          <CardDescription>{"Key/value settings that control system behavior."}</CardDescription>
+          <CardTitle>{t("systemConfigTitle")}</CardTitle>
+          <CardDescription>{t("systemConfigDescription")}</CardDescription>
         </div>
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder={"Search configuration…"}
+          placeholder={t("searchConfigs")}
           className="max-w-64"
-          aria-label={"Search configuration…"}
+          aria-label={t("searchConfigs")}
         />
       </CardHeader>
       <CardContent>
-        <Table aria-label={"System configuration"}>
+        <Table aria-label={t("systemConfigTitle")}>
           <TableHeader>
             <TableRow>
-              <TableHead>{"Key"}</TableHead>
-              <TableHead>{"Value"}</TableHead>
-              <TableHead className="w-24 text-right">{"Edit"}</TableHead>
+              <TableHead>{t("colKey")}</TableHead>
+              <TableHead>{t("colValue")}</TableHead>
+              <TableHead className="w-24 text-right">{t("colEdit")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {configQuery.isLoading ? (
               <TableRow>
                 <TableCell colSpan={3} className="py-8 text-center text-muted-foreground">
-                  {"Loading..."}
+                  {tCommon("loading")}
                 </TableCell>
               </TableRow>
             ) : filtered.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className="py-8 text-center text-muted-foreground">
-                  {"No configuration"}
+                  {t("noConfig")}
                 </TableCell>
               </TableRow>
             ) : (

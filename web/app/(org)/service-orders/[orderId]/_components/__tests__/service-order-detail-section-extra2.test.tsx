@@ -67,7 +67,7 @@ describe("ServiceOrderDetail extra2", () => {
     seedOrder(null, []);
     renderWithProviders(<ServiceOrderDetail orgId="1" orderId="1" />);
 
-    expect(await screen.findByText("Service order not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Pesanan tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("schedules a new order", async () => {
@@ -82,7 +82,7 @@ describe("ServiceOrderDetail extra2", () => {
     renderWithProviders(<ServiceOrderDetail orgId="1" orderId="1" />);
 
     await screen.findByRole("heading", { name: "AC Repair Visit" });
-    await user.click(screen.getByRole("button", { name: "Schedule" }));
+    await user.click(screen.getByRole("button", { name: "Jadwalkan" }));
 
     await waitFor(() => expect(scheduleCalls).toBe(1));
   });
@@ -100,8 +100,8 @@ describe("ServiceOrderDetail extra2", () => {
     renderWithProviders(<ServiceOrderDetail orgId="1" orderId="1" />);
 
     await screen.findByRole("heading", { name: "AC Repair Visit" });
-    expect(screen.queryByRole("button", { name: "Schedule" })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Start" }));
+    expect(screen.queryByRole("button", { name: "Jadwalkan" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Mulai" }));
 
     await waitFor(() => expect(startCalls).toBe(1));
   });
@@ -119,7 +119,7 @@ describe("ServiceOrderDetail extra2", () => {
     renderWithProviders(<ServiceOrderDetail orgId="1" orderId="1" />);
 
     await screen.findByRole("heading", { name: "AC Repair Visit" });
-    await user.click(screen.getByRole("button", { name: "Complete" }));
+    await user.click(screen.getByRole("button", { name: "Selesaikan" }));
 
     await waitFor(() => expect(completeCalls).toBe(1));
   });
@@ -137,8 +137,8 @@ describe("ServiceOrderDetail extra2", () => {
     renderWithProviders(<ServiceOrderDetail orgId="1" orderId="1" />);
 
     await screen.findByRole("heading", { name: "AC Repair Visit" });
-    expect(screen.queryByRole("button", { name: "Complete" })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Bill" }));
+    expect(screen.queryByRole("button", { name: "Selesaikan" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Tagih" }));
 
     await waitFor(() => expect(billCalls).toBe(1));
   });
@@ -155,7 +155,7 @@ describe("ServiceOrderDetail extra2", () => {
     renderWithProviders(<ServiceOrderDetail orgId="1" orderId="1" />);
 
     await screen.findByRole("heading", { name: "AC Repair Visit" });
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(cancelCalls).toBe(1));
   });
@@ -166,9 +166,9 @@ describe("ServiceOrderDetail extra2", () => {
     renderWithProviders(<ServiceOrderDetail orgId="1" orderId="1" />);
 
     await screen.findByRole("heading", { name: "AC Repair Visit" });
-    await user.click(screen.getByRole("tab", { name: "Lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris" }));
 
-    expect(await screen.findByText("No lines.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada baris")).toBeInTheDocument();
   });
 
   it("falls back to dash for missing references and resolution", async () => {

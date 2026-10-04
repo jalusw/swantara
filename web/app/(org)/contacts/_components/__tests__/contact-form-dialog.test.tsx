@@ -9,7 +9,7 @@ describe("ContactFormDialog", () => {
       <ContactFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(screen.getByText("New contact")).toBeInTheDocument();
+    expect(screen.getByText("Kontak baru")).toBeInTheDocument();
   });
 
   it("renders edit form when initial contact provided", () => {
@@ -43,6 +43,6 @@ describe("ContactFormDialog", () => {
       />,
     );
 
-    expect(screen.getByText("Edit contact")).toBeInTheDocument();
+    expect(screen.getByText("Ubah kontak")).toBeInTheDocument();
   });
 });

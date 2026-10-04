@@ -60,7 +60,7 @@ const journals = [
   {
     id: 1,
     organization_id: 1,
-    name: "Cash",
+    name: "Kas",
     code: "CASH",
     type: "cash",
     default_account_id: null,
@@ -114,7 +114,7 @@ describe("SaleOrderDetail branches2", () => {
     );
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
-    expect(await screen.findByText("Sale order not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Pesanan tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("renders empty lines and dash fallbacks with null optionals", async () => {
@@ -129,7 +129,7 @@ describe("SaleOrderDetail branches2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    expect(await screen.findByText("No lines")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada baris")).toBeInTheDocument();
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
 
@@ -146,7 +146,7 @@ describe("SaleOrderDetail branches2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Delivery" }));
+    await user.click(screen.getByRole("tab", { name: "Pengiriman" }));
     expect(await screen.findByText(/PK-0003/)).toBeInTheDocument();
   });
 
@@ -156,7 +156,7 @@ describe("SaleOrderDetail branches2", () => {
 
     await screen.findAllByText("SO-0007");
     expect(screen.queryByRole("button", { name: "Send" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Confirm" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Konfirmasi" })).not.toBeInTheDocument();
   });
 
   it("renders reminder rows when actions exist", async () => {
@@ -168,7 +168,7 @@ describe("SaleOrderDetail branches2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Reminder" }));
+    await user.click(screen.getByRole("tab", { name: "Pengingat" }));
     expect(await screen.findByText("#9")).toBeInTheDocument();
   });
 
@@ -201,7 +201,9 @@ describe("SaleOrderDetail branches2", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
-    expect(await screen.findByText("No delivered-unbilled lines to invoice.")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
+    expect(
+      await screen.findByText("Tidak ada baris yang sudah dikirim tetapi belum ditagih."),
+    ).toBeInTheDocument();
   });
 });

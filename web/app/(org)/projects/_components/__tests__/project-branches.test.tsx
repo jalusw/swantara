@@ -90,7 +90,7 @@ describe("ProjectFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit project")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah proyek")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Mobile App")).toBeInTheDocument();
   });
 
@@ -102,10 +102,10 @@ describe("ProjectFormDialog branches", () => {
       <ProjectFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New project");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Proyek baru");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Project name is required.")).toBeInTheDocument();
+    expect(await screen.findByText("Nama wajib diisi.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -117,17 +117,19 @@ describe("ProjectFormDialog branches", () => {
       <ProjectFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New project");
-    await user.type(screen.getByLabelText("Project name"), "Bad Dates");
-    await user.click(screen.getByRole("combobox", { name: "Customer" }));
+    await screen.findByText("Proyek baru");
+    await user.type(screen.getByLabelText("Nama"), "Bad Dates");
+    await user.click(screen.getByRole("combobox", { name: "Pelanggan" }));
     await user.click(await screen.findByRole("option", { name: "Acme Corp" }));
-    const start = screen.getByLabelText("Start date");
-    const end = screen.getByLabelText("End date");
+    const start = screen.getByLabelText("Tanggal mulai");
+    const end = screen.getByLabelText("Tanggal akhir");
     await user.type(start, "2026-03-01");
     await user.type(end, "2026-01-01");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("End date must be after start date")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Tanggal akhir harus setelah tanggal mulai."),
+    ).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -139,11 +141,11 @@ describe("ProjectFormDialog branches", () => {
       <ProjectFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New project");
-    await user.type(screen.getByLabelText("Project name"), "Website Revamp");
-    await user.click(screen.getByRole("combobox", { name: "Customer" }));
+    await screen.findByText("Proyek baru");
+    await user.type(screen.getByLabelText("Nama"), "Website Revamp");
+    await user.click(screen.getByRole("combobox", { name: "Pelanggan" }));
     await user.click(await screen.findByRole("option", { name: "Acme Corp" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -156,21 +158,21 @@ describe("ProjectFormDialog branches", () => {
       <ProjectFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New project");
-    await user.type(screen.getByLabelText("Project name"), "Mobile App");
-    await user.click(screen.getByRole("combobox", { name: "Customer" }));
+    await screen.findByText("Proyek baru");
+    await user.type(screen.getByLabelText("Nama"), "Mobile App");
+    await user.click(screen.getByRole("combobox", { name: "Pelanggan" }));
     await user.click(await screen.findByRole("option", { name: "Globex" }));
     await user.click(screen.getByRole("combobox", { name: "Manager" }));
     await user.click(await screen.findByRole("option", { name: "Acme Corp" }));
-    await user.click(screen.getByRole("combobox", { name: "Billing type" }));
-    await user.click(await screen.findByRole("option", { name: "Fixed" }));
-    await user.click(screen.getByRole("combobox", { name: "Dimension account" }));
+    await user.click(screen.getByRole("combobox", { name: "Jenis penagihan" }));
+    await user.click(await screen.findByRole("option", { name: "Harga tetap" }));
+    await user.click(screen.getByRole("combobox", { name: "Akun dimensi" }));
     await user.click(await screen.findByRole("option", { name: "Operating costs" }));
-    await user.click(screen.getByRole("combobox", { name: "Sale order" }));
+    await user.click(screen.getByRole("combobox", { name: "Pesanan penjualan" }));
     await user.click(await screen.findByRole("option", { name: "SO-001" }));
-    await user.type(screen.getByLabelText("Start date"), "2026-01-05");
-    await user.type(screen.getByLabelText("End date"), "2026-02-05");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(screen.getByLabelText("Tanggal mulai"), "2026-01-05");
+    await user.type(screen.getByLabelText("Tanggal akhir"), "2026-02-05");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -183,13 +185,13 @@ describe("ProjectFormDialog branches", () => {
       <ProjectFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New project");
-    await user.type(screen.getByLabelText("Project name"), "Website Revamp");
-    await user.click(screen.getByRole("combobox", { name: "Customer" }));
+    await screen.findByText("Proyek baru");
+    await user.type(screen.getByLabelText("Nama"), "Website Revamp");
+    await user.click(screen.getByRole("combobox", { name: "Pelanggan" }));
     await user.click(await screen.findByRole("option", { name: "Acme Corp" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("New project")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Proyek baru")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -207,8 +209,8 @@ describe("ProjectFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit project");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah proyek");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -227,9 +229,9 @@ describe("ProjectFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit project");
+    await screen.findByText("Ubah proyek");
     expect(screen.getByDisplayValue("2026-02-05")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -248,10 +250,10 @@ describe("ProjectFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit project");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah proyek");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("Edit project")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Ubah proyek")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -262,8 +264,8 @@ describe("ProjectFormDialog branches", () => {
       <ProjectFormDialog open={true} onOpenChange={onOpenChange} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("New project");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByText("Proyek baru");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

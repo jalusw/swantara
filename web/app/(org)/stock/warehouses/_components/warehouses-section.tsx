@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Button } from "@/components/button";
@@ -21,6 +22,11 @@ function toRow(warehouse: Warehouse) {
 }
 
 export function WarehousesSection({ orgId }: { orgId: string }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Stock");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const warehousesQuery = useOrgListQuery<{ warehouses: Warehouse[] }, Record<string, never>>(
@@ -38,7 +44,7 @@ export function WarehousesSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<ReturnType<typeof toRow>>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: () => t("fieldName"),
       cell: ({ row }) => (
         <Link
           href={`/stock/warehouses/${row.original.id}`}
@@ -50,7 +56,7 @@ export function WarehousesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "code",
-      header: "Code",
+      header: () => t("fieldCode"),
       cell: ({ row }) => (
         <span className="font-mono text-sm text-muted-foreground">{row.original.code ?? "—"}</span>
       ),
@@ -67,9 +73,9 @@ export function WarehousesSection({ orgId }: { orgId: string }) {
         data={rows}
         getRowId={(row) => row.id}
         searchKeys={["name"]}
-        searchPlaceholder={"Search warehouses…"}
-        ariaLabel={"All warehouses"}
-        emptyTitle={"No warehouses found. Create one to get started."}
+        searchPlaceholder={t("searchWarehouses")}
+        ariaLabel={t("allWarehouses")}
+        emptyTitle={t("warehousesEmpty")}
         status={
           isLoading
             ? { type: "loading" }
@@ -86,7 +92,7 @@ export function WarehousesSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Add warehouse"}</span>
+            <span>{t("addWarehouse")}</span>
           </Button>
         }
       />

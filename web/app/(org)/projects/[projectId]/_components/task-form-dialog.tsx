@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -14,8 +15,9 @@ import { getLocalDateString } from "@/lib/utils";
 import { zodResolver } from "@/lib/utils/zod-resolver";
 
 function useTaskFormSchema() {
+  const t = useTranslations("Projects");
   return z.object({
-    name: z.string().min(1, "Task name is required."),
+    name: z.string().min(1, t("validation_taskNameRequired")),
     assigneeId: z.coerce.number().nullable(),
     stage: z.enum(["backlog", "todo", "in_progress", "done"]),
     plannedHours: z.coerce.number().min(0),
@@ -42,6 +44,9 @@ export function TaskFormDialog({
   initial?: ProjectTask | null;
   onSave: () => void;
 }) {
+  const t = useTranslations("Projects");
+  const tCommon = useTranslations("Common");
+  const dyn = (key: string) => (t as unknown as (k: string) => string)(key);
   const isEdit = Boolean(initial);
 
   const contactsQuery = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
@@ -85,31 +90,33 @@ export function TaskFormDialog({
       ? getSwantaraService().projects.tasks.update(Number(orgId), projectId, initial!.id, payload)
       : getSwantaraService().projects.tasks.create(Number(orgId), projectId, payload);
 
-    void op.then(() => onSave()).catch(() => toast.error("Something went wrong."));
+    return op.then(() => onSave()).catch(() => void toast.error(t("saveFailed")));
   }
 
   return (
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? "Task updated." : "New task"}
-      description={"Task"}
+      title={isEdit ? t("editTask") : t("newTask")}
+      description={t("taskFormDescription")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="sm:max-w-lg"
     >
       <div className="flex flex-col gap-4">
-        <FormField name="name" label={"Task"}>
+        <FormField name="name" label={t("taskName")}>
           {({ field, id }) => <Input {...field} id={id} />}
         </FormField>
-        <FormField name="assigneeId" label={"Assignee"}>
+        <FormField name="assigneeId" label={t("assignee")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(value ? Number(value) : null)}
             >
-              <SelectTrigger id={id} aria-label={"Assignee"}>
-                <SelectValue placeholder={"Select assignee"} />
+              <SelectTrigger id={id} aria-label={t("assignee")}>
+                <SelectValue placeholder={t("selectAssignee")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>
@@ -122,34 +129,34 @@ export function TaskFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="stage" label={"Stage"}>
+        <FormField name="stage" label={t("stage")}>
           {({ field, id }) => (
             <Select value={field.value ?? ""} onValueChange={(value) => field.onChange(value)}>
-              <SelectTrigger id={id} aria-label={"Stage"}>
-                <SelectValue placeholder={"Stage"} />
+              <SelectTrigger id={id} aria-label={t("stage")}>
+                <SelectValue placeholder={t("stage")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="backlog">{"Backlog"}</SelectItem>
-                <SelectItem value="todo">{"To Do"}</SelectItem>
-                <SelectItem value="in_progress">{"In Progress"}</SelectItem>
-                <SelectItem value="done">{"Done"}</SelectItem>
+                <SelectItem value="backlog">{dyn("stage_backlog")}</SelectItem>
+                <SelectItem value="todo">{dyn("stage_todo")}</SelectItem>
+                <SelectItem value="in_progress">{dyn("stage_in_progress")}</SelectItem>
+                <SelectItem value="done">{dyn("stage_done")}</SelectItem>
               </SelectContent>
             </Select>
           )}
         </FormField>
-        <FormField name="plannedHours" label={"Planned hours"}>
+        <FormField name="plannedHours" label={t("plannedHours")}>
           {({ field, id }) => (
             <Input {...field} id={id} type="number" min="0" step="0.5" inputMode="decimal" />
           )}
         </FormField>
         {isEdit ? (
-          <FormField name="effectiveHours" label={"Effective hours"}>
+          <FormField name="effectiveHours" label={t("effectiveHours")}>
             {({ field, id }) => (
               <Input {...field} id={id} type="number" min="0" step="0.5" inputMode="decimal" />
             )}
           </FormField>
         ) : null}
-        <FormField name="deadline" label={"Deadline"}>
+        <FormField name="deadline" label={t("deadline")}>
           {({ field, id }) => (
             <Input
               {...field}
@@ -160,21 +167,21 @@ export function TaskFormDialog({
             />
           )}
         </FormField>
-        <FormField name="priority" label={"Priority"}>
+        <FormField name="priority" label={t("priority")}>
           {({ field, id }) => (
             <Select
               value={field.value != null ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(value ? Number(value) : null)}
             >
-              <SelectTrigger id={id} aria-label={"Priority"}>
-                <SelectValue placeholder={"Priority"} />
+              <SelectTrigger id={id} aria-label={t("priority")}>
+                <SelectValue placeholder={t("priority")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>
-                <SelectItem value="1">{"Low"}</SelectItem>
-                <SelectItem value="2">{"Medium"}</SelectItem>
-                <SelectItem value="3">{"High"}</SelectItem>
-                <SelectItem value="4">{"Urgent"}</SelectItem>
+                <SelectItem value="1">{dyn("priority_1")}</SelectItem>
+                <SelectItem value="2">{dyn("priority_2")}</SelectItem>
+                <SelectItem value="3">{dyn("priority_3")}</SelectItem>
+                <SelectItem value="4">{dyn("priority_4")}</SelectItem>
               </SelectContent>
             </Select>
           )}

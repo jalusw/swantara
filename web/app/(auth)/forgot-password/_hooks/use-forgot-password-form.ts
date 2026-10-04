@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
 import { StatusCodes } from "http-status-codes";
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -15,10 +16,24 @@ export function detectMethod(identifier: string): ForgotPasswordMethod {
   return identifier.includes("@") ? "email" : "phone";
 }
 
-export function useForgotPasswordFormSchema() {
+export type ForgotPasswordFormMessages = {
+  identifierRequired: string;
+  invalidEmail: string;
+  invalidPhone: string;
+};
+
+const forgotPasswordFormDefaultMessages: ForgotPasswordFormMessages = {
+  identifierRequired: "Please enter your email or phone number.",
+  invalidEmail: "Please enter a valid email address.",
+  invalidPhone: "Please enter a valid phone number.",
+};
+
+export function useForgotPasswordFormSchema(
+  messages: ForgotPasswordFormMessages = forgotPasswordFormDefaultMessages,
+) {
   return z
     .object({
-      identifier: z.string().min(1, { message: "Please enter your email or phone number." }),
+      identifier: z.string().min(1, { message: messages.identifierRequired }),
     })
     .superRefine((value, ctx) => {
       const trimmed = value.identifier.trim();
@@ -27,7 +42,7 @@ export function useForgotPasswordFormSchema() {
           ctx.addIssue({
             code: "custom",
             path: ["identifier"],
-            message: "Please enter a valid email address.",
+            message: messages.invalidEmail,
           });
         }
         return;
@@ -37,7 +52,7 @@ export function useForgotPasswordFormSchema() {
         ctx.addIssue({
           code: "custom",
           path: ["identifier"],
-          message: "Please enter a valid phone number.",
+          message: messages.invalidPhone,
         });
       }
     });
@@ -52,7 +67,18 @@ const forgotPasswordFormDefaultValues: ForgotPasswordFormSchema = {
 export function useForgotPasswordForm() {
   const [isPending, startTransition] = useTransition();
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const forgotPasswordFormSchema = useForgotPasswordFormSchema();
+  const t = useTranslations("Auth");
+  const tCommon = useTranslations("Common");
+  const tx = t as unknown as (key: string) => string;
+  const txCommon = tCommon as unknown as (
+    key: string,
+    values?: Record<string, string | number>,
+  ) => string;
+  const forgotPasswordFormSchema = useForgotPasswordFormSchema({
+    identifierRequired: tx("identifierRequired"),
+    invalidEmail: tx("invalidEmail"),
+    invalidPhone: tx("invalidPhone"),
+  });
 
   const form = useForm<ForgotPasswordFormSchema>({
     resolver: zodResolver(forgotPasswordFormSchema),
@@ -72,16 +98,16 @@ export function useForgotPasswordForm() {
         if (isAxiosError(error) && error.response?.status === StatusCodes.TOO_MANY_REQUESTS) {
           const retryAfter = error.response.headers?.["retry-after"];
           const seconds = retryAfter ? parseInt(retryAfter as string, 10) : undefined;
-          toast.warning("Too many requests. Please try again later.", {
-            description: seconds ? `Try again in ${seconds} seconds.` : undefined,
+          toast.warning(txCommon("rateLimited"), {
+            description: seconds ? txCommon("retryInSeconds", { seconds }) : undefined,
           });
           return;
         }
         if (isServerError(error)) {
-          toast.error("Something went wrong. Please try again later.");
+          toast.error(txCommon("serverError"));
           return;
         }
-        toast.error("We couldn't send the reset link. Please try again later.");
+        toast.error(tx("sendResetFailed"));
       }
     });
   });

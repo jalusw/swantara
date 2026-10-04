@@ -6,8 +6,8 @@ export default async function ProductsLayout({ children }: { children: React.Rea
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
       <PageHeader
-        title={"Products"}
-        description={"Item catalog with variants, categories, and bills of materials."}
+        title={"Produk"}
+        description={"Katalog barang dengan varian, kategori, dan resep."}
       />
       <Suspense fallback={null}>
         <ProductsSubNav />

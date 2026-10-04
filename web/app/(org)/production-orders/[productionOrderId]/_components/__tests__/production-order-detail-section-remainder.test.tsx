@@ -61,7 +61,7 @@ describe("MoDetailSection remainder", () => {
     );
     renderWithProviders(<MoDetailSection orgId="1" productionOrderId="999" />);
 
-    expect(await screen.findByText("Manufacturing order not found")).toBeInTheDocument();
+    expect(await screen.findByText("Pesanan tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("renders components with consumption progress", async () => {
@@ -116,7 +116,7 @@ describe("MoDetailSection remainder", () => {
     renderWithProviders(<MoDetailSection orgId="1" productionOrderId="1" />);
 
     await screen.findByText("MO-0001 Chair Assembly");
-    await user.click(screen.getByRole("button", { name: "Plan" }));
+    await user.click(screen.getByRole("button", { name: "Aksi paket" }));
 
     await waitFor(() => expect(planned).toBe(true));
   });
@@ -134,7 +134,7 @@ describe("MoDetailSection remainder", () => {
     renderWithProviders(<MoDetailSection orgId="1" productionOrderId="1" />);
 
     await screen.findByText("MO-0001 Chair Assembly");
-    await user.click(screen.getByRole("button", { name: "Start" }));
+    await user.click(screen.getByRole("button", { name: "Mulai" }));
 
     await waitFor(() => expect(started).toBe(true));
   });
@@ -147,7 +147,7 @@ describe("MoDetailSection remainder", () => {
     await screen.findByText("MO-0001 Chair Assembly");
     const actionButtons = screen
       .getAllByRole("button")
-      .filter((button) => /consume/i.test(button.textContent ?? ""));
+      .filter((button) => /konsumsi/i.test(button.textContent ?? ""));
     expect(actionButtons.length).toBeGreaterThanOrEqual(1);
     await user.click(actionButtons[0]!);
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
@@ -166,7 +166,7 @@ describe("MoDetailSection remainder", () => {
     renderWithProviders(<MoDetailSection orgId="1" productionOrderId="1" />);
 
     await screen.findByText("MO-0001 Chair Assembly");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(cancelled).toBe(true));
   });

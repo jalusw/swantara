@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -10,9 +11,12 @@ import { Input } from "@/components/input";
 import type { Warehouse } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 function useWarehouseFormSchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Stock");
   return z.object({
-    name: z.string().min(1, "Warehouse name is required."),
+    name: z.string().min(1, t("validationWarehouseNameRequired")),
     code: z.string(),
     line1: z.string(),
     line2: z.string(),
@@ -36,6 +40,8 @@ export function WarehouseFormDialog({
   initial?: Warehouse | null;
   onSave: (id: string) => void;
 }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Stock");
+  const tCommon = useTranslations("Common");
   const isEdit = Boolean(initial);
 
   const schema = useWarehouseFormSchema();
@@ -80,15 +86,15 @@ export function WarehouseFormDialog({
     };
 
     if (isEdit && initial) {
-      void getSwantaraService()
+      return getSwantaraService()
         .inventory.updateWarehouse(Number(orgId), initial.id, request)
         .then((result) => onSave(String(result.warehouse.id)))
-        .catch(() => toast.error("Failed to save warehouse."));
+        .catch(() => void toast.error(t("toastWarehouseFailed")));
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .inventory.createWarehouse(Number(orgId), request)
         .then((result) => onSave(String(result.warehouse.id)))
-        .catch(() => toast.error("Failed to save warehouse."));
+        .catch(() => void toast.error(t("toastWarehouseFailed")));
     }
   }
 
@@ -96,36 +102,38 @@ export function WarehouseFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? "Edit warehouse" : "New warehouse"}
-      description={"Manage warehouse locations and their usage types."}
+      title={isEdit ? t("editWarehouse") : t("newWarehouse")}
+      description={t("warehousesDescription")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="sm:max-w-lg"
     >
       <div className="flex flex-col gap-4">
-        <FormField name="name" label={"Name"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+        <FormField name="name" label={t("fieldName")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
         </FormField>
-        <FormField name="code" label={"Code"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Code"} />}
+        <FormField name="code" label={t("fieldCode")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldCode")} />}
         </FormField>
-        <FormField name="line1" label={"Address line 1"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Address line 1"} />}
+        <FormField name="line1" label={t("fieldAddress1")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldAddress1")} />}
         </FormField>
-        <FormField name="line2" label={"Address line 2"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Address line 2"} />}
+        <FormField name="line2" label={t("fieldAddress2")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldAddress2")} />}
         </FormField>
-        <FormField name="city" label={"City"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"City"} />}
+        <FormField name="city" label={t("fieldCity")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldCity")} />}
         </FormField>
-        <FormField name="state" label={"State"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"State"} />}
+        <FormField name="state" label={t("fieldState")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldState")} />}
         </FormField>
-        <FormField name="postalCode" label={"Postal code"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Postal code"} />}
+        <FormField name="postalCode" label={t("fieldPostalCode")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldPostalCode")} />}
         </FormField>
-        <FormField name="countryCode" label={"Country code"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Country code"} />}
+        <FormField name="countryCode" label={t("fieldCountryCode")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldCountryCode")} />}
         </FormField>
       </div>
     </EntityFormDialog>

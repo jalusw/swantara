@@ -16,145 +16,116 @@ import {
   UserRound,
   Wallet,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
 import { usePermissions } from "@/lib/hooks/use-permissions";
 import { cn } from "@/lib/utils";
 
 export function ModulesGrid() {
   const { has } = usePermissions();
+  const t = useTranslations("Dashboard");
+  const moduleTitle = (key: string) =>
+    (t as unknown as (k: string) => string)(`moduleTitle_${key}`);
+  const moduleDesc = (key: string) => (t as unknown as (k: string) => string)(`moduleDesc_${key}`);
 
   const modules: Array<{
     key: string;
-    title: string;
-    description: string;
     href: string;
     icon: typeof Building2;
     permission?: string;
   }> = [
     {
       key: "crm",
-      title: "CRM",
-      description: "Leads, opportunities and pipeline.",
       href: "/contacts",
       icon: ContactRound,
       permission: "contact.view",
     },
     {
       key: "sales",
-      title: "Sales",
-      description: "Quotations, orders, deliveries and invoicing.",
       href: "/sale-orders/customers",
       icon: ShoppingCart,
       permission: "contact.view",
     },
     {
       key: "procurement",
-      title: "Procurement",
-      description: "Requisitions, Quote Requests, purchase orders and receipts.",
       href: "/purchases/suppliers",
       icon: Truck,
       permission: "contact.view",
     },
     {
       key: "inventory",
-      title: "Inventory",
-      description: "Warehouses, stock moves and valuation.",
       href: "/products",
       icon: Boxes,
       permission: "item.view",
     },
     {
       key: "manufacturing",
-      title: "Manufacturing",
-      description: "BOMs, work orders and Planning.",
       href: "/products/recipes",
       icon: Factory,
       permission: "item.view",
     },
     {
       key: "accounting",
-      title: "Accounting",
-      description: "Chart of accounts, journals and posting.",
       href: "/accounting",
       icon: Calculator,
       permission: "journal_entry.view",
     },
     {
       key: "hr",
-      title: "HR & Payroll",
-      description: "Employees, leave, attendance and payroll.",
       href: "/employees",
       icon: UserRound,
       permission: "employee.view",
     },
     {
       key: "project",
-      title: "Projects",
-      description: "Projects, tasks and job costing.",
       href: "/dashboard",
       icon: Briefcase,
       permission: "reporting.view",
     },
     {
       key: "subscription",
-      title: "Subscriptions",
-      description: "Plans, subscribers and recurring billing.",
       href: "/subscriptions",
       icon: CreditCard,
       permission: "subscription.view",
     },
     {
       key: "quality",
-      title: "Quality",
-      description: "Points, checks and alerts.",
       href: "/dashboard",
       icon: Layers,
       permission: "reporting.view",
     },
     {
       key: "returns",
-      title: "Returns",
-      description: "RMAs and credit notes.",
       href: "/dashboard",
       icon: Receipt,
       permission: "reporting.view",
     },
     {
       key: "expenses",
-      title: "Expenses",
-      description: "Reports, approvals and reimbursements.",
       href: "/dashboard",
       icon: Wallet,
       permission: "reporting.view",
     },
     {
       key: "assets",
-      title: "Fixed Assets",
-      description: "Registers, depreciation and disposal.",
       href: "/dashboard",
       icon: Building2,
       permission: "reporting.view",
     },
     {
       key: "pos",
-      title: "Point of Sale",
-      description: "Configs, sessions and store orders.",
       href: "/dashboard",
       icon: ShoppingCart,
       permission: "reporting.view",
     },
     {
       key: "service",
-      title: "Service",
-      description: "Contracts, orders and warranties.",
       href: "/dashboard",
       icon: Settings,
       permission: "reporting.view",
     },
     {
       key: "reference",
-      title: "Reference data",
-      description: "Currencies, UoMs and dimension accounts.",
       href: "/reference",
       icon: Layers,
       permission: "organization.view",
@@ -166,10 +137,8 @@ export function ModulesGrid() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{"Explore business flows"}</CardTitle>
-        <CardDescription>
-          {"Every service your organization runs — one tap to its module."}
-        </CardDescription>
+        <CardTitle>{t("exploreTitle")}</CardTitle>
+        <CardDescription>{t("exploreDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid auto-rows-[minmax(140px,auto)] gap-4 grid-cols-12">
@@ -197,13 +166,13 @@ export function ModulesGrid() {
                   <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15">
                     <Icon className="size-4" aria-hidden />
                   </span>
-                  <span className="text-sm font-medium">{mod.title}</span>
+                  <span className="text-sm font-medium">{moduleTitle(mod.key)}</span>
                 </span>
                 <span className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                  {mod.description}
+                  {moduleDesc(mod.key)}
                 </span>
                 <span className="mt-auto text-xs font-medium text-primary group-hover:underline">
-                  {"View"} →
+                  {t("viewLink")} →
                 </span>
               </a>
             );

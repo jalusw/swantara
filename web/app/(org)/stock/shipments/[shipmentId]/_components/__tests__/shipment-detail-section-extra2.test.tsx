@@ -71,7 +71,7 @@ describe("ShipmentDetail extra2", () => {
     seedShipment(null, []);
     renderWithProviders(<ShipmentDetail orgId="1" shipmentId="99" />);
 
-    expect(await screen.findByText("Shipment not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Pengiriman tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("validates a draft shipment and refetches", async () => {
@@ -87,7 +87,7 @@ describe("ShipmentDetail extra2", () => {
 
     await screen.findAllByText("PK-0021");
     validateCalls = 0;
-    await user.click(screen.getByRole("button", { name: "Validate" }));
+    await user.click(screen.getByRole("button", { name: "Validasi" }));
 
     await waitFor(() => expect(validateCalls).toBeGreaterThanOrEqual(1));
   });
@@ -109,9 +109,9 @@ describe("ShipmentDetail extra2", () => {
     renderWithProviders(<ShipmentDetail orgId="1" shipmentId="21" />);
 
     await screen.findAllByText("PK-0021");
-    expect(screen.queryByRole("button", { name: "Validate" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Validasi" })).not.toBeInTheDocument();
     doneCalls = 0;
-    await user.click(screen.getByRole("button", { name: "Mark as done" }));
+    await user.click(screen.getByRole("button", { name: "Tandai selesai" }));
 
     await waitFor(() => expect(doneCalls).toBeGreaterThanOrEqual(1));
   });
@@ -121,8 +121,8 @@ describe("ShipmentDetail extra2", () => {
     renderWithProviders(<ShipmentDetail orgId="1" shipmentId="21" />);
 
     await screen.findAllByText("PK-0021");
-    expect(screen.queryByRole("button", { name: "Validate" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Mark as done" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Validasi" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tandai selesai" })).not.toBeInTheDocument();
   });
 
   it("hides the origin row when the shipment has no origin", async () => {
@@ -139,9 +139,9 @@ describe("ShipmentDetail extra2", () => {
     renderWithProviders(<ShipmentDetail orgId="1" shipmentId="21" />);
 
     await screen.findAllByText("PK-0021");
-    await user.click(screen.getByRole("tab", { name: "Movement lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris mutasi" }));
 
-    expect(await screen.findByText("No movement lines for this shipment.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada baris mutasi untuk pengiriman ini.")).toBeInTheDocument();
   });
 
   it("renders cancelled move badges", async () => {
@@ -150,9 +150,9 @@ describe("ShipmentDetail extra2", () => {
     renderWithProviders(<ShipmentDetail orgId="1" shipmentId="21" />);
 
     await screen.findAllByText("PK-0021");
-    await user.click(screen.getByRole("tab", { name: "Movement lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris mutasi" }));
 
-    expect(await screen.findByText("cancelled")).toBeInTheDocument();
-    expect(screen.getAllByText("draft").length).toBeGreaterThan(1);
+    expect(await screen.findByText("Dibatalkan")).toBeInTheDocument();
+    expect(screen.getAllByText("Draf").length).toBeGreaterThan(1);
   });
 });

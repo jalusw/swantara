@@ -70,13 +70,13 @@ describe("FilterBar branches", () => {
   it("falls back to generated search placeholder when none is given", () => {
     const config: FilterConfig[] = [{ id: "q", label: "Keyword", type: "text" }];
     renderWithProviders(<FilterBar config={config} filters={{}} onFilterChange={vi.fn()} />);
-    expect(screen.getByPlaceholderText("Filter by keyword…")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Filter berdasarkan keyword…")).toBeInTheDocument();
   });
 
   it("expands and collapses the filter panel", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Host />);
-    const toggle = screen.getByRole("button", { name: /^Filters/ });
+    const toggle = screen.getByRole("button", { name: /^Filter/ });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     await user.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "true");
@@ -97,7 +97,7 @@ describe("FilterBar branches", () => {
         onReset={vi.fn()}
       />,
     );
-    await user.click(screen.getByRole("button", { name: /Filters/ }));
+    await user.click(screen.getByRole("button", { name: /^Filter/ }));
     const select = screen.getByLabelText("Status");
     expect(select).toHaveValue("active");
     await user.selectOptions(select, "");
@@ -109,9 +109,9 @@ describe("FilterBar branches", () => {
   it("renders the date-range picker inside the expanded panel", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Host />);
-    await user.click(screen.getByRole("button", { name: /^Filters/ }));
+    await user.click(screen.getByRole("button", { name: /^Filter/ }));
     expect(screen.getByText("Period")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Date range" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Rentang tanggal" })).toBeInTheDocument();
   });
 
   it("shows select display label and falls back for unknown values", () => {
@@ -131,7 +131,7 @@ describe("FilterBar branches", () => {
     const { rerender } = renderWithProviders(
       <FilterBar config={FULL_CONFIG} filters={{ period: { from } }} onFilterChange={vi.fn()} />,
     );
-    expect(screen.getByRole("group", { name: "Active filters" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Filter aktif" })).toBeInTheDocument();
     rerender(
       <FilterBar
         config={FULL_CONFIG}
@@ -139,7 +139,9 @@ describe("FilterBar branches", () => {
         onFilterChange={vi.fn()}
       />,
     );
-    expect(screen.getByText(/–/)).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("group", { name: "Filter aktif" })).getByText(/–/),
+    ).toBeInTheDocument();
   });
 
   it("treats date ranges without from as inactive", () => {
@@ -150,7 +152,7 @@ describe("FilterBar branches", () => {
         onFilterChange={vi.fn()}
       />,
     );
-    expect(screen.queryByRole("group", { name: "Active filters" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "Filter aktif" })).not.toBeInTheDocument();
   });
 
   it("removes a single filter through the badge button", async () => {
@@ -159,7 +161,7 @@ describe("FilterBar branches", () => {
     renderWithProviders(
       <FilterBar config={FULL_CONFIG} filters={{ status: "active" }} onFilterChange={onChange} />,
     );
-    await user.click(screen.getByRole("button", { name: "Remove Status filter" }));
+    await user.click(screen.getByRole("button", { name: "Hapus filter Status" }));
     expect(onChange).toHaveBeenCalledWith("status", null);
   });
 
@@ -167,16 +169,16 @@ describe("FilterBar branches", () => {
     const user = userEvent.setup();
     const onReset = vi.fn();
     renderWithProviders(<Host initial={{ status: "active" }} onReset={onReset} />);
-    await user.click(screen.getByRole("button", { name: /Filters/ }));
-    const clearButtons = screen.getAllByRole("button", { name: "Clear all" });
+    await user.click(screen.getByRole("button", { name: /^Filter/ }));
+    const clearButtons = screen.getAllByRole("button", { name: "Hapus semua" });
     expect(clearButtons.length).toBe(2);
     const firstClear = clearButtons[0];
     if (firstClear === undefined) throw new Error("expected a clear button");
     await user.click(firstClear);
     expect(onReset).toHaveBeenCalled();
     await user.click(
-      within(screen.getByRole("group", { name: "Active filters" })).getByRole("button", {
-        name: "Clear all",
+      within(screen.getByRole("group", { name: "Filter aktif" })).getByRole("button", {
+        name: "Hapus semua",
       }),
     );
     expect(onReset).toHaveBeenCalledTimes(2);
@@ -190,7 +192,7 @@ describe("FilterBar branches", () => {
         onFilterChange={vi.fn()}
       />,
     );
-    expect(screen.getByRole("button", { name: "Filters, 2 active" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filter, 2 aktif" })).toBeInTheDocument();
   });
 
   it("shows no-active-filters hint when reset exists without search", () => {
@@ -205,13 +207,13 @@ describe("FilterBar branches", () => {
     renderWithProviders(
       <FilterBar config={config} filters={{}} onFilterChange={vi.fn()} onReset={vi.fn()} />,
     );
-    expect(screen.getByText("No active filters")).toBeInTheDocument();
+    expect(screen.getByText("Tidak ada filter aktif")).toBeInTheDocument();
   });
 
   it("renders without filters button when config has search only", () => {
     const config: FilterConfig[] = [{ id: "q", label: "Keyword", type: "text" }];
     renderWithProviders(<FilterBar config={config} filters={{}} onFilterChange={vi.fn()} />);
-    expect(screen.queryByRole("button", { name: /^Filters/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Filter/ })).not.toBeInTheDocument();
   });
 
   it("renders without search input and without clear buttons when onReset is missing", () => {
@@ -227,7 +229,7 @@ describe("FilterBar branches", () => {
       <FilterBar config={config} filters={{ status: "active" }} onFilterChange={vi.fn()} />,
     );
     expect(screen.queryByLabelText("Search")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Clear all" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Hapus semua" })).not.toBeInTheDocument();
   });
 
   it("renders custom actions", () => {
@@ -237,8 +239,8 @@ describe("FilterBar branches", () => {
 
   it("renders empty filters without active group", () => {
     renderWithProviders(<FilterBar config={[]} filters={{}} onFilterChange={vi.fn()} />);
-    expect(screen.queryByRole("group", { name: "Active filters" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /^Filters/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "Filter aktif" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Filter/ })).not.toBeInTheDocument();
   });
 
   it("edits a secondary text filter inside the panel", async () => {
@@ -247,7 +249,7 @@ describe("FilterBar branches", () => {
     renderWithProviders(
       <FilterBar config={FULL_CONFIG} filters={{ nickname: "ada" }} onFilterChange={onChange} />,
     );
-    await user.click(screen.getByRole("button", { name: /^Filters/ }));
+    await user.click(screen.getByRole("button", { name: /^Filter/ }));
     const input = screen.getByLabelText("Nickname");
     expect(input).toHaveValue("ada");
     await user.clear(input);

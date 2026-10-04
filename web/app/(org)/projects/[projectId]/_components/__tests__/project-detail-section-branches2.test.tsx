@@ -107,7 +107,7 @@ describe("ProjectDetail branches2", () => {
     );
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
-    expect(await screen.findByText("Project not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Proyek tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("renders empty tasks, milestones and timesheets branches", async () => {
@@ -116,10 +116,10 @@ describe("ProjectDetail branches2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Tasks" }));
-    expect(await screen.findByText("No tasks yet.")).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: "Milestones" }));
-    expect(await screen.findByText("No milestones yet.")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Tugas" }));
+    expect(await screen.findByText("Tidak ada tugas")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Tonggak" }));
+    expect(await screen.findByText("Belum ada tonggak.")).toBeInTheDocument();
   });
 
   it("renders task deadline and milestone reached branches", async () => {
@@ -137,9 +137,9 @@ describe("ProjectDetail branches2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Tasks" }));
+    await user.click(screen.getByRole("tab", { name: "Tugas" }));
     expect(await screen.findByText("Design")).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: "Milestones" }));
+    await user.click(screen.getByRole("tab", { name: "Tonggak" }));
     expect(await screen.findByText("Kickoff")).toBeInTheDocument();
   });
 

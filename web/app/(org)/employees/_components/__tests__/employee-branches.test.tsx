@@ -93,7 +93,7 @@ describe("EmployeeFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByText("Edit employee")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah karyawan")).toBeInTheDocument();
     expect(screen.getByDisplayValue("EMP-0004")).toBeInTheDocument();
   });
 
@@ -105,8 +105,8 @@ describe("EmployeeFormDialog branches", () => {
       <EmployeeFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add employee");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Tambah Karyawan");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).not.toHaveBeenCalled());
     expect(screen.getByDisplayValue("0")).toBeInTheDocument();
@@ -120,14 +120,14 @@ describe("EmployeeFormDialog branches", () => {
       <EmployeeFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add employee");
-    await user.type(screen.getByPlaceholderText("Name"), "Alex");
-    await user.type(screen.getByLabelText("Employee number"), "EMP-1");
-    await user.click(screen.getByRole("combobox", { name: "Employment type" }));
-    await user.click(await screen.findByRole("option", { name: "Contract" }));
-    await user.click(screen.getByRole("combobox", { name: "Wage type" }));
-    await user.click(await screen.findByRole("option", { name: "Hourly" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Tambah Karyawan");
+    await user.type(screen.getByPlaceholderText("Nama"), "Alex");
+    await user.type(screen.getByLabelText("Nomor karyawan"), "EMP-1");
+    await user.click(screen.getByRole("combobox", { name: "Jenis kepegawaian" }));
+    await user.click(await screen.findByRole("option", { name: "Kontrak" }));
+    await user.click(screen.getByRole("combobox", { name: "Jenis upah" }));
+    await user.click(await screen.findByRole("option", { name: "Per jam" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -140,10 +140,10 @@ describe("EmployeeFormDialog branches", () => {
       <EmployeeFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add employee");
-    await user.type(screen.getByPlaceholderText("Name"), "Alex");
-    await user.type(screen.getByLabelText("Employee number"), "EMP-1");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Tambah Karyawan");
+    await user.type(screen.getByPlaceholderText("Nama"), "Alex");
+    await user.type(screen.getByLabelText("Nomor karyawan"), "EMP-1");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -156,16 +156,16 @@ describe("EmployeeFormDialog branches", () => {
       <EmployeeFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add employee");
-    await user.type(screen.getByPlaceholderText("Name"), "June");
-    await user.type(screen.getByLabelText("Employee number"), "EMP-2");
+    await screen.findByText("Tambah Karyawan");
+    await user.type(screen.getByPlaceholderText("Nama"), "June");
+    await user.type(screen.getByLabelText("Nomor karyawan"), "EMP-2");
     await user.type(screen.getByPlaceholderText("Email"), "june@acme.com");
     await user.type(screen.getByPlaceholderText("Phone"), "+62 811");
-    await user.click(screen.getByRole("combobox", { name: "Department" }));
+    await user.click(screen.getByRole("combobox", { name: "Departemen" }));
     await user.click(await screen.findByRole("option", { name: "Engineering" }));
-    await user.click(screen.getByRole("combobox", { name: "Job position" }));
+    await user.click(screen.getByRole("combobox", { name: "Jabatan" }));
     await user.click(await screen.findByRole("option", { name: "Developer" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -178,12 +178,12 @@ describe("EmployeeFormDialog branches", () => {
       <EmployeeFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Add employee");
-    await user.type(screen.getByPlaceholderText("Name"), "Alex");
-    await user.type(screen.getByLabelText("Employee number"), "EMP-1");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Tambah Karyawan");
+    await user.type(screen.getByPlaceholderText("Nama"), "Alex");
+    await user.type(screen.getByLabelText("Nomor karyawan"), "EMP-1");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("Add employee")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Tambah Karyawan")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -201,9 +201,9 @@ describe("EmployeeFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit employee");
-    await user.type(screen.getByPlaceholderText("Name"), "Alex Updated");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah karyawan");
+    await user.type(screen.getByPlaceholderText("Nama"), "Alex Updated");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -222,10 +222,10 @@ describe("EmployeeFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit employee");
+    await screen.findByText("Ubah karyawan");
     expect(screen.getByDisplayValue("Jakarta")).toBeInTheDocument();
-    await user.type(screen.getByPlaceholderText("Name"), "June Updated");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(screen.getByPlaceholderText("Nama"), "June Updated");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -244,11 +244,11 @@ describe("EmployeeFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit employee");
-    await user.type(screen.getByPlaceholderText("Name"), "Alex");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah karyawan");
+    await user.type(screen.getByPlaceholderText("Nama"), "Alex");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("Edit employee")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Ubah karyawan")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -259,8 +259,8 @@ describe("EmployeeFormDialog branches", () => {
       <EmployeeFormDialog open={true} onOpenChange={onOpenChange} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Add employee");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByText("Tambah Karyawan");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

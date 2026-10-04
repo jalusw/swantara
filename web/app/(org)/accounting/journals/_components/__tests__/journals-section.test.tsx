@@ -49,7 +49,7 @@ function useLocalJournals() {
               id: 1,
               organization_id: 1,
               code: "1000",
-              name: "Cash",
+              name: "Kas",
               type: "cash",
               reconcilable: false,
               currency_code: null,
@@ -95,7 +95,7 @@ describe("JournalsSection", () => {
     renderWithProviders(<JournalsSection orgId="1" />);
 
     await screen.findByText("Sales Journal");
-    await user.type(screen.getByPlaceholderText("Search journals..."), "Bank");
+    await user.type(screen.getByPlaceholderText("Cari jurnal..."), "Bank");
 
     expect(await screen.findByText("Bank Journal")).toBeInTheDocument();
   });
@@ -105,9 +105,9 @@ describe("JournalsSection", () => {
     renderWithProviders(<JournalsSection orgId="1" />);
 
     await screen.findByText("Sales Journal");
-    await user.click(screen.getByRole("button", { name: "Add journal" }));
+    await user.click(screen.getByRole("button", { name: "Tambah jurnal" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Create journal")).toBeInTheDocument();
+    expect(screen.getByText("Buat jurnal")).toBeInTheDocument();
   });
 });

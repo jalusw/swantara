@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -18,6 +19,7 @@ import { LeadFormDialog } from "./lead-form-dialog";
 import { PromoteDialog } from "./promote-section";
 
 export function LeadsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Crm");
   const queryClient = useQueryClient();
 
   const [leadDialogOpen, setLeadDialogOpen] = useState(false);
@@ -58,30 +60,44 @@ export function LeadsSection({ orgId }: { orgId: string }) {
     mutationFn: (prospectId: number) =>
       getSwantaraService().crmLeads.delete(Number(orgId), prospectId),
     onSuccess: () => {
-      toast.success("Deleted.");
+      toast.success(t("deleted"));
       refresh();
     },
     onError: () => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("saveFailed"));
     },
   });
 
   const leadColumns: ColumnDef<CrmLead>[] = [
     {
       accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => <span className="">{row.original.name}</span>,
+      header: t("tableName"),
+      cell: ({ row }) => (
+        <span className="flex flex-col">
+          <span className="font-medium">{row.original.name}</span>
+          {row.original.email ? (
+            <span className="text-xs text-muted-foreground">{row.original.email}</span>
+          ) : null}
+        </span>
+      ),
     },
     {
       accessorKey: "contactName",
-      header: "Contact",
+      header: t("tableContact"),
       cell: ({ row }) => (
-        <span className="text-muted-foreground">{row.original.contactName ?? "—"}</span>
+        <span className="text-muted-foreground">
+          {row.original.contactName ?? "—"}
+          {row.original.source ? (
+            <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[11px]">
+              {row.original.source}
+            </span>
+          ) : null}
+        </span>
       ),
     },
     {
       accessorKey: "expectedRevenue",
-      header: "Expected revenue",
+      header: t("tableExpectedRevenue"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums">{formatNumber(row.original.expectedRevenue)}</span>
@@ -89,13 +105,13 @@ export function LeadsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "probability",
-      header: "Probability",
+      header: t("tableProbability"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums">{row.original.probability}%</span>,
     },
     {
       accessorKey: "stageId",
-      header: "Stage",
+      header: t("tableStage"),
       cell: ({ row }) => (
         <Badge variant="secondary">
           {row.original.stageId
@@ -115,14 +131,14 @@ export function LeadsSection({ orgId }: { orgId: string }) {
               variant="outline"
               onClick={() => setPromoteId(String(row.original.id))}
             >
-              {"Promote to opportunity"}
+              {t("promoteToOpportunity")}
             </Button>
           ) : null}
           <RowActions
-            editLabel={"Edit lead"}
-            deleteLabel={"Delete lead"}
-            confirmTitle={"Delete this lead?"}
-            confirmDescription={"The lead will be removed permanently."}
+            editLabel={t("editLead")}
+            deleteLabel={t("deleteLead")}
+            confirmTitle={t("deleteLeadTitle")}
+            confirmDescription={t("deleteLeadDescription")}
             onEdit={() => {
               setEditingLead(row.original);
               setLeadDialogOpen(true);
@@ -141,10 +157,8 @@ export function LeadsSection({ orgId }: { orgId: string }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base">{"Leads"}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              {"Unqualified contacts. Promote a lead to create an opportunity."}
-            </p>
+            <CardTitle className="text-base">{t("leadsTitle")}</CardTitle>
+            <p className="text-sm text-muted-foreground">{t("leadsSubtitle")}</p>
           </div>
         </CardHeader>
         <CardContent>
@@ -154,11 +168,11 @@ export function LeadsSection({ orgId }: { orgId: string }) {
             getRowId={(row) => String(row.id)}
             searchKeys={["name", "contactName", "email"]}
             statusOptions={[]}
-            searchPlaceholder={"Search leads…"}
-            filterLabel={"Search leads…"}
-            allLabel={"All leads"}
-            ariaLabel={"All leads"}
-            emptyTitle={"No leads"}
+            searchPlaceholder={t("searchLeadsPlaceholder")}
+            filterLabel={t("searchLeadsPlaceholder")}
+            allLabel={t("allLeads")}
+            ariaLabel={t("allLeads")}
+            emptyTitle={t("emptyLeads")}
             status={
               isLoading
                 ? { type: "loading" }
@@ -179,7 +193,7 @@ export function LeadsSection({ orgId }: { orgId: string }) {
                 }}
               >
                 <Plus />
-                <span>{"Add lead"}</span>
+                <span>{t("addLead")}</span>
               </Button>
             }
           />

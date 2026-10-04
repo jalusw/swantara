@@ -35,8 +35,8 @@ describe("SubscriptionFormDialog", () => {
       <SubscriptionFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    expect(await screen.findByText("Create subscription")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Langganan baru")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("appends another subscription line", async () => {
@@ -45,9 +45,9 @@ describe("SubscriptionFormDialog", () => {
       <SubscriptionFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    await screen.findByText("Create subscription");
-    await user.click(screen.getByRole("button", { name: "Add line" }));
+    await screen.findByText("Langganan baru");
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
 
-    expect(screen.getAllByLabelText("Qty").length).toBe(2);
+    expect(screen.getAllByLabelText("Jml").length).toBe(2);
   });
 });

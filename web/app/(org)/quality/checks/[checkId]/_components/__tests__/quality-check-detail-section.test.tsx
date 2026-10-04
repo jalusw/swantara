@@ -38,16 +38,16 @@ describe("QualityCheckDetail", () => {
   it("renders the check title", async () => {
     renderWithProviders(<QualityCheckDetail orgId="1" checkId="3" />);
 
-    expect(await screen.findByText("Quality Check #3")).toBeInTheDocument();
+    expect(await screen.findByText("Pemeriksaan mutu #3")).toBeInTheDocument();
   });
 
   it("opens the record result dialog", async () => {
     const user = userEvent.setup();
     renderWithProviders(<QualityCheckDetail orgId="1" checkId="3" />);
 
-    await screen.findByText("Quality Check #3");
-    await user.click(screen.getByRole("button", { name: "Record result" }));
+    await screen.findByText("Pemeriksaan mutu #3");
+    await user.click(screen.getByRole("button", { name: "Catat hasil" }));
 
-    expect(await screen.findByText("Record Result")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Catat hasil" })).toBeInTheDocument();
   });
 });

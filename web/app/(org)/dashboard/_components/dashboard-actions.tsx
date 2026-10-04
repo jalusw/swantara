@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/button";
 import {
   DropdownMenu,
@@ -23,59 +24,56 @@ import {
 import { toast } from "@/components/toast";
 
 export function DashboardActions() {
+  const t = useTranslations("Dashboard");
   return (
     <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => toast("Report export has been queued. You'll get an email when it's ready.")}
-      >
+      <Button variant="outline" size="sm" onClick={() => toast(t("reportExportQueued"))}>
         <FileDown aria-hidden />
-        <span className="hidden sm:inline">{"Export report"}</span>
+        <span className="hidden sm:inline">{t("exportReport")}</span>
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button size="sm">
             <Plus aria-hidden />
-            <span className="hidden sm:inline">{"New record"}</span>
+            <span className="hidden sm:inline">{t("quickCreate")}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem render={<Link href={"/contacts"} />}>
             <Users aria-hidden />
-            {"New customer"}
+            {t("newCustomer")}
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href={"/purchases/suppliers"} />}>
             <Truck aria-hidden />
-            {"New supplier"}
+            {t("newSupplier")}
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href={"/products"} />}>
             <Package aria-hidden />
-            {"New item"}
+            {t("newProduct")}
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href={"/sale-orders/customers"} />}>
             <ShoppingCart aria-hidden />
-            {"New sale order"}
+            {t("newSalesOrder")}
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href={"/purchases/suppliers"} />}>
             <Truck aria-hidden />
-            {"New purchase order"}
+            {t("newPurchaseOrder")}
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href={"/accounting"} />}>
             <FileText aria-hidden />
-            {"New invoice"}
+            {t("newInvoice")}
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href={"/employees"} />}>
             <UserRound aria-hidden />
-            {"New employee"}
+            {t("newEmployee")}
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href={"/products/recipes"} />}>
             <Factory aria-hidden />
-            {"New manufacturing order"}
+            {t("newProductionOrder")}
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href={"/dashboard"} />}>
             <Briefcase aria-hidden />
-            {"New project"}
+            {t("newProject")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

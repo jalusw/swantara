@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { DEFAULT_CURRENCY } from "@/lib/constants/currency";
@@ -8,7 +9,10 @@ import { useProfitAndLoss } from "@/lib/hooks/use-report-queries";
 import { formatMoney } from "@/lib/utils";
 import { plGroupByType } from "@/lib/utils/report-utils";
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 export function ProfitAndLossRows() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Reports");
   const { data, isLoading } = useProfitAndLoss();
   const pl = data?.profitAndLoss;
   const rows = pl?.rows ?? [];
@@ -18,7 +22,7 @@ export function ProfitAndLossRows() {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          {"Loading profit & loss…"}
+          {t("loadingProfitAndLoss")}
         </CardContent>
       </Card>
     );
@@ -28,7 +32,7 @@ export function ProfitAndLossRows() {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          {"No profit & loss data available."}
+          {t("profitAndLossEmpty")}
         </CardContent>
       </Card>
     );
@@ -51,9 +55,9 @@ export function ProfitAndLossRows() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="px-3 py-2 text-left text-muted-foreground">{"Code"}</th>
-                    <th className="px-3 py-2 text-left text-muted-foreground">{"Account"}</th>
-                    <th className="px-3 py-2 text-right text-muted-foreground">{"Amount"}</th>
+                    <th className="px-3 py-2 text-left text-muted-foreground">{t("colCode")}</th>
+                    <th className="px-3 py-2 text-left text-muted-foreground">{t("colAccount")}</th>
+                    <th className="px-3 py-2 text-right text-muted-foreground">{t("colAmount")}</th>
                   </tr>
                 </thead>
                 <tbody>

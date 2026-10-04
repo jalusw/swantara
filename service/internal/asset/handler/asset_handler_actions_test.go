@@ -79,7 +79,7 @@ func TestAssetHandler_RegisterAsset_ReturnsNotFoundForMissingLine(t *testing.T) 
 		}},
 		handlerInvoiceLookup{},
 	)
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"name":"Laptop","category_id":1,"purchase_value":10000000,"salvage_value":1000000,"acquisition_date":"2026-01-01","in_service_date":"2026-01-01","invoice_line_id":1}`
@@ -107,7 +107,7 @@ func TestAssetHandler_RegisterAsset_RejectsInvalidValues(t *testing.T) {
 			return &accounting.Invoice{Base: model.Base{ID: 9}, Type: accounting.InvoiceTypeSupplierBill, State: accounting.InvoiceStatePosted, EntryID: &moveID}, nil
 		}},
 	)
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"name":"Laptop","category_id":1,"purchase_value":10000000,"salvage_value":10000000,"acquisition_date":"2026-01-01","in_service_date":"2026-01-01","invoice_line_id":1}`
@@ -130,7 +130,7 @@ func TestAssetHandler_RegisterAsset_ReturnsServerError(t *testing.T) {
 		handlerInvoiceLineLookup{},
 		handlerInvoiceLookup{},
 	)
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"name":"Laptop","category_id":1,"purchase_value":10000000,"salvage_value":1000000,"acquisition_date":"2026-01-01","in_service_date":"2026-01-01","invoice_line_id":1}`
@@ -146,7 +146,7 @@ func TestAssetHandler_RegisterAsset_ReturnsServerError(t *testing.T) {
 func TestAssetHandler_GenerateSchedule_ReturnsNotFound(t *testing.T) {
 	assets := asset.FixedAssetDAOMock{}
 	svc := handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{})
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodPost, "/fixed-assets/1/schedule", "")
@@ -167,7 +167,7 @@ func TestAssetHandler_GenerateSchedule_ReturnsNotFoundForForeignOrganization(t *
 		},
 	}
 	svc := handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{})
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodPost, "/fixed-assets/1/schedule", "")
@@ -188,7 +188,7 @@ func TestAssetHandler_GenerateSchedule_ReturnsServerError(t *testing.T) {
 		},
 	}
 	svc := handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{})
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodPost, "/fixed-assets/1/schedule", "")
@@ -218,7 +218,7 @@ func TestAssetHandler_GenerateSchedule_RejectsNonRunningAsset(t *testing.T) {
 		handlerInvoiceLineLookup{},
 		handlerInvoiceLookup{},
 	)
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodPost, "/fixed-assets/1/schedule", "")
@@ -248,7 +248,7 @@ func TestAssetHandler_GenerateSchedule_ReturnsServerErrorOnWrite(t *testing.T) {
 		handlerInvoiceLineLookup{},
 		handlerInvoiceLookup{},
 	)
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	resp, err := doRequest(app, http.MethodPost, "/fixed-assets/1/schedule", "")
@@ -282,7 +282,7 @@ func TestAssetHandler_PostDepreciation_PostsDepreciation(t *testing.T) {
 		handlerInvoiceLineLookup{},
 		handlerInvoiceLookup{},
 	)
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"journal_id":9,"date":"2026-02-28"}`
@@ -324,7 +324,7 @@ func TestAssetHandler_PostDepreciation_RejectsInvalidDate(t *testing.T) {
 func TestAssetHandler_PostDepreciation_ReturnsNotFound(t *testing.T) {
 	assets := asset.FixedAssetDAOMock{}
 	svc := handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{})
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"journal_id":9,"date":"2026-02-28"}`
@@ -346,7 +346,7 @@ func TestAssetHandler_PostDepreciation_ReturnsServerError(t *testing.T) {
 		},
 	}
 	svc := handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{})
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"journal_id":9,"date":"2026-02-28"}`
@@ -381,7 +381,7 @@ func TestAssetHandler_PostDepreciation_ReturnsUnprocessableWhenNothingToPost(t *
 		handlerInvoiceLineLookup{},
 		handlerInvoiceLookup{},
 	)
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"journal_id":9,"date":"2026-02-28"}`
@@ -411,7 +411,7 @@ func TestAssetHandler_PostDepreciation_ReturnsServerErrorOnWrite(t *testing.T) {
 		handlerInvoiceLineLookup{},
 		handlerInvoiceLookup{},
 	)
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"journal_id":9,"date":"2026-02-28"}`
@@ -440,7 +440,7 @@ func TestAssetHandler_DisposeAsset_RejectsInvalidDate(t *testing.T) {
 func TestAssetHandler_DisposeAsset_ReturnsNotFound(t *testing.T) {
 	assets := asset.FixedAssetDAOMock{}
 	svc := handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{})
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"journal_id":9,"date":"2026-08-31","state":"disposed"}`
@@ -462,7 +462,7 @@ func TestAssetHandler_DisposeAsset_ReturnsServerError(t *testing.T) {
 		},
 	}
 	svc := handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{})
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"journal_id":9,"date":"2026-08-31","state":"disposed"}`
@@ -484,7 +484,7 @@ func TestAssetHandler_DisposeAsset_RejectsInvalidStateTransition(t *testing.T) {
 		},
 	}
 	svc := handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{})
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"journal_id":9,"date":"2026-08-31","state":"disposed"}`
@@ -514,7 +514,7 @@ func TestAssetHandler_DisposeAsset_ReturnsServerErrorOnWrite(t *testing.T) {
 		handlerInvoiceLineLookup{},
 		handlerInvoiceLookup{},
 	)
-	h := NewAssetCategoryHandler(asset.NewAssetCategoryService(dao.CRUDMock[reference.AssetCategory]{}), svc)
+	h := NewAssetCategoryHandler(dao.CRUDMock[reference.AssetCategory]{}, svc)
 	app := assetApp(h, passthroughGuards())
 
 	body := `{"journal_id":9,"date":"2026-08-31","state":"disposed"}`

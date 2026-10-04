@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -38,6 +39,8 @@ type RmaDetailSectionProps = {
 };
 
 export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
+  const t = useTranslations("Sales");
+  const tCommon = useTranslations("Common");
   const router = useRouter();
   const queryClient = useQueryClient();
   const [receiveDialogOpen, setReceiveDialogOpen] = useState(false);
@@ -64,7 +67,7 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
       void queryClient.invalidateQueries({ queryKey: ["rmas", orgId] });
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -74,7 +77,7 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
       void queryClient.invalidateQueries({ queryKey: ["rmas", orgId] });
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -84,7 +87,7 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
       void queryClient.invalidateQueries({ queryKey: ["rmas", orgId] });
     },
     onError: () => {
-      toast.error("Could not disable the organization.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -110,6 +113,30 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
   if (!state) return null;
   const steps = rmaSteps(state);
 
+  function stateLabel(state: RmaState): string {
+    try {
+      return (t as unknown as (k: string) => string)(`rmaState.${state}`);
+    } catch {
+      return rmaStateLabel(state);
+    }
+  }
+
+  function typeLabel(type: Rma["type"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`rmaType.${type}`);
+    } catch {
+      return rmaTypeLabel(type);
+    }
+  }
+
+  function dispositionLabelText(disposition: RmaLine["disposition"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`disposition.${disposition}`);
+    } catch {
+      return dispositionLabel(disposition);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
@@ -118,14 +145,14 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
         </Button>
         <h2 className="text-lg">{rma.name ?? `RMA-${rma.id}`}</h2>
         <Badge variant="outline" className={rmaStateTone(state)}>
-          {rmaStateLabel(state)}
+          {stateLabel(state)}
         </Badge>
       </div>
 
       <WorkflowSteps
         currentIndex={steps.indexOf(state)}
         steps={steps.map((step) => ({
-          label: rmaStateLabel(step as RmaState),
+          label: stateLabel(step as RmaState),
           current: step === state,
           completed: steps.indexOf(step) < steps.indexOf(state),
         }))}
@@ -134,19 +161,19 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{"Summary"}</CardTitle>
+            <CardTitle>{t("sectionSummary")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Type"}</span>
-              <span>{rmaTypeLabel(rma.type)}</span>
+              <span className="text-muted-foreground">{t("tableType")}</span>
+              <span>{typeLabel(rma.type)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Contact"}</span>
+              <span className="text-muted-foreground">{t("fieldContact")}</span>
               <span>{`#${rma.contactId}`}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Origin order"}</span>
+              <span className="text-muted-foreground">{t("fieldOriginOrderType")}</span>
               <span>
                 {rma.originOrderType && rma.originOrderId
                   ? `${rma.originOrderType.toUpperCase()}-${rma.originOrderId}`
@@ -154,11 +181,11 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Reason"}</span>
+              <span className="text-muted-foreground">{t("fieldReason")}</span>
               <span>{rma.reason || "—"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Created"}</span>
+              <span className="text-muted-foreground">{t("tableCreated")}</span>
               <span>{formatDate(rma.createdAt)}</span>
             </div>
           </CardContent>
@@ -166,7 +193,7 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>{"Actions"}</CardTitle>
+            <CardTitle>{t("sectionActions")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             <div className="flex flex-wrap gap-2">
@@ -176,17 +203,17 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
                   onClick={() => confirmMutation.mutate()}
                   disabled={confirmMutation.isPending}
                 >
-                  {"Confirm"}
+                  {t("actionConfirm")}
                 </Button>
               )}
               {canReceive(state) && (
                 <Button size="sm" onClick={() => setReceiveDialogOpen(true)}>
-                  {"Receive"}
+                  {t("actionReceive")}
                 </Button>
               )}
               {canRefund(state) && (
                 <Button size="sm" onClick={() => setRefundDialogOpen(true)}>
-                  {"Refund"}
+                  {t("actionRefund")}
                 </Button>
               )}
               {canDone(state) && (
@@ -195,7 +222,7 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
                   onClick={() => doneMutation.mutate()}
                   disabled={doneMutation.isPending}
                 >
-                  {"Done"}
+                  {t("actionDone")}
                 </Button>
               )}
               {canCancel(state) && (
@@ -205,7 +232,7 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
                   onClick={() => cancelMutation.mutate()}
                   disabled={cancelMutation.isPending}
                 >
-                  {"Cancel"}
+                  {tCommon("cancel")}
                 </Button>
               )}
             </div>
@@ -215,18 +242,18 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>{"Return lines"}</CardTitle>
+          <CardTitle>{t("returnLines")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className="py-2 text-left ">{"Item"}</th>
-                  <th className="py-2 text-right ">{"Quantity"}</th>
-                  <th className="py-2 text-left ">{"Disposition"}</th>
-                  <th className="py-2 text-left ">{"Stock move"}</th>
-                  <th className="py-2 text-left ">{"Credit note"}</th>
+                  <th className="py-2 text-left ">{t("fieldItem")}</th>
+                  <th className="py-2 text-right ">{t("fieldQty")}</th>
+                  <th className="py-2 text-left ">{t("fieldDisposition")}</th>
+                  <th className="py-2 text-left ">{t("stockMove")}</th>
+                  <th className="py-2 text-left ">{t("creditNote")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -236,7 +263,7 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
                     <td className="py-2 text-right tabular-nums">{line.qty}</td>
                     <td className="py-2">
                       <Badge variant="outline" className={dispositionTone(line.disposition)}>
-                        {dispositionLabel(line.disposition)}
+                        {dispositionLabelText(line.disposition)}
                       </Badge>
                     </td>
                     <td className="py-2">
@@ -258,7 +285,7 @@ export function RmaDetailSection({ orgId, rmaId }: RmaDetailSectionProps) {
               </tbody>
               <tfoot>
                 <tr className="border-t">
-                  <td className="py-2 ">{"Total"}</td>
+                  <td className="py-2 ">{t("tableTotal")}</td>
                   <td className="py-2 text-right tabular-nums ">{totalQty(lines)}</td>
                   <td colSpan={3} />
                 </tr>

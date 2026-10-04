@@ -68,9 +68,9 @@ describe("DeferralDetail", () => {
     renderWithProviders(<DeferralDetail orgId="1" deferralId="7" />);
 
     expect((await screen.findAllByText("invoice #12")).length).toBeGreaterThan(0);
-    expect(screen.getByText("Total amount")).toBeInTheDocument();
-    expect(screen.getByText("1,200")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Recognize" })).toBeInTheDocument();
+    expect(screen.getByText("Total jumlah")).toBeInTheDocument();
+    expect(screen.getByText("1.200")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Akui" })).toBeInTheDocument();
   });
 
   it("recognizes on button click and shows seeded lines", async () => {
@@ -78,10 +78,10 @@ describe("DeferralDetail", () => {
     renderWithProviders(<DeferralDetail orgId="1" deferralId="7" />);
 
     await screen.findAllByText("invoice #12");
-    await user.click(screen.getByRole("button", { name: "Recognize" }));
+    await user.click(screen.getByRole("button", { name: "Akui" }));
     await waitFor(() => expect(recognizeCalled).toBe(true));
 
-    await user.click(screen.getByRole("tab", { name: "Recognition lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris pengakuan" }));
 
     expect(await screen.findByText("✓")).toBeInTheDocument();
     expect(screen.getByText("#44")).toBeInTheDocument();
@@ -104,11 +104,11 @@ describe("DeferralDetail", () => {
     renderWithProviders(<DeferralDetail orgId="1" deferralId="7" />);
 
     await screen.findAllByText("invoice #12");
-    expect(screen.queryByRole("button", { name: "Recognize" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Akui" })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("tab", { name: "Recognition lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris pengakuan" }));
 
-    expect(await screen.findByText("No recognition lines.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada baris pengakuan.")).toBeInTheDocument();
   });
 
   it("shows notFound when the schedule is missing", async () => {
@@ -119,6 +119,6 @@ describe("DeferralDetail", () => {
     );
     renderWithProviders(<DeferralDetail orgId="1" deferralId="7" />);
 
-    expect(await screen.findByText("Deferral schedule not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Jadwal penangguhan tidak ditemukan.")).toBeInTheDocument();
   });
 });

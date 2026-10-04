@@ -18,6 +18,15 @@ type ContactDAO interface {
 		customer *CustomerProfile,
 		supplier *SupplierProfile,
 	) (*Contact, error)
+	CreateWithDetailsTx(
+		ctx context.Context,
+		tx *gorm.DB,
+		contact *Contact,
+		addresses []*ContactAddress,
+		banks []*ContactBankAccount,
+		customer *CustomerProfile,
+		supplier *SupplierProfile,
+	) (*Contact, error)
 }
 
 type contactDAO struct {
@@ -37,38 +46,53 @@ func (d contactDAO) CreateWithDetails(
 	customer *CustomerProfile,
 	supplier *SupplierProfile,
 ) (*Contact, error) {
+	var created *Contact
 	err := d.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(contact).Error; err != nil {
-			return err
-		}
-		for _, address := range addresses {
-			address.ContactID = contact.ID
-			if err := tx.Create(address).Error; err != nil {
-				return err
-			}
-		}
-		for _, bank := range banks {
-			bank.ContactID = contact.ID
-			if err := tx.Create(bank).Error; err != nil {
-				return err
-			}
-		}
-		if customer != nil {
-			customer.ContactID = contact.ID
-			if err := tx.Create(customer).Error; err != nil {
-				return err
-			}
-		}
-		if supplier != nil {
-			supplier.ContactID = contact.ID
-			if err := tx.Create(supplier).Error; err != nil {
-				return err
-			}
-		}
-		return nil
+		var err error
+		created, err = d.CreateWithDetailsTx(ctx, tx, contact, addresses, banks, customer, supplier)
+		return err
 	})
 	if err != nil {
 		return nil, err
+	}
+	return created, nil
+}
+
+func (d contactDAO) CreateWithDetailsTx(
+	ctx context.Context,
+	tx *gorm.DB,
+	contact *Contact,
+	addresses []*ContactAddress,
+	banks []*ContactBankAccount,
+	customer *CustomerProfile,
+	supplier *SupplierProfile,
+) (*Contact, error) {
+	if err := tx.WithContext(ctx).Create(contact).Error; err != nil {
+		return nil, err
+	}
+	for _, address := range addresses {
+		address.ContactID = contact.ID
+		if err := tx.WithContext(ctx).Create(address).Error; err != nil {
+			return nil, err
+		}
+	}
+	for _, bank := range banks {
+		bank.ContactID = contact.ID
+		if err := tx.WithContext(ctx).Create(bank).Error; err != nil {
+			return nil, err
+		}
+	}
+	if customer != nil {
+		customer.ContactID = contact.ID
+		if err := tx.WithContext(ctx).Create(customer).Error; err != nil {
+			return nil, err
+		}
+	}
+	if supplier != nil {
+		supplier.ContactID = contact.ID
+		if err := tx.WithContext(ctx).Create(supplier).Error; err != nil {
+			return nil, err
+		}
 	}
 	return contact, nil
 }

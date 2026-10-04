@@ -29,8 +29,8 @@ describe("LeadFormDialog", () => {
       <LeadFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    expect(await screen.findByText("New lead")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Prospek baru" })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Nama")).toBeInTheDocument();
   });
 
   it("accepts a lead name through the name field", async () => {
@@ -39,7 +39,7 @@ describe("LeadFormDialog", () => {
       <LeadFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    const nameInput = await screen.findByPlaceholderText("Name");
+    const nameInput = await screen.findByPlaceholderText("Nama");
     await user.type(nameInput, "Acme Website Inquiry");
 
     expect(nameInput).toHaveValue("Acme Website Inquiry");

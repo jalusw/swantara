@@ -94,7 +94,7 @@ func (s MaintenanceService) GenerateDueOrders(ctx context.Context, organizationI
 		name = fmt.Sprintf("%s (%s)", name, dueDate.Format("2006-01-02"))
 		var order *ServiceOrder
 		err = s.tx.Run(ctx, func(tx *gorm.DB) error {
-			createdOrder, err := s.orders.Create(ctx, &ServiceOrder{
+			createdOrder, err := s.orders.CreateTx(ctx, tx, &ServiceOrder{
 				OrganizationID: equipment.OrganizationID,
 				Name:           name,
 				EquipmentID:    plan.EquipmentID,

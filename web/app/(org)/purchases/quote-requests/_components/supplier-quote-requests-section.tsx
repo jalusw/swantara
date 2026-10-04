@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -16,6 +17,7 @@ import { humanizeKey } from "@/lib/utils/case";
 import { SupplierQuoteRequestFormDialog } from "./supplier-quote-request-form-dialog";
 
 export function SupplierQuoteRequestsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Purchases");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -39,10 +41,18 @@ export function SupplierQuoteRequestsSection({ orgId }: { orgId: string }) {
     void quoteRequestsQuery.refetch();
   }
 
+  function stateLabel(state: SupplierQuoteRequest["state"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`quoteRequestState.${state}`);
+    } catch {
+      return humanizeKey(String(state));
+    }
+  }
+
   const columns: ColumnDef<SupplierQuoteRequest>[] = [
     {
       accessorKey: "name",
-      header: "QuoteRequest",
+      header: t("tableQuoteRequest"),
       cell: ({ row }) => (
         <a
           href={`/purchases/quoteRequests/${row.original.id}`}
@@ -54,7 +64,7 @@ export function SupplierQuoteRequestsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "supplierId",
-      header: "Supplier",
+      header: t("tableSupplier"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {row.original.supplierId
@@ -65,7 +75,7 @@ export function SupplierQuoteRequestsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "Status",
+      header: t("tableStatus"),
       cell: ({ row }) => (
         <Badge
           variant={
@@ -76,13 +86,13 @@ export function SupplierQuoteRequestsSection({ orgId }: { orgId: string }) {
                 : "secondary"
           }
         >
-          {humanizeKey(String(row.original.state))}
+          {stateLabel(row.original.state)}
         </Badge>
       ),
     },
     {
       accessorKey: "orderDate",
-      header: "Order date",
+      header: t("tableOrderDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.orderDate ? formatDate(row.original.orderDate) : "—"}
@@ -91,7 +101,7 @@ export function SupplierQuoteRequestsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "quoteDeadline",
-      header: "Quote deadline",
+      header: t("tableQuoteDeadline"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.quoteDeadline ? formatDate(row.original.quoteDeadline) : "—"}
@@ -103,10 +113,10 @@ export function SupplierQuoteRequestsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit QuoteRequest"}
-          deleteLabel={"Delete QuoteRequest"}
-          confirmTitle={"Delete this QuoteRequest?"}
-          confirmDescription={"The QuoteRequest will be removed. This cannot be undone."}
+          editLabel={t("editQuoteRequest")}
+          deleteLabel={t("deleteQuoteRequest")}
+          confirmTitle={t("deleteQuoteRequestTitle")}
+          confirmDescription={t("deleteQuoteRequestDescription")}
           onEdit={() => router.push(`/purchases/quoteRequests/${row.original.id}`)}
         />
       ),
@@ -129,16 +139,16 @@ export function SupplierQuoteRequestsSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "sent", label: "Sent" },
-          { value: "done", label: "Done" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: t("quoteRequestStateDraft") },
+          { value: "sent", label: t("quoteRequestStateSent") },
+          { value: "done", label: t("quoteRequestStateDone") },
+          { value: "cancelled", label: t("quoteRequestStateCancelled") },
         ]}
-        searchPlaceholder={"Search Quote Requests…"}
-        filterLabel={"Status"}
-        allLabel={"All Quote Requests"}
-        ariaLabel={"All Quote Requests"}
-        emptyTitle={"No purchase Quote Requests"}
+        searchPlaceholder={t("searchQuoteRequestsPlaceholder")}
+        filterLabel={t("tableStatus")}
+        allLabel={t("allQuoteRequests")}
+        ariaLabel={t("allQuoteRequests")}
+        emptyTitle={t("emptyQuoteRequests")}
         status={
           isLoading
             ? { type: "loading" }
@@ -153,7 +163,7 @@ export function SupplierQuoteRequestsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New QuoteRequest"}</span>
+            <span>{t("newQuoteRequest")}</span>
           </Button>
         }
       />

@@ -41,9 +41,9 @@ describe("SidebarTree", () => {
   it("renders every link flat without nested submenus", () => {
     renderTree();
 
-    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/dashboard");
-    expect(screen.getByRole("link", { name: "Products" })).toHaveAttribute("href", "/products");
-    expect(screen.getByRole("link", { name: "Bills of materials" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Dasbor" })).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByRole("link", { name: "Produk" })).toHaveAttribute("href", "/products");
+    expect(screen.getByRole("link", { name: "Resep (BoM)" })).toHaveAttribute(
       "href",
       "/products/recipes",
     );
@@ -53,14 +53,14 @@ describe("SidebarTree", () => {
     navigationMock.setPathname("/dashboard");
     renderTree();
 
-    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("data-active", "true");
-    expect(screen.getByRole("link", { name: "Products" })).toHaveAttribute("data-active", "false");
+    expect(screen.getByRole("link", { name: "Dasbor" })).toHaveAttribute("data-active", "true");
+    expect(screen.getByRole("link", { name: "Produk" })).toHaveAttribute("data-active", "false");
   });
 
   it("renders items in definition order", () => {
     renderTree();
 
     const links = screen.getAllByRole("link").map((link) => link.textContent);
-    expect(links.indexOf("Dashboard")).toBeLessThan(links.indexOf("Products"));
+    expect(links.indexOf("Dasbor")).toBeLessThan(links.indexOf("Produk"));
   });
 });

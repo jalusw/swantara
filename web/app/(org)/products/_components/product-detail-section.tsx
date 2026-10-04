@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ActiveBadge } from "@/components/active-badge";
 import { RecordLayout } from "@/components/record-layout";
 import { useItemVariantsQuery, useProductQuery } from "@/lib/hooks/use-item-query";
@@ -11,7 +12,11 @@ import { ProductBoms } from "./product-boms";
 import { ProductOverview } from "./product-overview";
 import { ItemVariants } from "./product-variants";
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 export function ProductDetail({ orgId, itemId }: { orgId: string; itemId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  const tCommon = useTranslations("Common");
   const productQuery = useProductQuery(orgId, itemId);
   const variantsQuery = useItemVariantsQuery(orgId, itemId);
 
@@ -27,28 +32,28 @@ export function ProductDetail({ orgId, itemId }: { orgId: string; itemId: string
   const recipes = bomsQuery.data ?? [];
 
   if (productQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (!item) {
-    return <p className="text-sm text-muted-foreground">{"Item not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("itemNotFound")}</p>;
   }
 
-  const breadcrumbItems = [{ label: "All products", href: "/products" }, { label: item.name }];
+  const breadcrumbItems = [{ label: t("allProducts"), href: "/products" }, { label: item.name }];
   const tabs = [
     {
       id: "overview",
-      label: "Overview",
+      label: t("overviewTab"),
       content: <ProductOverview item={item} />,
     },
     {
       id: "variants",
-      label: "Variants",
+      label: t("variantsTab"),
       content: <ItemVariants variants={variants} />,
     },
     {
       id: "recipes",
-      label: "Bills of materials",
+      label: t("recipesTitle"),
       content: (
         <ProductBoms
           recipes={recipes}
@@ -72,7 +77,9 @@ export function ProductDetail({ orgId, itemId }: { orgId: string; itemId: string
     <RecordLayout
       breadcrumbItems={breadcrumbItems}
       title={item.name}
-      status={<ActiveBadge active={item.active}>{item.active ? "Active" : "Inactive"}</ActiveBadge>}
+      status={
+        <ActiveBadge active={item.active}>{item.active ? t("active") : t("inactive")}</ActiveBadge>
+      }
       tabs={tabs}
     />
   );

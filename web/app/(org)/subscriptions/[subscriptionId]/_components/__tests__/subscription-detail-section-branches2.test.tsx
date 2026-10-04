@@ -41,7 +41,7 @@ describe("SubscriptionDetail branches2", () => {
     );
     renderWithProviders(<SubscriptionDetail orgId="1" subscriptionId="5" />);
 
-    expect(await screen.findByText("Subscription not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Tidak ditemukan")).toBeInTheDocument();
   });
 
   it("shows draft-only activate action and hides other actions", async () => {
@@ -49,8 +49,8 @@ describe("SubscriptionDetail branches2", () => {
     renderWithProviders(<SubscriptionDetail orgId="1" subscriptionId="5" />);
 
     await screen.findAllByText("Acme Monthly");
-    expect(screen.getByRole("button", { name: "Activate" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Pause" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Aktifkan" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Jeda" })).not.toBeInTheDocument();
   });
 
   it("shows pause and churn actions for active subscriptions", async () => {
@@ -58,8 +58,8 @@ describe("SubscriptionDetail branches2", () => {
     renderWithProviders(<SubscriptionDetail orgId="1" subscriptionId="5" />);
 
     await screen.findAllByText("Acme Monthly");
-    expect(screen.getByRole("button", { name: "Pause" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Churn" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Jeda" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Tandai Berhenti" })).toBeInTheDocument();
   });
 
   it("renders dash fallbacks for missing dates and currency", async () => {
@@ -81,8 +81,8 @@ describe("SubscriptionDetail branches2", () => {
     renderWithProviders(<SubscriptionDetail orgId="1" subscriptionId="5" />);
 
     await screen.findAllByText("Acme Monthly");
-    await user.click(screen.getByRole("tab", { name: "Lines" }));
-    expect(await screen.findByText("No lines on this subscription.")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Baris" }));
+    expect(await screen.findByText("Belum ada baris")).toBeInTheDocument();
   });
 
   it("covers paused resume and closed terminal branches", async () => {
@@ -90,6 +90,6 @@ describe("SubscriptionDetail branches2", () => {
     renderWithProviders(<SubscriptionDetail orgId="1" subscriptionId="5" />);
 
     await screen.findAllByText("Acme Monthly");
-    expect(screen.getByRole("button", { name: "Resume" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Lanjutkan" })).toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -16,10 +17,11 @@ import { getLocalDateString } from "@/lib/utils";
 import { zodResolver } from "@/lib/utils/zod-resolver";
 
 function useTimesheetFormSchema() {
+  const t = useTranslations("Attendance");
   return z.object({
-    employeeId: z.coerce.number().min(1, "Select an employee."),
-    date: z.string().min(1, "Date is required."),
-    hours: z.coerce.number().min(0.5, "Minimum 0.5 hours."),
+    employeeId: z.coerce.number().min(1, t("validationEmployeeRequired")),
+    date: z.string().min(1, t("validationDateRequired")),
+    hours: z.coerce.number().min(0.5, t("validationMinHours")),
     description: z.string().nullable(),
     dimensionId: z.coerce.number().nullable(),
     projectId: z.coerce.number().nullable(),
@@ -39,6 +41,8 @@ export function TimesheetFormDialog({
   orgId: string;
   onSave: () => void;
 }) {
+  const t = useTranslations("Attendance");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
 
   const employeesQuery = useOrgListQuery<{ employees: Employee[] }, Record<string, never>>(
@@ -126,10 +130,10 @@ export function TimesheetFormDialog({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["timesheets", Number(orgId)] });
       onSave();
-      toast.success("Account created successfully");
+      toast.success(t("timesheetCreated"));
     },
     onError: () => {
-      toast.error("Could not save the organization profile.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -141,21 +145,24 @@ export function TimesheetFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Add timesheet entry"}
-      description={"Log hours worked on projects and tasks."}
+      title={t("newTimesheetEntry")}
+      description={t("timesheetsSubtitle")}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       form={form}
       onSubmit={handleSubmit}
+      isPending={createMutation.isPending}
       className="sm:max-w-lg"
     >
       <div className="flex flex-col gap-4">
-        <FormField name="employeeId" label={"Employee"}>
+        <FormField name="employeeId" label={t("fieldEmployee")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(Number(value))}
             >
-              <SelectTrigger id={id} aria-label={"Employee"}>
-                <SelectValue placeholder={"Employee"} />
+              <SelectTrigger id={id} aria-label={t("fieldEmployee")}>
+                <SelectValue placeholder={t("fieldEmployee")} />
               </SelectTrigger>
               <SelectContent>
                 {employeeOptions.map((employee) => (
@@ -167,7 +174,7 @@ export function TimesheetFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="projectId" label={"Project"}>
+        <FormField name="projectId" label={t("fieldProject")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
@@ -176,8 +183,8 @@ export function TimesheetFormDialog({
                 form.setValue("taskId", null);
               }}
             >
-              <SelectTrigger id={id} aria-label={"Project"}>
-                <SelectValue placeholder={"No project"} />
+              <SelectTrigger id={id} aria-label={t("fieldProject")}>
+                <SelectValue placeholder={t("noProject")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>
@@ -190,15 +197,15 @@ export function TimesheetFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="taskId" label={"Task"}>
+        <FormField name="taskId" label={t("fieldTask")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(value ? Number(value) : null)}
               disabled={!selectedProjectId}
             >
-              <SelectTrigger id={id} aria-label={"Task"}>
-                <SelectValue placeholder={"No task"} />
+              <SelectTrigger id={id} aria-label={t("fieldTask")}>
+                <SelectValue placeholder={t("noTask")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>
@@ -211,15 +218,15 @@ export function TimesheetFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="date" label={"Date"}>
+        <FormField name="date" label={t("fieldDate")}>
           {({ field, id }) => <Input {...field} id={id} type="date" />}
         </FormField>
-        <FormField name="hours" label={"Hours"}>
+        <FormField name="hours" label={t("fieldHours")}>
           {({ field, id }) => (
             <Input {...field} id={id} type="number" min="0.5" step="0.5" inputMode="decimal" />
           )}
         </FormField>
-        <FormField name="description" label={"Log hours worked on projects and tasks."}>
+        <FormField name="description" label={t("fieldDescription")}>
           {({ field, id }) => (
             <Textarea
               id={id}
@@ -228,14 +235,14 @@ export function TimesheetFormDialog({
             />
           )}
         </FormField>
-        <FormField name="dimensionId" label={"Dimension account"}>
+        <FormField name="dimensionId" label={t("fieldDimension")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(value ? Number(value) : null)}
             >
-              <SelectTrigger id={id} aria-label={"Dimension account"}>
-                <SelectValue placeholder={"Dimension account"} />
+              <SelectTrigger id={id} aria-label={t("fieldDimension")}>
+                <SelectValue placeholder={t("fieldDimension")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>

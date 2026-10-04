@@ -29,7 +29,7 @@ function renderDialog(overrides = {}) {
 
 async function pickJournal(offset: number) {
   const user = userEvent.setup();
-  await user.click(screen.getByRole("combobox", { name: "Journal" }));
+  await user.click(screen.getByRole("combobox", { name: "Jurnal" }));
   await screen.findByRole("option", { name: "Cash — cash" });
   for (let step = 0; step < offset; step++) {
     await user.keyboard("{ArrowDown}");
@@ -73,7 +73,7 @@ describe("PaymentDialog", () => {
 
   it("closes on cancel", async () => {
     const { onOpenChange } = renderDialog();
-    await userEvent.setup().click(screen.getByRole("button", { name: "Cancel" }));
+    await userEvent.setup().click(screen.getByRole("button", { name: "Batal" }));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 });

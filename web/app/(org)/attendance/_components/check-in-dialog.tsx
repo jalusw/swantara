@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -36,10 +37,12 @@ export function CheckInDialog({
   const employeeId = useId();
   const timeId = useId();
   const [isPending, setIsPending] = useState(false);
+  const t = useTranslations("Attendance");
+  const tCommon = useTranslations("Common");
 
   const schema = z.object({
-    employeeId: z.string().min(1, "Employee is required"),
-    checkIn: z.string().min(1),
+    employeeId: z.string().min(1, t("validationEmployeeRequired")),
+    checkIn: z.string().min(1, t("validationCheckInRequired")),
   });
 
   type Values = z.infer<typeof schema>;
@@ -68,7 +71,7 @@ export function CheckInDialog({
         form.reset({ employeeId: "", checkIn: toLocalDatetime(new Date()) });
         onSave();
       })
-      .catch(() => toast.error("Something went wrong."))
+      .catch(() => toast.error(t("saveFailed")))
       .finally(() => setIsPending(false));
   }
 
@@ -76,16 +79,16 @@ export function CheckInDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{"Check In Title"}</DialogTitle>
-          <DialogDescription>{"Check In Description"}</DialogDescription>
+          <DialogTitle>{t("checkInTitle")}</DialogTitle>
+          <DialogDescription>{t("checkInDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4">
-            <FormField name="employeeId" label={"Employee"} className="flex flex-col gap-2">
+            <FormField name="employeeId" label={t("fieldEmployee")} className="flex flex-col gap-2">
               {({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={employeeId} aria-label={"Employee"}>
-                    <SelectValue placeholder={"Select employee"} />
+                  <SelectTrigger id={employeeId} aria-label={t("fieldEmployee")}>
+                    <SelectValue placeholder={t("selectEmployee")} />
                   </SelectTrigger>
                   <SelectContent>
                     {employees.map((emp) => (
@@ -97,16 +100,16 @@ export function CheckInDialog({
                 </Select>
               )}
             </FormField>
-            <FormField name="checkIn" label={"Check-in time"} className="flex flex-col gap-2">
+            <FormField name="checkIn" label={t("fieldCheckInTime")} className="flex flex-col gap-2">
               {({ field }) => <Input id={timeId} type="datetime-local" {...field} />}
             </FormField>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {"Confirm Check In"}
+              {t("confirmCheckIn")}
             </Button>
           </DialogFooter>
         </Form>

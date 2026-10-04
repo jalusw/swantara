@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -13,11 +14,13 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { ServiceContract } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { ServiceContractFormDialog } from "./service-contract-form-dialog";
 import { serviceContractStateTone } from "./service-contract-utils";
 
 export function ServiceContractsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Service");
+  const contractState = (state: string) =>
+    (t as unknown as (k: string) => string)(`contractState_${state}`);
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -37,7 +40,7 @@ export function ServiceContractsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<ServiceContract>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("colName"),
       cell: ({ row }) => (
         <a
           href={`/service-orders/contracts/${row.original.id}`}
@@ -49,14 +52,14 @@ export function ServiceContractsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "coverage",
-      header: "Coverage",
+      header: t("coverage"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">{row.original.coverage || "—"}</span>
       ),
     },
     {
       accessorKey: "dateStart",
-      header: "Start date",
+      header: t("startDate"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {row.original.dateStart ? formatDate(String(row.original.dateStart)) : "—"}
@@ -65,7 +68,7 @@ export function ServiceContractsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "dateEnd",
-      header: "End date",
+      header: t("endDate"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {row.original.dateEnd ? formatDate(String(row.original.dateEnd)) : "—"}
@@ -74,7 +77,7 @@ export function ServiceContractsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("colStatus"),
       cell: ({ row }) => {
         const tone = serviceContractStateTone(row.original.state);
         return (
@@ -92,7 +95,7 @@ export function ServiceContractsSection({ orgId }: { orgId: string }) {
                       : ""
             }
           >
-            {humanizeKey(String(row.original.state))}
+            {contractState(row.original.state)}
           </Badge>
         );
       },
@@ -102,7 +105,7 @@ export function ServiceContractsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("view")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -118,7 +121,7 @@ export function ServiceContractsSection({ orgId }: { orgId: string }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>{"Total Contracts"}</CardTitle>
+            <CardTitle>{t("totalContracts")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">{contracts.length}</p>
@@ -132,15 +135,15 @@ export function ServiceContractsSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "active", label: "Active" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: contractState("draft") },
+          { value: "active", label: contractState("active") },
+          { value: "cancelled", label: contractState("cancelled") },
         ]}
-        searchPlaceholder={"Search contracts…"}
-        filterLabel={"State"}
-        allLabel={"All contracts"}
-        ariaLabel={"Service contracts"}
-        emptyTitle={"No service contracts yet"}
+        searchPlaceholder={t("contractsSearchPlaceholder")}
+        filterLabel={t("colStatus")}
+        allLabel={t("allContracts")}
+        ariaLabel={t("contractsTitle")}
+        emptyTitle={t("contractsEmpty")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -155,7 +158,7 @@ export function ServiceContractsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Create contract"}</span>
+            <span>{t("newContract")}</span>
           </Button>
         }
       />

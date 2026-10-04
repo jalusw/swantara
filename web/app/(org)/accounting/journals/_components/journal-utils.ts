@@ -6,7 +6,7 @@ export const journalTypeLabels: Record<JournalType, string> = {
   sale: "Sale",
   purchase: "Purchase",
   bank: "Bank",
-  cash: "Cash",
+  cash: "Kas",
   general: "General",
 };
 

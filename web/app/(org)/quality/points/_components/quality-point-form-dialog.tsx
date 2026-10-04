@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -36,6 +37,9 @@ export function QualityPointFormDialog({
   initial?: QualityPoint | null;
   onSave: () => void;
 }) {
+  const t = useTranslations("Quality");
+  const tCommon = useTranslations("Common");
+  const testType = (type: string) => (t as unknown as (k: string) => string)(`testType_${type}`);
   const queryClient = useQueryClient();
   const isEdit = Boolean(initial);
 
@@ -78,10 +82,10 @@ export function QualityPointFormDialog({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["qualityPoints", Number(orgId)] });
       onSave();
-      toast.success("Quality point saved.");
+      toast.success(t("pointSaved"));
     },
     onError: () => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -103,21 +107,24 @@ export function QualityPointFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? "Edit quality point" : "New quality point"}
-      description={"Define where and how quality is checked."}
+      title={isEdit ? t("editPoint") : t("newPoint")}
+      description={t("pointFormDescription")}
       form={form}
       onSubmit={handleSubmit}
+      isPending={createMutation.isPending}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="sm:max-w-lg"
     >
       <div className="flex flex-col gap-4">
-        <FormField name="itemId" label={"Item"}>
+        <FormField name="itemId" label={t("colItem")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(value ? Number(value) : null)}
             >
-              <SelectTrigger id={id} aria-label={"Item"}>
-                <SelectValue placeholder={"Select item"} />
+              <SelectTrigger id={id} aria-label={t("colItem")}>
+                <SelectValue placeholder={t("selectItem")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>
@@ -130,7 +137,7 @@ export function QualityPointFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="operation" label={"Operation"}>
+        <FormField name="operation" label={t("colOperation")}>
           {({ field, id }) => (
             <Input
               {...field}
@@ -140,7 +147,7 @@ export function QualityPointFormDialog({
             />
           )}
         </FormField>
-        <FormField name="testType" label={"Test type"}>
+        <FormField name="testType" label={t("colTestType")}>
           {({ field, id }) => (
             <Select
               value={field.value ?? ""}
@@ -148,18 +155,18 @@ export function QualityPointFormDialog({
                 field.onChange(value as "pass_fail" | "measure" | "instruction")
               }
             >
-              <SelectTrigger id={id} aria-label={"Test type"}>
-                <SelectValue placeholder={"Test type"} />
+              <SelectTrigger id={id} aria-label={t("colTestType")}>
+                <SelectValue placeholder={t("colTestType")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pass_fail">{"Pass / Fail"}</SelectItem>
-                <SelectItem value="measure">{"Measurement"}</SelectItem>
-                <SelectItem value="instruction">{"Instruction"}</SelectItem>
+                <SelectItem value="pass_fail">{testType("pass_fail")}</SelectItem>
+                <SelectItem value="measure">{testType("measure")}</SelectItem>
+                <SelectItem value="instruction">{testType("instruction")}</SelectItem>
               </SelectContent>
             </Select>
           )}
         </FormField>
-        <FormField name="normMin" label={"Min value"}>
+        <FormField name="normMin" label={t("minValue")}>
           {({ field, id }) => (
             <Input
               {...field}
@@ -172,7 +179,7 @@ export function QualityPointFormDialog({
             />
           )}
         </FormField>
-        <FormField name="normMax" label={"Max value"}>
+        <FormField name="normMax" label={t("maxValue")}>
           {({ field, id }) => (
             <Input
               {...field}
@@ -185,14 +192,14 @@ export function QualityPointFormDialog({
             />
           )}
         </FormField>
-        <FormField name="unitId" label={"Unit of Measure"}>
+        <FormField name="unitId" label={t("colUom")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(value ? Number(value) : null)}
             >
-              <SelectTrigger id={id} aria-label={"Unit of Measure"}>
-                <SelectValue placeholder={"Select UoM"} />
+              <SelectTrigger id={id} aria-label={t("colUom")}>
+                <SelectValue placeholder={t("selectUom")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>

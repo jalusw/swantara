@@ -1,6 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -15,8 +17,9 @@ import { getSwantaraService } from "@/lib/services/swantara";
 const currencyOptions = ["USD", "IDR", "EUR", "SGD", "GBP", "JPY", "AUD", "CAD"];
 
 function useContactFormSchema() {
+  const t = useTranslations("Contacts");
   return z.object({
-    name: z.string().trim().min(1, "Enter a name."),
+    name: z.string().trim().min(1, t("validationNameRequired")),
     displayName: z.string().trim(),
     isOrganization: z.boolean(),
     email: z
@@ -24,7 +27,7 @@ function useContactFormSchema() {
       .trim()
       .refine(
         (value) => value === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
-        "Enter a valid email address.",
+        t("validationEmailInvalid"),
       ),
     phone: z.string().trim(),
     mobile: z.string().trim(),
@@ -35,6 +38,38 @@ function useContactFormSchema() {
     lang: z.string().trim(),
     active: z.boolean(),
   });
+}
+
+function toDefaultValues(initial?: Contact | null) {
+  return initial
+    ? {
+        name: initial.name,
+        displayName: initial.displayName || "",
+        isOrganization: initial.isOrganization,
+        email: initial.email || "",
+        phone: initial.phone || "",
+        mobile: initial.mobile || "",
+        website: initial.website || "",
+        taxId: initial.taxId || "",
+        industry: initial.industry || "",
+        currencyCode: initial.currencyCode || "USD",
+        lang: initial.lang || "en",
+        active: initial.active,
+      }
+    : {
+        name: "",
+        displayName: "",
+        isOrganization: true,
+        email: "",
+        phone: "",
+        mobile: "",
+        website: "",
+        taxId: "",
+        industry: "",
+        currencyCode: "USD",
+        lang: "en",
+        active: true,
+      };
 }
 
 export function ContactFormDialog({
@@ -51,42 +86,22 @@ export function ContactFormDialog({
   onSave: () => void;
 }) {
   const isEdit = Boolean(initial);
+  const t = useTranslations("Contacts");
+  const tCommon = useTranslations("Common");
 
   const schema = useContactFormSchema();
   type Values = z.infer<typeof schema>;
 
   const form = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: initial
-      ? {
-          name: initial.name,
-          displayName: initial.displayName || "",
-          isOrganization: initial.isOrganization,
-          email: initial.email || "",
-          phone: initial.phone || "",
-          mobile: initial.mobile || "",
-          website: initial.website || "",
-          taxId: initial.taxId || "",
-          industry: initial.industry || "",
-          currencyCode: initial.currencyCode || "USD",
-          lang: initial.lang || "en",
-          active: initial.active,
-        }
-      : {
-          name: "",
-          displayName: "",
-          isOrganization: true,
-          email: "",
-          phone: "",
-          mobile: "",
-          website: "",
-          taxId: "",
-          industry: "",
-          currencyCode: "USD",
-          lang: "en",
-          active: true,
-        },
+    defaultValues: toDefaultValues(initial),
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset(toDefaultValues(initial));
+    }
+  }, [open, initial, form]);
 
   function handleSubmit(values: Values) {
     const request = {
@@ -107,12 +122,12 @@ export function ContactFormDialog({
     };
 
     if (isEdit && initial) {
-      void getSwantaraService()
+      return getSwantaraService()
         .contacts.update(Number(orgId), initial.id, request)
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("saveFailed")));
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .contacts.create(Number(orgId), {
           ...request,
           addresses: [],
@@ -121,7 +136,7 @@ export function ContactFormDialog({
           supplier: null,
         })
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("saveFailed")));
     }
   }
 
@@ -129,43 +144,47 @@ export function ContactFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? "Edit contact" : "New contact"}
-      description={"Unified identity for customers, suppliers, and employees."}
+      title={isEdit ? t("editContact") : t("newContact")}
+      description={t("description")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
     >
       <div className="flex flex-col gap-6">
         <fieldset className="flex flex-col gap-4">
-          <legend className="text-sm">{"Identity"}</legend>
+          <legend className="text-sm">{t("identity")}</legend>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField name="name" label={"Name"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+            <FormField name="name" label={t("fieldName")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
             </FormField>
-            <FormField name="displayName" label={"Display name"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Display name"} />}
+            <FormField name="displayName" label={t("fieldDisplayName")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldDisplayName")} />}
             </FormField>
-            <FormField name="email" label={"Email"}>
-              {({ field, id }) => <Input {...field} id={id} type="email" placeholder={"Email"} />}
+            <FormField name="email" label={t("fieldEmail")}>
+              {({ field, id }) => (
+                <Input {...field} id={id} type="email" placeholder={t("fieldEmail")} />
+              )}
             </FormField>
-            <FormField name="phone" label={"Phone"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Phone"} />}
+            <FormField name="phone" label={t("fieldPhone")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldPhone")} />}
             </FormField>
-            <FormField name="mobile" label={"Mobile"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Mobile"} />}
+            <FormField name="mobile" label={t("fieldMobile")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldMobile")} />}
             </FormField>
-            <FormField name="website" label={"Website"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Website"} />}
+            <FormField name="website" label={t("fieldWebsite")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldWebsite")} />}
             </FormField>
-            <FormField name="taxId" label={"Tax ID"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Tax ID"} />}
+            <FormField name="taxId" label={t("fieldTaxId")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldTaxId")} />}
             </FormField>
-            <FormField name="industry" label={"Industry"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Industry"} />}
+            <FormField name="industry" label={t("fieldIndustry")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldIndustry")} />}
             </FormField>
-            <FormField name="currencyCode" label={"Currency"}>
+            <FormField name="currencyCode" label={t("fieldCurrency")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Currency"}>
+                  <SelectTrigger id={id} aria-label={t("fieldCurrency")}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -178,34 +197,34 @@ export function ContactFormDialog({
                 </Select>
               )}
             </FormField>
-            <FormField name="lang" label={"Language"}>
+            <FormField name="lang" label={t("fieldLanguage")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Language"}>
+                  <SelectTrigger id={id} aria-label={t("fieldLanguage")}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="id">Bahasa Indonesia</SelectItem>
+                    <SelectItem value="en">{t("languageEnglish")}</SelectItem>
+                    <SelectItem value="id">{t("languageIndonesian")}</SelectItem>
                   </SelectContent>
                 </Select>
               )}
             </FormField>
-            <FormField name="isOrganization" label={"This is an organization"}>
+            <FormField name="isOrganization" label={t("fieldIsOrganization")}>
               {({ field }) => (
                 <Switch
                   checked={field.value}
                   onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-                  aria-label={"This is an organization"}
+                  aria-label={t("fieldIsOrganization")}
                 />
               )}
             </FormField>
-            <FormField name="active" label={"Active"}>
+            <FormField name="active" label={t("statusActive")}>
               {({ field }) => (
                 <Switch
                   checked={field.value}
                   onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-                  aria-label={"Active"}
+                  aria-label={t("statusActive")}
                 />
               )}
             </FormField>

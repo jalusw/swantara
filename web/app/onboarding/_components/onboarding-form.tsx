@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { FormProvider } from "react-hook-form";
 import {
   Questionnaire,
@@ -13,6 +14,8 @@ import { ONBOARDING_ITEMS } from "./onboarding-utils";
 
 export default function OnboardingForm() {
   const { form, handleItemChange, handleSubmit } = useOnboardingForm({});
+  const t = useTranslations("Onboarding");
+  const tx = t as unknown as (key: string) => string;
   const step = useOnboardingFormStore((s) => s.step);
   const isPending = useOnboardingFormStore((s) => s.isPending);
 
@@ -31,7 +34,7 @@ export default function OnboardingForm() {
       >
         <CompanyInfoStep />
         <QuestionnaireActions>
-          <QuestionnaireSubmit disabled={isPending}>{"Create Company"}</QuestionnaireSubmit>
+          <QuestionnaireSubmit disabled={isPending}>{tx("createCompany")}</QuestionnaireSubmit>
         </QuestionnaireActions>
       </Questionnaire>
     </FormProvider>

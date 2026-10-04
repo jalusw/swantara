@@ -42,11 +42,11 @@ describe("SidebarTree branches2", () => {
     navigationMock.setPathname("/products/recipes");
     renderTree();
 
-    expect(screen.getByRole("link", { name: "Bills of materials" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Resep (BoM)" })).toHaveAttribute(
       "data-active",
       "true",
     );
-    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("data-active", "false");
+    expect(screen.getByRole("link", { name: "Dasbor" })).toHaveAttribute("data-active", "false");
   });
 
   it("renders nothing extra for an empty item list", () => {
@@ -58,8 +58,8 @@ describe("SidebarTree branches2", () => {
   it("renders former branch children as flat siblings", () => {
     renderTree();
 
-    expect(screen.getByRole("link", { name: "Bills of materials" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Resep (BoM)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Dasbor" })).toBeInTheDocument();
   });
 
   it("regression: renders no nested submenu elements", () => {

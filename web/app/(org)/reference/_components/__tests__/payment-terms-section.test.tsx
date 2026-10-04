@@ -11,16 +11,16 @@ async function addPercentTerm(
   name: string,
   values: string[],
 ) {
-  await user.click(screen.getByRole("button", { name: "Add term" }));
-  await user.type(screen.getByLabelText("Name"), name);
+  await user.click(screen.getByRole("button", { name: "Tambah syarat" }));
+  await user.type(screen.getByLabelText("Nama"), name);
   for (const [index, value] of values.entries()) {
     if (index > 0) {
-      await user.click(screen.getByRole("button", { name: "Add line" }));
+      await user.click(screen.getByRole("button", { name: "Tambah baris" }));
     }
-    await user.type(screen.getAllByLabelText("Value")[index]!, value);
-    await user.type(screen.getAllByLabelText("Due days")[index]!, "30");
+    await user.type(screen.getAllByLabelText("Nilai")[index]!, value);
+    await user.type(screen.getAllByLabelText("Hari jatuh tempo")[index]!, "30");
   }
-  await user.click(screen.getByRole("button", { name: "Save term" }));
+  await user.click(screen.getByRole("button", { name: "Simpan syarat" }));
 }
 
 describe("PaymentTermsSection", () => {
@@ -35,10 +35,10 @@ describe("PaymentTermsSection", () => {
     const user = userEvent.setup();
     renderWithProviders(<PaymentTermsSection orgId="1" />);
 
-    await user.click(screen.getByRole("button", { name: "Add term" }));
-    await user.click(screen.getByRole("button", { name: "Save term" }));
+    await user.click(screen.getByRole("button", { name: "Tambah syarat" }));
+    await user.click(screen.getByRole("button", { name: "Simpan syarat" }));
 
-    expect(screen.getByText("Enter a name.")).toBeInTheDocument();
+    expect(screen.getByText("Masukkan nama.")).toBeInTheDocument();
   });
 
   it("rejects percent lines that do not add up to 100", async () => {
@@ -48,7 +48,7 @@ describe("PaymentTermsSection", () => {
     await addPercentTerm(user, "60/60", ["60", "60"]);
 
     expect(
-      screen.getByText("Percent lines must add up to 100%. Current total: 120%."),
+      screen.getByText("Baris persen harus berjumlah 100%. Total saat ini: 120%."),
     ).toBeInTheDocument();
   });
 
@@ -67,9 +67,9 @@ describe("PaymentTermsSection", () => {
     renderWithProviders(<PaymentTermsSection orgId="1" />);
 
     await screen.findByText("Net 30");
-    await user.click(screen.getAllByRole("button", { name: "Delete" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Hapus" })[0]!);
     const dialog = screen.getByRole("alertdialog");
-    await user.click(within(dialog).getByRole("button", { name: "Delete" }));
+    await user.click(within(dialog).getByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(screen.queryByText("Net 30")).not.toBeInTheDocument());
   });

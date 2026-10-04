@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/button";
@@ -29,6 +30,7 @@ export type CartLine = {
 };
 
 export function PosRegister({ orgId, sessionId }: { orgId: string; sessionId: string }) {
+  const t = useTranslations("Pos");
   const [cart, setCart] = useState<CartLine[]>([]);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [receipt, setReceipt] = useState<{
@@ -99,7 +101,7 @@ export function PosRegister({ orgId, sessionId }: { orgId: string; sessionId: st
       taxIds: line.taxIds,
     }));
 
-    void getSwantaraService()
+    return getSwantaraService()
       .posOrders.create(Number(orgId), {
         sessionId: session.id,
         contactId: null,
@@ -107,7 +109,7 @@ export function PosRegister({ orgId, sessionId }: { orgId: string; sessionId: st
         payments,
       })
       .then(({ order }) => {
-        toast.success("Order placed successfully.");
+        toast.success(t("orderPlaced"));
         setPaymentOpen(false);
         setReceipt({
           orderId: order.id,
@@ -117,7 +119,8 @@ export function PosRegister({ orgId, sessionId }: { orgId: string; sessionId: st
         });
         clearCart();
         void sessionQuery.refetch();
-      });
+      })
+      .catch(() => {});
   }
 
   if (receipt) {
@@ -136,17 +139,17 @@ export function PosRegister({ orgId, sessionId }: { orgId: string; sessionId: st
     <div className="flex h-[calc(100dvh-4rem)] flex-col">
       <div className="flex items-center justify-between border-b px-4 py-2">
         <div className="flex items-center gap-3">
-          <h1 className="text-sm">{"POS Register"}</h1>
+          <h1 className="text-sm">{t("registerTitle")}</h1>
           {session ? (
             <span className="text-xs text-muted-foreground">
-              {"Session"}: Session-{session.id}
+              {t("session")}: {t("sessionFallback", { id: session.id })}
             </span>
           ) : null}
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">{"Items"}:</span>
+          <span className="text-sm text-muted-foreground">{t("items")}:</span>
           <span className="text-sm tabular-nums">{cart.reduce((sum, l) => sum + l.qty, 0)}</span>
-          <span className="text-sm text-muted-foreground ml-2">{"Total"}:</span>
+          <span className="text-sm text-muted-foreground ml-2">{t("colTotal")}:</span>
           <span className="text-base font-bold tabular-nums">{formatMoney(subtotal)}</span>
         </div>
       </div>
@@ -156,7 +159,7 @@ export function PosRegister({ orgId, sessionId }: { orgId: string; sessionId: st
           <PosProductGrid
             products={products}
             onAddItem={addItem}
-            searchPlaceholder={"Search products..."}
+            searchPlaceholder={t("searchProducts")}
           />
         </div>
 
@@ -175,7 +178,7 @@ export function PosRegister({ orgId, sessionId }: { orgId: string; sessionId: st
               disabled={cart.length === 0 || (session != null && !canPlaceOrder(session.state))}
               onClick={() => setPaymentOpen(true)}
             >
-              {"Pay"} — {formatMoney(subtotal)}
+              {t("pay")} — {formatMoney(subtotal)}
             </Button>
           </div>
         </div>

@@ -83,7 +83,7 @@ describe("ChartTooltipContent", () => {
       </ChartContainer>,
     );
     expect(screen.getAllByText("Revenue").length).toBeGreaterThan(0);
-    expect(screen.getByText("1,200")).toBeInTheDocument();
+    expect(screen.getByText("1.200")).toBeInTheDocument();
   });
 });
 

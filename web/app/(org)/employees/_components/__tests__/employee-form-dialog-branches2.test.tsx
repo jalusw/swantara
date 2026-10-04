@@ -49,7 +49,7 @@ describe("EmployeeFormDialog branches2", () => {
       />,
     );
 
-    expect(screen.getByText("Edit employee")).toBeInTheDocument();
+    expect(screen.getByText("Ubah karyawan")).toBeInTheDocument();
   });
 
   it("creates an employee with null optionals branch", async () => {
@@ -66,9 +66,9 @@ describe("EmployeeFormDialog branches2", () => {
       <EmployeeFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await user.type(screen.getByLabelText("Name"), "Ayu Lestari");
-    await user.type(screen.getByLabelText("Employee number"), "EMP-0099");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(screen.getByLabelText("Nama"), "Ayu Lestari");
+    await user.type(screen.getByLabelText("Nomor karyawan"), "EMP-0099");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
     expect(createBody).toMatchObject({ employee_number: "EMP-0099", user_id: null });
@@ -94,8 +94,8 @@ describe("EmployeeFormDialog branches2", () => {
       />,
     );
 
-    await user.type(screen.getByLabelText("Name"), "Budi Santoso");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(screen.getByLabelText("Nama"), "Budi Santoso");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
     expect(updateBody).toMatchObject({ department_id: null, job_position_id: null });
@@ -106,6 +106,6 @@ describe("EmployeeFormDialog branches2", () => {
       <EmployeeFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(screen.getByText("Add employee")).toBeInTheDocument();
+    expect(screen.getByText("Tambah Karyawan")).toBeInTheDocument();
   });
 });

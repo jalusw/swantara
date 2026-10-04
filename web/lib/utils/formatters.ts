@@ -6,7 +6,7 @@ type FormatterOptions = {
 };
 
 function resolveLocale(locale?: string): string {
-  return locale ?? "en-US";
+  return locale ?? "id-ID";
 }
 
 export function formatNumber(value: number, options: FormatterOptions = {}): string {
@@ -64,7 +64,7 @@ export function formatMoney(
   value: number | null | undefined,
   options: { locale?: string; currency?: string; nullFallback?: string } = {},
 ): string {
-  const { locale = "en-US", currency, nullFallback } = options;
+  const { locale = "id-ID", currency, nullFallback } = options;
   if (value == null) return nullFallback ?? "";
   return new Intl.NumberFormat(locale, {
     style: currency ? "currency" : "decimal",

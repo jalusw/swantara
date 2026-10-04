@@ -80,7 +80,7 @@ describe("OpportunitiesSection extra2", () => {
     renderWithProviders(<OpportunitiesSection orgId="1" />);
 
     await screen.findByText("Deal 11");
-    await user.click(screen.getAllByRole("button", { name: "Mark won" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Tandai menang" })[0]!);
 
     await waitFor(() => expect(winCalls).toBe(1));
   });
@@ -90,10 +90,10 @@ describe("OpportunitiesSection extra2", () => {
     renderWithProviders(<OpportunitiesSection orgId="1" />);
 
     await screen.findByText("Deal 11");
-    await user.click(screen.getAllByRole("button", { name: "Mark lost" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Tandai kalah" })[0]!);
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Explain why this deal was lost.")).toBeInTheDocument();
+    expect(screen.getByText("Jelaskan mengapa peluang ini kalah.")).toBeInTheDocument();
   });
 
   it("hides win and lose actions for closed opportunities", async () => {
@@ -104,8 +104,8 @@ describe("OpportunitiesSection extra2", () => {
     renderWithProviders(<OpportunitiesSection orgId="1" />);
 
     await screen.findByText("Deal 13");
-    expect(screen.getAllByRole("button", { name: "Mark won" })).toHaveLength(1);
-    expect(screen.getAllByRole("button", { name: "Mark lost" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Tandai menang" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Tandai kalah" })).toHaveLength(1);
   });
 
   it("deletes an opportunity from the row actions", async () => {
@@ -120,8 +120,11 @@ describe("OpportunitiesSection extra2", () => {
     renderWithProviders(<OpportunitiesSection orgId="1" />);
 
     await screen.findByText("Deal 11");
-    await user.click(screen.getAllByRole("button", { name: "Delete opportunity" })[0]!);
-    await user.click(await screen.findByRole("button", { name: "Delete" }));
+    const deleteTriggers = screen
+      .getAllByRole("button", { name: "Hapus peluang" })
+      .filter((el) => el.getAttribute("aria-haspopup") === "dialog");
+    await user.click(deleteTriggers[0]!);
+    await user.click(await screen.findByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(deleteCalls).toBe(1));
   });
@@ -131,9 +134,9 @@ describe("OpportunitiesSection extra2", () => {
     renderWithProviders(<OpportunitiesSection orgId="1" />);
 
     await screen.findByText("Deal 11");
-    await user.click(screen.getAllByRole("button", { name: "Edit opportunity" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Ubah peluang" })[0]!);
 
-    expect(await screen.findByText("Edit opportunity")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Ubah peluang" })).toBeInTheDocument();
   });
 
   it("shows the error state with retry", async () => {
@@ -145,6 +148,6 @@ describe("OpportunitiesSection extra2", () => {
     renderWithProviders(<OpportunitiesSection orgId="1" />);
 
     expect(await screen.findByText("opp boom")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 });

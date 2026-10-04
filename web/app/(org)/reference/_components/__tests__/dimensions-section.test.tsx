@@ -19,10 +19,10 @@ describe("DimensionsSection", () => {
     const user = userEvent.setup();
     renderWithProviders(<DimensionsSection orgId="1" />);
 
-    await user.click(screen.getByRole("button", { name: "Add account" }));
-    await user.click(screen.getByRole("button", { name: "Save account" }));
+    await user.click(screen.getByRole("button", { name: "Tambah akun" }));
+    await user.click(screen.getByRole("button", { name: "Simpan akun" }));
 
-    expect(screen.getByText("Enter a name.")).toBeInTheDocument();
+    expect(screen.getByText("Masukkan nama.")).toBeInTheDocument();
   });
 
   it("adds a new account to the tree", async () => {
@@ -30,10 +30,10 @@ describe("DimensionsSection", () => {
     renderWithProviders(<DimensionsSection orgId="1" />);
 
     await screen.findByText("Operating costs");
-    await user.click(screen.getByRole("button", { name: "Add account" }));
-    await user.type(screen.getByLabelText("Name"), "Travel");
-    await user.type(screen.getByLabelText("Code"), "OPEX-TRV");
-    await user.click(screen.getByRole("button", { name: "Save account" }));
+    await user.click(screen.getByRole("button", { name: "Tambah akun" }));
+    await user.type(screen.getByLabelText("Nama"), "Travel");
+    await user.type(screen.getByLabelText("Kode"), "OPEX-TRV");
+    await user.click(screen.getByRole("button", { name: "Simpan akun" }));
 
     expect(await screen.findByText("Travel")).toBeInTheDocument();
   });
@@ -43,9 +43,9 @@ describe("DimensionsSection", () => {
     renderWithProviders(<DimensionsSection orgId="1" />);
 
     await screen.findByText("Operating costs");
-    await user.click(screen.getAllByRole("button", { name: "Delete" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Hapus" })[0]!);
     const dialog = screen.getByRole("alertdialog");
-    await user.click(within(dialog).getByRole("button", { name: "Delete" }));
+    await user.click(within(dialog).getByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(screen.queryByText("Operating costs")).not.toBeInTheDocument());
   });

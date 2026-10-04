@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import type { CrmLead, PipelineForecast } from "@/lib/services/swantara";
 import { formatNumber } from "@/lib/utils";
@@ -16,6 +17,7 @@ export function CrmKpis({
   leads: CrmLead[];
   stagesCount: number;
 }) {
+  const t = useTranslations("Crm");
   const liveWeighted = weightedPipeline(
     opportunities.filter((o) => o.closedAt == null && o.lostReason == null),
   );
@@ -34,48 +36,46 @@ export function CrmKpis({
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-muted-foreground">{"Weighted pipeline"}</CardTitle>
+          <CardTitle className="text-sm text-muted-foreground">{t("kpiWeighted")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-2xl tabular-nums">{formatNumber(weighted)}</p>
-          <p className="text-xs text-muted-foreground">
-            {"Sum of expected revenue times probability"}
-          </p>
+          <p className="text-xs text-muted-foreground">{t("kpiWeightedHint")}</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-muted-foreground">{"Expected revenue"}</CardTitle>
+          <CardTitle className="text-sm text-muted-foreground">{t("kpiExpectedRevenue")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-2xl tabular-nums">{formatNumber(total)}</p>
           <p className="text-xs text-muted-foreground">
-            {"Open opportunities"}:{" "}
+            {t("kpiOpenDeals")}:{" "}
             {opportunities.filter((o) => o.closedAt == null && o.lostReason == null).length}
           </p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-muted-foreground">{"Win rate"}</CardTitle>
+          <CardTitle className="text-sm text-muted-foreground">{t("kpiWinRate")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-2xl tabular-nums">{formatNumber(rate)}%</p>
           <p className="text-xs text-muted-foreground">
-            {"Won"}: {won} · {"Lost"}: {lost}
+            {t("kpiWon")}: {won} · {t("kpiLost")}: {lost}
           </p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-muted-foreground">{"Open opportunities"}</CardTitle>
+          <CardTitle className="text-sm text-muted-foreground">{t("kpiOpenDeals")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-2xl tabular-nums">
             {opportunities.length + leads.filter((l) => l.type === "lead").length}
           </p>
           <p className="text-xs text-muted-foreground">
-            {stagesCount} {"Won divided by won plus lost"}
+            {stagesCount} {t("kpiWinRateHint")}
           </p>
         </CardContent>
       </Card>
@@ -88,8 +88,9 @@ export function CrmPipelineKpiWall({
 }: {
   pipeline: PipelineForecast | null | undefined;
 }) {
+  const t = useTranslations("Crm");
   if (!pipeline || pipeline.stages.length === 0) {
-    return <p className="text-sm text-muted-foreground">{"No forecast yet"}</p>;
+    return <p className="text-sm text-muted-foreground">{t("noForecast")}</p>;
   }
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

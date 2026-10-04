@@ -1,6 +1,7 @@
 "use client";
 
 import { SearchIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "./input";
@@ -16,10 +17,12 @@ export type EntityToolbarProps = {
 export function EntityToolbar({
   searchValue,
   onSearchChange,
-  searchPlaceholder = "Search…",
+  searchPlaceholder,
   children,
   className,
 }: EntityToolbarProps) {
+  const t = useTranslations("Common");
+  const placeholder = searchPlaceholder ?? `${t("search")}…`;
   return (
     <div
       data-slot="entity-toolbar"
@@ -37,7 +40,7 @@ export function EntityToolbar({
           type="search"
           value={searchValue}
           onChange={(event) => onSearchChange?.(event.target.value)}
-          placeholder={searchPlaceholder}
+          placeholder={placeholder}
           className="pl-9"
         />
       </div>

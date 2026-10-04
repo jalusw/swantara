@@ -23,8 +23,8 @@ describe("GiftCardFormDialog", () => {
       <GiftCardFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    expect(await screen.findByText("Issue gift card")).toBeInTheDocument();
-    expect(screen.getByLabelText("Amount")).toBeInTheDocument();
+    expect(await screen.findByText("Terbitkan kartu hadiah")).toBeInTheDocument();
+    expect(screen.getByLabelText("Jumlah")).toBeInTheDocument();
   });
 
   it("closes without saving from the cancel button", async () => {
@@ -34,8 +34,8 @@ describe("GiftCardFormDialog", () => {
       <GiftCardFormDialog open onOpenChange={onOpenChange} orgId="1" onSave={() => {}} />,
     );
 
-    await screen.findByText("Issue gift card");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByText("Terbitkan kartu hadiah");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

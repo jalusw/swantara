@@ -39,24 +39,24 @@ describe("CashFlowPage branches2", () => {
     useFlow(flow);
     renderWithProviders(<CashFlowPage />);
 
-    expect(await screen.findByText("Operating")).toBeInTheDocument();
-    expect(screen.getByText("IDR 500.00").className).toMatch("text-success");
-    expect(screen.getByText("IDR 200.00").className).toMatch("text-success");
-    expect(screen.getByText("IDR 100.00").className).toMatch("text-success");
-    expect(screen.getByText("IDR 800.00").className).toMatch("text-success");
-    expect(screen.getByText("IDR 5,000.00")).toBeInTheDocument();
-    expect(screen.getByText("IDR 5,800.00")).toBeInTheDocument();
+    expect(await screen.findByText("Operasi")).toBeInTheDocument();
+    expect(screen.getByText("Rp 500,00").className).toMatch("text-success");
+    expect(screen.getByText("Rp 200,00").className).toMatch("text-success");
+    expect(screen.getByText("Rp 100,00").className).toMatch("text-success");
+    expect(screen.getByText("Rp 800,00").className).toMatch("text-success");
+    expect(screen.getByText("Rp 5.000,00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 5.800,00")).toBeInTheDocument();
   });
 
   it("renders all-negative tones with destructive classes", async () => {
     useFlow({ ...flow, operating: -10, investing: -20, financing: -30, net_change: -60 });
     renderWithProviders(<CashFlowPage />);
 
-    expect(await screen.findByText("Operating")).toBeInTheDocument();
-    expect(screen.getByText("-IDR 10.00").className).toMatch("text-destructive");
-    expect(screen.getByText("-IDR 20.00").className).toMatch("text-destructive");
-    expect(screen.getByText("-IDR 30.00").className).toMatch("text-destructive");
-    expect(screen.getByText("-IDR 60.00").className).toMatch("text-destructive");
+    expect(await screen.findByText("Operasi")).toBeInTheDocument();
+    expect(screen.getByText("-Rp 10,00").className).toMatch("text-destructive");
+    expect(screen.getByText("-Rp 20,00").className).toMatch("text-destructive");
+    expect(screen.getByText("-Rp 30,00").className).toMatch("text-destructive");
+    expect(screen.getByText("-Rp 60,00").className).toMatch("text-destructive");
   });
 
   it("navigates back to the reports overview", async () => {
@@ -64,8 +64,8 @@ describe("CashFlowPage branches2", () => {
     useFlow(flow);
     renderWithProviders(<CashFlowPage />);
 
-    await screen.findByText("Operating");
-    await user.click(screen.getByRole("button", { name: "Back to reports" }));
+    await screen.findByText("Operasi");
+    await user.click(screen.getByRole("button", { name: "Kembali ke laporan" }));
 
     expect(navigationMock.push).toHaveBeenCalledWith("/reports");
   });

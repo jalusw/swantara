@@ -38,8 +38,10 @@ describe("RefundDialog", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Refund Return" })).toBeInTheDocument();
-    expect(screen.getByText("Create a credit note for the returned goods.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Refund Retur" })).toBeInTheDocument();
+    expect(
+      screen.getByText("Buat catatan kredit untuk barang yang dikembalikan."),
+    ).toBeInTheDocument();
   });
 
   it("accepts a reference through typing", async () => {

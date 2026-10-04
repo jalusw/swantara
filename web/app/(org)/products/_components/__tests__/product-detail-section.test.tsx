@@ -82,8 +82,8 @@ describe("ProductDetail", () => {
     renderWithProviders(<ProductDetail orgId="1" itemId="5" />);
 
     expect((await screen.findAllByText("Canvas Tote")).length).toBeGreaterThan(0);
-    expect(screen.getByText("General")).toBeInTheDocument();
-    expect(screen.getByText("Pricing")).toBeInTheDocument();
+    expect(screen.getByText("Umum")).toBeInTheDocument();
+    expect(screen.getByText("Harga")).toBeInTheDocument();
   });
 
   it("shows variants on the variants tab", async () => {
@@ -91,7 +91,7 @@ describe("ProductDetail", () => {
     renderWithProviders(<ProductDetail orgId="1" itemId="5" />);
 
     await screen.findAllByText("Canvas Tote");
-    await user.click(screen.getByRole("tab", { name: "Variants" }));
+    await user.click(screen.getByRole("tab", { name: "Varian" }));
 
     expect(await screen.findByText("TOTE-RED")).toBeInTheDocument();
   });
@@ -101,7 +101,7 @@ describe("ProductDetail", () => {
     renderWithProviders(<ProductDetail orgId="1" itemId="5" />);
 
     await screen.findAllByText("Canvas Tote");
-    await user.click(screen.getByRole("tab", { name: "Bills of materials" }));
+    await user.click(screen.getByRole("tab", { name: "Resep (BoM)" }));
 
     expect(await screen.findByText("BOM-TOTE-001")).toBeInTheDocument();
   });

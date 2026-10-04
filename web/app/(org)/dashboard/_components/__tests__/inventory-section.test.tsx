@@ -32,7 +32,7 @@ describe("InventoryOverview", () => {
   it("renders seeded inventory KPIs", async () => {
     renderWithProviders(<InventoryOverview />);
 
-    expect(await screen.findByText("IDR 12,500.50")).toBeInTheDocument();
+    expect(await screen.findByText("Rp 12.500,50")).toBeInTheDocument();
     expect(screen.getAllByText("320").length).toBeGreaterThan(0);
     expect(screen.getAllByText("48").length).toBeGreaterThan(0);
   });
@@ -41,10 +41,10 @@ describe("InventoryOverview", () => {
     const user = userEvent.setup();
     renderWithProviders(<InventoryOverview />);
 
-    await screen.findByText("IDR 12,500.50");
-    await user.click(screen.getByText("Inventory"));
+    await screen.findByText("Rp 12.500,50");
+    await user.click(screen.getByText("Persediaan"));
 
-    expect(screen.getByText("IDR 12,500.50")).toBeInTheDocument();
+    expect(screen.getByText("Rp 12.500,50")).toBeInTheDocument();
   });
 
   it("renders dashes when the KPI is missing", async () => {
@@ -56,7 +56,7 @@ describe("InventoryOverview", () => {
     renderWithProviders(<InventoryOverview />);
 
     expect((await screen.findAllByText("—")).length).toBeGreaterThan(0);
-    expect(screen.queryByText("IDR 12,500.50")).not.toBeInTheDocument();
+    expect(screen.queryByText("Rp 12.500,50")).not.toBeInTheDocument();
   });
 });
 
@@ -74,7 +74,7 @@ describe("InventoryHealthSection", () => {
     renderWithProviders(<InventoryHealthSection />);
 
     await screen.findByText("4.25");
-    await user.click(screen.getAllByText("Inventory health")[0]!);
+    await user.click(screen.getAllByText("Kesehatan persediaan")[0]!);
 
     expect(screen.getByText("4.25")).toBeInTheDocument();
   });

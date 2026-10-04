@@ -46,7 +46,7 @@ describe("CountDetail", () => {
     renderWithProviders(<CountDetail orgId="1" countId="11" />);
 
     expect((await screen.findAllByText("IC-0011")).length).toBeGreaterThan(0);
-    expect(screen.getByText("Difference preview")).toBeInTheDocument();
+    expect(screen.getByText("Pratinjau selisih")).toBeInTheDocument();
   });
 
   it("opens the posting confirmation dialog", async () => {
@@ -54,8 +54,8 @@ describe("CountDetail", () => {
     renderWithProviders(<CountDetail orgId="1" countId="11" />);
 
     await screen.findAllByText("IC-0011");
-    await user.click(screen.getByRole("button", { name: "Post count" }));
+    await user.click(screen.getByRole("button", { name: "Posting opname" }));
 
-    expect(await screen.findByText(/Are you sure/)).toBeInTheDocument();
+    expect(await screen.findByText(/Yakin ingin memposting/)).toBeInTheDocument();
   });
 });

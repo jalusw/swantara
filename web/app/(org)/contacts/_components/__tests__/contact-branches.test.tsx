@@ -82,10 +82,10 @@ describe("ContactFormDialog branches", () => {
       <ContactFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New contact");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Kontak baru");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Enter a name.")).toBeInTheDocument();
+    expect(await screen.findByText("Masukkan nama.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -97,12 +97,12 @@ describe("ContactFormDialog branches", () => {
       <ContactFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New contact");
-    await user.type(screen.getByPlaceholderText("Name"), "Acme");
+    await screen.findByText("Kontak baru");
+    await user.type(screen.getByPlaceholderText("Nama"), "Acme");
     await user.type(screen.getByPlaceholderText("Email"), "not-an-email");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Enter a valid email address.")).toBeInTheDocument();
+    expect(await screen.findByText("Masukkan alamat email yang valid.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -114,9 +114,9 @@ describe("ContactFormDialog branches", () => {
       <ContactFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New contact");
-    await user.type(screen.getByPlaceholderText("Name"), "Acme");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Kontak baru");
+    await user.type(screen.getByPlaceholderText("Nama"), "Acme");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -129,18 +129,18 @@ describe("ContactFormDialog branches", () => {
       <ContactFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New contact");
-    await user.type(screen.getByPlaceholderText("Name"), "PT Nusantara");
-    await user.type(screen.getByPlaceholderText("Display name"), "Nusantara");
+    await screen.findByText("Kontak baru");
+    await user.type(screen.getByPlaceholderText("Nama"), "PT Nusantara");
+    await user.type(screen.getByPlaceholderText("Nama tampilan"), "Nusantara");
     await user.type(screen.getByPlaceholderText("Email"), "finance@nusantara.id");
-    await user.type(screen.getByPlaceholderText("Phone"), "+62 21");
-    await user.type(screen.getByPlaceholderText("Mobile"), "+62 811");
-    await user.type(screen.getByPlaceholderText("Website"), "https://nusantara.id");
-    await user.type(screen.getByPlaceholderText("Tax ID"), "02.345");
-    await user.type(screen.getByPlaceholderText("Industry"), "logistics");
-    await user.click(screen.getByRole("switch", { name: "This is an organization" }));
-    await user.click(screen.getByRole("switch", { name: "Active" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(screen.getByPlaceholderText("Telepon"), "+62 21");
+    await user.type(screen.getByPlaceholderText("Seluler"), "+62 811");
+    await user.type(screen.getByPlaceholderText("Situs web"), "https://nusantara.id");
+    await user.type(screen.getByPlaceholderText("NPWP"), "02.345");
+    await user.type(screen.getByPlaceholderText("Industri"), "logistics");
+    await user.click(screen.getByRole("switch", { name: "Ini adalah organisasi" }));
+    await user.click(screen.getByRole("switch", { name: "Aktif" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -153,11 +153,11 @@ describe("ContactFormDialog branches", () => {
       <ContactFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New contact");
-    await user.type(screen.getByPlaceholderText("Name"), "PT Nusantara");
-    await user.click(screen.getByRole("combobox", { name: "Language" }));
+    await screen.findByText("Kontak baru");
+    await user.type(screen.getByPlaceholderText("Nama"), "PT Nusantara");
+    await user.click(screen.getByRole("combobox", { name: "Bahasa" }));
     await user.click(await screen.findByRole("option", { name: "Bahasa Indonesia" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -170,11 +170,11 @@ describe("ContactFormDialog branches", () => {
       <ContactFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("New contact");
-    await user.type(screen.getByPlaceholderText("Name"), "Acme");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Kontak baru");
+    await user.type(screen.getByPlaceholderText("Nama"), "Acme");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("New contact")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Kontak baru")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -192,8 +192,8 @@ describe("ContactFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit contact");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah kontak");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -212,10 +212,10 @@ describe("ContactFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit contact");
+    await screen.findByText("Ubah kontak");
     expect(screen.getByDisplayValue("Nusantara")).toBeInTheDocument();
     await user.clear(screen.getByDisplayValue("Nusantara"));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });
@@ -234,10 +234,10 @@ describe("ContactFormDialog branches", () => {
       />,
     );
 
-    await screen.findByText("Edit contact");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Ubah kontak");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("Edit contact")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Ubah kontak")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -248,8 +248,8 @@ describe("ContactFormDialog branches", () => {
       <ContactFormDialog open={true} onOpenChange={onOpenChange} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("New contact");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByText("Kontak baru");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

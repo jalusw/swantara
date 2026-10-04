@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Button } from "@/components/button";
@@ -13,6 +14,8 @@ import { formatDate } from "@/lib/utils";
 import { MaintenancePlanFormDialog } from "./maintenance-plan-form-dialog";
 
 export function MaintenancePlansSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Service");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const query = useOrgListQuery<{ maintenancePlans: MaintenancePlan[] }, Record<string, never>>(
@@ -30,19 +33,21 @@ export function MaintenancePlansSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<MaintenancePlan>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("colName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "intervalDays",
-      header: "Interval (days)",
+      header: t("intervalDays"),
       cell: ({ row }) => (
-        <span className="text-sm tabular-nums">{row.original.intervalDays} days</span>
+        <span className="text-sm tabular-nums">
+          {t("daysCount", { count: row.original.intervalDays })}
+        </span>
       ),
     },
     {
       accessorKey: "nextDue",
-      header: "Next due",
+      header: t("nextDue"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {row.original.nextDue ? formatDate(String(row.original.nextDue)) : "—"}
@@ -51,8 +56,10 @@ export function MaintenancePlansSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "active",
-      header: "Active",
-      cell: ({ row }) => <span className="text-sm">{row.original.active ? "Yes" : "No"}</span>,
+      header: t("active"),
+      cell: ({ row }) => (
+        <span className="text-sm">{row.original.active ? tCommon("yes") : tCommon("no")}</span>
+      ),
     },
   ];
 
@@ -61,7 +68,7 @@ export function MaintenancePlansSection({ orgId }: { orgId: string }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>{"Total Plans"}</CardTitle>
+            <CardTitle>{t("totalPlans")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">{plans.length}</p>
@@ -73,9 +80,9 @@ export function MaintenancePlansSection({ orgId }: { orgId: string }) {
         data={plans}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
-        searchPlaceholder={"Search plans…"}
-        ariaLabel={"Maintenance plans"}
-        emptyTitle={"No maintenance plans yet"}
+        searchPlaceholder={t("plansSearchPlaceholder")}
+        ariaLabel={t("plansTitle")}
+        emptyTitle={t("plansEmpty")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -90,7 +97,7 @@ export function MaintenancePlansSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Create plan"}</span>
+            <span>{t("newPlan")}</span>
           </Button>
         }
       />

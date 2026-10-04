@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
@@ -38,6 +39,7 @@ function toSupplierRow(contact: Contact): SupplierRow {
 }
 
 export function SuppliersTable() {
+  const t = useTranslations("Purchases");
   const query = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
     "suppliers",
     (organizationId) => getSwantaraService().contacts.list(organizationId),
@@ -45,10 +47,18 @@ export function SuppliersTable() {
 
   const suppliers = (query.data?.contacts ?? []).map(toSupplierRow);
 
+  function statusLabel(status: SupplierRow["status"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`supplierStatus.${status}`);
+    } catch {
+      return humanizeKey(String(status));
+    }
+  }
+
   const columns: ColumnDef<SupplierRow>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="">{row.original.name}</span>
@@ -58,12 +68,12 @@ export function SuppliersTable() {
     },
     {
       accessorKey: "category",
-      header: "Category",
+      header: t("tableCategory"),
       cell: ({ row }) => <Badge variant="secondary">{row.original.category}</Badge>,
     },
     {
       accessorKey: "rating",
-      header: "Rating",
+      header: t("tableRating"),
       cell: ({ row }) => (
         <span className=" tabular-nums">
           {row.original.rating > 0 ? row.original.rating.toFixed(1) : "—"}
@@ -73,19 +83,19 @@ export function SuppliersTable() {
     },
     {
       accessorKey: "leadTime",
-      header: "Lead time",
+      header: t("tableLeadTime"),
       cell: ({ row }) => <span className="text-muted-foreground">{row.original.leadTime}</span>,
     },
     {
       accessorKey: "orders",
-      header: "Orders",
+      header: t("tableOrders"),
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">{row.original.orders}</span>
       ),
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: t("tableStatus"),
       cell: ({ row }) => {
         const toneMap: Record<SupplierRow["status"], "success" | "warning" | "neutral"> = {
           active: "success",
@@ -95,14 +105,14 @@ export function SuppliersTable() {
         return (
           <StateBadge
             tone={toneMap[row.original.status]}
-            label={humanizeKey(String(row.original.status))}
+            label={statusLabel(row.original.status)}
           />
         );
       },
     },
     {
       accessorKey: "since",
-      header: "Since",
+      header: t("tableSince"),
       cell: ({ row }) => <span className="text-muted-foreground">{row.original.since}</span>,
     },
   ];
@@ -115,14 +125,14 @@ export function SuppliersTable() {
       searchKeys={["name", "contact", "category"]}
       statusKey="status"
       statusOptions={[
-        { value: "active", label: "Active" },
-        { value: "review", label: "Under review" },
-        { value: "inactive", label: "Inactive" },
+        { value: "active", label: t("supplierStatusActive") },
+        { value: "review", label: t("supplierStatusReview") },
+        { value: "inactive", label: t("supplierStatusInactive") },
       ]}
-      searchPlaceholder={"Search suppliers…"}
-      filterLabel={"Filter by status"}
-      allLabel={"All statuses"}
-      ariaLabel={"All suppliers"}
+      searchPlaceholder={t("searchSuppliersPlaceholder")}
+      filterLabel={t("filterByStatus")}
+      allLabel={t("allStatuses")}
+      ariaLabel={t("allSuppliers")}
       status={
         query.isLoading
           ? { type: "loading" }
@@ -137,7 +147,7 @@ export function SuppliersTable() {
       actions={
         <Button size="sm">
           <Plus />
-          <span>{"Add supplier"}</span>
+          <span>{t("addSupplier")}</span>
         </Button>
       }
     />

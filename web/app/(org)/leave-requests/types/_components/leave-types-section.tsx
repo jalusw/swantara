@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -15,6 +16,8 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { LeaveTypeFormDialog } from "./leave-type-form-dialog";
 
 export function LeaveTypesSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Leave");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<LeaveType | null>(null);
 
@@ -38,21 +41,21 @@ export function LeaveTypesSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<LeaveType>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("fieldName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "paid",
-      header: "Paid",
+      header: t("fieldPaid"),
       cell: ({ row }) => (
         <ActiveBadge active={row.original.paid}>
-          {row.original.paid ? "Paid" : "Unpaid"}
+          {row.original.paid ? t("paidLabel") : t("unpaidLabel")}
         </ActiveBadge>
       ),
     },
     {
       accessorKey: "allocationDays",
-      header: "Allocation days",
+      header: t("fieldAllocationDays"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
@@ -65,16 +68,16 @@ export function LeaveTypesSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Delete this leave type?"}
-          confirmDescription={"The leave type will no longer be available."}
+          editLabel={tCommon("edit")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("deleteLeaveTypeTitle")}
+          confirmDescription={t("deleteLeaveTypeDescription")}
           onEdit={() => openEdit(row.original)}
           onDelete={() =>
             void getSwantaraService()
               .leaveTypes.delete(Number(orgId), row.original.id)
               .then(() => void query.refetch())
-              .catch(() => toast.error("Could not disable the organization."))
+              .catch(() => toast.error(t("deleteFailed")))
           }
         />
       ),
@@ -88,12 +91,12 @@ export function LeaveTypesSection({ orgId }: { orgId: string }) {
         data={leaveTypes}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
-        searchPlaceholder={"Search leave types…"}
+        searchPlaceholder={t("searchLeaveTypesPlaceholder")}
         filterLabel=""
         statusOptions={[]}
         allLabel=""
-        ariaLabel={"Leave types"}
-        emptyTitle={"No leave types"}
+        ariaLabel={t("typesTitle")}
+        emptyTitle={t("emptyLeaveTypes")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -108,7 +111,7 @@ export function LeaveTypesSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={openCreate}>
             <Plus />
-            <span>{"Add leave type"}</span>
+            <span>{t("addLeaveType")}</span>
           </Button>
         }
       />

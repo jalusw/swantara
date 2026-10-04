@@ -42,7 +42,7 @@ describe("FixedAssetDetail", () => {
     renderWithProviders(<FixedAssetDetail orgId="1" assetId="1" />);
 
     expect(await screen.findByRole("heading", { name: "Laptop ThinkPad" })).toBeInTheDocument();
-    expect(screen.getAllByText("IDR 1,500.00").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Rp 1.500,00").length).toBeGreaterThan(0);
   });
 
   it("switches to depreciation schedule tab", async () => {
@@ -50,10 +50,10 @@ describe("FixedAssetDetail", () => {
     renderWithProviders(<FixedAssetDetail orgId="1" assetId="1" />);
 
     await screen.findByRole("heading", { name: "Laptop ThinkPad" });
-    await user.click(screen.getByRole("tab", { name: "Depreciation schedule" }));
+    await user.click(screen.getByRole("tab", { name: "Jadwal penyusutan" }));
 
     expect(
-      await screen.findByText("No depreciation schedule. Generate one to get started."),
+      await screen.findByText("Belum ada jadwal penyusutan. Buat jadwal untuk memulai."),
     ).toBeInTheDocument();
   });
 });

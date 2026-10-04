@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
@@ -21,6 +22,7 @@ import {
 import { LeaveRequestFormDialog } from "./leave-request-form-dialog";
 
 export function LeaveRequestsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Leave");
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -80,10 +82,18 @@ export function LeaveRequestsSection({ orgId }: { orgId: string }) {
     actionMutation.mutate({ action, id });
   }
 
+  function stateLabel(state: LeaveRequest["state"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`state.${state}`);
+    } catch {
+      return humanizeKey(String(state));
+    }
+  }
+
   const columns: ColumnDef<LeaveRequest>[] = [
     {
       accessorKey: "employeeId",
-      header: "Employee",
+      header: t("fieldEmployee"),
       cell: ({ row }) => (
         <span className="">
           {employeeNameMap.get(row.original.employeeId) ?? `#${row.original.employeeId}`}
@@ -92,7 +102,7 @@ export function LeaveRequestsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "leaveTypeId",
-      header: "Leave type",
+      header: t("fieldLeaveType"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {leaveTypeMap.get(row.original.leaveTypeId) ?? `#${row.original.leaveTypeId}`}
@@ -101,7 +111,7 @@ export function LeaveRequestsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "dateFrom",
-      header: "Period",
+      header: t("tablePeriod"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {formatDate(row.original.dateFrom)} – {formatDate(row.original.dateTo)}
@@ -110,18 +120,18 @@ export function LeaveRequestsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "days",
-      header: "Days",
+      header: t("fieldDays"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums ">{formatNumber(row.original.days)}</span>,
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("tableStatus"),
       cell: ({ row }) => {
         const tone = leaveRequestStateTone(row.original.state);
         return (
           <Badge variant="outline" className={tone}>
-            {humanizeKey(String(row.original.state))}
+            {stateLabel(row.original.state)}
           </Badge>
         );
       },
@@ -141,7 +151,7 @@ export function LeaveRequestsSection({ orgId }: { orgId: string }) {
                 disabled={actionMutation.isPending}
                 onClick={() => handleAction("submit", id)}
               >
-                {"Submit"}
+                {t("actionSubmit")}
               </Button>
             ) : null}
             {canApprove(state) ? (
@@ -150,7 +160,7 @@ export function LeaveRequestsSection({ orgId }: { orgId: string }) {
                 disabled={actionMutation.isPending}
                 onClick={() => handleAction("approve", id)}
               >
-                {"Approve"}
+                {t("actionApprove")}
               </Button>
             ) : null}
             {canRefuse(state) ? (
@@ -160,7 +170,7 @@ export function LeaveRequestsSection({ orgId }: { orgId: string }) {
                 disabled={actionMutation.isPending}
                 onClick={() => handleAction("refuse", id)}
               >
-                {"Refuse"}
+                {t("actionRefuse")}
               </Button>
             ) : null}
           </div>
@@ -193,16 +203,16 @@ export function LeaveRequestsSection({ orgId }: { orgId: string }) {
         searchKeys={["employeeId"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "submitted", label: "Submitted" },
-          { value: "approved", label: "Approved" },
-          { value: "refused", label: "Refused" },
+          { value: "draft", label: t("stateDraft") },
+          { value: "submitted", label: t("stateSubmitted") },
+          { value: "approved", label: t("stateApproved") },
+          { value: "refused", label: t("stateRefused") },
         ]}
-        searchPlaceholder={"Search requests…"}
-        filterLabel={"State"}
-        allLabel={"All"}
-        ariaLabel={"Leave requests"}
-        emptyTitle={"No leave requests found"}
+        searchPlaceholder={t("searchPlaceholder")}
+        filterLabel={t("tableStatus")}
+        allLabel={t("allLabel")}
+        ariaLabel={t("title")}
+        emptyTitle={t("emptyRequests")}
         status={
           isLoading
             ? { type: "loading" }
@@ -217,7 +227,7 @@ export function LeaveRequestsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Add request"}</span>
+            <span>{t("addRequest")}</span>
           </Button>
         }
       />

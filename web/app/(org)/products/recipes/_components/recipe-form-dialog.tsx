@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -15,41 +16,47 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { Unit } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatNumber } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { bomTypes, type StubItem } from "../../_components/products-data";
 
-const lineSchemaShape = () =>
-  z.object({
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
+function useLineSchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  return z.object({
     id: z.string(),
-    componentId: z.string().min(1, "Select a component."),
+    componentId: z.string().min(1, t("validationComponentRequired")),
     qty: z
       .string()
-      .min(1, "Enter a quantity.")
-      .refine((value) => Number(value) > 0, "Quantity must be greater than zero."),
+      .min(1, t("validationQtyRequired"))
+      .refine((value) => Number(value) > 0, t("validationQtyPositive")),
     unitId: z.string(),
-    scrapPct: z.string().refine((value) => Number(value) >= 0, "Scrap must be zero or more."),
+    scrapPct: z.string().refine((value) => Number(value) >= 0, t("validationScrapNonNegative")),
   });
+}
 
-const buildSchema = () =>
-  z.object({
-    itemId: z.string().min(1, "Select a item."),
+function useRecipeSchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  const lineSchema = useLineSchema();
+  return z.object({
+    itemId: z.string().min(1, t("validationItemRequired")),
     code: z.string(),
     type: z.enum(bomTypes),
     qty: z
       .string()
-      .min(1, "Enter a quantity.")
-      .refine((value) => Number(value) > 0, "Quantity must be greater than zero."),
+      .min(1, t("validationQtyRequired"))
+      .refine((value) => Number(value) > 0, t("validationQtyPositive")),
     unitId: z.string(),
     version: z
       .string()
-      .min(1, "Enter a version number.")
-      .refine((value) => Number(value) >= 1, "Enter a version number."),
+      .min(1, t("validationVersionRequired"))
+      .refine((value) => Number(value) >= 1, t("validationVersionRequired")),
     active: z.boolean(),
-    lines: z.array(lineSchemaShape()).min(1, "Add at least one component."),
+    lines: z.array(lineSchema).min(1, t("validationLinesRequired")),
   });
+}
 
-type Values = z.infer<ReturnType<typeof buildSchema>>;
-type LineValues = z.infer<ReturnType<typeof lineSchemaShape>>;
+type Values = z.infer<ReturnType<typeof useRecipeSchema>>;
+type LineValues = z.infer<ReturnType<typeof useLineSchema>>;
 
 function bomLineTotalQty(line: { qty: number; scrapPct: number }): number {
   return line.qty * (1 + line.scrapPct / 100);
@@ -89,6 +96,9 @@ export function BomFormDialog({
   nextVersion?: number;
   onSave: () => void;
 }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  const tCommon = useTranslations("Common");
+  const schema = useRecipeSchema();
   const unitsQuery = useOrgListQuery<{ units: Unit[] }, Record<string, never>>("units", () =>
     getSwantaraService().units.list(),
   );
@@ -98,7 +108,7 @@ export function BomFormDialog({
   }));
 
   const form = useForm<Values>({
-    resolver: zodResolver(buildSchema()),
+    resolver: zodResolver(schema),
     defaultValues: initial ? toValues(initial, initialLines ?? []) : emptyValues(nextVersion),
   });
   const { fields, append, remove } = useFieldArray({
@@ -111,7 +121,7 @@ export function BomFormDialog({
     const numId = initial ? Number(initial.id) || 0 : 0;
 
     if (initial) {
-      void getSwantaraService()
+      return getSwantaraService()
         .recipes.update(Number(orgId) || 0, numId, {
           organizationId: Number(orgId) || 0,
           itemId: Number(values.itemId) || 0,
@@ -123,12 +133,12 @@ export function BomFormDialog({
           active: values.active,
         })
         .then(() => {
-          toast.success("Bill of materials saved.");
+          toast.success(t("toastRecipeSaved"));
           onSave();
         })
-        .catch(() => toast.error("Something went wrong. Please try again."));
+        .catch(() => void toast.error(t("toastFailed")));
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .recipes.create(Number(orgId) || 0, {
           organizationId: Number(orgId) || 0,
           itemId: Number(values.itemId) || 0,
@@ -145,10 +155,10 @@ export function BomFormDialog({
           })),
         })
         .then(() => {
-          toast.success("Bill of materials saved.");
+          toast.success(t("toastRecipeSaved"));
           onSave();
         })
-        .catch(() => toast.error("Something went wrong. Please try again."));
+        .catch(() => void toast.error(t("toastFailed")));
     }
   }
 
@@ -168,20 +178,20 @@ export function BomFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={initial ? "Edit bill of materials" : "New bill of materials"}
-      description={
-        "Recipes that define how manufactured, kit, and subcontracted products are assembled."
-      }
+      title={initial ? t("editRecipe") : t("newRecipe")}
+      description={t("recipesDescription")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-3xl"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField name="itemId" label={"Item"}>
+        <FormField name="itemId" label={t("fieldItem")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Item"}>
-                <SelectValue placeholder={"Item"} />
+              <SelectTrigger id={id} aria-label={t("fieldItem")}>
+                <SelectValue placeholder={t("fieldItem")} />
               </SelectTrigger>
               <SelectContent>
                 {templates.map((template) => (
@@ -193,38 +203,38 @@ export function BomFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="code" label={"Reference"}>
+        <FormField name="code" label={t("colReference")}>
           {({ field, id }) => <Input {...field} id={id} placeholder={"BOM/..."} />}
         </FormField>
-        <FormField name="type" label={"Type"}>
+        <FormField name="type" label={t("fieldType")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Type"}>
+              <SelectTrigger id={id} aria-label={t("fieldType")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {bomTypes.map((bomType) => (
                   <SelectItem key={bomType} value={bomType}>
-                    {humanizeKey(String(bomType))}
+                    {(t as unknown as (k: string) => string)(`recipeType_${bomType}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           )}
         </FormField>
-        <FormField name="version" label={"Version"}>
+        <FormField name="version" label={t("colVersion")}>
           {({ field, id }) => <Input {...field} id={id} type="number" min="1" step="1" />}
         </FormField>
-        <FormField name="qty" label={"Quantity"}>
+        <FormField name="qty" label={t("colQuantity")}>
           {({ field, id }) => (
             <Input {...field} id={id} type="number" min="0" step="any" inputMode="decimal" />
           )}
         </FormField>
-        <FormField name="unitId" label={"Unit of measure"}>
+        <FormField name="unitId" label={t("fieldUnit")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Unit of measure"}>
-                <SelectValue placeholder={"Unit of measure"} />
+              <SelectTrigger id={id} aria-label={t("fieldUnit")}>
+                <SelectValue placeholder={t("fieldUnit")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>
@@ -237,29 +247,27 @@ export function BomFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="active" label={"Active"}>
+        <FormField name="active" label={t("active")}>
           {({ field }) => (
             <Switch
               checked={field.value}
               onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-              aria-label={"Active"}
+              aria-label={t("active")}
             />
           )}
         </FormField>
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-sm">{"Components"}</p>
-        <p className="text-xs text-muted-foreground">
-          {"Components consumed per produced quantity, including scrap allowance."}
-        </p>
+        <p className="text-sm">{t("components")}</p>
+        <p className="text-xs text-muted-foreground">{t("componentsDescription")}</p>
         {fields.map((field, index) => (
           <div key={field.id} className="flex items-start gap-2">
             <FormField name={`lines.${index}.componentId`}>
               {({ field: lineField, id }) => (
                 <Select value={lineField.value} onValueChange={lineField.onChange}>
-                  <SelectTrigger id={id} aria-label={"Component"}>
-                    <SelectValue placeholder={"Component"} />
+                  <SelectTrigger id={id} aria-label={t("component")}>
+                    <SelectValue placeholder={t("component")} />
                   </SelectTrigger>
                   <SelectContent>
                     {templates.map((template) => (
@@ -280,8 +288,8 @@ export function BomFormDialog({
                   min="0"
                   step="any"
                   inputMode="decimal"
-                  placeholder={"Quantity"}
-                  aria-label={"Quantity"}
+                  placeholder={t("colQuantity")}
+                  aria-label={t("colQuantity")}
                   className="w-24"
                 />
               )}
@@ -295,8 +303,8 @@ export function BomFormDialog({
                   min="0"
                   step="any"
                   inputMode="decimal"
-                  placeholder={"Scrap %"}
-                  aria-label={"Scrap %"}
+                  placeholder={t("scrapPct")}
+                  aria-label={t("scrapPct")}
                   className="w-20"
                 />
               )}
@@ -306,7 +314,7 @@ export function BomFormDialog({
               variant="ghost"
               size="icon"
               onClick={() => remove(index)}
-              aria-label={"Remove line"}
+              aria-label={t("removeLine")}
             >
               <X />
             </Button>
@@ -315,10 +323,10 @@ export function BomFormDialog({
         <div className="flex items-center justify-between">
           <Button type="button" size="sm" variant="outline" onClick={() => append(emptyLine())}>
             <Plus />
-            <span>{"Add component"}</span>
+            <span>{t("addComponent")}</span>
           </Button>
           <span className="text-sm text-muted-foreground">
-            {`Total incl. scrap: ${formatNumber(totalWithScrap)}`}
+            {t("totalInclScrap", { value: formatNumber(totalWithScrap) })}
           </span>
         </div>
       </div>

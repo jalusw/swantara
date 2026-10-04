@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
 import { DetailsList } from "@/components/details-list";
 import type { Contact } from "@/lib/services/swantara";
@@ -15,33 +16,34 @@ export function ContactOverview({
   contact: Contact;
   onRefetch: () => void;
 }) {
+  const t = useTranslations("Contacts");
   const items = [
-    { id: "name", label: "Name", value: contact.name },
+    { id: "name", label: t("fieldName"), value: contact.name },
     {
       id: "type",
-      label: "Type",
-      value: contact.isOrganization ? "Organization" : "Individual",
+      label: t("fieldType"),
+      value: contact.isOrganization ? t("typeOrganization") : t("typeIndividual"),
     },
-    { id: "email", label: "Email", value: contact.email || "—" },
-    { id: "phone", label: "Phone", value: contact.phone || "—" },
-    { id: "mobile", label: "Mobile", value: contact.mobile || "—" },
-    { id: "website", label: "Website", value: contact.website || "—" },
-    { id: "taxId", label: "Tax ID", value: contact.taxId || "—" },
-    { id: "industry", label: "Industry", value: contact.industry || "—" },
+    { id: "email", label: t("fieldEmail"), value: contact.email || "—" },
+    { id: "phone", label: t("fieldPhone"), value: contact.phone || "—" },
+    { id: "mobile", label: t("fieldMobile"), value: contact.mobile || "—" },
+    { id: "website", label: t("fieldWebsite"), value: contact.website || "—" },
+    { id: "taxId", label: t("fieldTaxId"), value: contact.taxId || "—" },
+    { id: "industry", label: t("fieldIndustry"), value: contact.industry || "—" },
     {
       id: "currency",
-      label: "Currency",
+      label: t("fieldCurrency"),
       value: contact.currencyCode || "—",
     },
-    { id: "lang", label: "Language", value: contact.lang || "—" },
+    { id: "lang", label: t("fieldLanguage"), value: contact.lang || "—" },
   ];
 
   return (
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle>{"Identity"}</CardTitle>
-          <CardDescription>{"Core details about this contact."}</CardDescription>
+          <CardTitle>{t("identity")}</CardTitle>
+          <CardDescription>{t("identityDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <DetailsList items={items} layout="grid" columns={3} />
@@ -50,13 +52,11 @@ export function ContactOverview({
 
       <Card>
         <CardHeader>
-          <CardTitle>{"Roles"}</CardTitle>
-          <CardDescription>{"Enable the role extensions this contact uses."}</CardDescription>
+          <CardTitle>{t("rolesTitle")}</CardTitle>
+          <CardDescription>{t("rolesDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            {"No roles enabled. This contact is used as a contact only."}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("rolesEmpty")}</p>
         </CardContent>
       </Card>
     </div>

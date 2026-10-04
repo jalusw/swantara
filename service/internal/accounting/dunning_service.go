@@ -126,7 +126,7 @@ func (s ReminderService) Generate(ctx context.Context, request GenerateReminderR
 		}
 		err = s.tx.Run(ctx, func(tx *gorm.DB) error {
 			var err error
-			action, err = s.actions.Create(ctx, action)
+			action, err = s.actions.CreateTx(ctx, tx, action)
 			return err
 		})
 		if err != nil {

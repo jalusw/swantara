@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -22,7 +23,6 @@ import { useOrgQuery } from "@/lib/hooks/use-org-query";
 import type { AssetDepreciationLine, FixedAsset } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney, getLocalDateString } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import {
   canDispose,
   canGenerateSchedule,
@@ -33,6 +33,7 @@ import {
 } from "../../_components/fixed-asset-utils";
 
 export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: string }) {
+  const t = useTranslations("FixedAssets");
   const queryClient = useQueryClient();
   const typeId = useId();
   const proceedsId = useId();
@@ -58,10 +59,10 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
         queryKey: ["fixedAsset", Number(orgId), Number(assetId)],
       });
       void queryClient.invalidateQueries({ queryKey: ["fixedAssets"] });
-      toast.success("Depreciation schedule generated");
+      toast.success(t("toastScheduleGenerated"));
     },
     onError: () => {
-      toast.error("Action failed");
+      toast.error(t("toastActionFailed"));
     },
   });
 
@@ -76,10 +77,10 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
         queryKey: ["fixedAsset", Number(orgId), Number(assetId)],
       });
       void queryClient.invalidateQueries({ queryKey: ["fixedAssets"] });
-      toast.success("Depreciation posted");
+      toast.success(t("toastDepreciationPosted"));
     },
     onError: () => {
-      toast.error("Action failed");
+      toast.error(t("toastActionFailed"));
     },
   });
 
@@ -98,19 +99,19 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
         queryKey: ["fixedAsset", Number(orgId), Number(assetId)],
       });
       void queryClient.invalidateQueries({ queryKey: ["fixedAssets"] });
-      toast.success("Asset disposed");
+      toast.success(t("toastAssetDisposed"));
     },
     onError: () => {
-      toast.error("Action failed");
+      toast.error(t("toastActionFailed"));
     },
   });
 
   if (assetQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   }
 
   if (!asset) {
-    return <p className="text-sm text-muted-foreground">{"Asset not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("assetNotFound")}</p>;
   }
 
   const tone = fixedAssetStateTone(asset.state);
@@ -135,17 +136,17 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
     <div className="flex items-center gap-2">
       {canGenerateSchedule(asset.state) && lines.length === 0 ? (
         <Button size="sm" onClick={handleGenerateSchedule}>
-          {"Generate schedule"}
+          {t("generateSchedule")}
         </Button>
       ) : null}
       {canPostDepreciation(asset.state, lines) ? (
         <Button size="sm" onClick={handlePostDepreciation}>
-          {"Post depreciation"}
+          {t("postDepreciation")}
         </Button>
       ) : null}
       {canDispose(asset.state) ? (
         <Button size="sm" variant="outline" onClick={() => setDisposeOpen(true)}>
-          {"Dispose / Sell"}
+          {t("disposeSell")}
         </Button>
       ) : null}
     </div>
@@ -154,7 +155,7 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
   return (
     <>
       <RecordLayout
-        breadcrumbItems={[{ label: "Fixed assets", href: "/fixed-assets" }, { label: asset.name }]}
+        breadcrumbItems={[{ label: t("title"), href: "/fixed-assets" }, { label: asset.name }]}
         title={asset.name}
         status={
           <Badge
@@ -171,19 +172,19 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
                       : ""
             }
           >
-            {humanizeKey(String(asset.state))}
+            {(t as unknown as (k: string) => string)(`assetState_${asset.state}`)}
           </Badge>
         }
         actions={stateActions}
         tabs={[
           {
             id: "overview",
-            label: "Overview",
+            label: t("tabOverview"),
             content: (
               <div className="grid gap-4 lg:grid-cols-3">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{"Purchase value"}</CardTitle>
+                    <CardTitle>{t("fieldPurchaseValue")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold tabular-nums">
@@ -193,21 +194,21 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>{"Net book value"}</CardTitle>
+                    <CardTitle>{t("netBookValue")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold tabular-nums">
                       {formatMoney(currentNbv, { currency: DEFAULT_CURRENCY })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {"Accumulated depreciation"}:{" "}
+                      {t("accumulatedDepreciation")}:{" "}
                       {formatMoney(posted, { currency: DEFAULT_CURRENCY })}
                     </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle>{"Salvage value"}</CardTitle>
+                    <CardTitle>{t("fieldSalvageValue")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold tabular-nums">
@@ -217,29 +218,33 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
                 </Card>
                 <Card className="lg:col-span-3">
                   <CardHeader>
-                    <CardTitle>{"Asset information"}</CardTitle>
+                    <CardTitle>{t("assetInformation")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <dl className="grid gap-4 sm:grid-cols-2">
                       <div>
-                        <dt className="text-muted-foreground text-sm">{"Category"}</dt>
+                        <dt className="text-muted-foreground text-sm">{t("fieldCategory")}</dt>
                         <dd className="text-sm">#{asset.categoryId}</dd>
                       </div>
                       <div>
-                        <dt className="text-muted-foreground text-sm">{"Acquisition date"}</dt>
+                        <dt className="text-muted-foreground text-sm">
+                          {t("fieldAcquisitionDate")}
+                        </dt>
                         <dd className="text-sm">
                           {asset.acquisitionDate ? formatDate(String(asset.acquisitionDate)) : "—"}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-muted-foreground text-sm">{"In service date"}</dt>
+                        <dt className="text-muted-foreground text-sm">{t("fieldInServiceDate")}</dt>
                         <dd className="text-sm">
                           {asset.inServiceDate ? formatDate(String(asset.inServiceDate)) : "—"}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-muted-foreground text-sm">{"State"}</dt>
-                        <dd className="text-sm">{humanizeKey(String(asset.state))}</dd>
+                        <dt className="text-muted-foreground text-sm">{t("colStatus")}</dt>
+                        <dd className="text-sm">
+                          {(t as unknown as (k: string) => string)(`assetState_${asset.state}`)}
+                        </dd>
                       </div>
                     </dl>
                   </CardContent>
@@ -249,12 +254,12 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
           },
           {
             id: "schedule",
-            label: "Depreciation schedule",
+            label: t("tabSchedule"),
             content: (
               <div className="space-y-4">
                 {nextUnposted ? (
                   <div className="flex items-center gap-4 rounded-lg border p-4">
-                    <span className="text-sm text-muted-foreground">{"Next period to post"}</span>
+                    <span className="text-sm text-muted-foreground">{t("nextPeriodToPost")}</span>
                     <span className="text-sm tabular-nums">
                       {formatDate(String(nextUnposted.depreciationDate))} –{" "}
                       {formatMoney(nextUnposted.amount, { currency: DEFAULT_CURRENCY })}
@@ -262,20 +267,18 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
                   </div>
                 ) : null}
                 {lines.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    {"No depreciation schedule. Generate one to get started."}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t("scheduleEmpty")}</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b text-muted-foreground">
                           <th className="pb-2 text-left">{"#"}</th>
-                          <th className="pb-2 text-left">{"Date"}</th>
-                          <th className="pb-2 text-right">{"Amount"}</th>
-                          <th className="pb-2 text-right">{"Accumulated"}</th>
-                          <th className="pb-2 text-right">{"Remaining"}</th>
-                          <th className="pb-2 text-center">{"Posted"}</th>
+                          <th className="pb-2 text-left">{t("colDate")}</th>
+                          <th className="pb-2 text-right">{t("colAmount")}</th>
+                          <th className="pb-2 text-right">{t("colAccumulated")}</th>
+                          <th className="pb-2 text-right">{t("colRemaining")}</th>
+                          <th className="pb-2 text-center">{t("colPosted")}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -294,9 +297,9 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
                             </td>
                             <td className="py-2 text-center">
                               {line.posted ? (
-                                <Badge variant="default">{"Posted"}</Badge>
+                                <Badge variant="default">{t("posted")}</Badge>
                               ) : (
-                                <Badge variant="outline">{"Pending"}</Badge>
+                                <Badge variant="outline">{t("pending")}</Badge>
                               )}
                             </td>
                           </tr>
@@ -313,30 +316,34 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
       <Dialog open={disposeOpen} onOpenChange={setDisposeOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{"Dispose / Sell asset"}</DialogTitle>
-            <DialogDescription>{"Record the disposal or sale of this asset."}</DialogDescription>
+            <DialogTitle>{t("disposeDialogTitle")}</DialogTitle>
+            <DialogDescription>{t("disposeDialogDescription")}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <label htmlFor={typeId} className="text-sm">
-                {"Type"}
+                {t("fieldType")}
               </label>
               <Select
                 value={disposeState}
                 onValueChange={(v) => setDisposeState(v as "disposed" | "sold")}
               >
-                <SelectTrigger id={typeId} aria-label={"Type"}>
+                <SelectTrigger id={typeId} aria-label={t("fieldType")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="sold">{"Sold"}</SelectItem>
-                  <SelectItem value="disposed">{"Disposed"}</SelectItem>
+                  <SelectItem value="sold">
+                    {(t as unknown as (k: string) => string)("assetState_sold")}
+                  </SelectItem>
+                  <SelectItem value="disposed">
+                    {(t as unknown as (k: string) => string)("assetState_disposed")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex flex-col gap-2">
               <label htmlFor={proceedsId} className="text-sm">
-                {"Proceeds amount"}
+                {t("fieldProceedsAmount")}
               </label>
               <Input
                 id={proceedsId}
@@ -349,7 +356,7 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
             </div>
             <div className="flex flex-col gap-2">
               <label htmlFor={dateId} className="text-sm">
-                {"Date"}
+                {t("fieldDate")}
               </label>
               <Input
                 id={dateId}
@@ -361,9 +368,9 @@ export function FixedAssetDetail({ orgId, assetId }: { orgId: string; assetId: s
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDisposeOpen(false)}>
-              {"Cancel"}
+              {t("cancel")}
             </Button>
-            <Button onClick={handleDispose}>{"Confirm"}</Button>
+            <Button onClick={handleDispose}>{t("confirm")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

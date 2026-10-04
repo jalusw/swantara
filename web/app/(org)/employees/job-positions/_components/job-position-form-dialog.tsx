@@ -1,6 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -13,10 +15,23 @@ import type { Department, JobPosition } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 
 function useJobPositionFormSchema() {
+  const t = useTranslations("Employees");
   return z.object({
-    name: z.string().min(1, "Enter a name."),
+    name: z.string().min(1, t("validationNameRequired")),
     departmentId: z.string(),
   });
+}
+
+function toDefaultValues(initial?: JobPosition | null) {
+  return initial
+    ? {
+        name: initial.name,
+        departmentId: initial.departmentId ? String(initial.departmentId) : "",
+      }
+    : {
+        name: "",
+        departmentId: "",
+      };
 }
 
 export function JobPositionFormDialog({
@@ -33,6 +48,8 @@ export function JobPositionFormDialog({
   onSave: () => void;
 }) {
   const isEdit = Boolean(initial);
+  const t = useTranslations("Employees");
+  const tCommon = useTranslations("Common");
 
   const departmentsQuery = useOrgListQuery<{ departments: Department[] }, Record<string, never>>(
     "departments",
@@ -46,16 +63,14 @@ export function JobPositionFormDialog({
 
   const form = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: initial
-      ? {
-          name: initial.name,
-          departmentId: initial.departmentId ? String(initial.departmentId) : "",
-        }
-      : {
-          name: "",
-          departmentId: "",
-        },
+    defaultValues: toDefaultValues(initial),
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset(toDefaultValues(initial));
+    }
+  }, [open, initial, form]);
 
   function handleSubmit(values: Values) {
     const payload = {
@@ -65,15 +80,15 @@ export function JobPositionFormDialog({
     };
 
     if (isEdit && initial) {
-      void getSwantaraService()
+      return getSwantaraService()
         .jobPositions.update(Number(orgId), initial.id, payload)
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("saveFailed")));
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .jobPositions.create(Number(orgId), payload)
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("saveFailed")));
     }
   }
 
@@ -81,20 +96,22 @@ export function JobPositionFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? "Edit position" : "New position"}
-      description={"Manage job positions across departments."}
+      title={isEdit ? t("editPosition") : t("newPosition")}
+      description={t("jobPositionsSubtitle")}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       form={form}
       onSubmit={handleSubmit}
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField name="name" label={"Name"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+        <FormField name="name" label={t("fieldName")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
         </FormField>
-        <FormField name="departmentId" label={"Department"}>
+        <FormField name="departmentId" label={t("fieldDepartment")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Department"}>
-                <SelectValue placeholder={"Department"} />
+              <SelectTrigger id={id} aria-label={t("fieldDepartment")}>
+                <SelectValue placeholder={t("fieldDepartment")} />
               </SelectTrigger>
               <SelectContent>
                 {departments.map((dept) => (

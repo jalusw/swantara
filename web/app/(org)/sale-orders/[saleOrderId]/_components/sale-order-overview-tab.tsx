@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
@@ -38,56 +39,62 @@ export function SaleOrderOverviewTab({
   onCancel,
   onDone,
 }: SaleOrderOverviewTabProps) {
+  const t = useTranslations("Sales");
+  const tCommon = useTranslations("Common");
   const lines = order.lines ?? [];
+
+  function stepLabel(step: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`orderStep.${step}`);
+    } catch {
+      return String(step);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <WorkflowSteps
-        steps={orderSteps.map((step) => ({ label: String(step) }))}
+        steps={orderSteps.map((step) => ({ label: stepLabel(step) }))}
         currentIndex={orderStateIndex(order.state)}
       />
       <div className="flex flex-wrap gap-2">
         {canSend(order.state) ? (
           <Button size="sm" onClick={onSend}>
-            {"Send"}
+            {t("actionSend")}
           </Button>
         ) : null}
         {canConfirm(order.state) ? (
           <Button size="sm" onClick={onConfirm}>
-            {"Confirm"}
+            {t("actionConfirm")}
           </Button>
         ) : null}
         {canCancel(order.state) ? (
           <Button size="sm" variant="outline" onClick={onCancel}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
         ) : null}
         {canDone(order.state) ? (
           <Button size="sm" variant="outline" onClick={onDone}>
-            {"Mark done"}
+            {t("actionMarkDone")}
           </Button>
         ) : null}
         {!canEdit(order.state) ? (
-          <span className="text-xs text-muted-foreground self-center">
-            {"Only draft orders can be edited."}
-          </span>
+          <span className="text-xs text-muted-foreground self-center">{t("draftOnlyHint")}</span>
         ) : null}
       </div>
-      <p className="text-xs text-muted-foreground">
-        {"Confirm reserves stock and creates an outgoing shipment."}
-      </p>
+      <p className="text-xs text-muted-foreground">{t("confirmHint")}</p>
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{"Order header"}</CardTitle>
+            <CardTitle className="text-base">{t("orderHeader")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Customer"}</span>
+              <span className="text-muted-foreground">{t("tableCustomer")}</span>
               <span>{contactMap.get(order.contactId) ?? `#${order.contactId}`}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"PriceBook"}</span>
+              <span className="text-muted-foreground">{t("fieldPriceBook")}</span>
               <span>
                 {order.priceBookId
                   ? (priceBookMap.get(order.priceBookId) ?? `#${order.priceBookId}`)
@@ -95,7 +102,7 @@ export function SaleOrderOverviewTab({
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Warehouse"}</span>
+              <span className="text-muted-foreground">{t("fieldWarehouse")}</span>
               <span>
                 {order.warehouseId
                   ? (warehouseMap.get(order.warehouseId) ?? `#${order.warehouseId}`)
@@ -103,38 +110,38 @@ export function SaleOrderOverviewTab({
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Opportunity"}</span>
+              <span className="text-muted-foreground">{t("fieldOpportunity")}</span>
               <span>{order.crmLeadId ? `#${order.crmLeadId}` : "—"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Order date"}</span>
+              <span className="text-muted-foreground">{t("tableOrderDate")}</span>
               <span>{order.orderDate ? formatDate(order.orderDate) : "—"}</span>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{"Totals"}</CardTitle>
+            <CardTitle className="text-base">{t("tableTotal")}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Untaxed"}</span>
+              <span className="text-muted-foreground">{t("untaxed")}</span>
               <span className="tabular-nums">{formatNumber(order.amountUntaxed)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{"Tax"}</span>
+              <span className="text-muted-foreground">{t("tax")}</span>
               <span className="tabular-nums">{formatNumber(order.amountTax)}</span>
             </div>
             <div className="flex justify-between">
-              <span>{"Total"}</span>
+              <span>{t("tableTotal")}</span>
               <span className="tabular-nums">{formatNumber(order.amountTotal)}</span>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{"Delivery"}</span>
+              <span>{t("tableDelivery")}</span>
               <Badge variant="outline">{String(order.deliveryStatus)}</Badge>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{"Invoicing"}</span>
+              <span>{t("tableInvoicing")}</span>
               <Badge variant="outline">{String(order.invoiceStatus)}</Badge>
             </div>
           </CardContent>
@@ -142,29 +149,27 @@ export function SaleOrderOverviewTab({
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{"Lines"}</CardTitle>
-          <p className="text-xs text-muted-foreground">
-            {"Derived from ordered/delivered/invoiced"}
-          </p>
+          <CardTitle className="text-base">{t("orderLines")}</CardTitle>
+          <p className="text-xs text-muted-foreground">{t("linesHint")}</p>
         </CardHeader>
         <CardContent>
           {lines.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{"No lines"}</p>
+            <p className="text-sm text-muted-foreground">{t("emptyLines")}</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-muted-foreground">
                     <th className="pb-2">#</th>
-                    <th className="pb-2">{"Item"}</th>
-                    <th className="pb-2 text-right">{"Ordered"}</th>
-                    <th className="pb-2 text-right">{"Delivered"}</th>
-                    <th className="pb-2 text-right">{"Invoiced"}</th>
-                    <th className="pb-2 text-right">{"Remaining to ship"}</th>
-                    <th className="pb-2 text-right">{"Remaining to bill"}</th>
-                    <th className="pb-2 text-right">{"Unit price"}</th>
-                    <th className="pb-2 text-right">{"Discount"}</th>
-                    <th className="pb-2 text-right">{"Subtotal"}</th>
+                    <th className="pb-2">{t("fieldItem")}</th>
+                    <th className="pb-2 text-right">{t("ordered")}</th>
+                    <th className="pb-2 text-right">{t("delivered")}</th>
+                    <th className="pb-2 text-right">{t("invoiced")}</th>
+                    <th className="pb-2 text-right">{t("remainingToShip")}</th>
+                    <th className="pb-2 text-right">{t("remainingToBill")}</th>
+                    <th className="pb-2 text-right">{t("unitPrice")}</th>
+                    <th className="pb-2 text-right">{t("fieldDiscountPct")}</th>
+                    <th className="pb-2 text-right">{t("subtotal")}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -98,8 +98,10 @@ func writeSuccess[T any](c fiber.Ctx, status int, message string, data T, links 
 }
 
 func writeSuccessWithEnvelope[T any](c fiber.Ctx, status int, envelope Response[T]) error {
-	switch RequestFormat(c) {
-	case formatXML:
+	negotiated := NegotiatedResponseFormat(c)
+	explicit, hasExplicit := explicitQueryFormat(c)
+	switch negotiated {
+	case FormatXML:
 		return c.Status(status).XML(xmlResponse[T]{
 			Success: envelope.Success,
 			Message: envelope.Message,
@@ -115,11 +117,14 @@ func writeSuccessWithEnvelope[T any](c fiber.Ctx, status int, envelope Response[
 			}
 			return exportCSVWithMeta(c, status, items, envelope.Meta, envelope.Links)
 		}
-		if strings.TrimSpace(strings.ToLower(c.Query("format"))) == "csv" {
+		if HasExplicitFormatQuery(c, FormatCSV) {
 			return writeError(c, http.StatusBadRequest, ErrBadRequestCode, "CSV export is not available for this endpoint.", "", nil)
 		}
 		return c.Status(status).JSON(envelope)
 	default:
+		if hasExplicit && explicit != FormatJSON {
+			return writeError(c, http.StatusBadRequest, ErrBadRequestCode, "Format "+string(explicit)+" is not available for this endpoint.", "", nil)
+		}
 		return c.Status(status).JSON(envelope)
 	}
 }
@@ -255,6 +260,41 @@ func CreateServiceUnavailableErrorResponse(c fiber.Ctx, message string, err erro
 	return writeError(c, http.StatusServiceUnavailable, ErrServiceUnavailableCode, cmp.Or(message, "Service is unavailable."), "Service is unavailable.", nil)
 }
 
+func CreateUnsupportedMediaTypeResponse(c fiber.Ctx, message string, err error) error {
+	setResponseProblem(c, ErrUnsupportedMediaTypeCode, errDetail(err), nil)
+	return writeError(c, http.StatusUnsupportedMediaType, ErrUnsupportedMediaTypeCode, cmp.Or(message, "Unsupported media type."), errDetail(err), nil)
+}
+
+// WriteListResponse centralizes list negotiation: JSON default, XML/CSV only
+// when negotiated. data is the JSON envelope payload (e.g.
+// ListContactsResponse), items is the slice used for CSV export (may be nil
+// to extract from data), filename is the CSV download name. Replaces the
+// per-handler:
+//
+//	if httpx.RequestFormat(c) == httpx.FormatCSV {
+//	    return httpx.ExportCSV(c, fiber.StatusOK, "x.csv", items)
+//	}
+//	return httpx.CreateSuccessResponseWithMeta(...)
+func WriteListResponse(c fiber.Ctx, message string, data any, items any, meta Meta, filename string) error {
+	if NegotiatedResponseFormat(c) == FormatCSV {
+		exportItems := items
+		if exportItems == nil {
+			if extracted, ok := csvItems(data); ok {
+				exportItems = extracted
+			}
+		}
+		if exportItems != nil {
+			if filename == "" {
+				filename = "export.csv"
+			}
+			populated := populateMeta(c, &meta)
+			setCSVListHeaders(c, populated, paginationLinks(c, populated.Pagination))
+			return ExportCSV(c, http.StatusOK, filename, exportItems)
+		}
+	}
+	return CreateSuccessResponseWithMeta(c, message, data, meta)
+}
+
 func writeError(c fiber.Ctx, status int, errorCode, message, detail string, fieldErrors *[]FieldError) error {
 	envelope := ErrorResponse{
 		Success:     false,
@@ -263,7 +303,7 @@ func writeError(c fiber.Ctx, status int, errorCode, message, detail string, fiel
 		Detail:      detail,
 		FieldErrors: fieldErrors,
 	}
-	if RequestFormat(c) == formatXML {
+	if NegotiatedResponseFormat(c) == FormatXML {
 		return c.Status(status).XML(envelope)
 	}
 	return c.Status(status).JSON(envelope)
@@ -322,6 +362,11 @@ func csvItems(data any) (any, bool) {
 }
 
 func exportCSVWithMeta(c fiber.Ctx, status int, items any, meta *Meta, links []Link) error {
+	setCSVListHeaders(c, meta, links)
+	return ExportCSV(c, status, "export.csv", items)
+}
+
+func setCSVListHeaders(c fiber.Ctx, meta *Meta, links []Link) {
 	if meta != nil && meta.Pagination != nil {
 		pagination := meta.Pagination
 		c.Set("X-Pagination-Page", strconv.Itoa(pagination.Page))
@@ -336,5 +381,4 @@ func exportCSVWithMeta(c fiber.Ctx, status int, items any, meta *Meta, links []L
 		}
 		c.Set(fiber.HeaderLink, strings.Join(parts, ", "))
 	}
-	return ExportCSV(c, status, "export.csv", items)
 }

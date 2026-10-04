@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -20,15 +21,16 @@ const DEFAULT_VALUES = {
 };
 
 function useCustomerFormSchema() {
+  const t = useTranslations("Sales");
   return z.object({
-    name: z.string().trim().min(1, "Enter a name."),
+    name: z.string().trim().min(1, t("validationNameRequired")),
     displayName: z.string().trim(),
     email: z
       .string()
       .trim()
       .refine(
         (value) => value === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
-        "Enter a valid email address.",
+        t("validationEmailInvalid"),
       ),
     phone: z.string().trim(),
     active: z.boolean(),
@@ -46,6 +48,8 @@ export function CustomerFormDialog({
   orgId: string;
   onSave: () => void;
 }) {
+  const t = useTranslations("Sales");
+  const tCommon = useTranslations("Common");
   const [isPending, setIsPending] = useState(false);
 
   const schema = useCustomerFormSchema();
@@ -91,10 +95,10 @@ export function CustomerFormDialog({
         supplier: null,
       })
       .then(() => {
-        toast.success("Customer saved.");
+        toast.success(t("customerSaved"));
         onSave();
       })
-      .catch(() => toast.error("Something went wrong."))
+      .catch(() => toast.error(t("saveFailed")))
       .finally(() => setIsPending(false));
   }
 
@@ -102,34 +106,36 @@ export function CustomerFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"New customer"}
-      description={"Add a new customer with basic identity and contact details."}
+      title={t("newCustomer")}
+      description={t("newCustomerDescription")}
       form={form}
       onSubmit={handleSubmit}
       isPending={isPending}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
     >
       <div className="flex flex-col gap-6">
         <fieldset className="flex flex-col gap-4">
-          <legend className="text-sm font-medium">{"Identity"}</legend>
+          <legend className="text-sm font-medium">{t("sectionIdentity")}</legend>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField name="name" label={`${"Name"} *`}>
+            <FormField name="name" label={`${t("fieldName")} *`}>
               {({ field, id }) => (
                 <Input
                   {...field}
                   id={id}
-                  placeholder={"Name"}
+                  placeholder={t("fieldName")}
                   autoComplete="organization"
                   required
                   aria-required="true"
                 />
               )}
             </FormField>
-            <FormField name="displayName" label={"Display name"}>
+            <FormField name="displayName" label={t("fieldDisplayName")}>
               {({ field, id }) => (
                 <Input
                   {...field}
                   id={id}
-                  placeholder={"Display name"}
+                  placeholder={t("fieldDisplayName")}
                   autoComplete="organization"
                 />
               )}
@@ -138,9 +144,9 @@ export function CustomerFormDialog({
         </fieldset>
 
         <fieldset className="flex flex-col gap-4">
-          <legend className="text-sm font-medium">{"Contact"}</legend>
+          <legend className="text-sm font-medium">{t("sectionContact")}</legend>
           <div className="grid gap-4 sm:grid-cols-2">
-            <FormField name="email" label={"Email"}>
+            <FormField name="email" label={t("fieldEmail")}>
               {({ field, id }) => (
                 <Input
                   {...field}
@@ -148,11 +154,11 @@ export function CustomerFormDialog({
                   type="email"
                   inputMode="email"
                   autoComplete="email"
-                  placeholder={"Email"}
+                  placeholder={t("fieldEmail")}
                 />
               )}
             </FormField>
-            <FormField name="phone" label={"Phone"}>
+            <FormField name="phone" label={t("fieldPhone")}>
               {({ field, id }) => (
                 <Input
                   {...field}
@@ -160,7 +166,7 @@ export function CustomerFormDialog({
                   type="tel"
                   inputMode="tel"
                   autoComplete="tel"
-                  placeholder={"Phone"}
+                  placeholder={t("fieldPhone")}
                 />
               )}
             </FormField>
@@ -168,17 +174,17 @@ export function CustomerFormDialog({
         </fieldset>
 
         <fieldset className="flex flex-col gap-4">
-          <legend className="text-sm font-medium">{"Status"}</legend>
+          <legend className="text-sm font-medium">{t("sectionStatus")}</legend>
           <FormField
             name="active"
-            label={"Active"}
-            description={"Inactive customers stay in history but are hidden from new orders."}
+            label={t("statusActive")}
+            description={t("inactiveCustomerHint")}
           >
             {({ field }) => (
               <Switch
                 checked={field.value}
                 onCheckedChange={(checked) => field.onChange(Boolean(checked))}
-                aria-label={"Active"}
+                aria-label={t("statusActive")}
               />
             )}
           </FormField>

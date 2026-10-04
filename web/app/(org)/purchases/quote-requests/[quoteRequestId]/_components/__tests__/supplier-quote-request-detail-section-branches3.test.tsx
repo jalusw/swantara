@@ -122,9 +122,9 @@ describe("SupplierQuoteRequestDetail branches3", () => {
 
     await screen.findAllByText("QuoteRequest-0004");
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
-    expect(screen.getByText("Apr 1, 2026")).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: "Quotes" }));
+    expect(screen.getByText("1 Apr 2026")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Penawaran" }));
 
-    expect(await screen.findByText("Supplier quotes")).toBeInTheDocument();
+    expect(await screen.findByText("Penawaran pemasok")).toBeInTheDocument();
   });
 });

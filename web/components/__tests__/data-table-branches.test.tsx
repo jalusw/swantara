@@ -31,7 +31,7 @@ describe("DataTable branches", () => {
   it("sorts ascending then descending through the header button", async () => {
     const user = userEvent.setup();
     renderWithProviders(<DataTable {...baseProps({ enableSorting: true })} />);
-    const sortButton = screen.getByRole("button", { name: "Sort by Name" });
+    const sortButton = screen.getByRole("button", { name: "Urutkan berdasarkan Name" });
     await user.click(sortButton);
     const table = screen.getByRole("table");
     expect(within(table).getAllByRole("row")[1]).toHaveTextContent("User 01");
@@ -45,7 +45,7 @@ describe("DataTable branches", () => {
     renderWithProviders(
       <DataTable {...baseProps({ enableSorting: true, sorting: [], onSortingChange })} />,
     );
-    await user.click(screen.getByRole("button", { name: "Sort by Name" }));
+    await user.click(screen.getByRole("button", { name: "Urutkan berdasarkan Name" }));
     expect(onSortingChange).toHaveBeenCalled();
   });
 
@@ -61,9 +61,9 @@ describe("DataTable branches", () => {
         })}
       />,
     );
-    await user.click(screen.getByRole("checkbox", { name: "Select row 1" }));
+    await user.click(screen.getByRole("checkbox", { name: "Pilih baris 1" }));
     expect(onSelectionChange).toHaveBeenCalledWith(["1"]);
-    await user.click(screen.getByRole("checkbox", { name: "Select all rows" }));
+    await user.click(screen.getByRole("checkbox", { name: "Pilih semua baris" }));
     expect(onSelectionChange).toHaveBeenCalled();
   });
 
@@ -75,11 +75,11 @@ describe("DataTable branches", () => {
         labels={{ pagePrevious: "Prev", pageNext: "Next" }}
       />,
     );
-    expect(screen.getByText("Page 1 of 3")).toBeInTheDocument();
+    expect(screen.getByText("Halaman 1 dari 3")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Next" }));
-    expect(await screen.findByText("Page 2 of 3")).toBeInTheDocument();
+    expect(await screen.findByText("Halaman 2 dari 3")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Prev" }));
-    expect(await screen.findByText("Page 1 of 3")).toBeInTheDocument();
+    expect(await screen.findByText("Halaman 1 dari 3")).toBeInTheDocument();
   });
 
   it("renders manual pagination page counts", () => {
@@ -93,7 +93,7 @@ describe("DataTable branches", () => {
         })}
       />,
     );
-    expect(screen.getByText("Page 1 of 7")).toBeInTheDocument();
+    expect(screen.getByText("Halaman 1 dari 7")).toBeInTheDocument();
   });
 
   it("renders controlled pagination state", () => {
@@ -105,7 +105,7 @@ describe("DataTable branches", () => {
         })}
       />,
     );
-    expect(screen.getByText("Page 2 of 3")).toBeInTheDocument();
+    expect(screen.getByText("Halaman 2 dari 3")).toBeInTheDocument();
   });
 
   it("shows the loading skeleton with default rows", () => {
@@ -125,7 +125,7 @@ describe("DataTable branches", () => {
     const user = userEvent.setup();
     const onRetry = vi.fn();
     renderWithProviders(<DataTable {...baseProps({ status: { type: "error", onRetry } })} />);
-    await user.click(screen.getByRole("button", { name: "Retry" }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
     expect(onRetry).toHaveBeenCalled();
   });
 
@@ -134,7 +134,7 @@ describe("DataTable branches", () => {
       <DataTable {...baseProps({ status: { type: "error", message: "Broken" } })} />,
     );
     expect(screen.getByText("Broken")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Retry" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Coba lagi" })).not.toBeInTheDocument();
   });
 
   it("shows empty state with custom title and description", () => {
@@ -167,9 +167,9 @@ describe("DataTable branches", () => {
     renderWithProviders(
       <DataTable {...baseProps({ data: ROWS.slice(0, 2), enableRowSelection: true })} />,
     );
-    await user.click(screen.getByRole("checkbox", { name: "Select row 1" }));
+    await user.click(screen.getByRole("checkbox", { name: "Pilih baris 1" }));
     await waitFor(() =>
-      expect(screen.getByRole("checkbox", { name: "Select row 1" })).toBeChecked(),
+      expect(screen.getByRole("checkbox", { name: "Pilih baris 1" })).toBeChecked(),
     );
   });
 
@@ -218,7 +218,7 @@ describe("DataTable branches", () => {
         enableSorting
       />,
     );
-    expect(screen.getByRole("button", { name: "Sort by name" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Urutkan berdasarkan name" })).toBeInTheDocument();
   });
 
   it("centers aligned columns", () => {

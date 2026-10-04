@@ -7,6 +7,7 @@ import type {
   SortingState,
 } from "@tanstack/react-table";
 import { DownloadIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { type ReactNode, useEffect, useMemo } from "react";
 import { Button } from "@/components/button";
 import { TableFilterBar } from "@/components/table-filter-bar";
@@ -60,13 +61,15 @@ function buildFilterConfig(
   statusOptions?: Array<{ value: string; label: string }>,
   searchPlaceholder?: string,
   filterLabel?: string,
+  searchLabel?: string,
+  filterBy?: (label: string) => string,
 ): TableFilterConfig[] {
   const config: TableFilterConfig[] = [];
 
   if (searchKeys.length > 0) {
     config.push({
       id: "search",
-      label: "Search",
+      label: searchLabel ?? "Search",
       type: "text",
       placeholder: searchPlaceholder,
     });
@@ -100,7 +103,7 @@ function buildFilterConfig(
       label,
       type: "text",
       columnId: colId,
-      placeholder: `Filter ${label.toLowerCase()}…`,
+      placeholder: filterBy ? filterBy(label.toLowerCase()) : `Filter ${label.toLowerCase()}…`,
     });
   }
 
@@ -125,6 +128,16 @@ export function ServerEntityTable<T, V, TResponse>({
   emptyDescription,
   exportFileName,
 }: ServerEntityTableProps<T, V, TResponse>) {
+  const tTables = useTranslations("Tables" as unknown as "Common");
+  const tx = tTables as unknown as (
+    key: string,
+    values?: Record<string, string | number>,
+  ) => string;
+  const tFilters = useTranslations("Filters" as unknown as "Common");
+  const tf = tFilters as unknown as (
+    key: string,
+    values?: Record<string, string | number>,
+  ) => string;
   const { pagination, setPagination, sorting, setSorting } = useDataTableState({
     initialPageSize: pageSize,
   });
@@ -138,8 +151,11 @@ export function ServerEntityTable<T, V, TResponse>({
         statusOptions.length > 0 ? statusOptions : undefined,
         searchPlaceholder,
         filterLabel,
+        tx("search"),
+        (label: string) => tf("filterBy", { label }),
       ),
-    [columns, searchKeys, statusKey, statusOptions, searchPlaceholder, filterLabel],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [columns, searchKeys, statusKey, statusOptions, searchPlaceholder, filterLabel, tTables, tf],
   );
 
   const filters = useTableFilters(filterConfig);
@@ -248,8 +264,8 @@ export function ServerEntityTable<T, V, TResponse>({
         (data.length === 0
           ? {
               type: "empty",
-              title: emptyTitle ?? "No results",
-              description: emptyDescription ?? "No records match your search or filters.",
+              title: emptyTitle ?? tx("emptyTitle"),
+              description: emptyDescription ?? tx("emptyDescription"),
             }
           : { type: "none" })
       }
@@ -276,7 +292,7 @@ export function ServerEntityTable<T, V, TResponse>({
                 }}
               >
                 <DownloadIcon aria-hidden />
-                <span>{"Export"}</span>
+                <span>{tx("export")}</span>
               </Button>
               {actions}
             </>

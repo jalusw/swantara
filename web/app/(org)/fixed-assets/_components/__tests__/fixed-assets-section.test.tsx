@@ -88,7 +88,7 @@ describe("FixedAssetsSection", () => {
     renderWithProviders(<FixedAssetsSection orgId="1" />);
 
     await screen.findByText("Laptop ThinkPad");
-    await user.type(screen.getByPlaceholderText("Search assets…"), "Printer");
+    await user.type(screen.getByPlaceholderText("Cari aset…"), "Printer");
 
     expect(await screen.findByText("Office Printer")).toBeInTheDocument();
   });
@@ -98,7 +98,7 @@ describe("FixedAssetsSection", () => {
     renderWithProviders(<FixedAssetsSection orgId="1" />);
 
     await screen.findByText("Laptop ThinkPad");
-    await user.click(screen.getByRole("button", { name: "Register asset" }));
+    await user.click(screen.getByRole("button", { name: "Daftarkan aset" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

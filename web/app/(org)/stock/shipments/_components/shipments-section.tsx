@@ -1,6 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
@@ -8,6 +9,8 @@ import type { Shipment } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
 import { makeStateVariant, nameColumn, stateColumn } from "@/lib/utils/table-columns";
+
+type TFn = (key: string, values?: Record<string, string | number>) => string;
 
 function toRow(shipment: Shipment) {
   return {
@@ -21,6 +24,7 @@ function toRow(shipment: Shipment) {
 }
 
 export function ShipmentsSection() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Stock");
   const shipmentsQuery = useOrgListQuery<{ shipments: Shipment[] }, Record<string, never>>(
     "stockShipments",
     (organizationId) => getSwantaraService().inventory.stockShipments(organizationId),
@@ -31,21 +35,25 @@ export function ShipmentsSection() {
   const columns: ColumnDef<ReturnType<typeof toRow>>[] = [
     nameColumn<ReturnType<typeof toRow>>({
       basePath: "stock/shipments",
-      header: "Shipment",
+      header: t("shipmentsTitle"),
     }),
     {
       accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => <Badge variant="secondary">{String(row.original.type)}</Badge>,
+      header: () => t("fieldType"),
+      cell: ({ row }) => (
+        <Badge variant="secondary">
+          {(t as unknown as (k: string) => string)(`shipmentType_${row.original.type}`)}
+        </Badge>
+      ),
     },
     stateColumn<ReturnType<typeof toRow>>({
-      header: "State",
-      label: (state) => String(state),
+      header: t("colStatus"),
+      label: (state) => (t as unknown as (k: string) => string)(`shipmentState_${String(state)}`),
       variant: makeStateVariant(["done"]),
     }),
     {
       accessorKey: "scheduledDate",
-      header: "Scheduled",
+      header: () => t("colScheduled"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {row.original.scheduledDate
@@ -56,7 +64,7 @@ export function ShipmentsSection() {
     },
     {
       accessorKey: "origin",
-      header: "Origin",
+      header: () => t("colOrigin"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{row.original.origin ?? "—"}</span>
       ),
@@ -72,9 +80,9 @@ export function ShipmentsSection() {
       data={rows}
       getRowId={(row) => row.id}
       searchKeys={["name"]}
-      searchPlaceholder={"Search shipments…"}
-      ariaLabel={"All shipments"}
-      emptyTitle={"No shipments found."}
+      searchPlaceholder={t("searchShipments")}
+      ariaLabel={t("allShipments")}
+      emptyTitle={t("shipmentsEmpty")}
       status={
         isLoading
           ? { type: "loading" }

@@ -55,10 +55,10 @@ describe("InvoicesSection branches4", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-2026-001");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
 
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByRole("button", { name: "Create" })).toBeDisabled();
+    expect(within(dialog).getByRole("button", { name: "Buat" })).toBeDisabled();
   });
 
   it("updates one line while other lines stay untouched", async () => {
@@ -67,10 +67,10 @@ describe("InvoicesSection branches4", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-2026-001");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
     const dialog = await screen.findByRole("dialog");
 
-    await user.click(within(dialog).getByRole("button", { name: "Add line" }));
+    await user.click(within(dialog).getByRole("button", { name: "Tambah baris" }));
     const boxes = within(dialog).getAllByRole("textbox");
     const firstDescription = boxes[1];
     if (!firstDescription) throw new Error("Expected line description inputs");
@@ -86,7 +86,7 @@ describe("InvoicesSection branches4", () => {
       http.post("*/api/v1/organizations/:organizationId/invoices", () => {
         createCalls += 1;
         return HttpResponse.json(
-          { success: true, message: "Created.", data: { invoice: { id: 9 } } },
+          { success: true, message: "Dibuat.", data: { invoice: { id: 9 } } },
           { status: 201 },
         );
       }),
@@ -95,10 +95,10 @@ describe("InvoicesSection branches4", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-2026-001");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
     const dialog = await screen.findByRole("dialog");
 
-    fireEvent.click(within(dialog).getByRole("button", { name: "Create" }));
+    fireEvent.click(within(dialog).getByRole("button", { name: "Buat" }));
 
     await waitFor(() => expect(createCalls).toBe(0));
     expect(screen.getByRole("dialog")).toBeInTheDocument();
@@ -111,7 +111,7 @@ describe("InvoicesSection branches4", () => {
       http.post("*/api/v1/organizations/:organizationId/invoices", async ({ request }) => {
         bodies.push(await request.json());
         return HttpResponse.json(
-          { success: true, message: "Created.", data: { invoice: { id: 9 } } },
+          { success: true, message: "Dibuat.", data: { invoice: { id: 9 } } },
           { status: 201 },
         );
       }),
@@ -120,12 +120,12 @@ describe("InvoicesSection branches4", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-2026-001");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
     const dialog = await screen.findByRole("dialog");
 
     const spins = within(dialog).getAllByRole("spinbutton");
     await user.type(spins[0]!, "10");
-    await user.click(within(dialog).getByRole("combobox", { name: "Journal" }));
+    await user.click(within(dialog).getByRole("combobox", { name: "Jurnal" }));
     await user.click(await screen.findByRole("option", { name: "Sales Journal" }));
 
     const boxes = within(dialog).getAllByRole("textbox");
@@ -134,9 +134,9 @@ describe("InvoicesSection branches4", () => {
     if (!qty) throw new Error("Expected qty input");
     await user.clear(qty);
 
-    await user.click(within(dialog).getByRole("button", { name: "Add line" }));
+    await user.click(within(dialog).getByRole("button", { name: "Tambah baris" }));
 
-    const save = within(dialog).getByRole("button", { name: "Create" });
+    const save = within(dialog).getByRole("button", { name: "Buat" });
     await waitFor(() => expect(save).toBeEnabled());
     await user.click(save);
 

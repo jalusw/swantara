@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -17,6 +18,7 @@ import { humanizeKey } from "@/lib/utils/case";
 import { SaleOrderFormDialog } from "./sale-order-form-dialog";
 
 export function SaleOrdersSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Sales");
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialOpportunity = searchParams.get("quotation") ?? searchParams.get("opportunity");
@@ -50,10 +52,18 @@ export function SaleOrdersSection({ orgId }: { orgId: string }) {
     router.push(`/sale-orders/${orderId}`);
   }
 
+  function stateLabel(state: SaleOrder["state"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`orderState.${state}`);
+    } catch {
+      return humanizeKey(String(state));
+    }
+  }
+
   const columns: ColumnDef<SaleOrder>[] = [
     {
       accessorKey: "name",
-      header: "Order",
+      header: t("tableOrder"),
       cell: ({ row }) => (
         <a
           href={`/sale-orders/${row.original.id}`}
@@ -65,7 +75,7 @@ export function SaleOrdersSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "contactId",
-      header: "Customer",
+      header: t("tableCustomer"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {contactMap.get(row.original.contactId) ?? `#${row.original.contactId}`}
@@ -74,7 +84,7 @@ export function SaleOrdersSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "Status",
+      header: t("tableStatus"),
       cell: ({ row }) => (
         <Badge
           variant={
@@ -85,23 +95,23 @@ export function SaleOrdersSection({ orgId }: { orgId: string }) {
                 : "secondary"
           }
         >
-          {humanizeKey(String(row.original.state))}
+          {stateLabel(row.original.state)}
         </Badge>
       ),
     },
     {
       accessorKey: "deliveryStatus",
-      header: "Delivery",
+      header: t("tableDelivery"),
       cell: ({ row }) => <Badge variant="outline">{String(row.original.deliveryStatus)}</Badge>,
     },
     {
       accessorKey: "invoiceStatus",
-      header: "Invoicing",
+      header: t("tableInvoicing"),
       cell: ({ row }) => <Badge variant="outline">{String(row.original.invoiceStatus)}</Badge>,
     },
     {
       accessorKey: "amountTotal",
-      header: "Total",
+      header: t("tableTotal"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums ">{formatNumber(row.original.amountTotal)}</span>
@@ -109,7 +119,7 @@ export function SaleOrdersSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "orderDate",
-      header: "Order date",
+      header: t("tableOrderDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.orderDate ? formatDate(row.original.orderDate) : "—"}
@@ -121,16 +131,16 @@ export function SaleOrdersSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit order"}
-          deleteLabel={"Delete order"}
-          confirmTitle={"Delete this order?"}
-          confirmDescription={"The sale order will be removed. This cannot be undone."}
+          editLabel={t("editOrder")}
+          deleteLabel={t("deleteOrder")}
+          confirmTitle={t("deleteOrderTitle")}
+          confirmDescription={t("deleteOrderDescription")}
           onEdit={() => router.push(`/sale-orders/${row.original.id}`)}
           onDelete={() => {
             void getSwantaraService()
               .saleOrders.delete(Number(orgId), row.original.id)
               .then(() => void ordersQuery.refetch())
-              .catch(() => toast.error("Could not disable the organization."));
+              .catch(() => toast.error(t("saveFailed")));
           }}
         />
       ),
@@ -153,17 +163,17 @@ export function SaleOrdersSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "sent", label: "Sent" },
-          { value: "confirmed", label: "Confirmed" },
-          { value: "done", label: "Done" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: t("orderStateDraft") },
+          { value: "sent", label: t("orderStateSent") },
+          { value: "confirmed", label: t("orderStateConfirmed") },
+          { value: "done", label: t("orderStateDone") },
+          { value: "cancelled", label: t("orderStateCancelled") },
         ]}
-        searchPlaceholder={"Search orders…"}
-        filterLabel={"Status"}
-        allLabel={"All sale orders"}
-        ariaLabel={"All sale orders"}
-        emptyTitle={"No sale orders"}
+        searchPlaceholder={t("searchOrdersPlaceholder")}
+        filterLabel={t("tableStatus")}
+        allLabel={t("allSaleOrders")}
+        ariaLabel={t("allSaleOrders")}
+        emptyTitle={t("emptyOrders")}
         status={
           isLoading
             ? { type: "loading" }
@@ -184,7 +194,7 @@ export function SaleOrdersSection({ orgId }: { orgId: string }) {
             }}
           >
             <Plus />
-            <span>{"New quotation"}</span>
+            <span>{t("newQuotation")}</span>
           </Button>
         }
       />

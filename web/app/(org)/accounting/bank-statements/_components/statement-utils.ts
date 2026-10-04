@@ -7,11 +7,11 @@ export function bankStatementStateLabel(state: BankStatementState): string {
     case "draft":
       return "Draft";
     case "open":
-      return "Open";
+      return "Buka";
     case "reconciled":
-      return "Reconciled";
+      return "Direkonsiliasi";
     case "cancelled":
-      return "Cancelled";
+      return "Dibatalkan";
     default:
       return state;
   }

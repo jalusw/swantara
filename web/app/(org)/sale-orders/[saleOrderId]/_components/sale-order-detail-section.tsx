@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { DetailPageSkeleton } from "@/components/detail-page-skeleton";
 import { JournalDateDialog } from "@/components/journal-date-dialog";
@@ -20,31 +21,41 @@ type SaleOrderDetailProps = {
 };
 
 export function SaleOrderDetail({ orgId, saleOrderId }: SaleOrderDetailProps) {
+  const t = useTranslations("Sales");
+  const tCommon = useTranslations("Common");
   const [activeDialog, setActiveDialog] = useState<"deliver" | "invoice" | "pay" | null>(null);
   const detail = useSaleOrderDetail(orgId, saleOrderId);
   const { order, isLoading, journals } = detail;
+
+  function orderStatusLabel(state: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`orderState.${state}`);
+    } catch {
+      return state;
+    }
+  }
 
   if (isLoading) {
     return <DetailPageSkeleton />;
   }
 
   if (!order) {
-    return <p className="text-sm text-muted-foreground">{"Sale order not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("orderNotFound")}</p>;
   }
 
   return (
     <>
       <RecordLayout
         breadcrumbItems={[
-          { label: "All sale orders", href: "/sale-orders" },
+          { label: t("allSaleOrders"), href: "/sale-orders" },
           { label: order.name ?? `SO-${order.id}` },
         ]}
         title={order.name ?? `SO-${order.id}`}
-        status={<StateBadge value={order.state} statuses={getOrderStatuses()} />}
+        status={<StateBadge value={order.state} statuses={getOrderStatuses(orderStatusLabel)} />}
         tabs={[
           {
             id: "overview",
-            label: "Overview",
+            label: t("tabOverview"),
             content: (
               <SaleOrderOverviewTab
                 order={order}
@@ -60,7 +71,7 @@ export function SaleOrderDetail({ orgId, saleOrderId }: SaleOrderDetailProps) {
           },
           {
             id: "delivery",
-            label: "Delivery",
+            label: t("tabDelivery"),
             content: (
               <SaleOrderDeliveryTab
                 order={order}
@@ -71,7 +82,7 @@ export function SaleOrderDetail({ orgId, saleOrderId }: SaleOrderDetailProps) {
           },
           {
             id: "invoicing",
-            label: "Invoicing",
+            label: t("tabInvoicing"),
             content: (
               <SaleOrderInvoicingTab
                 deliveredUnbilledLines={detail.deliveredUnbilledLines}
@@ -81,12 +92,12 @@ export function SaleOrderDetail({ orgId, saleOrderId }: SaleOrderDetailProps) {
           },
           {
             id: "payments",
-            label: "Payments",
+            label: t("tabPayments"),
             content: <SaleOrderPaymentsTab order={order} onPay={() => setActiveDialog("pay")} />,
           },
           {
             id: "reminder",
-            label: "Reminder",
+            label: t("tabReminder"),
             content: (
               <SaleOrderReminderTab
                 reminders={detail.reminders}
@@ -97,10 +108,10 @@ export function SaleOrderDetail({ orgId, saleOrderId }: SaleOrderDetailProps) {
         ]}
       />
       <JournalDateDialog
-        title={"Ship / Deliver"}
-        description={"Pick, pack and ship the order. Validates moves and posts COGS."}
-        confirmLabel={"Ship / Deliver"}
-        cancelLabel={"Cancel"}
+        title={t("deliverTitle")}
+        description={t("deliverDescription")}
+        confirmLabel={t("deliverTitle")}
+        cancelLabel={tCommon("cancel")}
         open={activeDialog === "deliver"}
         onOpenChange={(open) => setActiveDialog(open ? "deliver" : null)}
         onConfirm={(journalId, date) => {
@@ -110,10 +121,10 @@ export function SaleOrderDetail({ orgId, saleOrderId }: SaleOrderDetailProps) {
         journals={journals}
       />
       <JournalDateDialog
-        title={"Create invoice"}
-        description={"Invoice delivered-unbilled lines. Shows triplet and residual."}
-        confirmLabel={"Create invoice"}
-        cancelLabel={"Cancel"}
+        title={t("invoiceTitle")}
+        description={t("invoiceDescription")}
+        confirmLabel={t("invoiceTitle")}
+        cancelLabel={tCommon("cancel")}
         open={activeDialog === "invoice"}
         onOpenChange={(open) => setActiveDialog(open ? "invoice" : null)}
         onConfirm={(journalId, date) => {
@@ -123,10 +134,10 @@ export function SaleOrderDetail({ orgId, saleOrderId }: SaleOrderDetailProps) {
         journals={journals}
       />
       <PaymentDialog
-        title={"Collect payment"}
-        description={"Capture payment and allocate to invoices. Shows payment_state and residual."}
-        confirmLabel={"Collect payment"}
-        cancelLabel={"Cancel"}
+        title={t("payTitle")}
+        description={t("payDescription")}
+        confirmLabel={t("payTitle")}
+        cancelLabel={tCommon("cancel")}
         open={activeDialog === "pay"}
         onOpenChange={(open) => setActiveDialog(open ? "pay" : null)}
         onConfirm={(values) => {

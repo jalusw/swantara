@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import type { Item } from "@/lib/services/swantara";
 import { formatMoney } from "@/lib/utils";
@@ -14,6 +15,7 @@ export function PosProductGrid({
   onAddItem: (item: Item) => void;
   searchPlaceholder: string;
 }) {
+  const t = useTranslations("Pos");
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
@@ -37,7 +39,7 @@ export function PosProductGrid({
       </div>
 
       {filtered.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">{"No products found."}</p>
+        <p className="py-8 text-center text-sm text-muted-foreground">{t("noProductsFound")}</p>
       ) : (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {filtered.map((item) => (

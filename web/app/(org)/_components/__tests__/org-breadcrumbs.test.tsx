@@ -8,17 +8,17 @@ describe("OrgBreadcrumbs", () => {
     navigationMock.setPathname("/settings/members");
     renderWithProviders(<OrgBreadcrumbs />);
 
-    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/dashboard");
-    expect(screen.getByRole("link", { name: "General" })).toHaveAttribute("href", "/settings");
-    expect(screen.getByText("Members")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Beranda" })).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByRole("link", { name: "Umum" })).toHaveAttribute("href", "/settings");
+    expect(screen.getByText("Anggota")).toHaveAttribute("aria-current", "page");
   });
 
   it("marks the dashboard as the current crumb on the dashboard", () => {
     navigationMock.setPathname("/dashboard");
     renderWithProviders(<OrgBreadcrumbs />);
 
-    expect(screen.queryByRole("link", { name: "Home" })).toBeNull();
-    expect(screen.getByText("Dashboard")).toHaveAttribute("aria-current", "page");
+    expect(screen.queryByRole("link", { name: "Beranda" })).toBeNull();
+    expect(screen.getByText("Dasbor")).toHaveAttribute("aria-current", "page");
   });
 
   it("renders nothing on the root path", () => {

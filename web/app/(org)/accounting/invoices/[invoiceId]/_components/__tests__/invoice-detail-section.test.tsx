@@ -48,7 +48,7 @@ describe("InvoiceDetailSection", () => {
     renderWithProviders(<InvoiceDetailSection orgId="1" invoiceId="7" />);
 
     expect(await screen.findByText("INV-2026-007")).toBeInTheDocument();
-    expect(screen.getByText("1,110.00")).toBeInTheDocument();
+    expect(screen.getByText("1.110,00")).toBeInTheDocument();
   });
 
   it("renders residual without duplicate back navigation", async () => {
@@ -56,6 +56,6 @@ describe("InvoiceDetailSection", () => {
 
     await screen.findByText("INV-2026-007");
     expect(screen.queryByText("Back to invoices")).not.toBeInTheDocument();
-    expect(screen.getByText("400.00")).toBeInTheDocument();
+    expect(screen.getByText("400,00")).toBeInTheDocument();
   });
 });

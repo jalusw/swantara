@@ -28,7 +28,7 @@ describe("RecentEntries", () => {
   it("renders debit and credit amounts", () => {
     renderWithProviders(<RecentEntries entries={[...entries]} />);
 
-    expect(screen.getByText("IDR 2,400.00")).toBeInTheDocument();
-    expect(screen.getByText("IDR 1,940.00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 2.400,00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 1.940,00")).toBeInTheDocument();
   });
 });

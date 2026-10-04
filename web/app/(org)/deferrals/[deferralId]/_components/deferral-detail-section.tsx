@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -11,10 +12,10 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { DeferralLine, DeferralSchedule } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatNumber, getLocalDateString } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { canRecognize, deferralStateTone } from "../../_components/deferral-utils";
 
 export function DeferralDetail({ orgId, deferralId }: { orgId: string; deferralId: string }) {
+  const t = useTranslations("Deferrals");
   const [recognizeDate, setRecognizeDate] = useState(getLocalDateString());
 
   const scheduleQuery = useOrgListQuery<{ schedule: DeferralSchedule }, Record<string, never>>(
@@ -31,11 +32,11 @@ export function DeferralDetail({ orgId, deferralId }: { orgId: string; deferralI
   const lines = linesQuery.data?.lines ?? [];
 
   if (scheduleQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   }
 
   if (!schedule) {
-    return <p className="text-sm text-muted-foreground">{"Deferral schedule not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("deferralNotFound")}</p>;
   }
 
   const tone = deferralStateTone(schedule.state);
@@ -46,13 +47,13 @@ export function DeferralDetail({ orgId, deferralId }: { orgId: string; deferralI
         asOf: recognizeDate,
       }),
       {
-        loading: "Processing…",
+        loading: t("processing"),
         success: () => {
           void scheduleQuery.refetch();
           void linesQuery.refetch();
-          return "Deferrals recognized";
+          return t("toastRecognized");
         },
-        error: "Action failed",
+        error: t("toastActionFailed"),
       },
     );
   }
@@ -68,7 +69,7 @@ export function DeferralDetail({ orgId, deferralId }: { orgId: string; deferralI
             className="h-8 w-[160px]"
           />
           <Button size="sm" onClick={handleRecognize}>
-            {"Recognize"}
+            {t("recognize")}
           </Button>
         </div>
       ) : null}
@@ -78,7 +79,7 @@ export function DeferralDetail({ orgId, deferralId }: { orgId: string; deferralI
   return (
     <RecordLayout
       breadcrumbItems={[
-        { label: "Deferrals", href: "/deferrals" },
+        { label: t("title"), href: "/deferrals" },
         { label: `${schedule.sourceType} #${schedule.sourceId}` },
       ]}
       title={`${schedule.sourceType} #${schedule.sourceId}`}
@@ -97,19 +98,19 @@ export function DeferralDetail({ orgId, deferralId }: { orgId: string; deferralI
                     : ""
           }
         >
-          {humanizeKey(String(schedule.state))}
+          {(t as unknown as (k: string) => string)(`deferralState_${schedule.state}`)}
         </Badge>
       }
       actions={stateActions}
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: t("tabOverview"),
           content: (
             <div className="grid gap-4 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Total amount"}</CardTitle>
+                  <CardTitle>{t("fieldTotalAmount")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold tabular-nums">
@@ -119,7 +120,7 @@ export function DeferralDetail({ orgId, deferralId }: { orgId: string; deferralI
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Recognized amount"}</CardTitle>
+                  <CardTitle>{t("recognizedAmount")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold tabular-nums">
@@ -129,36 +130,42 @@ export function DeferralDetail({ orgId, deferralId }: { orgId: string; deferralI
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Method"}</CardTitle>
+                  <CardTitle>{t("fieldMethod")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Badge variant="outline">{humanizeKey(String(schedule.method))}</Badge>
+                  <Badge variant="outline">
+                    {(t as unknown as (k: string) => string)(`deferMethod_${schedule.method}`)}
+                  </Badge>
                 </CardContent>
               </Card>
               <Card className="lg:col-span-3">
                 <CardHeader>
-                  <CardTitle>{"Details"}</CardTitle>
+                  <CardTitle>{t("detailCard")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <dl className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"Type"}</dt>
-                      <dd className="text-sm">{humanizeKey(String(schedule.type))}</dd>
+                      <dt className="text-muted-foreground text-sm">{t("fieldType")}</dt>
+                      <dd className="text-sm">
+                        {(t as unknown as (k: string) => string)(`deferralType_${schedule.type}`)}
+                      </dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"Source"}</dt>
+                      <dt className="text-muted-foreground text-sm">{t("fieldSource")}</dt>
                       <dd className="text-sm">
                         {schedule.sourceType} #{schedule.sourceId}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"Start date"}</dt>
+                      <dt className="text-muted-foreground text-sm">{t("fieldStartDate")}</dt>
                       <dd className="text-sm">
                         {schedule.dateStart ? formatDate(String(schedule.dateStart)) : "—"}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"Balance sheet account"}</dt>
+                      <dt className="text-muted-foreground text-sm">
+                        {t("fieldBalanceSheetAccount")}
+                      </dt>
                       <dd className="text-sm">
                         {schedule.balanceSheetAccountId
                           ? `#${schedule.balanceSheetAccountId}`
@@ -166,7 +173,7 @@ export function DeferralDetail({ orgId, deferralId }: { orgId: string; deferralI
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"P&L account"}</dt>
+                      <dt className="text-muted-foreground text-sm">{t("fieldPlAccount")}</dt>
                       <dd className="text-sm">
                         {schedule.plAccountId ? `#${schedule.plAccountId}` : "—"}
                       </dd>
@@ -179,21 +186,21 @@ export function DeferralDetail({ orgId, deferralId }: { orgId: string; deferralI
         },
         {
           id: "lines",
-          label: "Recognition lines",
+          label: t("tabLines"),
           content: (
             <div className="space-y-4">
               {lines.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{"No recognition lines."}</p>
+                <p className="text-sm text-muted-foreground">{t("linesEmpty")}</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b text-muted-foreground">
                         <th className="pb-2 text-left">{"#"}</th>
-                        <th className="pb-2 text-left">{"Date"}</th>
-                        <th className="pb-2 text-right">{"Amount"}</th>
-                        <th className="pb-2 text-right">{"Posted"}</th>
-                        <th className="pb-2 text-right">{"Move"}</th>
+                        <th className="pb-2 text-left">{t("colDate")}</th>
+                        <th className="pb-2 text-right">{t("colAmount")}</th>
+                        <th className="pb-2 text-right">{t("colPosted")}</th>
+                        <th className="pb-2 text-right">{t("colMove")}</th>
                       </tr>
                     </thead>
                     <tbody>

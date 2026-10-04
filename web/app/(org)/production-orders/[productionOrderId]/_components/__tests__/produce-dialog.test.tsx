@@ -63,8 +63,8 @@ describe("ProduceDialog", () => {
       />,
     );
 
-    expect(await screen.findByText("Produce Goods")).toBeInTheDocument();
-    expect(screen.getByLabelText("Quantity to Produce")).toBeInTheDocument();
+    expect(await screen.findByText("Produksi barang")).toBeInTheDocument();
+    expect(screen.getByLabelText("Jml untuk diproduksi")).toBeInTheDocument();
   });
 
   it("submits the produced quantity", async () => {
@@ -81,8 +81,8 @@ describe("ProduceDialog", () => {
       />,
     );
 
-    await screen.findByText("Produce Goods");
-    await user.click(screen.getByRole("button", { name: "Produce" }));
+    await screen.findByText("Produksi barang");
+    await user.click(screen.getByRole("button", { name: "Produksi" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });

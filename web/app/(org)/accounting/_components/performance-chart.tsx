@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { BarChart } from "@/components/bar-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs";
@@ -52,25 +53,34 @@ const chartTabs = {
 };
 
 export function PerformanceChart() {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Accounting");
   return (
     <Card className="lg:col-span-2">
       <CardHeader>
-        <CardTitle>{"Performance"}</CardTitle>
-        <CardDescription>{"Switch between net profit, revenue, and expenses."}</CardDescription>
+        <CardTitle>{t("performanceTitle")}</CardTitle>
+        <CardDescription>{t("performanceDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="netProfit">
-          <TabsList aria-label={"Performance"}>
-            <TabsTrigger value="netProfit">{"Net profit"}</TabsTrigger>
-            <TabsTrigger value="revenue">{"Revenue"}</TabsTrigger>
-            <TabsTrigger value="expenses">{"Expenses"}</TabsTrigger>
+          <TabsList aria-label={t("performanceTitle")}>
+            <TabsTrigger value="netProfit">{t("statNetProfit")}</TabsTrigger>
+            <TabsTrigger value="revenue">{t("statRevenue")}</TabsTrigger>
+            <TabsTrigger value="expenses">{t("statExpenses")}</TabsTrigger>
           </TabsList>
           {(["netProfit", "revenue", "expenses"] as const).map((key) => (
             <TabsContent key={key} value={key}>
               <BarChart
                 data={chartTabs[key]}
                 ariaLabel={
-                  key === "netProfit" ? "Net profit" : key === "revenue" ? "Revenue" : "Expenses"
+                  key === "netProfit"
+                    ? t("statNetProfit")
+                    : key === "revenue"
+                      ? t("statRevenue")
+                      : t("statExpenses")
                 }
                 valueFormatter={(value) =>
                   formatMoney(value * 1000, { currency: DEFAULT_CURRENCY })

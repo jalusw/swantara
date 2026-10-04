@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -46,6 +47,8 @@ export function ConsumeDialog({
   components,
   onSave,
 }: ConsumeDialogProps) {
+  const t = useTranslations("ProductionOrders");
+  const tCommon = useTranslations("Common");
   const schema = useConsumeFormSchema();
   type Values = z.infer<typeof schema>;
 
@@ -79,7 +82,7 @@ export function ConsumeDialog({
 
     if (consumeLines.length === 0) return;
 
-    void Promise.all(
+    return Promise.all(
       consumeLines.map((line) =>
         getSwantaraService().productionOrders.consume(Number(orgId), Number(productionOrderId), {
           ...line,
@@ -87,23 +90,25 @@ export function ConsumeDialog({
           wipAccountId: 1,
         }),
       ),
-    ).then(() => {
-      toast.success("Materials consumed");
-      onSave();
-    });
+    )
+      .then(() => {
+        toast.success(t("materialsConsumed"));
+        onSave();
+      })
+      .catch(() => {});
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"Consume Materials"}</DialogTitle>
-          <DialogDescription>{"Record material consumption"}</DialogDescription>
+          <DialogTitle>{t("consumeTitle")}</DialogTitle>
+          <DialogDescription>{t("consumeDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="flex flex-col gap-3">
             {fields.length === 0 ? (
-              <div className="text-muted-foreground text-sm">{"No components to consume"}</div>
+              <div className="text-muted-foreground text-sm">{t("noComponentsToConsume")}</div>
             ) : (
               fields.map((field, index) => {
                 const component = components.find((c) => c.id === field.componentId);
@@ -131,10 +136,10 @@ export function ConsumeDialog({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
             <SubmitButton disabled={linesWatch.every((l) => Number(l.qty) === 0)}>
-              {"Consume"}
+              {t("consumeAction")}
             </SubmitButton>
           </DialogFooter>
         </Form>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -20,8 +21,9 @@ import { getLocalDateString } from "@/lib/utils";
 import { zodResolver } from "@/lib/utils/zod-resolver";
 
 function useMilestoneFormSchema() {
+  const t = useTranslations("Projects");
   return z.object({
-    name: z.string().min(1, "Milestone name is required."),
+    name: z.string().min(1, t("validation_milestoneNameRequired")),
     deadline: z.string().nullable(),
     saleLineId: z.coerce.number().nullable(),
   });
@@ -43,6 +45,8 @@ export function MilestoneFormDialog({
   initial?: ProjectMilestone | null;
   onSave: () => void;
 }) {
+  const t = useTranslations("Projects");
+  const tCommon = useTranslations("Common");
   const isEdit = Boolean(initial);
 
   const schema = useMilestoneFormSchema();
@@ -63,25 +67,25 @@ export function MilestoneFormDialog({
       saleLineId: values.saleLineId || null,
     };
 
-    void getSwantaraService()
+    return getSwantaraService()
       .projects.milestones.create(Number(orgId), projectId, payload)
       .then(() => onSave())
-      .catch(() => toast.error("Something went wrong."));
+      .catch(() => void toast.error(t("saveFailed")));
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Project updated." : "New milestone"}</DialogTitle>
-          <DialogDescription>{"Milestone"}</DialogDescription>
+          <DialogTitle>{isEdit ? t("editMilestone") : t("newMilestone")}</DialogTitle>
+          <DialogDescription>{t("milestoneFormDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4">
-            <FormField name="name" label={"Milestone"}>
+            <FormField name="name" label={t("milestoneName")}>
               {({ field, id }) => <Input {...field} id={id} />}
             </FormField>
-            <FormField name="deadline" label={"Deadline"}>
+            <FormField name="deadline" label={t("deadline")}>
               {({ field, id }) => (
                 <Input
                   {...field}
@@ -96,9 +100,9 @@ export function MilestoneFormDialog({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Save"}</SubmitButton>
+            <SubmitButton>{tCommon("save")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

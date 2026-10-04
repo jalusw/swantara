@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import type { ReminderAction } from "./sale-order-detail-hooks";
@@ -10,29 +11,28 @@ type SaleOrderReminderTabProps = {
 };
 
 export function SaleOrderReminderTab({ reminders, onGenerate }: SaleOrderReminderTabProps) {
+  const t = useTranslations("Sales");
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{"Reminder"}</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {"Overdue invoices and reminder actions by days overdue."}
-        </p>
+        <CardTitle className="text-base">{t("tabReminder")}</CardTitle>
+        <p className="text-sm text-muted-foreground">{t("reminderTabDescription")}</p>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         <Button size="sm" variant="outline" onClick={onGenerate}>
-          {"Generate reminder"}
+          {t("generateReminder")}
         </Button>
         {reminders.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{"No reminder actions."}</p>
+          <p className="text-sm text-muted-foreground">{t("noReminders")}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-muted-foreground">
-                  <th className="pb-2 text-left">{"Customer"}</th>
-                  <th className="pb-2 text-left">{"Invoice"}</th>
-                  <th className="pb-2 text-left">{"Level"}</th>
-                  <th className="pb-2 text-left">{"Days overdue"}</th>
+                  <th className="pb-2 text-left">{t("tableCustomer")}</th>
+                  <th className="pb-2 text-left">{t("tableInvoice")}</th>
+                  <th className="pb-2 text-left">{t("tableLevel")}</th>
+                  <th className="pb-2 text-left">{t("daysOverdue")}</th>
                 </tr>
               </thead>
               <tbody>

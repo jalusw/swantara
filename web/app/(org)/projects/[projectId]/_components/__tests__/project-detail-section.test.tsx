@@ -104,7 +104,7 @@ describe("ProjectDetail", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Tasks" }));
+    await user.click(screen.getByRole("tab", { name: "Tugas" }));
 
     expect(await screen.findByText("Design homepage")).toBeInTheDocument();
   });

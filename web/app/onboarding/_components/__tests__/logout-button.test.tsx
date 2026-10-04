@@ -11,7 +11,7 @@ describe("LogoutButton", () => {
     const user = userEvent.setup();
     renderWithProviders(<LogoutButton />);
 
-    await user.click(screen.getByRole("button", { name: /Logout/i }));
+    await user.click(screen.getByRole("button", { name: /Keluar/i }));
 
     await waitFor(() => {
       expect(navigationMock.push).toHaveBeenCalledWith("/login");
@@ -24,7 +24,7 @@ describe("LogoutButton", () => {
     const user = userEvent.setup();
     renderWithProviders(<LogoutButton />);
 
-    await user.click(screen.getByRole("button", { name: /Logout/i }));
+    await user.click(screen.getByRole("button", { name: /Keluar/i }));
 
     await waitFor(() => {
       expect(toastSpy).toHaveBeenCalled();

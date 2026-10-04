@@ -44,13 +44,13 @@ describe("PaymentDetailSection", () => {
     renderWithProviders(<PaymentDetailSection orgId="1" paymentId="3" />);
 
     expect(await screen.findByText("PAY-003")).toBeInTheDocument();
-    expect(screen.getByText("2,500.00")).toBeInTheDocument();
+    expect(screen.getByText("2.500,00")).toBeInTheDocument();
   });
 
   it("renders payment direction", async () => {
     renderWithProviders(<PaymentDetailSection orgId="1" paymentId="3" />);
 
     await screen.findByText("PAY-003");
-    expect(screen.getByText("Customer payment")).toBeInTheDocument();
+    expect(screen.getByText("Masuk")).toBeInTheDocument();
   });
 });

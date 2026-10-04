@@ -9,7 +9,15 @@ import (
 
 type PaymentBatchDAOMock struct {
 	dao.CRUDMock[PaymentBatch]
+	CreateTxFunc func(ctx context.Context, tx *gorm.DB, batch *PaymentBatch) (*PaymentBatch, error)
 	UpdateTxFunc func(ctx context.Context, tx *gorm.DB, batch *PaymentBatch) (*PaymentBatch, error)
+}
+
+func (m PaymentBatchDAOMock) CreateTx(ctx context.Context, tx *gorm.DB, batch *PaymentBatch) (*PaymentBatch, error) {
+	if m.CreateTxFunc != nil {
+		return m.CreateTxFunc(ctx, tx, batch)
+	}
+	return m.Create(ctx, batch)
 }
 
 func (m PaymentBatchDAOMock) UpdateTx(ctx context.Context, tx *gorm.DB, batch *PaymentBatch) (*PaymentBatch, error) {

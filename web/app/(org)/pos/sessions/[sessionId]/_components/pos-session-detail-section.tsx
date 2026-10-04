@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -26,9 +27,8 @@ import {
   canCloseSession,
   canPlaceOrder,
   canStartClosing,
-  posOrderStateLabel,
   posOrderStateTone,
-  posSessionStateConfig,
+  posSessionStateTone,
   sessionOrderTotal,
   sessionPaymentSummary,
 } from "../../../_components/pos-utils";
@@ -41,6 +41,11 @@ function sessionStateIndex(state: PosSession["state"]): number {
 }
 
 export function PosSessionDetail({ orgId, sessionId }: { orgId: string; sessionId: string }) {
+  const t = useTranslations("Pos");
+  const sessionState = (state: string) =>
+    (t as unknown as (k: string) => string)(`sessionState_${state}`);
+  const orderState = (state: string) =>
+    (t as unknown as (k: string) => string)(`orderState_${state}`);
   const [closingOpen, setClosingOpen] = useState(false);
 
   const sessionQuery = useOrgQuery<{ session: PosSession }>(
@@ -63,7 +68,7 @@ export function PosSessionDetail({ orgId, sessionId }: { orgId: string; sessionI
   }
 
   if (!session) {
-    return <p className="text-sm text-muted-foreground">{"Session not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("sessionNotFound")}</p>;
   }
 
   const allPayments = orders.flatMap((o) => o.payments ?? []);
@@ -74,38 +79,38 @@ export function PosSessionDetail({ orgId, sessionId }: { orgId: string; sessionI
     void getSwantaraService()
       .posSessions.closing(Number(orgId), session!.id)
       .then(() => {
-        toast.success("Session moved to closing.");
+        toast.success(t("movedToClosing"));
         void sessionQuery.refetch();
       })
-      .catch(() => toast.error("Something went wrong. Please try again."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   function handleClose(closingBalance: number) {
-    void getSwantaraService()
+    return getSwantaraService()
       .posSessions.close(Number(orgId), session!.id, { closingBalance })
       .then(() => {
-        toast.success("Session closed.");
+        toast.success(t("sessionClosed"));
         setClosingOpen(false);
         void sessionQuery.refetch();
       })
-      .catch(() => toast.error("Something went wrong. Please try again."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   return (
     <>
       <RecordLayout
         breadcrumbItems={[
-          { label: "POS Sessions", href: "/pos/sessions" },
-          { label: `Session-${session.id}` },
+          { label: t("sessionsTitle"), href: "/pos/sessions" },
+          { label: t("sessionFallback", { id: session.id }) },
         ]}
-        title={`Session-${session.id}`}
+        title={t("sessionFallback", { id: session.id })}
         status={
           <StateBadge
             value={session.state}
             statuses={{
-              opened: posSessionStateConfig("opened"),
-              closing: posSessionStateConfig("closing"),
-              closed: posSessionStateConfig("closed"),
+              opened: { label: sessionState("opened"), tone: posSessionStateTone("opened") },
+              closing: { label: sessionState("closing"), tone: posSessionStateTone("closing") },
+              closed: { label: sessionState("closed"), tone: posSessionStateTone("closed") },
             }}
           />
         }
@@ -113,17 +118,17 @@ export function PosSessionDetail({ orgId, sessionId }: { orgId: string; sessionI
           <div className="flex gap-2">
             {canPlaceOrder(session.state) ? (
               <Button size="sm" asChild>
-                <a href={`/pos/register/${session.id}`}>{"Open register"}</a>
+                <a href={`/pos/register/${session.id}`}>{t("openRegister")}</a>
               </Button>
             ) : null}
             {canStartClosing(session.state) ? (
               <Button size="sm" variant="outline" onClick={handleClosing}>
-                {"Start closing"}
+                {t("startClosing")}
               </Button>
             ) : null}
             {canCloseSession(session.state) ? (
               <Button size="sm" onClick={() => setClosingOpen(true)}>
-                {"Close session"}
+                {t("closeSession")}
               </Button>
             ) : null}
           </div>
@@ -131,19 +136,19 @@ export function PosSessionDetail({ orgId, sessionId }: { orgId: string; sessionI
         tabs={[
           {
             id: "overview",
-            label: "Overview",
+            label: t("tabOverview"),
             content: (
               <div className="flex flex-col gap-4">
                 <WorkflowSteps
                   steps={sessionSteps.map((s) => ({
-                    label: String(s),
+                    label: sessionState(s),
                   }))}
                   currentIndex={sessionStateIndex(session.state)}
                 />
                 <div className="grid gap-4 sm:grid-cols-3">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-sm">{"Opening balance"}</CardTitle>
+                      <CardTitle className="text-sm">{t("colOpeningBalance")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-lg font-bold tabular-nums">
@@ -153,7 +158,7 @@ export function PosSessionDetail({ orgId, sessionId }: { orgId: string; sessionI
                   </Card>
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-sm">{"Closing balance"}</CardTitle>
+                      <CardTitle className="text-sm">{t("colClosingBalance")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-lg font-bold tabular-nums">
@@ -163,7 +168,7 @@ export function PosSessionDetail({ orgId, sessionId }: { orgId: string; sessionI
                   </Card>
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-sm">{"Total sales"}</CardTitle>
+                      <CardTitle className="text-sm">{t("totalSales")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-lg font-bold tabular-nums">{formatMoney(totalSales)}</p>
@@ -173,34 +178,34 @@ export function PosSessionDetail({ orgId, sessionId }: { orgId: string; sessionI
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-sm">{"Session info"}</CardTitle>
+                      <CardTitle className="text-sm">{t("sessionInfo")}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Config"}</span>
+                        <span className="text-muted-foreground">{t("config")}</span>
                         <span>#{session.configId}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Cashier"}</span>
+                        <span className="text-muted-foreground">{t("cashier")}</span>
                         <span>#{session.cashierId}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Opened"}</span>
+                        <span className="text-muted-foreground">{t("colOpenedAt")}</span>
                         <span>{session.openedAt ? formatDate(session.openedAt) : "—"}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Closed"}</span>
+                        <span className="text-muted-foreground">{t("closedAt")}</span>
                         <span>{session.closedAt ? formatDate(session.closedAt) : "—"}</span>
                       </div>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-sm">{"Payment summary"}</CardTitle>
+                      <CardTitle className="text-sm">{t("paymentSummary")}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-2 text-sm">
                       {paymentSummary.length === 0 ? (
-                        <p className="text-muted-foreground">{"No payments"}</p>
+                        <p className="text-muted-foreground">{t("noPayments")}</p>
                       ) : (
                         paymentSummary.map((ps) => (
                           <div key={ps.method} className="flex justify-between">
@@ -217,25 +222,25 @@ export function PosSessionDetail({ orgId, sessionId }: { orgId: string; sessionI
           },
           {
             id: "orders",
-            label: "Orders",
+            label: t("tabOrders"),
             content: (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm">{"Orders"}</CardTitle>
+                  <CardTitle className="text-sm">{t("tabOrders")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {orders.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{"No orders in this session."}</p>
+                    <p className="text-sm text-muted-foreground">{t("noSessionOrders")}</p>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b text-left text-muted-foreground">
-                            <th className="pb-2 ">{"Order"}</th>
-                            <th className="pb-2 text-right">{"Total"}</th>
-                            <th className="pb-2 font-right text-right">{"Tax"}</th>
-                            <th className="pb-2 ">{"State"}</th>
-                            <th className="pb-2 ">{"Time"}</th>
+                            <th className="pb-2 ">{t("colOrder")}</th>
+                            <th className="pb-2 text-right">{t("colTotal")}</th>
+                            <th className="pb-2 font-right text-right">{t("colTax")}</th>
+                            <th className="pb-2 ">{t("colStatus")}</th>
+                            <th className="pb-2 ">{t("colTime")}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -257,7 +262,7 @@ export function PosSessionDetail({ orgId, sessionId }: { orgId: string; sessionI
                               </td>
                               <td className="py-2">
                                 <Badge variant="outline" className={posOrderStateTone(order.state)}>
-                                  {posOrderStateLabel(order.state)}
+                                  {orderState(order.state)}
                                 </Badge>
                               </td>
                               <td className="py-2 text-muted-foreground">
@@ -298,6 +303,8 @@ function ClosingDialog({
   expectedBalance: number;
   onSubmit: (closingBalance: number) => void;
 }) {
+  const t = useTranslations("Pos");
+  const tCommon = useTranslations("Common");
   const [closingBalance, setClosingBalance] = useState(String(expectedBalance));
   const diff = Number(closingBalance) - expectedBalance;
   const isBalanced = Math.abs(diff) < 0.01;
@@ -306,16 +313,16 @@ function ClosingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"Close session"}</DialogTitle>
-          <DialogDescription>{"Close Description"}</DialogDescription>
+          <DialogTitle>{t("closeSession")}</DialogTitle>
+          <DialogDescription>{t("closeDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Expected balance"}</span>
+            <span className="text-sm">{t("expectedBalance")}</span>
             <p className="text-lg font-bold tabular-nums">{formatMoney(expectedBalance)}</p>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Closing balance"}</span>
+            <span className="text-sm">{t("colClosingBalance")}</span>
             <Input
               type="number"
               step="any"
@@ -326,17 +333,17 @@ function ClosingDialog({
           </div>
           {!isBalanced ? (
             <p className="text-sm text-destructive">
-              {"Difference"}: {formatMoney(diff)}
+              {t("difference")}: {formatMoney(diff)}
             </p>
           ) : (
-            <p className="text-sm text-success">{"Balanced"}</p>
+            <p className="text-sm text-success">{t("balanced")}</p>
           )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
-          <Button onClick={() => onSubmit(Number(closingBalance))}>{"Close session"}</Button>
+          <Button onClick={() => onSubmit(Number(closingBalance))}>{t("closeSession")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

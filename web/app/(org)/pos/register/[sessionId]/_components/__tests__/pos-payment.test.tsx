@@ -14,7 +14,7 @@ describe("PosPayment", () => {
   it("renders the amount due", async () => {
     renderPayment(() => {});
 
-    expect(await screen.findByText("Total due")).toBeInTheDocument();
+    expect(await screen.findByText("Total jatuh tempo")).toBeInTheDocument();
     expect(screen.getByText("Remaining")).toBeInTheDocument();
   });
 
@@ -23,8 +23,8 @@ describe("PosPayment", () => {
     const user = userEvent.setup();
     renderPayment(onSubmit);
 
-    await screen.findByText("Total due");
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
+    await screen.findByText("Total jatuh tempo");
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onSubmit).toHaveBeenCalledWith([{ method: "cash", amount: 120000 }]);

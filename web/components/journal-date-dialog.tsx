@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/button";
 import {
@@ -12,7 +13,6 @@ import {
 } from "@/components/dialog";
 import { Input } from "@/components/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/select";
-import { UI_COPY } from "@/lib/constants/ui-copy";
 import type { Journal } from "@/lib/services/swantara";
 import { getLocalDateString } from "@/lib/utils";
 
@@ -32,13 +32,15 @@ export function JournalDateDialog({
   title,
   description,
   confirmLabel,
-  cancelLabel = UI_COPY.cancel,
+  cancelLabel,
   open,
   onOpenChange,
   onConfirm,
   isPending,
   journals,
 }: JournalDateDialogProps) {
+  const tCommon = useTranslations("Common");
+  const cancel = cancelLabel ?? tCommon("cancel");
   const [journalId, setJournalId] = useState("");
   const [date, setDate] = useState(getLocalDateString());
 
@@ -51,10 +53,10 @@ export function JournalDateDialog({
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{UI_COPY.journal}</span>
+            <span className="text-sm">{tCommon("journal")}</span>
             <Select value={journalId} onValueChange={(v) => setJournalId(v ?? "")}>
-              <SelectTrigger aria-label={UI_COPY.journal}>
-                <SelectValue placeholder={UI_COPY.selectJournal} />
+              <SelectTrigger aria-label={tCommon("journal")}>
+                <SelectValue placeholder={tCommon("selectJournal")} />
               </SelectTrigger>
               <SelectContent>
                 {journals.map((j) => (
@@ -66,13 +68,13 @@ export function JournalDateDialog({
             </Select>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{UI_COPY.date}</span>
+            <span className="text-sm">{tCommon("date")}</span>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {cancelLabel}
+            {cancel}
           </Button>
           <Button onClick={() => onConfirm(journalId, date)} disabled={!journalId || isPending}>
             {confirmLabel}

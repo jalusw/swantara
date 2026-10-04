@@ -58,16 +58,16 @@ describe("MrpSection", () => {
   it("renders seeded Planning runs", async () => {
     renderWithProviders(<MrpSection orgId="1" />);
 
-    expect(await screen.findByText("Run-1")).toBeInTheDocument();
+    expect(await screen.findByText("Proses 1")).toBeInTheDocument();
   });
 
   it("shows planned orders when a run is selected", async () => {
     const user = userEvent.setup();
     renderWithProviders(<MrpSection orgId="1" />);
 
-    await user.click(await screen.findByText("Run-1"));
+    await user.click(await screen.findByText("Proses 1"));
 
-    expect(await screen.findByText("Planned Orders")).toBeInTheDocument();
+    expect(await screen.findByText("Pesanan terencana")).toBeInTheDocument();
     expect(screen.getByText("#7")).toBeInTheDocument();
   });
 });

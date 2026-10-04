@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs";
 import { CashSection } from "./cash-section";
 import { DashboardOverview } from "./dashboard-overview-section";
@@ -21,24 +22,17 @@ const TABS = [
   "operations",
 ] as const;
 
-const TAB_LABELS: Record<(typeof TABS)[number], string> = {
-  overview: "Overview",
-  finance: "Finance",
-  cash: "Cash",
-  sales: "Sales",
-  inventory: "Inventory",
-  procurement: "Procurement",
-  manufacturing: "Manufacturing",
-  operations: "Operations",
-};
+type TabId = (typeof TABS)[number];
 
 export function DashboardTabs({ orgId }: { orgId: string }) {
+  const t = useTranslations("Dashboard");
+  const tabLabel = (tab: TabId) => (t as unknown as (k: string) => string)(`tab_${tab}`);
   return (
-    <Tabs defaultValue="overview">
+    <Tabs defaultValue="overview" className="gap-4 sm:gap-6">
       <TabsList variant="line">
         {TABS.map((tab) => (
           <TabsTrigger key={tab} value={tab}>
-            {TAB_LABELS[tab]}
+            {tabLabel(tab)}
           </TabsTrigger>
         ))}
       </TabsList>
@@ -78,15 +72,23 @@ export function DashboardTabs({ orgId }: { orgId: string }) {
   );
 }
 
+function TabSectionHead({ tab }: { tab: Exclude<TabId, "overview"> }) {
+  const t = useTranslations("Dashboard");
+  const dyn = t as unknown as (k: string) => string;
+  return (
+    <div className="space-y-1">
+      <h2 className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
+        {dyn(`heading_${tab}`)}
+      </h2>
+      <p className="text-sm text-muted-foreground">{dyn(`headingDesc_${tab}`)}</p>
+    </div>
+  );
+}
+
 function FinanceTab() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <h2 className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          {"Operations"}
-        </h2>
-        <p className="text-sm text-muted-foreground">{"Payroll, projects and subscriptions."}</p>
-      </div>
+      <TabSectionHead tab="finance" />
       <FinanceOverview />
     </div>
   );
@@ -95,12 +97,7 @@ function FinanceTab() {
 function CashTab() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <h2 className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          {"Operations"}
-        </h2>
-        <p className="text-sm text-muted-foreground">{"Payroll, projects and subscriptions."}</p>
-      </div>
+      <TabSectionHead tab="cash" />
       <CashSection />
     </div>
   );
@@ -109,12 +106,7 @@ function CashTab() {
 function SalesTab() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <h2 className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          {"Operations"}
-        </h2>
-        <p className="text-sm text-muted-foreground">{"Payroll, projects and subscriptions."}</p>
-      </div>
+      <TabSectionHead tab="sales" />
       <section className="grid gap-4 lg:grid-cols-12">
         <div className="lg:col-span-7">
           <SalesSection />
@@ -130,12 +122,7 @@ function SalesTab() {
 function InventoryTab() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <h2 className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          {"Operations"}
-        </h2>
-        <p className="text-sm text-muted-foreground">{"Payroll, projects and subscriptions."}</p>
-      </div>
+      <TabSectionHead tab="inventory" />
       <section className="grid gap-4 lg:grid-cols-12">
         <div className="lg:col-span-7">
           <InventoryOverview />
@@ -151,12 +138,7 @@ function InventoryTab() {
 function ProcurementTab() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <h2 className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          {"Operations"}
-        </h2>
-        <p className="text-sm text-muted-foreground">{"Payroll, projects and subscriptions."}</p>
-      </div>
+      <TabSectionHead tab="procurement" />
       <ProcurementKpiCard />
     </div>
   );
@@ -165,12 +147,7 @@ function ProcurementTab() {
 function ManufacturingTab() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <h2 className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          {"Operations"}
-        </h2>
-        <p className="text-sm text-muted-foreground">{"Payroll, projects and subscriptions."}</p>
-      </div>
+      <TabSectionHead tab="manufacturing" />
       <ManufacturingSection />
     </div>
   );
@@ -179,12 +156,7 @@ function ManufacturingTab() {
 function OperationsTab() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <h2 className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-          {"Operations"}
-        </h2>
-        <p className="text-sm text-muted-foreground">{"Payroll, projects and subscriptions."}</p>
-      </div>
+      <TabSectionHead tab="operations" />
       <section className="flex flex-col gap-8">
         <PayrollSection />
         <ProjectSection />

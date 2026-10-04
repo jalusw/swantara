@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
@@ -8,10 +9,13 @@ import { useOrgListQuery, useOrgQuery } from "@/lib/hooks/use-org-query";
 import type { Journal, JournalEntry } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, getLocalDateString } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { canReverse, moveStateTone } from "../../_components/journal-entry-utils";
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 export function JournalEntryDetailSection({ orgId, entryId }: { orgId: string; entryId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
+  const tCommon = useTranslations("Common");
   const movementQuery = useOrgQuery<{ movement: JournalEntry }>(
     "journalEntries",
     entryId,
@@ -38,21 +42,21 @@ export function JournalEntryDetailSection({ orgId, entryId }: { orgId: string; e
         description: "",
       })
       .then(() => {
-        toast.success("Entry reversed successfully");
+        toast.success(t("toastEntryReversed"));
         void movementQuery.refetch();
       });
   }
 
   if (movementQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading journal entry..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (movementQuery.isError) {
-    return <div className="text-sm text-destructive">{"Could not disable the organization."}</div>;
+    return <div className="text-sm text-destructive">{t("entryLoadFailed")}</div>;
   }
 
   if (!movement) {
-    return <p className="text-sm text-muted-foreground">{"Journal entry not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("entryNotFound")}</p>;
   }
 
   return (
@@ -66,11 +70,11 @@ export function JournalEntryDetailSection({ orgId, entryId }: { orgId: string; e
         </div>
         <div className="flex gap-2">
           <Badge variant="outline" className={moveStateTone(movement.state)}>
-            {humanizeKey(String(movement.state))}
+            {(t as unknown as (k: string) => string)(`entryState_${movement.state}`)}
           </Badge>
           {canReverse(movement.state) ? (
             <Button size="sm" variant="outline" onClick={handleReverse}>
-              {"Reverse entry"}
+              {t("reverseEntry")}
             </Button>
           ) : null}
         </div>
@@ -79,7 +83,7 @@ export function JournalEntryDetailSection({ orgId, entryId }: { orgId: string; e
       {movement.ref ? (
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">{"Reference"}</CardTitle>
+            <CardTitle className="text-sm">{t("colReference")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm">{movement.ref}</p>

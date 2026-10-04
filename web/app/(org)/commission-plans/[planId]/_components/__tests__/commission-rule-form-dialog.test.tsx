@@ -16,9 +16,9 @@ describe("CommissionRuleFormDialog", () => {
       />,
     );
 
-    expect(await screen.findByText("Add commission rule")).toBeInTheDocument();
-    expect(screen.getByLabelText("Min amount")).toBeInTheDocument();
-    expect(screen.getByLabelText("Rate %")).toBeInTheDocument();
+    expect(await screen.findByText("Tambah aturan komisi")).toBeInTheDocument();
+    expect(screen.getByLabelText("Jumlah minimum")).toBeInTheDocument();
+    expect(screen.getByLabelText("Tarif %")).toBeInTheDocument();
   });
 
   it("closes without saving from the cancel button", async () => {
@@ -34,7 +34,7 @@ describe("CommissionRuleFormDialog", () => {
       />,
     );
 
-    await user.click(await screen.findByRole("button", { name: "Cancel" }));
+    await user.click(await screen.findByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

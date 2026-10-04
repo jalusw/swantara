@@ -8,7 +8,6 @@ import (
 	"github.com/jalusw/swantara/apps/service/internal/accounting"
 	"github.com/jalusw/swantara/apps/service/internal/db"
 	"github.com/jalusw/swantara/apps/service/internal/kernel/amount"
-	"github.com/jalusw/swantara/apps/service/internal/kernel/dao"
 	"github.com/jalusw/swantara/apps/service/internal/kernel/model"
 	"github.com/jalusw/swantara/apps/service/internal/kernel/query"
 	"github.com/jalusw/swantara/apps/service/internal/kernel/state"
@@ -16,34 +15,6 @@ import (
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
-
-type AssetCategoryService struct {
-	categories dao.CRUD[reference.AssetCategory]
-}
-
-func NewAssetCategoryService(categories dao.CRUD[reference.AssetCategory]) AssetCategoryService {
-	return AssetCategoryService{categories: categories}
-}
-
-func (s AssetCategoryService) List(ctx context.Context, q *query.Query) (*query.Page[reference.AssetCategory], error) {
-	return s.categories.List(ctx, q)
-}
-
-func (s AssetCategoryService) Find(ctx context.Context, id uint64) (*reference.AssetCategory, error) {
-	return s.categories.Find(ctx, id)
-}
-
-func (s AssetCategoryService) Create(ctx context.Context, category *reference.AssetCategory) (*reference.AssetCategory, error) {
-	return s.categories.Create(ctx, category)
-}
-
-func (s AssetCategoryService) Update(ctx context.Context, category *reference.AssetCategory) (*reference.AssetCategory, error) {
-	return s.categories.Update(ctx, category)
-}
-
-func (s AssetCategoryService) Delete(ctx context.Context, id uint64) error {
-	return s.categories.Delete(ctx, id)
-}
 
 type AssetService struct {
 	assets       FixedAssetDAO

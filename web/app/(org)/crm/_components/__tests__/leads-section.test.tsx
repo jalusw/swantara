@@ -101,7 +101,7 @@ describe("LeadsSection", () => {
     renderWithProviders(<LeadsSection orgId="1" />);
 
     await screen.findByText("Acme Website Inquiry");
-    await user.type(screen.getByPlaceholderText("Search leads…"), "Trade Show");
+    await user.type(screen.getByPlaceholderText("Cari prospek…"), "Trade Show");
 
     expect(await screen.findByText("Trade Show Follow-up")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Acme Website Inquiry")).not.toBeInTheDocument());
@@ -112,9 +112,9 @@ describe("LeadsSection", () => {
     renderWithProviders(<LeadsSection orgId="1" />);
 
     await screen.findByText("Acme Website Inquiry");
-    await user.click(screen.getByRole("button", { name: "Add lead" }));
+    await user.click(screen.getByRole("button", { name: "Tambah Prospek" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("New lead")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Prospek baru" })).toBeInTheDocument();
   });
 });

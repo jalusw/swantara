@@ -6,7 +6,7 @@ export default async function AccountingLayout({ children }: { children: React.R
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
       <PageHeader
-        title={"Accounting"}
+        title={"Akuntansi"}
         description={"Chart of accounts, journals, taxes, and financial transactions."}
       />
       <Suspense fallback={null}>

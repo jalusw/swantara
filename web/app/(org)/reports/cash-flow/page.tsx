@@ -1,6 +1,7 @@
 "use client";
 
 import { FileDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/button";
@@ -12,18 +13,23 @@ import { exportCsv, formatMoney } from "@/lib/utils";
 import { cn } from "@/lib/utils/style";
 
 export default function CashFlowPage() {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Reports");
   const { data, isLoading } = useCashFlowReport();
   const cf = data?.cashFlow;
 
   function handleExportCsv() {
     if (!cf) return;
     const headers = [
-      "Operating",
-      "Investing",
-      "Financing",
-      "Net change",
-      "Opening cash",
-      "Closing cash",
+      t("operating"),
+      t("investing"),
+      t("financing"),
+      t("netChange"),
+      t("openingCash"),
+      t("closingCash"),
     ];
     const csvRows = [
       [cf.operating, cf.investing, cf.financing, cf.netChange, cf.openingCash, cf.closingCash],
@@ -33,15 +39,15 @@ export default function CashFlowPage() {
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <BackLink href={"/reports"}>{"Back to reports"}</BackLink>
+      <BackLink href={"/reports"}>{t("backToReports")}</BackLink>
 
       <PageHeader
-        title={"Cash Flow"}
-        description={"Cash movements across operating, investing, and financing."}
+        title={t("cashFlowTitle")}
+        description={t("cashFlowDescription")}
         actions={
           <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={!cf}>
             <FileDown className="size-4" aria-hidden />
-            {"Export CSV"}
+            {t("exportCsv")}
           </Button>
         }
       />
@@ -49,13 +55,13 @@ export default function CashFlowPage() {
       {isLoading ? (
         <Card>
           <CardContent className="p-6 text-center text-muted-foreground">
-            {"Loading cash flow…"}
+            {t("loadingCashFlow")}
           </CardContent>
         </Card>
       ) : !cf ? (
         <Card>
           <CardContent className="p-6 text-center text-muted-foreground">
-            {"No cash flow data available."}
+            {t("cashFlowEmpty")}
           </CardContent>
         </Card>
       ) : (
@@ -63,7 +69,7 @@ export default function CashFlowPage() {
           <section className="grid gap-3 sm:grid-cols-3">
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">{"Operating"}</p>
+                <p className="text-xs text-muted-foreground">{t("operating")}</p>
                 <p
                   className={cn(
                     "font-heading text-lg font-bold",
@@ -76,7 +82,7 @@ export default function CashFlowPage() {
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">{"Investing"}</p>
+                <p className="text-xs text-muted-foreground">{t("investing")}</p>
                 <p
                   className={cn(
                     "font-heading text-lg font-bold",
@@ -89,7 +95,7 @@ export default function CashFlowPage() {
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">{"Financing"}</p>
+                <p className="text-xs text-muted-foreground">{t("financing")}</p>
                 <p
                   className={cn(
                     "font-heading text-lg font-bold",
@@ -105,7 +111,7 @@ export default function CashFlowPage() {
           <section className="grid gap-3 sm:grid-cols-3">
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">{"Net change"}</p>
+                <p className="text-xs text-muted-foreground">{t("netChange")}</p>
                 <p
                   className={cn(
                     "font-heading text-lg font-bold",
@@ -118,7 +124,7 @@ export default function CashFlowPage() {
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">{"Opening cash"}</p>
+                <p className="text-xs text-muted-foreground">{t("openingCash")}</p>
                 <p className="font-heading text-lg font-bold">
                   {formatMoney(cf.openingCash, { currency: DEFAULT_CURRENCY })}
                 </p>
@@ -126,7 +132,7 @@ export default function CashFlowPage() {
             </Card>
             <Card>
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground">{"Closing cash"}</p>
+                <p className="text-xs text-muted-foreground">{t("closingCash")}</p>
                 <p className="font-heading text-lg font-bold">
                   {formatMoney(cf.closingCash, { currency: DEFAULT_CURRENCY })}
                 </p>

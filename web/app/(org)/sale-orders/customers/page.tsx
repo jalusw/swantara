@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
 import { PageHeader } from "@/components/page-header";
 import { requireActiveOrgId } from "@/lib/server/active-org";
@@ -7,25 +8,21 @@ import { CustomersTable } from "./_components/customers-table-section";
 
 export default async function OrgCustomersPage() {
   const id = String(await requireActiveOrgId());
+  const t = await getTranslations("Sales");
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <PageHeader
-        title={"Customers"}
-        description={"Manage your customer accounts, contacts, and outstanding balances."}
-      />
+      <PageHeader title={t("customersTitle")} description={t("customersSubtitle")} />
 
-      <section aria-label={"Customer overview"}>
+      <section aria-label={t("customersSummary")}>
         <CustomersStats />
       </section>
 
-      <section aria-label={"All customers"}>
+      <section aria-label={t("allCustomers")}>
         <Card>
           <CardHeader className="border-b">
-            <CardTitle>{"All customers"}</CardTitle>
-            <CardDescription>
-              {"A list of everyone who does business with your organization."}
-            </CardDescription>
+            <CardTitle>{t("allCustomers")}</CardTitle>
+            <CardDescription>{t("customersDescription")}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <CustomersTable orgId={id} />
@@ -33,7 +30,7 @@ export default async function OrgCustomersPage() {
         </Card>
       </section>
 
-      <section aria-label={"Customer acquisition"}>
+      <section aria-label={t("customerAcquisition")}>
         <CustomersAcquisition />
       </section>
     </div>

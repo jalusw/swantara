@@ -38,7 +38,7 @@ describe("GiftCardDetail", () => {
     renderWithProviders(<GiftCardDetail orgId="1" giftCardId="1" />);
 
     expect(await screen.findByRole("heading", { name: "GC-1001" })).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
+    expect(screen.getByText("Aktif")).toBeInTheDocument();
   });
 
   it("shows empty transactions on the transactions tab", async () => {
@@ -46,8 +46,8 @@ describe("GiftCardDetail", () => {
     renderWithProviders(<GiftCardDetail orgId="1" giftCardId="1" />);
 
     await screen.findByRole("heading", { name: "GC-1001" });
-    await user.click(screen.getByRole("tab", { name: "Transactions" }));
+    await user.click(screen.getByRole("tab", { name: "Transaksi" }));
 
-    expect(await screen.findByText("No transactions.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada transaksi")).toBeInTheDocument();
   });
 });

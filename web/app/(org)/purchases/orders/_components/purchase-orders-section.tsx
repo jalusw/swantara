@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -16,6 +17,7 @@ import { humanizeKey } from "@/lib/utils/case";
 import { PurchaseOrderFormDialog } from "./purchase-order-form-dialog";
 
 export function PurchaseOrdersSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Purchases");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -40,10 +42,18 @@ export function PurchaseOrdersSection({ orgId }: { orgId: string }) {
     void ordersQuery.refetch();
   }
 
+  function stateLabel(state: PurchaseOrder["state"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`poState.${state}`);
+    } catch {
+      return humanizeKey(String(state));
+    }
+  }
+
   const columns: ColumnDef<PurchaseOrder>[] = [
     {
       accessorKey: "name",
-      header: "Order",
+      header: t("tableOrder"),
       cell: ({ row }) => (
         <a
           href={`/purchases/orders/${row.original.id}`}
@@ -55,7 +65,7 @@ export function PurchaseOrdersSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "supplierId",
-      header: "Supplier",
+      header: t("tableSupplier"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {contactMap.get(row.original.supplierId) ?? `#${row.original.supplierId}`}
@@ -64,7 +74,7 @@ export function PurchaseOrdersSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "Status",
+      header: t("tableStatus"),
       cell: ({ row }) => (
         <Badge
           variant={
@@ -75,23 +85,23 @@ export function PurchaseOrdersSection({ orgId }: { orgId: string }) {
                 : "secondary"
           }
         >
-          {humanizeKey(String(row.original.state))}
+          {stateLabel(row.original.state)}
         </Badge>
       ),
     },
     {
       accessorKey: "receiptStatus",
-      header: "Receipt",
+      header: t("tableReceipt"),
       cell: ({ row }) => <Badge variant="outline">{String(row.original.receiptStatus)}</Badge>,
     },
     {
       accessorKey: "invoiceStatus",
-      header: "Invoicing",
+      header: t("tableInvoicing"),
       cell: ({ row }) => <Badge variant="outline">{String(row.original.invoiceStatus)}</Badge>,
     },
     {
       accessorKey: "amountTotal",
-      header: "Total",
+      header: t("tableTotal"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums ">{formatNumber(row.original.amountTotal)}</span>
@@ -99,7 +109,7 @@ export function PurchaseOrdersSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "orderDate",
-      header: "Order date",
+      header: t("tableOrderDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.orderDate ? formatDate(row.original.orderDate) : "—"}
@@ -111,10 +121,10 @@ export function PurchaseOrdersSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit purchase order"}
-          deleteLabel={"Delete purchase order"}
-          confirmTitle={"Delete this purchase order?"}
-          confirmDescription={"The purchase order will be removed. This cannot be undone."}
+          editLabel={t("editPurchaseOrder")}
+          deleteLabel={t("deletePurchaseOrder")}
+          confirmTitle={t("deletePurchaseOrderTitle")}
+          confirmDescription={t("deletePurchaseOrderDescription")}
           onEdit={() => router.push(`/purchases/orders/${row.original.id}`)}
         />
       ),
@@ -137,17 +147,17 @@ export function PurchaseOrdersSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "sent", label: "Sent" },
-          { value: "confirmed", label: "Confirmed" },
-          { value: "done", label: "Done" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: t("poStateDraft") },
+          { value: "sent", label: t("poStateSent") },
+          { value: "confirmed", label: t("poStateConfirmed") },
+          { value: "done", label: t("poStateDone") },
+          { value: "cancelled", label: t("poStateCancelled") },
         ]}
-        searchPlaceholder={"Search purchase orders…"}
-        filterLabel={"Status"}
-        allLabel={"All purchase orders"}
-        ariaLabel={"All purchase orders"}
-        emptyTitle={"No purchase orders"}
+        searchPlaceholder={t("searchPurchaseOrdersPlaceholder")}
+        filterLabel={t("tableStatus")}
+        allLabel={t("allPurchaseOrders")}
+        ariaLabel={t("allPurchaseOrders")}
+        emptyTitle={t("emptyPurchaseOrders")}
         status={
           isLoading
             ? { type: "loading" }
@@ -162,7 +172,7 @@ export function PurchaseOrdersSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New purchase order"}</span>
+            <span>{t("newPurchaseOrder")}</span>
           </Button>
         }
       />

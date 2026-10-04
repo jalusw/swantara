@@ -69,28 +69,28 @@ describe("DataTable branches3", () => {
         {...baseProps({ data: ROWS.slice(0, 3), enableRowSelection: true, enablePagination: true })}
       />,
     );
-    await user.click(screen.getByRole("checkbox", { name: "Select row 2" }));
-    expect(screen.getByText("1 selected")).toBeInTheDocument();
+    await user.click(screen.getByRole("checkbox", { name: "Pilih baris 2" }));
+    expect(screen.getByText("1 dipilih")).toBeInTheDocument();
   });
 
   it("hides the pagination footer while loading", () => {
     renderWithProviders(
       <DataTable {...baseProps({ enablePagination: true, status: { type: "loading" } })} />,
     );
-    expect(screen.queryByText("Page 1 of 1")).toBeNull();
+    expect(screen.queryByText("Halaman 1 dari 1")).toBeNull();
   });
 
   it("renders default empty copy when the status carries no title", () => {
     renderWithProviders(<DataTable {...baseProps({ data: [], status: { type: "empty" } })} />);
-    expect(screen.getByText("No records found")).toBeInTheDocument();
+    expect(screen.getByText("Tidak ada hasil")).toBeInTheDocument();
   });
 
   it("renders plain headers for columns that opt out of sorting", () => {
     renderWithProviders(
       <DataTable {...baseProps({ columns: STATIC_COLUMNS, enableSorting: true })} />,
     );
-    expect(screen.queryByRole("button", { name: "Sort by Name" })).toBeNull();
-    expect(screen.getByRole("button", { name: "Sort by Age" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Urutkan berdasarkan Name" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Urutkan berdasarkan Age" })).toBeInTheDocument();
   });
 
   it("merges partial label overrides over translated defaults", () => {

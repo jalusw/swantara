@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -34,25 +35,28 @@ const employmentTypes = ["full_time", "part_time", "contract"] as const;
 const wageTypes = ["monthly", "hourly"] as const;
 const currencyOptions = ["IDR", "USD", "EUR", "SGD", "GBP", "JPY", "AUD", "CAD"];
 
-const employeeFormSchema = z.object({
-  name: z.string().trim().min(1),
-  employeeNumber: z.string().trim().min(1),
-  email: z.string().trim(),
-  phone: z.string().trim(),
-  userId: z.string().trim(),
-  departmentId: z.string().trim(),
-  jobPositionId: z.string().trim(),
-  hireDate: z.string().trim(),
-  employmentType: z.enum(employmentTypes),
-  workLocation: z.string().trim(),
-  wage: z
-    .string()
-    .trim()
-    .refine((value) => Number(value) >= 0),
-  wageType: z.enum(wageTypes),
-  currencyCode: z.string().trim(),
-});
-type EmployeeFormValues = z.infer<typeof employeeFormSchema>;
+function useEmployeeFormSchema() {
+  const t = useTranslations("Employees");
+  return z.object({
+    name: z.string().trim().min(1, t("validationNameRequired")),
+    employeeNumber: z.string().trim().min(1, t("validationEmployeeNumberRequired")),
+    email: z.string().trim(),
+    phone: z.string().trim(),
+    userId: z.string().trim(),
+    departmentId: z.string().trim(),
+    jobPositionId: z.string().trim(),
+    hireDate: z.string().trim(),
+    employmentType: z.enum(employmentTypes),
+    workLocation: z.string().trim(),
+    wage: z
+      .string()
+      .trim()
+      .refine((value) => Number(value) >= 0, t("validationWageInvalid")),
+    wageType: z.enum(wageTypes),
+    currencyCode: z.string().trim(),
+  });
+}
+type EmployeeFormValues = z.infer<ReturnType<typeof useEmployeeFormSchema>>;
 
 export function EmployeeFormDialog({
   open,
@@ -68,6 +72,8 @@ export function EmployeeFormDialog({
   onSave: () => void;
 }) {
   const isEdit = Boolean(initial);
+  const t = useTranslations("Employees");
+  const tCommon = useTranslations("Common");
 
   const departmentsQuery = useOrgListQuery<{ departments: Department[] }, Record<string, never>>(
     "departments",
@@ -82,8 +88,10 @@ export function EmployeeFormDialog({
   const departments = departmentsQuery.data?.departments ?? [];
   const jobPositions = jobPositionsQuery.data?.jobPositions ?? [];
 
+  const schema = useEmployeeFormSchema();
+
   const form = useForm<EmployeeFormValues>({
-    resolver: zodResolver(employeeFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: initial
       ? {
           name: "",
@@ -119,7 +127,7 @@ export function EmployeeFormDialog({
 
   function handleSubmit(values: EmployeeFormValues) {
     if (isEdit && initial) {
-      void getSwantaraService()
+      return getSwantaraService()
         .employees.update(Number(orgId) || 0, initial.id, {
           name: values.name,
           employeeNumber: values.employeeNumber,
@@ -134,9 +142,9 @@ export function EmployeeFormDialog({
           active: initial.active,
         })
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("saveFailed")));
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .employees.create(Number(orgId) || 0, {
           organizationId: Number(orgId) || 0,
           name: values.name,
@@ -155,7 +163,23 @@ export function EmployeeFormDialog({
           currencyCode: values.currencyCode,
         })
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("saveFailed")));
+    }
+  }
+
+  function employmentTypeLabel(key: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`employmentType.${key}`);
+    } catch {
+      return humanizeKey(String(key));
+    }
+  }
+
+  function wageTypeLabel(key: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`wageType.${key}`);
+    } catch {
+      return humanizeKey(String(key));
     }
   }
 
@@ -163,35 +187,37 @@ export function EmployeeFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit employee" : "Add employee"}</DialogTitle>
-          <DialogDescription>
-            {"Manage your team, roles, and departments across the organization."}
-          </DialogDescription>
+          <DialogTitle>{isEdit ? t("editEmployee") : t("addEmployee")}</DialogTitle>
+          <DialogDescription>{t("subtitle")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <fieldset className="grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
-            <legend className="px-1 text-sm">{"Personal information"}</legend>
-            <FormField name="name" label={"Name"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+            <legend className="px-1 text-sm">{t("formPersonalInfo")}</legend>
+            <FormField name="name" label={t("fieldName")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
             </FormField>
-            <FormField name="employeeNumber" label={"Employee number"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Employee number"} />}
+            <FormField name="employeeNumber" label={t("fieldEmployeeNumber")}>
+              {({ field, id }) => (
+                <Input {...field} id={id} placeholder={t("fieldEmployeeNumber")} />
+              )}
             </FormField>
-            <FormField name="email" label={"Email"}>
-              {({ field, id }) => <Input {...field} id={id} type="email" placeholder={"Email"} />}
+            <FormField name="email" label={t("fieldEmail")}>
+              {({ field, id }) => (
+                <Input {...field} id={id} type="email" placeholder={t("fieldEmail")} />
+              )}
             </FormField>
-            <FormField name="phone" label={"Phone"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Phone"} />}
+            <FormField name="phone" label={t("fieldPhone")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldPhone")} />}
             </FormField>
           </fieldset>
 
           <fieldset className="grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
-            <legend className="px-1 text-sm">{"Employment Details"}</legend>
-            <FormField name="departmentId" label={"Department"}>
+            <legend className="px-1 text-sm">{t("formEmployment")}</legend>
+            <FormField name="departmentId" label={t("fieldDepartment")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Department"}>
-                    <SelectValue placeholder={"Select department"} />
+                  <SelectTrigger id={id} aria-label={t("fieldDepartment")}>
+                    <SelectValue placeholder={t("selectDepartment")} />
                   </SelectTrigger>
                   <SelectContent>
                     {departments.map((dept) => (
@@ -203,11 +229,11 @@ export function EmployeeFormDialog({
                 </Select>
               )}
             </FormField>
-            <FormField name="jobPositionId" label={"Job position"}>
+            <FormField name="jobPositionId" label={t("fieldJobPosition")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Job position"}>
-                    <SelectValue placeholder={"Select job position"} />
+                  <SelectTrigger id={id} aria-label={t("fieldJobPosition")}>
+                    <SelectValue placeholder={t("selectJobPosition")} />
                   </SelectTrigger>
                   <SelectContent>
                     {jobPositions.map((pos) => (
@@ -219,33 +245,33 @@ export function EmployeeFormDialog({
                 </Select>
               )}
             </FormField>
-            <FormField name="hireDate" label={"Hire date"}>
+            <FormField name="hireDate" label={t("fieldHireDate")}>
               {({ field, id }) => <Input {...field} id={id} type="date" />}
             </FormField>
-            <FormField name="employmentType" label={"Employment type"}>
+            <FormField name="employmentType" label={t("fieldEmploymentType")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Employment type"}>
+                  <SelectTrigger id={id} aria-label={t("fieldEmploymentType")}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {employmentTypes.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {humanizeKey(String(type))}
+                        {employmentTypeLabel(String(type))}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
             </FormField>
-            <FormField name="workLocation" label={"Location"} className="sm:col-span-2">
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Location"} />}
+            <FormField name="workLocation" label={t("fieldWorkLocation")} className="sm:col-span-2">
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldWorkLocation")} />}
             </FormField>
           </fieldset>
 
           <fieldset className="grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
-            <legend className="px-1 text-sm">{"Compensation"}</legend>
-            <FormField name="wage" label={"Wage"}>
+            <legend className="px-1 text-sm">{t("formCompensation")}</legend>
+            <FormField name="wage" label={t("fieldWage")}>
               {({ field, id }) => (
                 <CurrencyField
                   id={id}
@@ -255,30 +281,30 @@ export function EmployeeFormDialog({
                 />
               )}
             </FormField>
-            <FormField name="wageType" label={"Wage type"}>
+            <FormField name="wageType" label={t("fieldWageType")}>
               {({ field, id }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id={id} aria-label={"Wage type"}>
+                  <SelectTrigger id={id} aria-label={t("fieldWageType")}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {wageTypes.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {humanizeKey(String(type))}
+                        {wageTypeLabel(String(type))}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
             </FormField>
-            <FormField name="currencyCode" label={"Currency"}>
+            <FormField name="currencyCode" label={t("fieldCurrency")}>
               {({ field, id }) => (
                 <Combobox
                   items={currencyOptions}
                   value={field.value}
                   onValueChange={(val) => field.onChange(val ?? "")}
                 >
-                  <ComboboxInput id={id} placeholder={"Currency"} />
+                  <ComboboxInput id={id} placeholder={t("fieldCurrency")} />
                   <ComboboxContent>
                     <ComboboxList>
                       {(code: string) => (
@@ -287,7 +313,7 @@ export function EmployeeFormDialog({
                         </ComboboxItem>
                       )}
                     </ComboboxList>
-                    <ComboboxEmpty>{"No results"}</ComboboxEmpty>
+                    <ComboboxEmpty>{tCommon("noData")}</ComboboxEmpty>
                   </ComboboxContent>
                 </Combobox>
               )}
@@ -296,9 +322,9 @@ export function EmployeeFormDialog({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Save"}</SubmitButton>
+            <SubmitButton>{tCommon("save")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

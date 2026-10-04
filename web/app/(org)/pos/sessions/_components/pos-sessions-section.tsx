@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -22,9 +23,12 @@ import type { PosConfig, PosSession } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney } from "@/lib/utils";
 import { useSession } from "@/providers/session";
-import { posSessionStateLabel, posSessionStateTone } from "../../_components/pos-utils";
+import { posSessionStateTone } from "../../_components/pos-utils";
 
 export function PosSessionsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Pos");
+  const sessionState = (state: string) =>
+    (t as unknown as (k: string) => string)(`sessionState_${state}`);
   const { user } = useSession();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -49,19 +53,19 @@ export function PosSessionsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<PosSession>[] = [
     {
       accessorKey: "id",
-      header: "Session",
+      header: t("colSession"),
       cell: ({ row }) => (
         <a
           href={`/pos/sessions/${row.original.id}`}
           className=" rounded outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          {`Session-${row.original.id}`}
+          {t("sessionFallback", { id: row.original.id })}
         </a>
       ),
     },
     {
       accessorKey: "configId",
-      header: "POS Config",
+      header: t("colPosConfig"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {configMap.get(row.original.configId) ?? `#${row.original.configId}`}
@@ -70,7 +74,7 @@ export function PosSessionsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "openedAt",
-      header: "Opened",
+      header: t("colOpenedAt"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.openedAt ? formatDate(row.original.openedAt) : "—"}
@@ -79,7 +83,7 @@ export function PosSessionsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "openingBalance",
-      header: "Opening balance",
+      header: t("colOpeningBalance"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
@@ -89,7 +93,7 @@ export function PosSessionsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "closingBalance",
-      header: "Closing",
+      header: t("colClosingBalance"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
@@ -99,10 +103,10 @@ export function PosSessionsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("colStatus"),
       cell: ({ row }) => (
         <Badge variant="outline" className={posSessionStateTone(row.original.state)}>
-          {posSessionStateLabel(row.original.state)}
+          {sessionState(row.original.state)}
         </Badge>
       ),
     },
@@ -117,15 +121,15 @@ export function PosSessionsSection({ orgId }: { orgId: string }) {
         searchKeys={["id"]}
         statusKey="state"
         statusOptions={[
-          { value: "opened", label: "Opened" },
-          { value: "closing", label: "Closing" },
-          { value: "closed", label: "Closed" },
+          { value: "opened", label: sessionState("opened") },
+          { value: "closing", label: sessionState("closing") },
+          { value: "closed", label: sessionState("closed") },
         ]}
-        searchPlaceholder={"Search sessions..."}
-        filterLabel={"State"}
-        allLabel={"All sessions"}
-        ariaLabel={"POS Sessions"}
-        emptyTitle={"No sessions"}
+        searchPlaceholder={t("sessionsSearchPlaceholder")}
+        filterLabel={t("colStatus")}
+        allLabel={t("allSessions")}
+        ariaLabel={t("sessionsTitle")}
+        emptyTitle={t("sessionsEmpty")}
         status={
           sessionsQuery.isLoading
             ? { type: "loading" }
@@ -140,7 +144,7 @@ export function PosSessionsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Open session"}</span>
+            <span>{t("openSession")}</span>
           </Button>
         }
       />
@@ -173,6 +177,8 @@ function PosSessionOpenDialog({
   cashierId: number;
   onSave: () => void;
 }) {
+  const t = useTranslations("Pos");
+  const tCommon = useTranslations("Common");
   const [configId, setConfigId] = useState("");
   const [openingBalance, setOpeningBalance] = useState("0");
 
@@ -185,27 +191,25 @@ function PosSessionOpenDialog({
         openingBalance: Number(openingBalance) || 0,
       })
       .then(() => {
-        toast.success("Session opened.");
+        toast.success(t("sessionOpened"));
         onSave();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"Open Session"}</DialogTitle>
-          <DialogDescription>
-            {"Start a new POS session with an opening cash balance."}
-          </DialogDescription>
+          <DialogTitle>{t("openSession")}</DialogTitle>
+          <DialogDescription>{t("openSessionDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"POS Config"}</span>
+            <span className="text-sm">{t("colPosConfig")}</span>
             <Select value={configId} onValueChange={(v) => setConfigId(v ?? "")}>
-              <SelectTrigger aria-label={"POS Config"}>
-                <SelectValue placeholder={"Select a POS config"} />
+              <SelectTrigger aria-label={t("colPosConfig")}>
+                <SelectValue placeholder={t("selectPosConfig")} />
               </SelectTrigger>
               <SelectContent>
                 {configs.map((c) => (
@@ -217,7 +221,7 @@ function PosSessionOpenDialog({
             </Select>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Opening balance"}</span>
+            <span className="text-sm">{t("colOpeningBalance")}</span>
             <Input
               type="number"
               step="any"
@@ -229,10 +233,10 @@ function PosSessionOpenDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={!configId}>
-            {"Open"}
+            {t("openAction")}
           </Button>
         </DialogFooter>
       </DialogContent>

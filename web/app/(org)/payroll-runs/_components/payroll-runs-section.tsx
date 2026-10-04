@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -17,6 +18,7 @@ import { PayrollRunFormDialog } from "./payroll-run-form-dialog";
 import { payrollRunStateTone } from "./payroll-utils";
 
 export function PayrollRunsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Payroll");
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -33,10 +35,18 @@ export function PayrollRunsSection({ orgId }: { orgId: string }) {
     router.push(`/payroll-runs/${runId}`);
   }
 
+  function stateLabel(state: PayrollRun["state"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`runState.${state}`);
+    } catch {
+      return humanizeKey(String(state));
+    }
+  }
+
   const columns: ColumnDef<PayrollRun>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
       cell: ({ row }) => (
         <a
           href={`/payroll-runs/${row.original.id}`}
@@ -48,7 +58,7 @@ export function PayrollRunsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "periodStart",
-      header: "Period",
+      header: t("tablePeriod"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {formatDate(row.original.periodStart)} – {formatDate(row.original.periodEnd)}
@@ -57,7 +67,7 @@ export function PayrollRunsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("tableStatus"),
       cell: ({ row }) => {
         const tone = payrollRunStateTone(row.original.state);
         return (
@@ -75,7 +85,7 @@ export function PayrollRunsSection({ orgId }: { orgId: string }) {
                       : ""
             }
           >
-            {humanizeKey(String(row.original.state))}
+            {stateLabel(row.original.state)}
           </Badge>
         );
       },
@@ -85,7 +95,7 @@ export function PayrollRunsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("actionView")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -105,16 +115,16 @@ export function PayrollRunsSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "confirmed", label: "Confirmed" },
-          { value: "paid", label: "Paid" },
-          { value: "closed", label: "Closed" },
+          { value: "draft", label: t("runStateDraft") },
+          { value: "confirmed", label: t("runStateConfirmed") },
+          { value: "paid", label: t("runStatePaid") },
+          { value: "closed", label: t("runStateClosed") },
         ]}
-        searchPlaceholder={"Search runs…"}
-        filterLabel={"State"}
-        allLabel={"All"}
-        ariaLabel={"Payroll runs"}
-        emptyTitle={"No payroll runs found"}
+        searchPlaceholder={t("searchRunsPlaceholder")}
+        filterLabel={t("tableStatus")}
+        allLabel={t("allLabel")}
+        ariaLabel={t("title")}
+        emptyTitle={t("emptyRuns")}
         status={
           runsQuery.isLoading
             ? { type: "loading" }
@@ -129,7 +139,7 @@ export function PayrollRunsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New run"}</span>
+            <span>{t("newRun")}</span>
           </Button>
         }
       />

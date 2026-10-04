@@ -98,7 +98,7 @@ describe("BomFormDialog branches4", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
+    await screen.findByText("Resep baru");
     const dialog = screen.getByRole("dialog");
     const boxes = within(dialog).getAllByRole("combobox");
     const productBox = boxes[0];
@@ -112,7 +112,7 @@ describe("BomFormDialog branches4", () => {
     if (!lineQty) throw new Error("Expected line qty input");
     await user.type(lineQty, "2");
 
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(saved).toBe(true));
     expect(created.length).toBe(1);
@@ -139,7 +139,7 @@ describe("BomFormDialog branches4", () => {
       />,
     );
 
-    await screen.findByText("New bill of materials");
+    await screen.findByText("Resep baru");
     const dialog = screen.getByRole("dialog");
     const boxes = within(dialog).getAllByRole("combobox");
     const productBox = boxes[0];
@@ -157,7 +157,7 @@ describe("BomFormDialog branches4", () => {
     await user.type(lineQty, "4");
     await user.clear(scrap);
 
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(saved).toBe(true));
     const body = created[created.length - 1] as Record<string, unknown>;
@@ -192,14 +192,14 @@ describe("BomFormDialog branches4", () => {
       />,
     );
 
-    await screen.findByText("Edit bill of materials");
+    await screen.findByText("Ubah resep");
     const dialog = screen.getByRole("dialog");
     const boxes = within(dialog).getAllByRole("combobox");
     const uomBox = boxes[2];
     if (!uomBox) throw new Error("Expected unit select");
     await selectComboboxOption(user, uomBox, "Kg");
 
-    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(saved).toBe(true));
     expect(updated.length).toBe(1);

@@ -12,7 +12,7 @@ function account(over: Record<string, unknown> = {}) {
     id: 1,
     organization_id: 1,
     code: "1000",
-    name: "Cash",
+    name: "Kas",
     type: "cash",
     reconcilable: true,
     currency_code: null,
@@ -47,7 +47,7 @@ describe("AccountsSection branches", () => {
     );
     renderWithProviders(<AccountsSection orgId="1" />);
 
-    expect(screen.getByText("Loading accounts...")).toBeInTheDocument();
+    expect(screen.getByText("Memuat akun...")).toBeInTheDocument();
   });
 
   it("renders empty state when no accounts exist", async () => {
@@ -55,7 +55,7 @@ describe("AccountsSection branches", () => {
     renderWithProviders(<AccountsSection orgId="1" />);
 
     expect(
-      await screen.findByText("No accounts yet. Create your first account to get started."),
+      await screen.findByText("Belum ada akun. Buat akun pertama Anda untuk memulai."),
     ).toBeInTheDocument();
   });
 
@@ -81,7 +81,7 @@ describe("AccountsSection branches", () => {
     seed([account({ active: false })]);
     renderWithProviders(<AccountsSection orgId="1" />);
 
-    expect(await screen.findByText("Inactive")).toBeInTheDocument();
+    expect(await screen.findByText("Nonaktif")).toBeInTheDocument();
   });
 
   it("creates an account from the dialog", async () => {
@@ -89,8 +89,8 @@ describe("AccountsSection branches", () => {
     seed([account()]);
     renderWithProviders(<AccountsSection orgId="1" />);
 
-    await screen.findAllByText("Cash");
-    await user.click(screen.getByRole("button", { name: "Add account" }));
+    await screen.findAllByText("Kas");
+    await user.click(screen.getByRole("button", { name: "Tambah akun" }));
     const dialog = await screen.findByRole("dialog");
     expect(dialog).toBeInTheDocument();
     const inputs = dialog.querySelectorAll("input");
@@ -102,7 +102,7 @@ describe("AccountsSection branches", () => {
       await user.clear(nameInput);
       await user.type(nameInput, "Payables");
     }
-    const save = screen.getByRole("button", { name: "Save" });
+    const save = screen.getByRole("button", { name: "Simpan" });
     expect(save).toBeInTheDocument();
   });
 
@@ -111,10 +111,10 @@ describe("AccountsSection branches", () => {
     seed([account()]);
     renderWithProviders(<AccountsSection orgId="1" />);
 
-    await screen.findAllByText("Cash");
-    await user.click(screen.getByRole("button", { name: "Add account" }));
+    await screen.findAllByText("Kas");
+    await user.click(screen.getByRole("button", { name: "Tambah akun" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Simpan" })).toBeDisabled();
   });
 });

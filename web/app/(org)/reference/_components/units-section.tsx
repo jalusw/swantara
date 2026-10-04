@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -61,13 +62,14 @@ function toUnitRow(unit: Unit): UnitRow {
 const uomTypes = ["reference", "bigger", "smaller"] as const;
 
 function useUnitSchema() {
+  const t = useTranslations("Reference");
   return z.object({
-    categoryId: z.string().min(1, "Select a category."),
-    name: z.string().min(1, "Enter a name."),
+    categoryId: z.string().min(1, t("validationCategoryRequired")),
+    name: z.string().min(1, t("validationNameRequired")),
     factor: z
       .string()
-      .min(1, "Enter a factor.")
-      .refine((value) => Number(value) > 0, "Factor must be greater than zero."),
+      .min(1, t("validationFactorRequired"))
+      .refine((value) => Number(value) > 0, t("validationFactorPositive")),
     uomType: z.enum(uomTypes),
     rounding: z.string(),
   });
@@ -75,13 +77,15 @@ function useUnitSchema() {
 type UnitValues = z.infer<ReturnType<typeof useUnitSchema>>;
 
 function useUnitCategorySchema() {
+  const t = useTranslations("Reference");
   return z.object({
-    name: z.string().min(1, "Enter a category name."),
+    name: z.string().min(1, t("validationCategoryNameRequired")),
   });
 }
 type UnitCategoryValues = z.infer<ReturnType<typeof useUnitCategorySchema>>;
 
 export function UnitsSection(_props: { orgId: string }) {
+  const t = useTranslations("Reference");
   const [editing, setEditing] = useState<UnitRow | null>(null);
   const [open, setOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
@@ -152,58 +156,58 @@ export function UnitsSection(_props: { orgId: string }) {
     };
 
     if (editing) {
-      void getSwantaraService()
+      return getSwantaraService()
         .units.update(Number(editing.id), payload)
         .then(() => {
-          toast.success("Unit of measure saved.");
+          toast.success(t("unitSaved"));
           setOpen(false);
           form.reset();
           void unitsQuery.refetch();
         })
         .catch((error) => {
           logger.error("Failed to update Unit", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastFailed"));
         });
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .units.create(payload)
         .then(() => {
-          toast.success("Unit of measure saved.");
+          toast.success(t("unitSaved"));
           setOpen(false);
           form.reset();
           void unitsQuery.refetch();
         })
         .catch((error) => {
           logger.error("Failed to create Unit", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastFailed"));
         });
     }
   }
 
   function handleCategorySubmit(values: UnitCategoryValues) {
-    void getSwantaraService()
+    return getSwantaraService()
       .uomCategories.create({ name: values.name })
       .then(() => {
-        toast.success("Category saved.");
+        toast.success(t("categorySaved"));
         setCategoryOpen(false);
         categoryForm.reset();
         void categoriesQuery.refetch();
       })
       .catch((error) => {
         logger.error("Failed to create Unit category", error);
-        toast.error("Could not disable the organization.");
+        toast.error(t("toastFailed"));
       });
   }
 
   const columns: ColumnDef<UnitRow>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "categoryId",
-      header: "Category",
+      header: t("tableCategory"),
       cell: ({ row }) => (
         <Badge variant="secondary">
           {categories.find((category) => category.id === row.original.categoryId)?.name ?? "—"}
@@ -212,7 +216,7 @@ export function UnitsSection(_props: { orgId: string }) {
     },
     {
       accessorKey: "factor",
-      header: "Factor",
+      header: t("tableFactor"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
@@ -222,14 +226,14 @@ export function UnitsSection(_props: { orgId: string }) {
     },
     {
       accessorKey: "uomType",
-      header: "Type",
+      header: t("tableType"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{String(row.original.uomType)}</span>
       ),
     },
     {
       accessorKey: "rounding",
-      header: "Rounding",
+      header: t("tableRounding"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">{row.original.rounding}</span>
@@ -240,10 +244,10 @@ export function UnitsSection(_props: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Delete this UoM?"}
-          confirmDescription={"The unit of measure will be removed from the catalog."}
+          editLabel={t("actionEdit")}
+          deleteLabel={t("actionDelete")}
+          confirmTitle={t("deleteUnitTitle")}
+          confirmDescription={t("deleteUnitDescription")}
           onEdit={() => openEdit(row.original)}
           onDelete={() =>
             void getSwantaraService()
@@ -251,7 +255,7 @@ export function UnitsSection(_props: { orgId: string }) {
               .then(() => void unitsQuery.refetch())
               .catch((error) => {
                 logger.error("Failed to delete Unit", error);
-                toast.error("Could not disable the organization.");
+                toast.error(t("toastFailed"));
               })
           }
         />
@@ -271,19 +275,19 @@ export function UnitsSection(_props: { orgId: string }) {
       <Card>
         <CardHeader className="flex-row items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <CardTitle>{"Categories"}</CardTitle>
-            <CardDescription>{"Groups of compatible units."}</CardDescription>
+            <CardTitle>{t("categoriesTitle")}</CardTitle>
+            <CardDescription>{t("categoriesDescription")}</CardDescription>
           </div>
           <Button size="sm" variant="outline" onClick={() => setCategoryOpen(true)}>
             <Plus />
-            <span>{"Add category"}</span>
+            <span>{t("addCategory")}</span>
           </Button>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           {categoriesQuery.isLoading ? (
-            <span className="text-sm text-muted-foreground">{"Loading..."}</span>
+            <span className="text-sm text-muted-foreground">{t("loading")}</span>
           ) : categories.length === 0 ? (
-            <span className="text-sm text-muted-foreground">{"No categories yet"}</span>
+            <span className="text-sm text-muted-foreground">{t("categoriesEmpty")}</span>
           ) : (
             categories.map((category) => (
               <Badge key={category.id} variant="secondary">
@@ -299,12 +303,12 @@ export function UnitsSection(_props: { orgId: string }) {
         data={units}
         getRowId={(row) => row.id}
         searchKeys={["name"]}
-        searchPlaceholder={"Search units…"}
+        searchPlaceholder={t("searchUnitsPlaceholder")}
         filterLabel=""
         statusOptions={[]}
         allLabel=""
-        ariaLabel={"Units of measure"}
-        emptyTitle={"No units of measure"}
+        ariaLabel={t("unitsTitle")}
+        emptyTitle={t("unitsEmpty")}
         status={
           isLoading
             ? { type: "loading" }
@@ -322,7 +326,7 @@ export function UnitsSection(_props: { orgId: string }) {
         actions={
           <Button size="sm" onClick={openCreate}>
             <Plus />
-            <span>{"Add UoM"}</span>
+            <span>{t("addUnit")}</span>
           </Button>
         }
       />
@@ -330,18 +334,16 @@ export function UnitsSection(_props: { orgId: string }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit unit of measure" : "New unit of measure"}</DialogTitle>
-            <DialogDescription>
-              {"Units of measure and their categories used across products and stock."}
-            </DialogDescription>
+            <DialogTitle>{editing ? t("editUnit") : t("newUnit")}</DialogTitle>
+            <DialogDescription>{t("unitDialogDescription")}</DialogDescription>
           </DialogHeader>
           <Form form={form} onSubmit={handleSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="categoryId" label={"Category"}>
+              <FormField name="categoryId" label={t("fieldCategory")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Category"}>
-                      <SelectValue placeholder={"Category"} />
+                    <SelectTrigger id={id} aria-label={t("fieldCategory")}>
+                      <SelectValue placeholder={t("fieldCategory")} />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
@@ -353,11 +355,11 @@ export function UnitsSection(_props: { orgId: string }) {
                   </Select>
                 )}
               </FormField>
-              <FormField name="uomType" label={"Type"}>
+              <FormField name="uomType" label={t("fieldType")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Type"}>
-                      <SelectValue placeholder={"Type"} />
+                    <SelectTrigger id={id} aria-label={t("fieldType")}>
+                      <SelectValue placeholder={t("fieldType")} />
                     </SelectTrigger>
                     <SelectContent>
                       {uomTypes.map((type) => (
@@ -369,15 +371,15 @@ export function UnitsSection(_props: { orgId: string }) {
                   </Select>
                 )}
               </FormField>
-              <FormField name="name" label={"Name"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+              <FormField name="name" label={t("fieldName")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
               </FormField>
-              <FormField name="factor" label={"Factor"}>
+              <FormField name="factor" label={t("fieldFactor")}>
                 {({ field, id }) => (
                   <Input {...field} id={id} type="number" step="any" inputMode="decimal" />
                 )}
               </FormField>
-              <FormField name="rounding" label={"Rounding"}>
+              <FormField name="rounding" label={t("fieldRounding")}>
                 {({ field, id }) => (
                   <Input {...field} id={id} type="number" step="any" inputMode="decimal" />
                 )}
@@ -385,9 +387,9 @@ export function UnitsSection(_props: { orgId: string }) {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>
-                {"Cancel"}
+                {t("actionCancel")}
               </Button>
-              <SubmitButton>{"Save unit"}</SubmitButton>
+              <SubmitButton>{t("saveUnit")}</SubmitButton>
             </DialogFooter>
           </Form>
         </DialogContent>
@@ -396,17 +398,17 @@ export function UnitsSection(_props: { orgId: string }) {
       <Dialog open={categoryOpen} onOpenChange={setCategoryOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{"New category"}</DialogTitle>
+            <DialogTitle>{t("newCategory")}</DialogTitle>
           </DialogHeader>
           <Form form={categoryForm} onSubmit={handleCategorySubmit}>
-            <FormField name="name" label={"Name"}>
-              {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+            <FormField name="name" label={t("fieldName")}>
+              {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
             </FormField>
             <DialogFooter>
               <Button variant="outline" onClick={() => setCategoryOpen(false)}>
-                {"Cancel"}
+                {t("actionCancel")}
               </Button>
-              <SubmitButton>{"Save category"}</SubmitButton>
+              <SubmitButton>{t("saveCategory")}</SubmitButton>
             </DialogFooter>
           </Form>
         </DialogContent>

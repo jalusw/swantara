@@ -135,9 +135,9 @@ describe("StockOverviewSection", () => {
     renderWithProviders(<StockOverviewSection orgId="1" />);
 
     await screen.findByText("Finished Widget");
-    await user.click(screen.getByRole("tab", { name: "Stock movements" }));
+    await user.click(screen.getByRole("tab", { name: "Mutasi stok" }));
 
-    expect(await screen.findByText("Stock movement ledger")).toBeInTheDocument();
+    expect(await screen.findByText("Buku mutasi stok")).toBeInTheDocument();
     expect(screen.getByText("WH/Output")).toBeInTheDocument();
   });
 });

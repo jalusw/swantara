@@ -76,9 +76,9 @@ describe("ProjectDetail branches4", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Open" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Close" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Batal" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Action Buka" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Action Tutup" })).toBeNull();
   });
 
   it("renders an empty billing panel when the summary is missing", async () => {
@@ -87,10 +87,10 @@ describe("ProjectDetail branches4", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    expect(screen.queryByText("Planned hours")).toBeNull();
-    await user.click(screen.getByRole("tab", { name: "Billing" }));
+    expect(screen.queryByText("Jam rencana")).toBeNull();
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
 
-    expect(screen.queryByText("Unbilled hours")).toBeNull();
+    expect(screen.queryByText("Jam belum ditagih")).toBeNull();
   });
 
   it("falls back to a unit rate when the billable rate is zero", async () => {
@@ -102,8 +102,8 @@ describe("ProjectDetail branches4", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Billing" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
 
-    expect(await screen.findByText("Unbilled hours")).toBeInTheDocument();
+    expect(await screen.findByText("Jam belum ditagih")).toBeInTheDocument();
   });
 });

@@ -302,6 +302,11 @@ export type OrganizationRequest = {
   legalFormId?: number;
   businessId?: string;
   taxId?: string;
+  parentId?: number | null;
+  baseCurrency?: string;
+  countryCode?: string | null;
+  timezone?: string;
+  taxYearStartMonth?: number;
 };
 
 export type QuickCreateOrganizationRequest = {

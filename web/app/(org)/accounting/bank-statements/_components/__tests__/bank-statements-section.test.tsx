@@ -80,7 +80,7 @@ describe("BankStatementsSection", () => {
     renderWithProviders(<BankStatementsSection orgId="1" />);
 
     await screen.findByText("BS-January");
-    await user.type(screen.getByPlaceholderText("Search statements..."), "February");
+    await user.type(screen.getByPlaceholderText("Cari mutasi bank..."), "February");
 
     expect(await screen.findByText("BS-February")).toBeInTheDocument();
   });
@@ -90,9 +90,9 @@ describe("BankStatementsSection", () => {
     renderWithProviders(<BankStatementsSection orgId="1" />);
 
     await screen.findByText("BS-January");
-    await user.click(screen.getByRole("button", { name: "New statement" }));
+    await user.click(screen.getByRole("button", { name: "Mutasi baru" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Create bank statement")).toBeInTheDocument();
+    expect(screen.getByText("Buat mutasi bank")).toBeInTheDocument();
   });
 });

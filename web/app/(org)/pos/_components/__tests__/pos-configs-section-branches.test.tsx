@@ -57,7 +57,7 @@ function useHandlers(options?: { failConfigs?: boolean }) {
     http.post("*/api/v1/organizations/:organizationId/pos/configs", async ({ request }) => {
       created.push(await request.json());
       return HttpResponse.json(
-        { success: true, message: "Created.", data: { config: { id: 3 } } },
+        { success: true, message: "Dibuat.", data: { config: { id: 3 } } },
         { status: 201 },
       );
     }),
@@ -83,7 +83,7 @@ describe("PosConfigsSection branches", () => {
     useHandlers({ failConfigs: true });
     renderWithProviders(<PosConfigsSection orgId="1" />);
     expect(await screen.findByText("Configs down.")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Retry" }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
     expect(await screen.findByText("Configs down.")).toBeInTheDocument();
   });
 
@@ -92,10 +92,12 @@ describe("PosConfigsSection branches", () => {
     useHandlers();
     renderWithProviders(<PosConfigsSection orgId="1" />);
     await screen.findByText("Outlet Kiosk");
-    await user.click(screen.getByRole("button", { name: "Add config" }));
-    await screen.findByText("New POS Config");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-    await waitFor(() => expect(screen.queryByText("New POS Config")).not.toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: "Konfigurasi baru" }));
+    await screen.findByRole("heading", { name: "Konfigurasi baru" });
+    await user.click(screen.getByRole("button", { name: "Batal" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("heading", { name: "Konfigurasi baru" })).not.toBeInTheDocument(),
+    );
   });
 
   it("keeps save disabled without a name", async () => {
@@ -103,9 +105,9 @@ describe("PosConfigsSection branches", () => {
     const { created } = useHandlers();
     renderWithProviders(<PosConfigsSection orgId="1" />);
     await screen.findByText("Outlet Kiosk");
-    await user.click(screen.getByRole("button", { name: "Add config" }));
-    await screen.findByText("New POS Config");
-    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Konfigurasi baru" }));
+    await screen.findByRole("heading", { name: "Konfigurasi baru" });
+    expect(screen.getByRole("button", { name: "Simpan" })).toBeDisabled();
     expect(created.length).toBe(0);
   });
 
@@ -114,9 +116,9 @@ describe("PosConfigsSection branches", () => {
     const { created } = useHandlers();
     renderWithProviders(<PosConfigsSection orgId="1" />);
     await screen.findByText("Outlet Kiosk");
-    await user.click(screen.getByRole("button", { name: "Add config" }));
-    await user.type(screen.getByPlaceholderText("e.g. Main Store"), "Night Market");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Konfigurasi baru" }));
+    await user.type(screen.getByPlaceholderText("mis. Toko Utama"), "Night Market");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
     await waitFor(() => expect(created.length).toBe(1));
     const body = created[0] as Record<string, unknown>;
     expect(body.name).toBe("Night Market");

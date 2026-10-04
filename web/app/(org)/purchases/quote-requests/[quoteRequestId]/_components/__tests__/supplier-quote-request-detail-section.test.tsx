@@ -90,8 +90,8 @@ describe("SupplierQuoteRequestDetail", () => {
     renderWithProviders(<SupplierQuoteRequestDetail orgId="1" quoteRequestId="4" />);
 
     await screen.findAllByText("QuoteRequest-0004");
-    await user.click(screen.getByRole("tab", { name: "Quotes" }));
+    await user.click(screen.getByRole("tab", { name: "Penawaran" }));
 
-    expect(await screen.findByText("Supplier quotes")).toBeInTheDocument();
+    expect(await screen.findByText("Penawaran pemasok")).toBeInTheDocument();
   });
 });

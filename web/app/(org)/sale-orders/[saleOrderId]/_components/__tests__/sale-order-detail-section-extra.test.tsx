@@ -103,7 +103,7 @@ describe("SaleOrderDetail extra", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("button", { name: "Send" }));
+    await user.click(screen.getByRole("button", { name: "Kirim" }));
 
     await waitFor(() => expect(sendCalls).toBe(1));
   });
@@ -121,7 +121,7 @@ describe("SaleOrderDetail extra", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("button", { name: "Mark done" }));
+    await user.click(screen.getByRole("button", { name: "Tandai selesai" }));
 
     await waitFor(() => expect(doneCalls).toBe(1));
   });
@@ -131,15 +131,15 @@ describe("SaleOrderDetail extra", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    expect(screen.getByText("Only draft orders can be edited.")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Mark done" })).not.toBeInTheDocument();
+    expect(screen.getByText("Hanya pesanan draf yang bisa diubah.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tandai selesai" })).not.toBeInTheDocument();
   });
 
   it("shows the empty-lines state when the order has no lines", async () => {
     seedSaleOrder({ state: "draft", lines: [] });
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
-    expect(await screen.findByText("No lines")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada baris")).toBeInTheDocument();
   });
 
   it("shows the not-found state when the order is missing", async () => {
@@ -151,7 +151,7 @@ describe("SaleOrderDetail extra", () => {
     );
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
-    expect(await screen.findByText("Sale order not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Pesanan tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("shows the linked shipment on the delivery tab", async () => {
@@ -165,7 +165,7 @@ describe("SaleOrderDetail extra", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Delivery" }));
+    await user.click(screen.getByRole("tab", { name: "Pengiriman" }));
 
     expect(await screen.findByText(/PICK-01/)).toBeInTheDocument();
   });
@@ -176,8 +176,8 @@ describe("SaleOrderDetail extra", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Delivery" }));
-    await user.click(await screen.findByRole("button", { name: "Ship / Deliver" }));
+    await user.click(screen.getByRole("tab", { name: "Pengiriman" }));
+    await user.click(await screen.findByRole("button", { name: "Kirim / Antar" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
@@ -188,10 +188,12 @@ describe("SaleOrderDetail extra", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
 
-    expect(await screen.findByText("No delivered-unbilled lines to invoice.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Create invoice" })).toBeDisabled();
+    expect(
+      await screen.findByText("Tidak ada baris yang sudah dikirim tetapi belum ditagih."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Buat faktur" })).toBeDisabled();
   });
 
   it("opens the payment dialog from the payments tab", async () => {
@@ -200,8 +202,8 @@ describe("SaleOrderDetail extra", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Payments" }));
-    await user.click(await screen.findByRole("button", { name: "Collect payment" }));
+    await user.click(screen.getByRole("tab", { name: "Pembayaran" }));
+    await user.click(await screen.findByRole("button", { name: "Tarik pembayaran" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

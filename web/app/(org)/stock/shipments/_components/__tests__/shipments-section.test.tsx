@@ -65,7 +65,7 @@ describe("ShipmentsSection", () => {
     renderWithProviders(<ShipmentsSection />);
 
     await screen.findByText("PK-0001");
-    await user.type(screen.getByPlaceholderText("Search shipments…"), "PK-0002");
+    await user.type(screen.getByPlaceholderText("Cari pengiriman…"), "PK-0002");
 
     expect((await screen.findAllByText("PK-0002")).length).toBeGreaterThan(0);
     expect(screen.queryByText("PK-0001")).not.toBeInTheDocument();

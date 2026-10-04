@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Landmark, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -27,8 +28,9 @@ import { getSwantaraService } from "@/lib/services/swantara";
 const currencyOptions = ["USD", "IDR", "EUR", "SGD", "GBP", "JPY"];
 
 function useContactBankAccountFormSchema() {
+  const t = useTranslations("Contacts");
   return z.object({
-    accountHolder: z.string().min(1, "Enter the account holder."),
+    accountHolder: z.string().min(1, t("validationAccountHolderRequired")),
     bankName: z.string(),
     iban: z.string(),
     swiftBic: z.string(),
@@ -50,6 +52,7 @@ export function ContactBankAccounts({
 }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<ContactBankAccount | null>(null);
+  const t = useTranslations("Contacts");
 
   const bankAccountsQuery = useContactBankAccountsQuery(orgId, contactId);
   const bankAccounts = bankAccountsQuery.data ?? [];
@@ -109,26 +112,26 @@ export function ContactBankAccounts({
     };
 
     if (editing) {
-      void getSwantaraService()
+      return getSwantaraService()
         .contacts.bankAccounts.update(Number(orgId), Number(contactId), editing.id, request)
         .then(() => {
-          toast.success("Bank account saved.");
+          toast.success(t("bankAccountSaved"));
           setOpen(false);
           onRefetch();
         })
         .catch(() => {
-          toast.error("Something went wrong. Please try again.");
+          toast.error(t("saveFailedTryAgain"));
         });
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .contacts.bankAccounts.create(Number(orgId), Number(contactId), request)
         .then(() => {
-          toast.success("Bank account saved.");
+          toast.success(t("bankAccountSaved"));
           setOpen(false);
           onRefetch();
         })
         .catch(() => {
-          toast.error("Something went wrong. Please try again.");
+          toast.error(t("saveFailedTryAgain"));
         });
     }
   }
@@ -137,11 +140,11 @@ export function ContactBankAccounts({
     void getSwantaraService()
       .contacts.bankAccounts.delete(Number(orgId), Number(contactId), account.id)
       .then(() => {
-        toast.success("Bank account saved.");
+        toast.success(t("bankAccountSaved"));
         onRefetch();
       })
       .catch(() => {
-        toast.error("Something went wrong. Please try again.");
+        toast.error(t("saveFailedTryAgain"));
       });
   }
 
@@ -149,19 +152,19 @@ export function ContactBankAccounts({
     <Card>
       <CardHeader className="flex-row items-start justify-between">
         <div className="flex flex-col gap-1">
-          <CardTitle>{"Bank accounts"}</CardTitle>
-          <CardDescription>{"Accounts used to receive or make payments."}</CardDescription>
+          <CardTitle>{t("bankAccountsTitle")}</CardTitle>
+          <CardDescription>{t("bankAccountsDescription")}</CardDescription>
         </div>
         <Button size="sm" onClick={openCreate}>
           <Plus />
-          <span>{"Add bank account"}</span>
+          <span>{t("addBankAccount")}</span>
         </Button>
       </CardHeader>
       <CardContent>
         {bankAccounts.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-10 text-center">
             <Landmark className="size-6 text-muted-foreground" aria-hidden />
-            <p className="text-sm text-muted-foreground">{"No bank accounts"}</p>
+            <p className="text-sm text-muted-foreground">{t("noBankAccounts")}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -188,17 +191,17 @@ export function ContactBankAccounts({
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <Button variant="ghost" size="sm" onClick={() => openEdit(account)}>
-                    {"Edit"}
+                    {t("edit")}
                   </Button>
                   <ConfirmDialog
-                    title={"Delete this bank account?"}
-                    description={"The bank account will be removed from the contact."}
-                    confirmLabel={"Delete"}
-                    cancelLabel={"Cancel"}
+                    title={t("deleteBankAccountTitle")}
+                    description={t("deleteBankAccountDescription")}
+                    confirmLabel={t("delete")}
+                    cancelLabel={t("cancel")}
                     onConfirm={() => deleteAccount(account)}
                     trigger={
                       <Button variant="ghost" size="sm" className="text-destructive">
-                        {"Delete"}
+                        {t("delete")}
                       </Button>
                     }
                   />
@@ -212,21 +215,27 @@ export function ContactBankAccounts({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit bank account" : "New bank account"}</DialogTitle>
-            <DialogDescription>{"Accounts used to receive or make payments."}</DialogDescription>
+            <DialogTitle>{editing ? t("editBankAccount") : t("newBankAccount")}</DialogTitle>
+            <DialogDescription>{t("bankAccountsDescription")}</DialogDescription>
           </DialogHeader>
           <Form form={form} onSubmit={handleSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="accountHolder" label={"Account holder"} className="sm:col-span-2">
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Account holder"} />}
+              <FormField
+                name="accountHolder"
+                label={t("fieldAccountHolder")}
+                className="sm:col-span-2"
+              >
+                {({ field, id }) => (
+                  <Input {...field} id={id} placeholder={t("fieldAccountHolder")} />
+                )}
               </FormField>
-              <FormField name="bankName" label={"Bank name"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Bank name"} />}
+              <FormField name="bankName" label={t("fieldBankName")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldBankName")} />}
               </FormField>
-              <FormField name="currencyCode" label={"Currency"}>
+              <FormField name="currencyCode" label={t("fieldCurrency")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Currency"}>
+                    <SelectTrigger id={id} aria-label={t("fieldCurrency")}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -239,24 +248,28 @@ export function ContactBankAccounts({
                   </Select>
                 )}
               </FormField>
-              <FormField name="accountNumber" label={"Account number"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Account number"} />}
+              <FormField name="accountNumber" label={t("fieldAccountNumber")}>
+                {({ field, id }) => (
+                  <Input {...field} id={id} placeholder={t("fieldAccountNumber")} />
+                )}
               </FormField>
-              <FormField name="iban" label={"IBAN"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"IBAN"} />}
+              <FormField name="iban" label={t("fieldIban")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldIban")} />}
               </FormField>
-              <FormField name="swiftBic" label={"SWIFT / BIC"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"SWIFT / BIC"} />}
+              <FormField name="swiftBic" label={t("fieldSwiftBic")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldSwiftBic")} />}
               </FormField>
-              <FormField name="routingNumber" label={"Routing number"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Routing number"} />}
+              <FormField name="routingNumber" label={t("fieldRoutingNumber")}>
+                {({ field, id }) => (
+                  <Input {...field} id={id} placeholder={t("fieldRoutingNumber")} />
+                )}
               </FormField>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>
-                {"Cancel"}
+                {t("cancel")}
               </Button>
-              <SubmitButton>{"Save bank account"}</SubmitButton>
+              <SubmitButton>{t("saveBankAccount")}</SubmitButton>
             </DialogFooter>
           </Form>
         </DialogContent>

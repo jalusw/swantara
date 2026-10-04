@@ -45,10 +45,10 @@ describe("ContactBankAccounts extra", () => {
     const user = userEvent.setup();
     renderWithProviders(<ContactBankAccounts orgId="1" contactId="1" onRefetch={() => {}} />);
 
-    await screen.findByText("No bank accounts");
-    await user.click(screen.getByRole("button", { name: "Add bank account" }));
+    await screen.findByText("Tidak ada rekening bank");
+    await user.click(screen.getByRole("button", { name: "Tambah rekening bank" }));
 
-    expect(await screen.findByText("New bank account")).toBeInTheDocument();
+    expect(await screen.findByText("Rekening bank baru")).toBeInTheDocument();
   });
 
   it("opens the edit dialog prefilled with the account", async () => {
@@ -57,9 +57,9 @@ describe("ContactBankAccounts extra", () => {
     renderWithProviders(<ContactBankAccounts orgId="1" contactId="1" onRefetch={() => {}} />);
 
     await screen.findByText("Acme Corp");
-    await user.click(screen.getByRole("button", { name: "Edit" }));
+    await user.click(screen.getByRole("button", { name: "Ubah" }));
 
-    expect(await screen.findByText("Edit bank account")).toBeInTheDocument();
+    expect(await screen.findByText("Ubah rekening bank")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Acme Corp")).toBeInTheDocument();
     expect(screen.getByDisplayValue("DBS")).toBeInTheDocument();
   });
@@ -69,11 +69,11 @@ describe("ContactBankAccounts extra", () => {
     const user = userEvent.setup();
     renderWithProviders(<ContactBankAccounts orgId="1" contactId="1" onRefetch={() => {}} />);
 
-    await screen.findByText("No bank accounts");
-    await user.click(screen.getByRole("button", { name: "Add bank account" }));
-    await user.click(await screen.findByRole("button", { name: "Save bank account" }));
+    await screen.findByText("Tidak ada rekening bank");
+    await user.click(screen.getByRole("button", { name: "Tambah rekening bank" }));
+    await user.click(await screen.findByRole("button", { name: "Simpan rekening bank" }));
 
-    expect(await screen.findByText("Enter the account holder.")).toBeInTheDocument();
+    expect(await screen.findByText("Masukkan nama pemegang akun.")).toBeInTheDocument();
   });
 
   it("creates an account and refreshes the list", async () => {
@@ -85,7 +85,7 @@ describe("ContactBankAccounts extra", () => {
         async ({ request }) => {
           createCalls.push(await request.json());
           return HttpResponse.json(
-            { success: true, message: "Created.", data: { bank_account: account } },
+            { success: true, message: "Dibuat.", data: { bank_account: account } },
             { status: 201 },
           );
         },
@@ -95,10 +95,10 @@ describe("ContactBankAccounts extra", () => {
     const user = userEvent.setup();
     renderWithProviders(<ContactBankAccounts orgId="1" contactId="1" onRefetch={onRefetch} />);
 
-    await screen.findByText("No bank accounts");
-    await user.click(screen.getByRole("button", { name: "Add bank account" }));
-    await user.type(await screen.findByPlaceholderText("Account holder"), "Acme Corp");
-    await user.click(screen.getByRole("button", { name: "Save bank account" }));
+    await screen.findByText("Tidak ada rekening bank");
+    await user.click(screen.getByRole("button", { name: "Tambah rekening bank" }));
+    await user.type(await screen.findByPlaceholderText("Pemegang akun"), "Acme Corp");
+    await user.click(screen.getByRole("button", { name: "Simpan rekening bank" }));
 
     await waitFor(() => expect(createCalls).toHaveLength(1));
     await waitFor(() => expect(onRefetch).toHaveBeenCalled());
@@ -121,9 +121,9 @@ describe("ContactBankAccounts extra", () => {
     renderWithProviders(<ContactBankAccounts orgId="1" contactId="1" onRefetch={onRefetch} />);
 
     await screen.findByText("Acme Corp");
-    await user.click(screen.getByRole("button", { name: "Delete" }));
+    await user.click(screen.getByRole("button", { name: "Hapus" }));
     const confirmDialog = await screen.findByRole("alertdialog");
-    await user.click(within(confirmDialog).getByRole("button", { name: "Delete" }));
+    await user.click(within(confirmDialog).getByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(deleteCalls).toBe(1));
     await waitFor(() => expect(onRefetch).toHaveBeenCalled());

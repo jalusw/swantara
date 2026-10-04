@@ -53,7 +53,7 @@ describe("IntegrationEventsSection", () => {
     renderWithProviders(<IntegrationEventsSection orgId="1" />);
 
     await screen.findByText("sale.order.created");
-    await user.type(screen.getByPlaceholderText("Search events…"), "invoice");
+    await user.type(screen.getByPlaceholderText("Cari event…"), "invoice");
 
     expect((await screen.findAllByText("invoice.paid")).length).toBeGreaterThan(0);
     await waitFor(() => expect(screen.queryByText("sale.order.created")).not.toBeInTheDocument());

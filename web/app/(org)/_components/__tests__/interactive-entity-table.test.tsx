@@ -19,7 +19,7 @@ function renderTable() {
         {
           id: "name",
           accessorKey: "name",
-          header: "Name",
+          header: "Nama",
           cell: ({ row }) => row.original.name,
         },
         {
@@ -33,10 +33,10 @@ function renderTable() {
       getRowId={(row) => row.id}
       searchKeys={["name"]}
       statusKey="status"
-      statusOptions={[{ value: "active", label: "Active" }]}
-      searchPlaceholder="Search"
-      filterLabel="Filter by status"
-      allLabel="All statuses"
+      statusOptions={[{ value: "active", label: "Aktif" }]}
+      searchPlaceholder="Cari"
+      filterLabel="Saring berdasar status"
+      allLabel="Semua status"
       ariaLabel="Entities"
     />,
   );
@@ -48,10 +48,10 @@ describe("InteractiveEntityTable", () => {
     const exportSpy = vi.spyOn(exportModule, "exportCsv").mockImplementation(() => {});
     renderTable();
 
-    await user.type(screen.getByPlaceholderText("Search"), "Alpha");
-    await user.click(screen.getByRole("button", { name: "Export" }));
+    await user.type(screen.getByPlaceholderText("Cari"), "Alpha");
+    await user.click(screen.getByRole("button", { name: "Ekspor" }));
 
-    expect(exportSpy).toHaveBeenCalledWith("Entities", ["Name", "Status"], [["Alpha", "active"]]);
+    expect(exportSpy).toHaveBeenCalledWith("Entities", ["Nama", "Status"], [["Alpha", "active"]]);
     exportSpy.mockRestore();
   });
 
@@ -60,11 +60,11 @@ describe("InteractiveEntityTable", () => {
     const exportSpy = vi.spyOn(exportModule, "exportCsv").mockImplementation(() => {});
     renderTable();
 
-    await user.click(screen.getByRole("button", { name: "Export" }));
+    await user.click(screen.getByRole("button", { name: "Ekspor" }));
 
     expect(exportSpy).toHaveBeenCalledWith(
       "Entities",
-      ["Name", "Status"],
+      ["Nama", "Status"],
       [
         ["Alpha", "active"],
         ["Beta", "inactive"],

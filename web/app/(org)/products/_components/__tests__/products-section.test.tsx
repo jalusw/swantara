@@ -98,7 +98,7 @@ describe("ProductsSection", () => {
     expect(await screen.findByText("Canvas Tote")).toBeInTheDocument();
     expect(screen.getByText("Ceramic Mug")).toBeInTheDocument();
     expect(screen.getAllByText("Merchandise").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Stockable").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Dapat distok").length).toBeGreaterThan(0);
   });
 
   it("filters products through the search box", async () => {
@@ -106,7 +106,7 @@ describe("ProductsSection", () => {
     renderWithProviders(<ProductsSection orgId="1" />);
 
     await screen.findByText("Canvas Tote");
-    await user.type(screen.getByPlaceholderText("Search products…"), "Mug");
+    await user.type(screen.getByPlaceholderText("Cari produk"), "Mug");
 
     expect(await screen.findByText("Ceramic Mug")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Canvas Tote")).not.toBeInTheDocument());
@@ -117,9 +117,9 @@ describe("ProductsSection", () => {
     renderWithProviders(<ProductsSection orgId="1" />);
 
     await screen.findByText("Canvas Tote");
-    await user.click(screen.getByRole("button", { name: "Add item" }));
+    await user.click(screen.getByRole("button", { name: "Tambah produk" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("New item")).toBeInTheDocument();
+    expect(screen.getByText("Produk baru")).toBeInTheDocument();
   });
 });

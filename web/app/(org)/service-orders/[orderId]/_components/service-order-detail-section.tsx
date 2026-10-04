@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
@@ -9,7 +10,6 @@ import { useOrgListQuery, useOrgQuery } from "@/lib/hooks/use-org-query";
 import type { ServiceOrder, ServiceOrderLine } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatNumber } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import {
   canBill,
   canCancel,
@@ -20,6 +20,14 @@ import {
 } from "../../_components/service-order-utils";
 
 export function ServiceOrderDetail({ orgId, orderId }: { orgId: string; orderId: string }) {
+  const t = useTranslations("Service");
+  const tCommon = useTranslations("Common");
+  const orderState = (state: string) =>
+    (t as unknown as (k: string) => string)(`orderState_${state}`);
+  const orderType = (type: string) => (t as unknown as (k: string) => string)(`type_${type}`);
+  const lineType = (type: string) => (t as unknown as (k: string) => string)(`lineType_${type}`);
+  const actionLabel = (action: string) =>
+    (t as unknown as (k: string) => string)(`detailAction_${action}`);
   const query = useOrgQuery<{ serviceOrder: ServiceOrder }>(
     "serviceOrder",
     orderId,
@@ -37,11 +45,11 @@ export function ServiceOrderDetail({ orgId, orderId }: { orgId: string; orderId:
   const lines = linesQuery.data?.serviceOrderLines ?? [];
 
   if (query.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (!order) {
-    return <p className="text-sm text-muted-foreground">{"Service order not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("orderNotFound")}</p>;
   }
 
   const tone = serviceOrderStateTone(order.state);
@@ -74,12 +82,12 @@ export function ServiceOrderDetail({ orgId, orderId }: { orgId: string; orderId:
         break;
     }
     void toast.promise(promise, {
-      loading: "Processing…",
+      loading: t("processing"),
       success: () => {
         void query.refetch();
-        return "Saved.";
+        return t("saved");
       },
-      error: "Action failed",
+      error: t("actionFailed"),
     });
   }
 
@@ -87,27 +95,27 @@ export function ServiceOrderDetail({ orgId, orderId }: { orgId: string; orderId:
     <div className="flex items-center gap-2">
       {canSchedule(order.state) ? (
         <Button size="sm" onClick={() => handleAction("schedule")}>
-          {"Schedule"}
+          {actionLabel("schedule")}
         </Button>
       ) : null}
       {canStart(order.state) ? (
         <Button size="sm" onClick={() => handleAction("start")}>
-          {"Start"}
+          {actionLabel("start")}
         </Button>
       ) : null}
       {canComplete(order.state) ? (
         <Button size="sm" onClick={() => handleAction("complete")}>
-          {"Complete"}
+          {actionLabel("complete")}
         </Button>
       ) : null}
       {canBill(order.state) ? (
         <Button size="sm" onClick={() => handleAction("bill")}>
-          {"Bill"}
+          {actionLabel("bill")}
         </Button>
       ) : null}
       {canCancel(order.state) ? (
         <Button size="sm" variant="destructive" onClick={() => handleAction("cancel")}>
-          {"Cancel"}
+          {tCommon("cancel")}
         </Button>
       ) : null}
     </div>
@@ -116,7 +124,7 @@ export function ServiceOrderDetail({ orgId, orderId }: { orgId: string; orderId:
   return (
     <RecordLayout
       breadcrumbItems={[
-        { label: "Service orders", href: "/service-orders" },
+        { label: t("ordersTitle"), href: "/service-orders" },
         { label: order.name },
       ]}
       title={order.name}
@@ -135,27 +143,27 @@ export function ServiceOrderDetail({ orgId, orderId }: { orgId: string; orderId:
                     : ""
           }
         >
-          {humanizeKey(String(order.state))}
+          {orderState(order.state)}
         </Badge>
       }
       actions={stateActions}
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: t("tabOverview"),
           content: (
             <div className="grid gap-4 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Type"}</CardTitle>
+                  <CardTitle>{t("colType")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm">{humanizeKey(String(order.type))}</p>
+                  <p className="text-sm">{orderType(order.type)}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Priority"}</CardTitle>
+                  <CardTitle>{t("colPriority")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm tabular-nums">{order.priority}</p>
@@ -163,7 +171,7 @@ export function ServiceOrderDetail({ orgId, orderId }: { orgId: string; orderId:
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Scheduled date"}</CardTitle>
+                  <CardTitle>{t("scheduledDate")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">
@@ -173,36 +181,36 @@ export function ServiceOrderDetail({ orgId, orderId }: { orgId: string; orderId:
               </Card>
               <Card className="lg:col-span-3">
                 <CardHeader>
-                  <CardTitle>{"Details"}</CardTitle>
+                  <CardTitle>{t("detailsTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <dl className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Customer"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("customer")}</dt>
                       <dd className="text-sm">{order.contactId ? `#${order.contactId}` : "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Equipment"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("equipment")}</dt>
                       <dd className="text-sm">
                         {order.equipmentId ? `#${order.equipmentId}` : "—"}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Contract"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("contract")}</dt>
                       <dd className="text-sm">{order.contractId ? `#${order.contractId}` : "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Technician"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("technician")}</dt>
                       <dd className="text-sm">
                         {order.technicianId ? `#${order.technicianId}` : "—"}
                       </dd>
                     </div>
                     <div className="sm:col-span-2">
-                      <dt className="text-sm text-muted-foreground">{"Reported issue"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("reportedIssue")}</dt>
                       <dd className="text-sm">{order.reportedIssue || "—"}</dd>
                     </div>
                     <div className="sm:col-span-2">
-                      <dt className="text-sm text-muted-foreground">{"Resolution"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("resolution")}</dt>
                       <dd className="text-sm">{order.resolution || "—"}</dd>
                     </div>
                   </dl>
@@ -213,30 +221,30 @@ export function ServiceOrderDetail({ orgId, orderId }: { orgId: string; orderId:
         },
         {
           id: "lines",
-          label: "Lines",
+          label: t("tabLines"),
           content: (
             <div className="space-y-4">
               {lines.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{"No lines."}</p>
+                <p className="text-sm text-muted-foreground">{t("noLines")}</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b text-muted-foreground">
-                        <th className="pb-2 text-left">{"Type"}</th>
-                        <th className="pb-2 text-left">{"Description"}</th>
-                        <th className="pb-2 text-right">{"Qty"}</th>
-                        <th className="pb-2 text-right">{"Cost"}</th>
-                        <th className="pb-2 text-right">{"Price"}</th>
-                        <th className="pb-2 text-right">{"Billable"}</th>
-                        <th className="pb-2 text-right">{"Warranty"}</th>
+                        <th className="pb-2 text-left">{t("colType")}</th>
+                        <th className="pb-2 text-left">{t("description")}</th>
+                        <th className="pb-2 text-right">{t("qty")}</th>
+                        <th className="pb-2 text-right">{t("unitCost")}</th>
+                        <th className="pb-2 text-right">{t("price")}</th>
+                        <th className="pb-2 text-right">{t("billable")}</th>
+                        <th className="pb-2 text-right">{t("warranty")}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {lines.map((line) => (
                         <tr key={line.id} className="border-b">
                           <td className="py-2">
-                            <Badge variant="outline">{humanizeKey(String(line.type))}</Badge>
+                            <Badge variant="outline">{lineType(line.type)}</Badge>
                           </td>
                           <td className="py-2 text-muted-foreground">{line.description || "—"}</td>
                           <td className="py-2 text-right tabular-nums">{line.qty}</td>

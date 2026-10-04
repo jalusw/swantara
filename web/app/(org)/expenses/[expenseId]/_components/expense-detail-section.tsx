@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
 import { Button } from "@/components/button";
@@ -9,7 +10,6 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { ExpenseReport } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatNumber } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import {
   canApprove,
   canBill,
@@ -21,6 +21,11 @@ import {
 } from "../../_components/expense-utils";
 
 export function ExpenseDetail({ orgId, expenseId }: { orgId: string; expenseId: string }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Expenses");
   const reportQuery = useOrgListQuery<{ report: ExpenseReport }, Record<string, never>>(
     "expenseReport",
     (organizationId) => getSwantaraService().expenseReports.get(organizationId, Number(expenseId)),
@@ -29,11 +34,11 @@ export function ExpenseDetail({ orgId, expenseId }: { orgId: string; expenseId: 
   const report = reportQuery.data?.report;
 
   if (reportQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("loadingReport")}</p>;
   }
 
   if (!report) {
-    return <p className="text-sm text-muted-foreground">{"Expense report not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("reportNotFound")}</p>;
   }
 
   const tone = expenseStateTone(report.state);
@@ -42,24 +47,24 @@ export function ExpenseDetail({ orgId, expenseId }: { orgId: string; expenseId: 
     void toast.promise(
       getSwantaraService().expenseReports[action](Number(orgId), Number(expenseId)),
       {
-        loading: "Processing…",
+        loading: t("processing"),
         success: () => {
           void reportQuery.refetch();
-          return "Saved.";
+          return t("toastSaved");
         },
-        error: "Action failed",
+        error: t("toastActionFailed"),
       },
     );
   }
 
   function handleBill() {
     void toast.promise(getSwantaraService().expenseReports.bill(Number(orgId), Number(expenseId)), {
-      loading: "Processing…",
+      loading: t("processing"),
       success: () => {
         void reportQuery.refetch();
-        return "Invoice created from billable lines";
+        return t("toastInvoiceFromBill");
       },
-      error: "Action failed",
+      error: t("toastActionFailed"),
     });
   }
 
@@ -67,32 +72,32 @@ export function ExpenseDetail({ orgId, expenseId }: { orgId: string; expenseId: 
     <div className="flex items-center gap-2">
       {canSubmit(report.state) ? (
         <Button size="sm" onClick={() => handleAction("submit")}>
-          {"Submit"}
+          {t("submit")}
         </Button>
       ) : null}
       {canApprove(report.state) ? (
         <Button size="sm" onClick={() => handleAction("approve")}>
-          {"Approve"}
+          {t("approve")}
         </Button>
       ) : null}
       {canRefuse(report.state) ? (
         <Button size="sm" variant="destructive" onClick={() => handleAction("refuse")}>
-          {"Refuse"}
+          {t("refuse")}
         </Button>
       ) : null}
       {canPost(report.state) ? (
         <Button size="sm" onClick={() => handleAction("post")}>
-          {"Post"}
+          {t("post")}
         </Button>
       ) : null}
       {canReimburse(report.state) ? (
         <Button size="sm" onClick={() => handleAction("reimburse")}>
-          {"Reimburse"}
+          {t("reimburse")}
         </Button>
       ) : null}
       {canBill(report.state) ? (
         <Button size="sm" onClick={handleBill}>
-          {"Bill"}
+          {t("bill")}
         </Button>
       ) : null}
     </div>
@@ -102,7 +107,7 @@ export function ExpenseDetail({ orgId, expenseId }: { orgId: string; expenseId: 
 
   return (
     <RecordLayout
-      breadcrumbItems={[{ label: "Expenses", href: "/expenses" }, { label: report.name }]}
+      breadcrumbItems={[{ label: t("expensesTitle"), href: "/expenses" }, { label: report.name }]}
       title={report.name}
       status={
         <Badge
@@ -119,19 +124,19 @@ export function ExpenseDetail({ orgId, expenseId }: { orgId: string; expenseId: 
                     : ""
           }
         >
-          {humanizeKey(String(report.state))}
+          {(t as unknown as (k: string) => string)(`expenseState_${report.state}`)}
         </Badge>
       }
       actions={stateActions}
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: t("overviewTab"),
           content: (
             <div className="grid gap-4 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Total amount"}</CardTitle>
+                  <CardTitle>{t("totalAmount")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold tabular-nums">
@@ -141,7 +146,7 @@ export function ExpenseDetail({ orgId, expenseId }: { orgId: string; expenseId: 
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Employee"}</CardTitle>
+                  <CardTitle>{t("fieldEmployee")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">#{report.employeeId}</p>
@@ -149,32 +154,34 @@ export function ExpenseDetail({ orgId, expenseId }: { orgId: string; expenseId: 
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Payment mode"}</CardTitle>
+                  <CardTitle>{t("fieldPaymentMode")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Badge variant="outline">{humanizeKey(String(report.paymentMode))}</Badge>
+                  <Badge variant="outline">
+                    {(t as unknown as (k: string) => string)(`paymentMode_${report.paymentMode}`)}
+                  </Badge>
                 </CardContent>
               </Card>
               <Card className="lg:col-span-3">
                 <CardHeader>
-                  <CardTitle>{"Details"}</CardTitle>
+                  <CardTitle>{t("details")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <dl className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"Submitted at"}</dt>
+                      <dt className="text-muted-foreground text-sm">{t("submittedAt")}</dt>
                       <dd className="text-sm">
                         {report.submittedAt ? formatDate(String(report.submittedAt)) : "—"}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"Approved by"}</dt>
+                      <dt className="text-muted-foreground text-sm">{t("approvedBy")}</dt>
                       <dd className="text-sm">
                         {report.approvedBy ? `#${report.approvedBy}` : "—"}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-muted-foreground text-sm">{"Move Id"}</dt>
+                      <dt className="text-muted-foreground text-sm">{t("moveId")}</dt>
                       <dd className="text-sm">{report.entryId ? `#${report.entryId}` : "—"}</dd>
                     </div>
                   </dl>
@@ -185,22 +192,22 @@ export function ExpenseDetail({ orgId, expenseId }: { orgId: string; expenseId: 
         },
         {
           id: "lines",
-          label: "Lines",
+          label: t("linesTab"),
           content: (
             <div className="space-y-4">
               {lines.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{"No expense lines."}</p>
+                <p className="text-sm text-muted-foreground">{t("expenseLinesEmpty")}</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b text-muted-foreground">
-                        <th className="pb-2 text-left">{"Description"}</th>
-                        <th className="pb-2 text-left">{"Date"}</th>
-                        <th className="pb-2 text-right">{"Quantity"}</th>
-                        <th className="pb-2 text-right">{"Unit price"}</th>
-                        <th className="pb-2 text-right">{"Amount"}</th>
-                        <th className="pb-2 text-right">{"Reimbursable"}</th>
+                        <th className="pb-2 text-left">{t("colDescription")}</th>
+                        <th className="pb-2 text-left">{t("colDate")}</th>
+                        <th className="pb-2 text-right">{t("colQuantity")}</th>
+                        <th className="pb-2 text-right">{t("colUnitPrice")}</th>
+                        <th className="pb-2 text-right">{t("colAmount")}</th>
+                        <th className="pb-2 text-right">{t("colReimbursable")}</th>
                       </tr>
                     </thead>
                     <tbody>

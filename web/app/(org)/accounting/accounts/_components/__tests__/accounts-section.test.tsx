@@ -77,10 +77,10 @@ describe("AccountsSection", () => {
     renderWithProviders(<AccountsSection orgId="1" />);
 
     await screen.findByText("Cash on Hand");
-    await user.click(screen.getByRole("button", { name: "Add account" }));
+    await user.click(screen.getByRole("button", { name: "Tambah akun" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Create account")).toBeInTheDocument();
+    expect(screen.getByText("Buat akun")).toBeInTheDocument();
   });
 
   it("opens the edit dialog from a row action", async () => {
@@ -88,13 +88,13 @@ describe("AccountsSection", () => {
     renderWithProviders(<AccountsSection orgId="1" />);
 
     await screen.findByText("Cash on Hand");
-    const editButton = screen.getAllByRole("button", { name: "Edit" })[0];
+    const editButton = screen.getAllByRole("button", { name: "Ubah" })[0];
     if (editButton === undefined) {
       throw new Error("Expected an Edit button");
     }
     await user.click(editButton);
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Edit account")).toBeInTheDocument();
+    expect(screen.getByText("Ubah akun")).toBeInTheDocument();
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -49,17 +50,20 @@ function poStateIndex(state: PurchaseOrder["state"]): number {
   return idx >= 0 ? idx : 0;
 }
 
-function getPoStatuses() {
+function getPoStatuses(label?: (state: string) => string) {
+  const text = (state: string, fallback: string) => (label ? label(state) : fallback);
   return {
-    draft: { label: "Draft", tone: "neutral" as const },
-    sent: { label: "Sent", tone: "info" as const },
-    confirmed: { label: "Confirmed", tone: "warning" as const },
-    done: { label: "Done", tone: "success" as const },
-    cancelled: { label: "Cancelled", tone: "danger" as const },
+    draft: { label: text("draft", "Draft"), tone: "neutral" as const },
+    sent: { label: text("sent", "Terkirim"), tone: "info" as const },
+    confirmed: { label: text("confirmed", "Dikonfirmasi"), tone: "warning" as const },
+    done: { label: text("done", "Selesai"), tone: "success" as const },
+    cancelled: { label: text("cancelled", "Dibatalkan"), tone: "danger" as const },
   };
 }
 
 export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId: string }) {
+  const t = useTranslations("Purchases");
+  const tCommon = useTranslations("Common");
   const [activeDialog, setActiveDialog] = useState<"receive" | "bill" | "pay" | null>(null);
 
   const orderQuery = useOrgQuery<{ order: PurchaseOrder }>(
@@ -101,7 +105,23 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
   }
 
   if (!order) {
-    return <p className="text-sm text-muted-foreground">{"Purchase order not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("purchaseOrderNotFound")}</p>;
+  }
+
+  function poStateLabel(state: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`poState.${state}`);
+    } catch {
+      return state;
+    }
+  }
+
+  function poStepLabel(step: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`poStep.${step}`);
+    } catch {
+      return String(step);
+    }
   }
 
   const lines = order.lines ?? [];
@@ -112,11 +132,11 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
     void getSwantaraService()
       .purchaseOrders.confirm(Number(orgId), order.id)
       .then(() => {
-        toast.success("Order confirmed — incoming shipment created.");
+        toast.success(t("orderConfirmed"));
         void orderQuery.refetch();
         void shipmentsQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   function handleCancel() {
@@ -124,57 +144,57 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
     void getSwantaraService()
       .purchaseOrders.cancel(Number(orgId), order.id)
       .then(() => {
-        toast.success("Order cancelled.");
+        toast.success(t("orderCancelled"));
         void orderQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   function handleReceive(values: { journalId: string; date: string }) {
     if (!order) return;
-    void getSwantaraService()
+    return getSwantaraService()
       .purchaseOrders.receive(Number(orgId), order.id, {
         journalId: Number(values.journalId),
         date: values.date || null,
       })
       .then(() => {
-        toast.success("Goods received.");
+        toast.success(t("goodsReceived"));
         setActiveDialog(null);
         void orderQuery.refetch();
         void shipmentsQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   function handleBill(values: { journalId: string; date: string; override: boolean }) {
     if (!order) return;
-    void getSwantaraService()
+    return getSwantaraService()
       .purchaseOrders.vendorBill(Number(orgId), order.id, {
         journalId: Number(values.journalId),
         date: values.date || null,
         override: values.override,
       })
       .then(() => {
-        toast.success("Supplier bill created.");
+        toast.success(t("supplierBillCreated"));
         setActiveDialog(null);
         void orderQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   function handlePay(values: { journalId: string; date: string }) {
     if (!order) return;
-    void getSwantaraService()
+    return getSwantaraService()
       .purchaseOrders.pay(Number(orgId), order.id, {
         journalId: Number(values.journalId),
         date: values.date || null,
       })
       .then(() => {
-        toast.success("Payment recorded.");
+        toast.success(t("paymentRecorded"));
         setActiveDialog(null);
         void orderQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   const billableLines = lines.filter((line) => line.qtyOrdered - line.qtyBilled > 0);
@@ -183,55 +203,53 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
     <>
       <RecordLayout
         breadcrumbItems={[
-          { label: "All purchase orders", href: "/purchases" },
+          { label: t("allPurchaseOrders"), href: "/purchases" },
           { label: order.name ?? `PO-${order.id}` },
         ]}
         title={order.name ?? `PO-${order.id}`}
-        status={<StateBadge value={order.state} statuses={getPoStatuses()} />}
+        status={<StateBadge value={order.state} statuses={getPoStatuses(poStateLabel)} />}
         tabs={[
           {
             id: "overview",
-            label: "Overview",
+            label: t("tabOverview"),
             content: (
               <div className="flex flex-col gap-4">
                 <WorkflowSteps
-                  steps={poSteps.map((s) => ({ label: String(s) }))}
+                  steps={poSteps.map((s) => ({ label: poStepLabel(s) }))}
                   currentIndex={poStateIndex(order.state)}
                 />
                 <div className="flex flex-wrap gap-2">
                   {canConfirm(order.state) ? (
                     <Button size="sm" onClick={handleConfirm}>
-                      {"Confirm"}
+                      {t("actionConfirm")}
                     </Button>
                   ) : null}
                   {canCancel(order.state) ? (
                     <Button size="sm" variant="outline" onClick={handleCancel}>
-                      {"Cancel"}
+                      {tCommon("cancel")}
                     </Button>
                   ) : null}
                   {!canEdit(order.state) ? (
                     <span className="text-xs text-muted-foreground self-center">
-                      {"Only draft orders can be edited."}
+                      {t("draftOnlyHint")}
                     </span>
                   ) : null}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {"Confirm creates an incoming shipment for receiving."}
-                </p>
+                <p className="text-xs text-muted-foreground">{t("confirmPurchaseHint")}</p>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-base">{"Order header"}</CardTitle>
+                      <CardTitle className="text-base">{t("orderHeader")}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Supplier"}</span>
+                        <span className="text-muted-foreground">{t("tableSupplier")}</span>
                         <span className="">
                           {contactMap.get(order.supplierId) ?? `#${order.supplierId}`}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Warehouse"}</span>
+                        <span className="text-muted-foreground">{t("fieldWarehouse")}</span>
                         <span>
                           {order.warehouseId
                             ? (warehouseMap.get(order.warehouseId) ?? `#${order.warehouseId}`)
@@ -240,17 +258,17 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
                       </div>
                       {order.vendorRef ? (
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">{"Supplier reference"}</span>
+                          <span className="text-muted-foreground">{t("fieldVendorRef")}</span>
                           <span>{order.vendorRef}</span>
                         </div>
                       ) : null}
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Order date"}</span>
+                        <span className="text-muted-foreground">{t("tableOrderDate")}</span>
                         <span>{order.orderDate ? formatDate(order.orderDate) : "—"}</span>
                       </div>
                       {order.expectedDate ? (
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">{"Expected date"}</span>
+                          <span className="text-muted-foreground">{t("fieldExpectedDate")}</span>
                           <span>{formatDate(order.expectedDate)}</span>
                         </div>
                       ) : null}
@@ -258,33 +276,33 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
                   </Card>
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-base">{"Totals"}</CardTitle>
+                      <CardTitle className="text-base">{t("tableTotal")}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Untaxed"}</span>
+                        <span className="text-muted-foreground">{t("untaxed")}</span>
                         <span className="tabular-nums">
                           {formatMoney(order.amountUntaxed, { currency: DEFAULT_CURRENCY })}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Tax"}</span>
+                        <span className="text-muted-foreground">{t("tax")}</span>
                         <span className="tabular-nums">
                           {formatMoney(order.amountTax, { currency: DEFAULT_CURRENCY })}
                         </span>
                       </div>
                       <div className="flex justify-between ">
-                        <span>{"Total"}</span>
+                        <span>{t("tableTotal")}</span>
                         <span className="tabular-nums">
                           {formatMoney(order.amountTotal, { currency: DEFAULT_CURRENCY })}
                         </span>
                       </div>
                       <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{"Receipt"}</span>
+                        <span>{t("tableReceipt")}</span>
                         <Badge variant="outline">{String(order.receiptStatus)}</Badge>
                       </div>
                       <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{"Invoicing"}</span>
+                        <span>{t("tableInvoicing")}</span>
                         <Badge variant="outline">{String(order.invoiceStatus)}</Badge>
                       </div>
                     </CardContent>
@@ -292,28 +310,26 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
                 </div>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">{"Lines"}</CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {"Derived from ordered/received/billed"}
-                    </p>
+                    <CardTitle className="text-base">{t("orderLines")}</CardTitle>
+                    <p className="text-xs text-muted-foreground">{t("poLinesHint")}</p>
                   </CardHeader>
                   <CardContent>
                     {lines.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">{"No lines."}</p>
+                      <p className="text-sm text-muted-foreground">{t("emptyLines")}</p>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b text-left text-muted-foreground">
                               <th className="pb-2 ">#</th>
-                              <th className="pb-2 ">{"Item"}</th>
-                              <th className="pb-2 text-right">{"Ordered"}</th>
-                              <th className="pb-2 text-right">{"Received"}</th>
-                              <th className="pb-2 text-right">{"Billed"}</th>
-                              <th className="pb-2 text-right">{"To receive"}</th>
-                              <th className="pb-2 text-right">{"To bill"}</th>
-                              <th className="pb-2 text-right">{"Unit price"}</th>
-                              <th className="pb-2 text-right">{"Subtotal"}</th>
+                              <th className="pb-2 ">{t("fieldItem")}</th>
+                              <th className="pb-2 text-right">{t("ordered")}</th>
+                              <th className="pb-2 text-right">{t("received")}</th>
+                              <th className="pb-2 text-right">{t("billed")}</th>
+                              <th className="pb-2 text-right">{t("toReceive")}</th>
+                              <th className="pb-2 text-right">{t("toBill")}</th>
+                              <th className="pb-2 text-right">{t("unitPrice")}</th>
+                              <th className="pb-2 text-right">{t("subtotal")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -359,20 +375,18 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
           },
           {
             id: "receipt",
-            label: "Receipt",
+            label: t("tabReceipt"),
             content: (
               <div className="flex flex-col gap-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">{"Receipt"}</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {"Receive goods against this purchase order."}
-                    </p>
+                    <CardTitle className="text-base">{t("tabReceipt")}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{t("receiptDescription")}</p>
                   </CardHeader>
                   <CardContent className="flex flex-col gap-3">
                     {linkedShipment ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">{"Linked shipment"}:</span>
+                        <span className="text-sm">{t("linkedShipment")}:</span>
                         <a
                           href={`/stock/shipments/${linkedShipment.id}`}
                           className="text-sm text-primary underline"
@@ -383,29 +397,26 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
                         <Badge variant="outline">{linkedShipment.state}</Badge>
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground">
-                        {"No shipment yet — confirm the order to create one."}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{t("noShipmentHint")}</p>
                     )}
                     {canReceive(order.state) ? (
                       <Button size="sm" onClick={() => setActiveDialog("receive")}>
-                        {"Receive"}
+                        {t("actionReceive")}
                       </Button>
                     ) : (
-                      <p className="text-xs text-muted-foreground">
-                        {"Confirm the order to enable receiving."}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{t("confirmToReceiveHint")}</p>
                     )}
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">{"Receipt status"}</CardTitle>
+                    <CardTitle className="text-base">{t("receiptStatusTitle")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm">
                       <span>
-                        {"Receipt"}: <Badge variant="outline">{String(order.receiptStatus)}</Badge>
+                        {t("tableReceipt")}:{" "}
+                        <Badge variant="outline">{String(order.receiptStatus)}</Badge>
                       </span>
                     </div>
                   </CardContent>
@@ -415,35 +426,29 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
           },
           {
             id: "invoicing",
-            label: "Invoicing",
+            label: t("tabInvoicing"),
             content: (
               <div className="flex flex-col gap-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">{"Invoicing"}</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {
-                        "Create supplier bills for received-not-billed lines. Shows 3-way match status."
-                      }
-                    </p>
+                    <CardTitle className="text-base">{t("tabInvoicing")}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{t("poBillingDescription")}</p>
                   </CardHeader>
                   <CardContent className="flex flex-col gap-3">
                     {billableLines.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        {"No received-not-billed lines to bill."}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{t("noBillableLines")}</p>
                     ) : (
                       <>
                         <p className="text-sm">
-                          {"Lines to bill"}: {billableLines.length}
+                          {t("linesToBill")}: {billableLines.length}
                         </p>
                         <div className="overflow-x-auto">
                           <table className="w-full text-sm">
                             <thead>
                               <tr className="border-b text-muted-foreground">
-                                <th className="pb-2 text-left">{"Item"}</th>
-                                <th className="pb-2 text-right">{"Ordered not billed"}</th>
-                                <th className="pb-2 text-right">{"Unit price"}</th>
+                                <th className="pb-2 text-left">{t("fieldItem")}</th>
+                                <th className="pb-2 text-right">{t("orderedNotBilled")}</th>
+                                <th className="pb-2 text-right">{t("unitPrice")}</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -470,7 +475,7 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
                       onClick={() => setActiveDialog("bill")}
                       disabled={billableLines.length === 0}
                     >
-                      {"Create supplier bill"}
+                      {t("createSupplierBill")}
                     </Button>
                   </CardContent>
                 </Card>
@@ -479,34 +484,30 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
           },
           {
             id: "payments",
-            label: "Payments",
+            label: t("tabPayments"),
             content: (
               <div className="flex flex-col gap-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">{"Payments"}</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {"Record outbound payments against supplier bills."}
-                    </p>
+                    <CardTitle className="text-base">{t("tabPayments")}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{t("poPaymentsDescription")}</p>
                   </CardHeader>
                   <CardContent className="flex flex-col gap-3">
                     <div className="flex gap-4 text-sm">
                       <span>
-                        {"Total"}:{" "}
+                        {t("tableTotal")}:{" "}
                         <span className=" tabular-nums">
                           {formatMoney(order.amountTotal, { currency: DEFAULT_CURRENCY })}
                         </span>
                       </span>
-                      <span className="text-muted-foreground">
-                        {"Residual updates after allocation"}
-                      </span>
+                      <span className="text-muted-foreground">{t("residualHint")}</span>
                     </div>
                     <Button
                       size="sm"
                       onClick={() => setActiveDialog("pay")}
                       disabled={!canPay(order.state)}
                     >
-                      {"Make payment"}
+                      {t("createPayment")}
                     </Button>
                   </CardContent>
                 </Card>
@@ -516,10 +517,10 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
         ]}
       />
       <JournalDateDialog
-        title={"Receive"}
-        description={"Receive goods against this purchase order."}
-        confirmLabel={"Receive"}
-        cancelLabel={"Cancel"}
+        title={t("actionReceive")}
+        description={t("receiptDescription")}
+        confirmLabel={t("actionReceive")}
+        cancelLabel={tCommon("cancel")}
         open={activeDialog === "receive"}
         onOpenChange={(open) => setActiveDialog(open ? "receive" : null)}
         onConfirm={(journalId, date) => handleReceive({ journalId, date })}
@@ -532,8 +533,8 @@ export function PurchaseOrderDetail({ orgId, orderId }: { orgId: string; orderId
         onSubmit={handleBill}
       />
       <JournalDateDialog
-        title={"Make payment"}
-        confirmLabel={"Make payment"}
+        title={t("createPayment")}
+        confirmLabel={t("createPayment")}
         journals={journals}
         open={activeDialog === "pay"}
         onOpenChange={(open) => setActiveDialog(open ? "pay" : null)}
@@ -554,6 +555,8 @@ function BillDialog({
   journals: Journal[];
   onSubmit: (values: { journalId: string; date: string; override: boolean }) => void;
 }) {
+  const t = useTranslations("Purchases");
+  const tCommon = useTranslations("Common");
   const [journalId, setJournalId] = useState("");
   const [date, setDate] = useState(getLocalDateString());
   const [override, setOverride] = useState(false);
@@ -561,17 +564,15 @@ function BillDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"Create supplier bill"}</DialogTitle>
-          <DialogDescription>
-            {"Create supplier bills for received-not-billed lines. Shows 3-way match status."}
-          </DialogDescription>
+          <DialogTitle>{t("createSupplierBill")}</DialogTitle>
+          <DialogDescription>{t("poBillingDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Journal"}</span>
+            <span className="text-sm">{t("fieldJournal")}</span>
             <Select value={journalId} onValueChange={(value) => setJournalId(value ?? "")}>
-              <SelectTrigger aria-label={"Journal"}>
-                <SelectValue placeholder={"Journal"} />
+              <SelectTrigger aria-label={t("fieldJournal")}>
+                <SelectValue placeholder={t("fieldJournal")} />
               </SelectTrigger>
               <SelectContent>
                 {journals.map((j) => (
@@ -583,7 +584,7 @@ function BillDialog({
             </Select>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Date"}</span>
+            <span className="text-sm">{t("tableOrderDate")}</span>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <label className="flex items-center gap-2 text-sm">
@@ -593,15 +594,15 @@ function BillDialog({
               onChange={(e) => setOverride(e.target.checked)}
               className="size-4"
             />
-            {"Override (bill more than received)"}
+            {t("overrideHint")}
           </label>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
           <Button onClick={() => onSubmit({ journalId, date, override })} disabled={!journalId}>
-            {"Create supplier bill"}
+            {t("createSupplierBill")}
           </Button>
         </DialogFooter>
       </DialogContent>

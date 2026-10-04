@@ -55,7 +55,7 @@ describe("ExpenseDetail", () => {
     renderWithProviders(<ExpenseDetail orgId="1" expenseId="7" />);
 
     expect((await screen.findAllByText("Trip to Jakarta")).length).toBeGreaterThan(0);
-    expect(screen.getByText("1,500")).toBeInTheDocument();
+    expect(screen.getByText("1.500")).toBeInTheDocument();
   });
 
   it("switches to the lines tab on selection", async () => {
@@ -63,7 +63,7 @@ describe("ExpenseDetail", () => {
     renderWithProviders(<ExpenseDetail orgId="1" expenseId="7" />);
 
     await screen.findAllByText("Trip to Jakarta");
-    await user.click(screen.getByRole("tab", { name: "Lines" }));
+    await user.click(screen.getByRole("tab", { name: "Baris" }));
 
     expect(await screen.findByText("Hotel stay")).toBeInTheDocument();
   });

@@ -52,7 +52,7 @@ describe("QualityPointFormDialog", () => {
       <QualityPointFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(await screen.findByLabelText("Operation")).toBeInTheDocument();
+    expect(await screen.findByLabelText("Operasi")).toBeInTheDocument();
   });
 
   it("saves a new quality point", async () => {
@@ -62,8 +62,8 @@ describe("QualityPointFormDialog", () => {
       <QualityPointFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await user.type(await screen.findByLabelText("Operation"), "Final inspection");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByLabelText("Operasi"), "Final inspection");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
   });

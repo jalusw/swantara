@@ -8,7 +8,7 @@ function tax(overrides: Partial<Tax>): Tax {
     createdAt: new Date(),
     updatedAt: new Date(),
     organizationId: 1,
-    name: overrides.name ?? "Tax",
+    name: overrides.name ?? "Pajak",
     amount: overrides.amount ?? null,
     type: overrides.type ?? "percent",
     scope: overrides.scope ?? "sale",

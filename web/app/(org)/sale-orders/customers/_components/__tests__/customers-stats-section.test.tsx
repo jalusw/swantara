@@ -77,17 +77,17 @@ describe("CustomersStats", () => {
   it("renders total, active and new-this-month labels", async () => {
     renderWithProviders(<CustomersStats />);
 
-    expect(await screen.findByText("Total customers")).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
-    expect(screen.getByText("New this month")).toBeInTheDocument();
+    expect(await screen.findByText("Total pelanggan")).toBeInTheDocument();
+    expect(screen.getByText("Aktif")).toBeInTheDocument();
+    expect(screen.getByText("Baru bulan ini")).toBeInTheDocument();
   });
 
   it("keeps counts visible when stats are clicked", async () => {
     const user = userEvent.setup();
     renderWithProviders(<CustomersStats />);
 
-    await screen.findByText("Total customers");
-    await user.click(screen.getByText("Total customers"));
+    await screen.findByText("Total pelanggan");
+    await user.click(screen.getByText("Total pelanggan"));
 
     expect(screen.getByText("3")).toBeInTheDocument();
     expect(screen.getByText("2")).toBeInTheDocument();

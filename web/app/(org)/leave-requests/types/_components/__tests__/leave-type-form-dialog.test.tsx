@@ -11,7 +11,7 @@ beforeEach(() => {
       HttpResponse.json(
         {
           success: true,
-          message: "Created.",
+          message: "Dibuat.",
           data: { leave_type: { id: 3, name: "Study Leave" } },
         },
         { status: 201 },
@@ -30,8 +30,8 @@ describe("LeaveTypeFormDialog", () => {
   it("renders the create form", async () => {
     renderDialog(() => {});
 
-    expect(await screen.findByRole("heading", { name: "New leave type" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Jenis cuti baru" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("creates a leave type on submit", async () => {
@@ -39,9 +39,9 @@ describe("LeaveTypeFormDialog", () => {
     const user = userEvent.setup();
     renderDialog(onSave);
 
-    await screen.findByRole("heading", { name: "New leave type" });
-    await user.type(screen.getByLabelText("Name"), "Study Leave");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByRole("heading", { name: "Jenis cuti baru" });
+    await user.type(screen.getByLabelText("Nama"), "Study Leave");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
   });

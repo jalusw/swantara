@@ -109,7 +109,7 @@ func assetCategoryCRUD(categories *reference.AssetCategory) dao.CRUDMock[referen
 
 func TestAssetHandler_ListCategories_ReturnsCategories(t *testing.T) {
 	categories := &reference.AssetCategory{Base: model.Base{ID: 1}, Name: "Computer"}
-	handler := NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryCRUD(categories)), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	handler := NewAssetCategoryHandler(assetCategoryCRUD(categories), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := fiber.New()
 	handler.Register(app, passthroughGuards())
 
@@ -124,7 +124,7 @@ func TestAssetHandler_ListCategories_ReturnsCategories(t *testing.T) {
 
 func TestAssetHandler_GetCategory_ReturnsNotFound(t *testing.T) {
 	categories := dao.CRUDMock[reference.AssetCategory]{}
-	handler := NewAssetCategoryHandler(asset.NewAssetCategoryService(categories), handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	handler := NewAssetCategoryHandler(categories, handlerAssetSvc(asset.FixedAssetDAOMock{}, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := fiber.New()
 	handler.Register(app, passthroughGuards())
 
@@ -181,7 +181,7 @@ func TestAssetHandler_RegisterAsset_RegistersAsset(t *testing.T) {
 			return &accounting.Invoice{Base: model.Base{ID: 9}, Type: accounting.InvoiceTypeSupplierBill, State: accounting.InvoiceStatePosted, EntryID: &moveID}, nil
 		}},
 	)
-	handler := NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryCRUD(categories)), svc)
+	handler := NewAssetCategoryHandler(assetCategoryCRUD(categories), svc)
 	app := fiber.New()
 	handler.Register(app, passthroughGuards())
 
@@ -197,7 +197,7 @@ func TestAssetHandler_RegisterAsset_RegistersAsset(t *testing.T) {
 
 func TestAssetHandler_GetAsset_ReturnsNotFound(t *testing.T) {
 	assets := asset.FixedAssetDAOMock{}
-	handler := NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryCRUD(nil)), handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
+	handler := NewAssetCategoryHandler(assetCategoryCRUD(nil), handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{}))
 	app := fiber.New()
 	handler.Register(app, passthroughGuards())
 
@@ -251,7 +251,7 @@ func TestAssetHandler_GenerateSchedule_GeneratesSchedule(t *testing.T) {
 		handlerInvoiceLineLookup{},
 		handlerInvoiceLookup{},
 	)
-	handler := NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryCRUD(categories)), svc)
+	handler := NewAssetCategoryHandler(assetCategoryCRUD(categories), svc)
 	app := fiber.New()
 	handler.Register(app, passthroughGuards())
 
@@ -311,7 +311,7 @@ func TestAssetHandler_DisposeAsset_DisposesAsset(t *testing.T) {
 		handlerInvoiceLineLookup{},
 		handlerInvoiceLookup{},
 	)
-	handler := NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryCRUD(categories)), svc)
+	handler := NewAssetCategoryHandler(assetCategoryCRUD(categories), svc)
 	app := fiber.New()
 	handler.Register(app, passthroughGuards())
 
@@ -328,7 +328,7 @@ func TestAssetHandler_DisposeAsset_DisposesAsset(t *testing.T) {
 func TestAssetHandler_DisposeAsset_RejectsUnknownState(t *testing.T) {
 	assets := asset.FixedAssetDAOMock{}
 	svc := handlerAssetSvc(assets, asset.AssetDepreciationLineDAOMock{}, handlerAssetCategoryLookup{}, handlerInvoiceLineLookup{}, handlerInvoiceLookup{})
-	handler := NewAssetCategoryHandler(asset.NewAssetCategoryService(assetCategoryCRUD(nil)), svc)
+	handler := NewAssetCategoryHandler(assetCategoryCRUD(nil), svc)
 	app := fiber.New()
 	handler.Register(app, passthroughGuards())
 

@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Button } from "@/components/button";
@@ -31,6 +32,7 @@ function toCustomerRow(contact: Contact): CustomerRow {
 }
 
 export function CustomersTable({ orgId }: { orgId: string }) {
+  const t = useTranslations("Sales");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const query = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
@@ -45,10 +47,18 @@ export function CustomersTable({ orgId }: { orgId: string }) {
     void query.refetch();
   }
 
+  function statusLabel(status: CustomerRow["status"]): string {
+    try {
+      return (t as unknown as (k: string) => string)(`customerStatus.${status}`);
+    } catch {
+      return humanizeKey(String(status));
+    }
+  }
+
   const columns: ColumnDef<CustomerRow>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
       cell: ({ row }) => (
         <div className="flex min-w-0 flex-col">
           <span className="truncate font-medium">{row.original.name}</span>
@@ -60,7 +70,7 @@ export function CustomersTable({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: t("tableStatus"),
       cell: ({ row }) => {
         const toneMap: Record<CustomerRow["status"], "success" | "neutral"> = {
           active: "success",
@@ -69,14 +79,14 @@ export function CustomersTable({ orgId }: { orgId: string }) {
         return (
           <StateBadge
             tone={toneMap[row.original.status]}
-            label={humanizeKey(String(row.original.status))}
+            label={statusLabel(row.original.status)}
           />
         );
       },
     },
     {
       accessorKey: "since",
-      header: "Customer since",
+      header: t("tableCustomerSince"),
       cell: ({ row }) => <span className="text-muted-foreground">{row.original.since}</span>,
     },
   ];
@@ -90,15 +100,15 @@ export function CustomersTable({ orgId }: { orgId: string }) {
         searchKeys={["name", "email"]}
         statusKey="status"
         statusOptions={[
-          { value: "active", label: "Active" },
-          { value: "dormant", label: "Dormant" },
+          { value: "active", label: t("statusActive") },
+          { value: "dormant", label: t("statusDormant") },
         ]}
-        searchPlaceholder={"Search customers…"}
-        filterLabel={"Filter by status"}
-        allLabel={"All statuses"}
-        ariaLabel={"All customers"}
-        emptyTitle={"No customers yet"}
-        emptyDescription={"Add your first customer to get started."}
+        searchPlaceholder={t("searchCustomersPlaceholder")}
+        filterLabel={t("filterByStatus")}
+        allLabel={t("allStatuses")}
+        ariaLabel={t("allCustomers")}
+        emptyTitle={t("emptyCustomers")}
+        emptyDescription={t("emptyCustomersDescription")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -113,7 +123,7 @@ export function CustomersTable({ orgId }: { orgId: string }) {
         actions={
           <Button onClick={() => setDialogOpen(true)}>
             <Plus aria-hidden />
-            <span>{"Add customer"}</span>
+            <span>{t("addCustomer")}</span>
           </Button>
         }
       />

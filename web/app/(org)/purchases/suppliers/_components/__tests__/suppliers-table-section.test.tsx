@@ -47,8 +47,8 @@ describe("SuppliersTable", () => {
     expect(await screen.findByText("Acme Corp")).toBeInTheDocument();
     expect(screen.getByText("buy@acme.test")).toBeInTheDocument();
     expect(screen.getByText("Globex")).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
-    expect(screen.getByText("Inactive")).toBeInTheDocument();
+    expect(screen.getByText("Aktif")).toBeInTheDocument();
+    expect(screen.getByText("Nonaktif")).toBeInTheDocument();
   });
 
   it("filters suppliers by search", async () => {
@@ -56,7 +56,7 @@ describe("SuppliersTable", () => {
     renderWithProviders(<SuppliersTable />);
 
     await screen.findByText("Acme Corp");
-    await user.type(screen.getByPlaceholderText("Search suppliers…"), "globex");
+    await user.type(screen.getByPlaceholderText("Cari pemasok…"), "globex");
 
     expect(await screen.findByText("Globex")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Acme Corp")).not.toBeInTheDocument());
@@ -70,7 +70,7 @@ describe("SuppliersTable", () => {
     );
     renderWithProviders(<SuppliersTable />);
 
-    expect(await screen.findByText("No results")).toBeInTheDocument();
+    expect(await screen.findByText("Tidak ada hasil")).toBeInTheDocument();
   });
 
   it("shows the error state with retry and refetches", async () => {
@@ -88,7 +88,7 @@ describe("SuppliersTable", () => {
     renderWithProviders(<SuppliersTable />);
 
     expect(await screen.findByText("supplier boom")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Retry" }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     expect(await screen.findByText("Acme Corp")).toBeInTheDocument();
     expect(calls).toBe(2);

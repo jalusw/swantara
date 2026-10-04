@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { BarChart } from "@/components/bar-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
@@ -11,6 +12,7 @@ import { formatMoney } from "@/lib/utils";
 import { KpiCard } from "./kpi-card";
 
 export function PayrollSection() {
+  const t = useTranslations("Dashboard");
   const payrollKpi = usePayrollKpi();
   const payroll = payrollKpi.data?.kpi;
 
@@ -18,44 +20,44 @@ export function PayrollSection() {
     () =>
       payroll
         ? [
-            { label: "Gross cost", value: payroll.grossCost },
-            { label: "Net cost", value: payroll.netCost },
+            { label: t("grossCost"), value: payroll.grossCost },
+            { label: t("netCost"), value: payroll.netCost },
           ]
         : [
-            { label: "Gross cost", value: 0 },
-            { label: "Net cost", value: 0 },
+            { label: t("grossCost"), value: 0 },
+            { label: t("netCost"), value: 0 },
           ],
-    [payroll],
+    [payroll, t],
   );
 
   const payrollComposition = useMemo(
     () =>
       payroll
         ? [
-            { label: "Net cost", value: payroll.netCost },
+            { label: t("netCost"), value: payroll.netCost },
             {
-              label: "Deductions",
+              label: t("deductions"),
               value: Math.max(0, payroll.grossCost - payroll.netCost),
             },
           ]
         : [
-            { label: "Net cost", value: 0 },
-            { label: "Deductions", value: 0 },
+            { label: t("netCost"), value: 0 },
+            { label: t("deductions"), value: 0 },
           ],
-    [payroll],
+    [payroll, t],
   );
 
   return (
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle>{"Payroll"}</CardTitle>
-          <CardDescription>{"Gross and net payroll cost."}</CardDescription>
+          <CardTitle>{t("payrollTitle")}</CardTitle>
+          <CardDescription>{t("payrollDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-12">
           <div className="col-span-12 sm:col-span-6 rounded-xl border border-border bg-primary/[0.04] p-5">
             <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
-              {"Gross cost"}
+              {t("grossCost")}
             </p>
             <p className="mt-2 font-heading text-2xl font-semibold tracking-tight tabular-nums">
               {payroll ? formatMoney(payroll.grossCost, { currency: DEFAULT_CURRENCY }) : "—"}
@@ -63,7 +65,7 @@ export function PayrollSection() {
           </div>
           <div className="col-span-12 sm:col-span-6 rounded-xl border border-border bg-card p-5">
             <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
-              {"Net cost"}
+              {t("netCost")}
             </p>
             <p className="mt-2 font-heading text-2xl font-semibold tracking-tight tabular-nums">
               {payroll ? formatMoney(payroll.netCost, { currency: DEFAULT_CURRENCY }) : "—"}
@@ -74,28 +76,28 @@ export function PayrollSection() {
       <div className="grid gap-6 grid-cols-12">
         <Card className="col-span-12 lg:col-span-8">
           <CardHeader>
-            <CardTitle className="text-sm">Cost comparison</CardTitle>
-            <CardDescription>Gross vs net</CardDescription>
+            <CardTitle className="text-sm">{t("costComparison")}</CardTitle>
+            <CardDescription>{t("grossVsNet")}</CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
             <BarChart
               data={payrollData}
-              ariaLabel={"Payroll"}
+              ariaLabel={t("payrollTitle")}
               valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
             />
           </CardContent>
         </Card>
         <Card className="col-span-12 lg:col-span-4">
           <CardHeader>
-            <CardTitle className="text-sm">Net vs deductions</CardTitle>
-            <CardDescription>Composition of gross</CardDescription>
+            <CardTitle className="text-sm">{t("netVsDeductions")}</CardTitle>
+            <CardDescription>{t("grossComposition")}</CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
             <DonutChart
               data={payrollComposition}
-              ariaLabel={"Payroll"}
+              ariaLabel={t("payrollTitle")}
               valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
-              centerLabel={"Gross cost"}
+              centerLabel={t("grossCost")}
             />
           </CardContent>
         </Card>
@@ -105,6 +107,7 @@ export function PayrollSection() {
 }
 
 export function ProjectSection() {
+  const t = useTranslations("Dashboard");
   const projectKpi = useProjectKpi();
   const project = projectKpi.data?.kpi;
 
@@ -112,81 +115,81 @@ export function ProjectSection() {
     () =>
       project
         ? [
-            { label: "Billed", value: project.totalBilled },
-            { label: "Margin", value: project.totalMargin },
-            { label: "Cost", value: project.totalCost },
+            { label: t("billed"), value: project.totalBilled },
+            { label: t("margin"), value: project.totalMargin },
+            { label: t("stat_expenses"), value: project.totalCost },
           ]
         : [
-            { label: "Billed", value: 0 },
-            { label: "Margin", value: 0 },
-            { label: "Cost", value: 0 },
+            { label: t("billed"), value: 0 },
+            { label: t("margin"), value: 0 },
+            { label: t("stat_expenses"), value: 0 },
           ],
-    [project],
+    [project, t],
   );
 
   const projectComposition = useMemo(
     () =>
       project
         ? [
-            { label: "Margin", value: project.totalMargin },
-            { label: "Cost", value: project.totalCost },
+            { label: t("margin"), value: project.totalMargin },
+            { label: t("stat_expenses"), value: project.totalCost },
           ]
         : [
-            { label: "Margin", value: 0 },
-            { label: "Cost", value: 0 },
+            { label: t("margin"), value: 0 },
+            { label: t("stat_expenses"), value: 0 },
           ],
-    [project],
+    [project, t],
   );
 
   const utilizationData = useMemo(
     () =>
       project
         ? [
-            { label: "Utilization", value: project.utilization * 100 },
-            { label: "Available", value: (1 - project.utilization) * 100 },
+            { label: t("utilization"), value: project.utilization * 100 },
+            { label: t("available"), value: (1 - project.utilization) * 100 },
           ]
         : [
-            { label: "Utilization", value: 0 },
-            { label: "Available", value: 0 },
+            { label: t("utilization"), value: 0 },
+            { label: t("available"), value: 0 },
           ],
-    [project],
+    [project, t],
   );
 
   return (
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle>{"Projects"}</CardTitle>
-          <CardDescription>{"Margin, cost, billed and utilization."}</CardDescription>
+          <CardTitle>{t("opsProjectsTitle")}</CardTitle>
+          <CardDescription>{t("opsProjectsDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-12">
           <KpiCard
             className="col-span-6 lg:col-span-4 rounded-xl border border-border bg-card p-5"
-            label={"Projects"}
+            label={t("opsProjectsTitle")}
           >
             {project ? String(project.projectCount) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 lg:col-span-4 rounded-xl border border-border bg-card p-5"
-            label={"Utilization"}
+            label={t("utilization")}
           >
             {project ? `${(project.utilization * 100).toFixed(1)}%` : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-12 lg:col-span-4 rounded-xl border border-border bg-card p-5 bg-primary/[0.04] border-primary/15"
-            label={"Billed"}
+            label={t("billed")}
           >
             {project ? formatMoney(project.totalBilled, { currency: DEFAULT_CURRENCY }) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-5"
-            label={"Margin"}
+            label={t("margin")}
           >
             {project ? formatMoney(project.totalMargin, { currency: DEFAULT_CURRENCY }) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-5"
-            label={"Cost"}
+            label={t("stat_expenses")}
           >
             {project ? formatMoney(project.totalCost, { currency: DEFAULT_CURRENCY }) : "—"}
           </KpiCard>
@@ -194,13 +197,13 @@ export function ProjectSection() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Billed vs margin vs cost</CardTitle>
-          <CardDescription>Financial split</CardDescription>
+          <CardTitle className="text-sm">{t("billedVsMarginVsCost")}</CardTitle>
+          <CardDescription>{t("financialBreakdown")}</CardDescription>
         </CardHeader>
         <CardContent className="pt-2">
           <BarChart
             data={projectData}
-            ariaLabel={"Projects"}
+            ariaLabel={t("opsProjectsTitle")}
             valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
           />
         </CardContent>
@@ -208,29 +211,29 @@ export function ProjectSection() {
       <div className="grid gap-6 grid-cols-12">
         <Card className="col-span-12 sm:col-span-6">
           <CardHeader>
-            <CardTitle className="text-sm">Margin vs cost</CardTitle>
-            <CardDescription>Billed composition</CardDescription>
+            <CardTitle className="text-sm">{t("marginVsCost")}</CardTitle>
+            <CardDescription>{t("billedComposition")}</CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
             <DonutChart
               data={projectComposition}
-              ariaLabel={"Billed"}
+              ariaLabel={t("billed")}
               valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
-              centerLabel={"Billed"}
+              centerLabel={t("billed")}
             />
           </CardContent>
         </Card>
         <Card className="col-span-12 sm:col-span-6">
           <CardHeader>
-            <CardTitle className="text-sm">Utilization</CardTitle>
-            <CardDescription>Capacity used</CardDescription>
+            <CardTitle className="text-sm">{t("utilization")}</CardTitle>
+            <CardDescription>{t("usedCapacity")}</CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
             <DonutChart
               data={utilizationData}
-              ariaLabel={"Utilization"}
+              ariaLabel={t("utilization")}
               valueFormatter={(value) => `${value.toFixed(1)}%`}
-              centerLabel={"Utilization"}
+              centerLabel={t("utilization")}
             />
           </CardContent>
         </Card>
@@ -240,6 +243,7 @@ export function ProjectSection() {
 }
 
 export function SubscriptionSection() {
+  const t = useTranslations("Dashboard");
   const subscriptionKpi = useSubscriptionKpi();
   const sub = subscriptionKpi.data?.kpi;
 
@@ -263,14 +267,14 @@ export function SubscriptionSection() {
     () =>
       sub
         ? [
-            { label: "Churn rate", value: sub.churnRate * 100 },
-            { label: "Retained", value: (1 - sub.churnRate) * 100 },
+            { label: t("churnRate"), value: sub.churnRate * 100 },
+            { label: t("retained"), value: (1 - sub.churnRate) * 100 },
           ]
         : [
-            { label: "Churn rate", value: 0 },
-            { label: "Retained", value: 0 },
+            { label: t("churnRate"), value: 0 },
+            { label: t("retained"), value: 0 },
           ],
-    [sub],
+    [sub, t],
   );
 
   const recurringFlow = useMemo(
@@ -293,8 +297,8 @@ export function SubscriptionSection() {
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle>{"Subscriptions"}</CardTitle>
-          <CardDescription>{"MRR, ARR, churn and lifetime value."}</CardDescription>
+          <CardTitle>{t("opsSubscriptionsTitle")}</CardTitle>
+          <CardDescription>{t("opsSubscriptionsDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-12">
           <KpiCard
@@ -311,7 +315,7 @@ export function SubscriptionSection() {
           </KpiCard>
           <KpiCard
             className="col-span-6 lg:col-span-3 rounded-xl border border-border bg-card p-5"
-            label={"Churn rate"}
+            label={t("churnRate")}
           >
             {sub ? `${(sub.churnRate * 100).toFixed(1)}%` : "—"}
           </KpiCard>
@@ -323,7 +327,7 @@ export function SubscriptionSection() {
           </KpiCard>
           <KpiCard
             className="col-span-12 rounded-xl border border-amber-500/20 bg-amber-500/10 p-5"
-            label={"Churned"}
+            label={t("churned")}
           >
             {sub ? String(sub.churned) : "—"}
           </KpiCard>
@@ -331,13 +335,13 @@ export function SubscriptionSection() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Recurring value</CardTitle>
-          <CardDescription>MRR, ARR and LTV</CardDescription>
+          <CardTitle className="text-sm">{t("recurringValue")}</CardTitle>
+          <CardDescription>{t("mrrArrLtv")}</CardDescription>
         </CardHeader>
         <CardContent className="pt-2">
           <BarChart
             data={subscriptionData}
-            ariaLabel={"Subscriptions"}
+            ariaLabel={t("opsSubscriptionsTitle")}
             valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
           />
         </CardContent>
@@ -345,22 +349,22 @@ export function SubscriptionSection() {
       <div className="grid gap-6 grid-cols-12">
         <Card className="col-span-12 sm:col-span-6">
           <CardHeader>
-            <CardTitle className="text-sm">Retention</CardTitle>
-            <CardDescription>Churn vs retained</CardDescription>
+            <CardTitle className="text-sm">{t("retention")}</CardTitle>
+            <CardDescription>{t("churnVsRetained")}</CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
             <DonutChart
               data={churnData}
-              ariaLabel={"Churn rate"}
+              ariaLabel={t("churnRate")}
               valueFormatter={(value) => `${value.toFixed(1)}%`}
-              centerLabel={"Churn rate"}
+              centerLabel={t("churnRate")}
             />
           </CardContent>
         </Card>
         <Card className="col-span-12 sm:col-span-6">
           <CardHeader>
-            <CardTitle className="text-sm">Growth trajectory</CardTitle>
-            <CardDescription>Recurring flow</CardDescription>
+            <CardTitle className="text-sm">{t("growthTrajectory")}</CardTitle>
+            <CardDescription>{t("recurringFlow")}</CardDescription>
           </CardHeader>
           <CardContent className="pt-2">
             <LineChart

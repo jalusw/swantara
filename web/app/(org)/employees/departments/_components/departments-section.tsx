@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, PencilIcon, Plus, Trash2Icon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -19,6 +20,8 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { DepartmentFormDialog } from "./department-form-dialog";
 
 export function DepartmentsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Employees");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDepartment, setEditDepartment] = useState<Department | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -50,12 +53,12 @@ export function DepartmentsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<Department>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "description",
-      header: "Description",
+      header: t("tableDescription"),
       cell: ({ row }) =>
         row.original.description ?? <span className="text-muted-foreground">—</span>,
     },
@@ -72,11 +75,11 @@ export function DepartmentsSection({ orgId }: { orgId: string }) {
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => handleEdit(row.original)}>
               <PencilIcon />
-              {"Edit"}
+              {tCommon("edit")}
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={() => handleDeleteClick(row.original)}>
               <Trash2Icon />
-              {"Delete"}
+              {tCommon("delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -94,9 +97,9 @@ export function DepartmentsSection({ orgId }: { orgId: string }) {
         data={departments}
         getRowId={(row) => String(row.id)}
         searchKeys={["name", "description"]}
-        searchPlaceholder={"Search departments…"}
-        ariaLabel={"All departments"}
-        emptyTitle={"No departments found"}
+        searchPlaceholder={t("searchDepartmentsPlaceholder")}
+        ariaLabel={t("departmentsTitle")}
+        emptyTitle={t("noDepartments")}
         status={
           isLoading
             ? { type: "loading" }
@@ -117,7 +120,7 @@ export function DepartmentsSection({ orgId }: { orgId: string }) {
             }}
           >
             <Plus />
-            <span>{"Add department"}</span>
+            <span>{t("addDepartment")}</span>
           </Button>
         }
       />
@@ -133,8 +136,8 @@ export function DepartmentsSection({ orgId }: { orgId: string }) {
       <ConfirmDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        title={"Delete department"}
-        description={"Are you sure you want to delete this department?"}
+        title={t("deleteDepartmentTitle")}
+        description={t("deleteDepartmentDescription")}
         onConfirm={() => {
           if (!deleteDepartment) return;
           void getSwantaraService()
@@ -143,7 +146,7 @@ export function DepartmentsSection({ orgId }: { orgId: string }) {
               setDeleteDepartment(null);
               void departmentsQuery.refetch();
             })
-            .catch(() => toast.error("Could not disable the organization."));
+            .catch(() => toast.error(t("deleteFailed")));
         }}
       />
     </div>

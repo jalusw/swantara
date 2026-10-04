@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -17,7 +18,6 @@ import { Textarea } from "@/components/textarea";
 import type { ApprovalRequest, ApprovalStep } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 
 const approvalStateClass: Record<string, string> = {
   approved: "border-success text-success",
@@ -46,6 +46,11 @@ function stepDecisionTone(
 }
 
 export function ApprovalWidget({ approvalRequest, orgId, onDecided }: ApprovalWidgetProps) {
+  const t = useTranslations("ApprovalRequests");
+  const tCommon = useTranslations("Common");
+  const requestState = (state: string) => (t as unknown as (k: string) => string)(`state_${state}`);
+  const decisionLabel = (decision: string) =>
+    (t as unknown as (k: string) => string)(`decision_${decision}`);
   const [decideOpen, setDecideOpen] = useState(false);
   const [activeStep, setActiveStep] = useState<ApprovalStep | null>(null);
   const [decisionApprove, setDecisionApprove] = useState(true);
@@ -67,11 +72,11 @@ export function ApprovalWidget({ approvalRequest, orgId, onDecided }: ApprovalWi
         comment,
       }),
     onSuccess: (_data, variables) => {
-      toast.success(variables.approve ? "Approved." : "Refused.");
+      toast.success(variables.approve ? t("approved") : t("refused"));
       setDecideOpen(false);
       onDecided?.();
     },
-    onError: () => toast.error("Something went wrong."),
+    onError: () => toast.error(t("saveFailed")),
   });
 
   if (!approvalRequest) {
@@ -100,9 +105,9 @@ export function ApprovalWidget({ approvalRequest, orgId, onDecided }: ApprovalWi
     <>
       <div data-slot="approval-widget" className="flex flex-col gap-2 rounded-md border p-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm">{"Approval"}</span>
+          <span className="text-sm">{t("approval")}</span>
           <Badge variant="outline" className={approvalStateClass[approvalRequest.state] ?? ""}>
-            {humanizeKey(String(approvalRequest.state))}
+            {requestState(approvalRequest.state)}
           </Badge>
         </div>
         {steps.length > 0 ? (
@@ -116,7 +121,7 @@ export function ApprovalWidget({ approvalRequest, orgId, onDecided }: ApprovalWi
                 >
                   <div className="flex flex-col gap-0.5">
                     <span className="text-sm">
-                      {"Step"} {step.sequence}
+                      {t("step")} {step.sequence}
                     </span>
                     {step.decidedAt ? (
                       <span className="text-xs text-muted-foreground">
@@ -129,7 +134,7 @@ export function ApprovalWidget({ approvalRequest, orgId, onDecided }: ApprovalWi
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className={stepDecisionTone(step.decision)}>
-                      {humanizeKey(String(step.decision))}
+                      {decisionLabel(step.decision)}
                     </Badge>
                     {step.decision === "pending" ? (
                       <div className="flex gap-1">
@@ -138,14 +143,14 @@ export function ApprovalWidget({ approvalRequest, orgId, onDecided }: ApprovalWi
                           variant="outline"
                           onClick={() => handleDecide(step, true)}
                         >
-                          {"Approve"}
+                          {t("approve")}
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleDecide(step, false)}
                         >
-                          {"Refuse"}
+                          {t("refuse")}
                         </Button>
                       </div>
                     ) : null}
@@ -154,30 +159,30 @@ export function ApprovalWidget({ approvalRequest, orgId, onDecided }: ApprovalWi
               ))}
           </div>
         ) : (
-          <p className="text-xs text-muted-foreground">{"No approval steps configured."}</p>
+          <p className="text-xs text-muted-foreground">{t("noSteps")}</p>
         )}
       </div>
       <Dialog open={decideOpen} onOpenChange={setDecideOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{decisionApprove ? "Approve step" : "Refuse step"}</DialogTitle>
-            <DialogDescription>{"Add an optional comment to your decision."}</DialogDescription>
+            <DialogTitle>{decisionApprove ? t("approveStep") : t("refuseStep")}</DialogTitle>
+            <DialogDescription>{t("decisionDescription")}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Comment"}</span>
+            <span className="text-sm">{t("comment")}</span>
             <Textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={3}
-              placeholder={"Optional comment…"}
+              placeholder={t("commentPlaceholder")}
             />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDecideOpen(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
             <Button onClick={submitDecision} disabled={decisionMutation.isPending}>
-              {decisionApprove ? "Approve" : "Refuse"}
+              {decisionApprove ? t("approve") : t("refuse")}
             </Button>
           </DialogFooter>
         </DialogContent>

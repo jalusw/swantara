@@ -47,9 +47,9 @@ function seedCreate(status = 200) {
 }
 
 async function fillRequired(user: ReturnType<typeof userEvent.setup>, name: string) {
-  await user.type(screen.getByLabelText("Name"), name);
-  await user.click(screen.getByRole("combobox", { name: "Type" }));
-  await user.click(await screen.findByRole("option", { name: "Repair" }));
+  await user.type(screen.getByLabelText("Nama"), name);
+  await user.click(screen.getByRole("combobox", { name: "Jenis pesanan" }));
+  await user.click(await screen.findByRole("option", { name: "Perbaikan" }));
 }
 
 beforeEach(() => {
@@ -65,11 +65,11 @@ describe("ServiceOrderFormDialog branches", () => {
       <ServiceOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Create service order");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Pesanan baru");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Name is required")).toBeInTheDocument();
-    expect(await screen.findByText("Type is required")).toBeInTheDocument();
+    expect(await screen.findByText("Nama wajib diisi.")).toBeInTheDocument();
+    expect(await screen.findByText("Jenis wajib dipilih.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -81,9 +81,9 @@ describe("ServiceOrderFormDialog branches", () => {
       <ServiceOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Create service order");
+    await screen.findByText("Pesanan baru");
     await fillRequired(user, "Fix forklift");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("9"));
   });
@@ -96,19 +96,19 @@ describe("ServiceOrderFormDialog branches", () => {
       <ServiceOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Create service order");
+    await screen.findByText("Pesanan baru");
     await fillRequired(user, "Quarterly maintenance");
-    await user.click(screen.getByRole("combobox", { name: "Customer" }));
+    await user.click(screen.getByRole("combobox", { name: "Pelanggan" }));
     await user.click(await screen.findByRole("option", { name: "Acme Corp" }));
-    await user.click(screen.getByRole("combobox", { name: "Equipment" }));
+    await user.click(screen.getByRole("combobox", { name: "Peralatan" }));
     await user.click(await screen.findByRole("option", { name: "Forklift A" }));
-    await user.click(screen.getByRole("combobox", { name: "Contract" }));
+    await user.click(screen.getByRole("combobox", { name: "Kontrak" }));
     await user.click(await screen.findByRole("option", { name: "Gold SLA" }));
     await user.click(screen.getByRole("combobox", { name: "Technician" }));
     await user.click(await screen.findByRole("option", { name: "EMP-0091" }));
     await user.type(screen.getByLabelText("Priority"), "3");
-    await user.type(screen.getByLabelText("Reported issue"), "Engine overheats");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(screen.getByLabelText("Masalah yang dilaporkan"), "Engine overheats");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("9"));
   });
@@ -121,13 +121,13 @@ describe("ServiceOrderFormDialog branches", () => {
       <ServiceOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Create service order");
+    await screen.findByText("Pesanan baru");
     await fillRequired(user, "Replace filter");
-    await user.click(screen.getByRole("combobox", { name: "Line Type" }));
-    await user.click(await screen.findByRole("option", { name: "Part" }));
+    await user.click(screen.getByRole("combobox", { name: "Jenis baris" }));
+    await user.click(await screen.findByRole("option", { name: "Suku Cadang" }));
     await user.click(screen.getByRole("combobox", { name: "Item" }));
     await user.click(await screen.findByRole("option", { name: "Finished Widget" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("9"));
   });
@@ -138,9 +138,9 @@ describe("ServiceOrderFormDialog branches", () => {
       <ServiceOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Create service order");
+    await screen.findByText("Pesanan baru");
     expect(screen.getByRole("button", { name: "x" })).toBeDisabled();
-    await user.click(screen.getByRole("button", { name: "Add line" }));
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
 
     const removeButtons = screen.getAllByRole("button", { name: "x" });
     expect(removeButtons).toHaveLength(2);
@@ -161,11 +161,11 @@ describe("ServiceOrderFormDialog branches", () => {
       <ServiceOrderFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByText("Create service order");
+    await screen.findByText("Pesanan baru");
     await fillRequired(user, "Fix forklift");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(screen.getByText("Create service order")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Pesanan baru")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -176,8 +176,8 @@ describe("ServiceOrderFormDialog branches", () => {
       <ServiceOrderFormDialog open={true} onOpenChange={onOpenChange} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Create service order");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByText("Pesanan baru");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

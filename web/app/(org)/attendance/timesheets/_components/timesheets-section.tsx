@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -26,6 +27,8 @@ function toRow(timesheet: Timesheet, employeeName: Map<number, string>) {
 }
 
 export function TimesheetsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Attendance");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const timesheetsQuery = useOrgListQuery<{ timesheets: Timesheet[] }, Record<string, never>>(
@@ -65,38 +68,38 @@ export function TimesheetsSection({ orgId }: { orgId: string }) {
     void getSwantaraService()
       .timesheets.delete(Number(orgId), Number(row.id))
       .then(() => void timesheetsQuery.refetch())
-      .catch(() => toast.error("Something went wrong."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   const columns: ColumnDef<ReturnType<typeof toRow>>[] = [
     {
       accessorKey: "employeeName",
-      header: "Employee",
+      header: t("fieldEmployee"),
       cell: ({ row }) => <span className="">{row.original.employeeName}</span>,
     },
     {
       accessorKey: "date",
-      header: "Date",
+      header: t("fieldDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{formatDate(row.original.date)}</span>
       ),
     },
     {
       accessorKey: "hours",
-      header: "Hours",
+      header: t("fieldHours"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums">{formatHours(row.original.hours)}</span>,
     },
     {
       accessorKey: "description",
-      header: "Log hours worked on projects and tasks.",
+      header: t("fieldDescription"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{row.original.description || "—"}</span>
       ),
     },
     {
       accessorKey: "dimensionId",
-      header: "Dimension account",
+      header: t("fieldDimension"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">{row.original.dimensionId ?? "—"}</span>
       ),
@@ -106,10 +109,10 @@ export function TimesheetsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Deleted"}
-          confirmTitle={"Delete this reorder rule?"}
-          confirmDescription={"This will remove the automatic replenishment rule for this item."}
+          editLabel={tCommon("edit")}
+          deleteLabel={tCommon("delete")}
+          confirmTitle={t("deleteTimesheetTitle")}
+          confirmDescription={t("deleteTimesheetDescription")}
           onEdit={() => {}}
           onDelete={() => handleDelete(row.original)}
         />
@@ -134,9 +137,9 @@ export function TimesheetsSection({ orgId }: { orgId: string }) {
         data={rows}
         getRowId={(row) => row.id}
         searchKeys={["employeeName", "description"]}
-        searchPlaceholder={"Search timesheets…"}
-        ariaLabel={"All"}
-        emptyTitle={"No timesheet entries found"}
+        searchPlaceholder={t("searchTimesheetsPlaceholder")}
+        ariaLabel={t("timesheetsTitle")}
+        emptyTitle={t("emptyTimesheets")}
         status={
           isLoading
             ? { type: "loading" }
@@ -155,7 +158,7 @@ export function TimesheetsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Add entry"}</span>
+            <span>{t("addTimesheetEntry")}</span>
           </Button>
         }
       />

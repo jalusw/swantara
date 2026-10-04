@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { LogIn } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -16,6 +17,7 @@ import { isCheckedIn } from "./attendance-utils";
 import { CheckInDialog } from "./check-in-dialog";
 
 export function AttendanceSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Attendance");
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -45,7 +47,7 @@ export function AttendanceSection({ orgId }: { orgId: string }) {
         checkOut: new Date().toISOString(),
       }),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["attendances"] }),
-    onError: () => toast.error("Could not disable the organization."),
+    onError: () => toast.error(t("saveFailed")),
   });
 
   function handleCheckOut(attendance: Attendance) {
@@ -55,14 +57,14 @@ export function AttendanceSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<Attendance>[] = [
     {
       accessorKey: "employeeId",
-      header: "Employee",
+      header: t("tableEmployee"),
       cell: ({ row }) => (
         <span className="">{employeeNameMap.get(row.original.employeeId) ?? "—"}</span>
       ),
     },
     {
       accessorKey: "checkIn",
-      header: "Check in",
+      header: t("tableCheckIn"),
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
           {formatDateTime(row.original.checkIn, { nullFallback: "—" })}
@@ -71,7 +73,7 @@ export function AttendanceSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "checkOut",
-      header: "Check out",
+      header: t("tableCheckOut"),
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
           {formatDateTime(row.original.checkOut, { nullFallback: "—" })}
@@ -80,7 +82,7 @@ export function AttendanceSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "workedHours",
-      header: "Worked Hours",
+      header: t("tableWorkedHours"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
@@ -90,10 +92,10 @@ export function AttendanceSection({ orgId }: { orgId: string }) {
     },
     {
       id: "status",
-      header: "Status",
+      header: t("tableStatus"),
       cell: ({ row }) => (
         <ActiveBadge active={isCheckedIn(row.original)}>
-          {isCheckedIn(row.original) ? "Checked In" : "Completed"}
+          {isCheckedIn(row.original) ? t("statusCheckedIn") : t("statusCompleted")}
         </ActiveBadge>
       ),
     },
@@ -109,7 +111,7 @@ export function AttendanceSection({ orgId }: { orgId: string }) {
             disabled={checkOutMutation.isPending}
             onClick={() => handleCheckOut(row.original)}
           >
-            {"Check out"}
+            {t("checkOut")}
           </Button>
         );
       },
@@ -123,12 +125,12 @@ export function AttendanceSection({ orgId }: { orgId: string }) {
         data={attendances}
         getRowId={(row) => String(row.id)}
         searchKeys={["employeeId"]}
-        searchPlaceholder={"Search attendance…"}
+        searchPlaceholder={t("searchPlaceholder")}
         filterLabel=""
         statusOptions={[]}
         allLabel=""
-        ariaLabel={"Attendance"}
-        emptyTitle={"No attendance records found"}
+        ariaLabel={t("title")}
+        emptyTitle={t("emptyAttendance")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -143,7 +145,7 @@ export function AttendanceSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <LogIn />
-            <span>{"Check in"}</span>
+            <span>{t("checkIn")}</span>
           </Button>
         }
       />

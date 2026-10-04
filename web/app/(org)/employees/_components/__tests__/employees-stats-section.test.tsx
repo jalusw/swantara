@@ -50,20 +50,20 @@ describe("EmployeesStats", () => {
   it("renders stat labels", async () => {
     renderWithProviders(<EmployeesStats />);
 
-    expect(await screen.findByText("Total employees")).toBeInTheDocument();
-    expect(screen.getByText("Active employees")).toBeInTheDocument();
-    expect(screen.getByText("On leave")).toBeInTheDocument();
-    expect(screen.getByText("New this month")).toBeInTheDocument();
+    expect(await screen.findByText("Total karyawan")).toBeInTheDocument();
+    expect(screen.getByText("Karyawan aktif")).toBeInTheDocument();
+    expect(screen.getByText("Sedang cuti")).toBeInTheDocument();
+    expect(screen.getByText("Baru bulan ini")).toBeInTheDocument();
   });
 
   it("renders total headcount", async () => {
     renderWithProviders(<EmployeesStats />);
 
-    await screen.findByText("Total employees");
+    await screen.findByText("Total karyawan");
     const grid = screen
-      .getByText("Total employees")
+      .getByText("Total karyawan")
       .closest('[data-slot="metric-grid"]') as HTMLElement;
-    const total = within(grid).getByText("Total employees").closest('[data-slot="stat-card"]');
+    const total = within(grid).getByText("Total karyawan").closest('[data-slot="stat-card"]');
     expect(await within(total as HTMLElement).findByText("2")).toBeInTheDocument();
   });
 });

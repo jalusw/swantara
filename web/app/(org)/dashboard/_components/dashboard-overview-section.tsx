@@ -1,6 +1,7 @@
 "use client";
 
 import { Banknote, BarChart3, Truck, UserRound, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { BarChart } from "@/components/bar-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
@@ -16,7 +17,6 @@ import { usePermissions } from "@/lib/hooks/use-permissions";
 import type { Contact, Employee } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatMoney, formatNumber } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { DashboardActions } from "./dashboard-actions";
 import { ModulesGrid } from "./modules-grid";
 
@@ -31,6 +31,7 @@ type DashboardStat = {
 
 function useDashboardStats(): DashboardStat[] {
   const { has } = usePermissions();
+  const t = useTranslations("Dashboard");
   const financeKpi = useFinanceKpi();
   const inventoryKpi = useInventoryKpi();
   const procurementKpi = useProcurementKpi();
@@ -58,7 +59,9 @@ function useDashboardStats(): DashboardStat[] {
       key: "revenue",
       value: formatMoney(finance?.revenue ?? 0, { currency: DEFAULT_CURRENCY }),
       trend: finance?.netMarginPct
-        ? `${(finance.netMarginPct * 100).toFixed(0)}% from last month`
+        ? t("trendMargin", {
+            pct: (finance.netMarginPct * 100).toFixed(0),
+          })
         : "—",
       icon: Banknote,
       permission: "journal_entry.view",
@@ -66,21 +69,21 @@ function useDashboardStats(): DashboardStat[] {
     {
       key: "customers",
       value: formatNumber(contactsCount),
-      trend: `${"—"} from last month`,
+      trend: t("trendFlat"),
       icon: Users,
       permission: "contact.view",
     },
     {
       key: "suppliers",
       value: formatNumber(inventory?.productCount ?? contactsCount),
-      trend: `${"—"} from last month`,
+      trend: t("trendFlat"),
       icon: Truck,
       permission: "contact.view",
     },
     {
       key: "employees",
       value: formatNumber(employeesCount || procurement?.purchaseCount || 0),
-      trend: `${"—"} from last month`,
+      trend: t("trendFlat"),
       icon: UserRound,
       permission: "employee.view",
     },
@@ -90,6 +93,8 @@ function useDashboardStats(): DashboardStat[] {
 }
 
 export function DashboardOverview({ orgId }: { orgId: string }) {
+  const t = useTranslations("Dashboard");
+  const statLabel = (key: string) => (t as unknown as (k: string) => string)(`stat_${key}`);
   const { data: me } = useMeQuery();
   const { data: orgList } = useMeOrganizationsQuery();
   const financeKpi = useFinanceKpi();
@@ -99,54 +104,54 @@ export function DashboardOverview({ orgId }: { orgId: string }) {
     () =>
       kpi
         ? [
-            { label: "Revenue", value: kpi.revenue },
-            { label: "Expenses", value: kpi.expenses },
-            { label: "EBITDA", value: kpi.ebitda },
+            { label: t("stat_revenue"), value: kpi.revenue },
+            { label: t("stat_expenses"), value: kpi.expenses },
+            { label: t("stat_ebitda"), value: kpi.ebitda },
           ]
         : [
-            { label: "Revenue", value: 0 },
-            { label: "Expenses", value: 0 },
-            { label: "EBITDA", value: 0 },
+            { label: t("stat_revenue"), value: 0 },
+            { label: t("stat_expenses"), value: 0 },
+            { label: t("stat_ebitda"), value: 0 },
           ],
-    [kpi],
+    [kpi, t],
   );
 
   const marginComposition = useMemo(
     () =>
       kpi
         ? [
-            { label: "Expenses", value: kpi.expenses },
-            { label: "EBITDA", value: kpi.ebitda },
+            { label: t("stat_expenses"), value: kpi.expenses },
+            { label: t("stat_ebitda"), value: kpi.ebitda },
           ]
         : [
-            { label: "Expenses", value: 0 },
-            { label: "EBITDA", value: 0 },
+            { label: t("stat_expenses"), value: 0 },
+            { label: t("stat_ebitda"), value: 0 },
           ],
-    [kpi],
+    [kpi, t],
   );
 
   const orgName =
     (orgList?.organizations ?? []).find((org) => String(org.id) === orgId)?.name ?? `#${orgId}`;
 
   const firstName = me?.user.firstName ?? "";
-  const greeting = firstName ? `Good to see you, ${firstName}!` : "";
+  const greeting = firstName ? t("greeting", { firstName }) : "";
   const stats = useDashboardStats();
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
       <PageHeader
-        title={"Dashboard"}
-        description={`Welcome back to ${orgName}. Here's what's happening across your business today.`}
+        title={t("title")}
+        description={t("welcomeBack", { orgName })}
         actions={<DashboardActions />}
       />
 
       {greeting ? <p className="text-sm text-muted-foreground">{greeting}</p> : null}
 
-      <section aria-label={"Key metrics"} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section aria-label={t("keyMetrics")} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <StatCard
             key={stat.key}
-            label={humanizeKey(String(stat.key))}
+            label={statLabel(stat.key)}
             value={stat.value}
             icon={stat.icon}
             trend={stat.trend}
@@ -160,29 +165,29 @@ export function DashboardOverview({ orgId }: { orgId: string }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="size-4" aria-hidden />
-              {"Revenue overview"}
+              {t("revenueSummaryTitle")}
             </CardTitle>
-            <CardDescription>{"Monthly revenue for the current tax year."}</CardDescription>
+            <CardDescription>{t("revenueSummaryDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <BarChart
               data={financeData}
-              ariaLabel={"Revenue overview"}
+              ariaLabel={t("revenueSummaryTitle")}
               valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
             />
           </CardContent>
         </Card>
         <Card className="lg:col-span-4 bg-muted/20">
           <CardHeader>
-            <CardTitle>{"Revenue"}</CardTitle>
-            <CardDescription>{"General ledger health and margins."}</CardDescription>
+            <CardTitle>{t("stat_revenue")}</CardTitle>
+            <CardDescription>{t("ledgerHealthDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <DonutChart
               data={marginComposition}
-              ariaLabel={"Revenue overview"}
+              ariaLabel={t("revenueSummaryTitle")}
               valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
-              centerLabel={"Revenue"}
+              centerLabel={t("stat_revenue")}
             />
           </CardContent>
         </Card>
@@ -192,9 +197,7 @@ export function DashboardOverview({ orgId }: { orgId: string }) {
 
       <Separator />
 
-      <p className="text-xs text-muted-foreground">
-        {"Data refreshes automatically. Last synced just now."}
-      </p>
+      <p className="text-xs text-muted-foreground">{t("autoRefreshNote")}</p>
     </div>
   );
 }

@@ -55,7 +55,7 @@ describe("EmployeeDetail branches", () => {
     );
     renderWithProviders(<EmployeeDetail orgId="1" employeeId="1" />);
 
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByText("Memuat...")).toBeInTheDocument();
   });
 
   it("renders not-found when employee is missing", async () => {
@@ -66,7 +66,7 @@ describe("EmployeeDetail branches", () => {
     );
     renderWithProviders(<EmployeeDetail orgId="1" employeeId="1" />);
 
-    expect(await screen.findByText("Employee not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Karyawan tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("renders inactive badge for inactive employees", async () => {
@@ -74,7 +74,7 @@ describe("EmployeeDetail branches", () => {
     renderWithProviders(<EmployeeDetail orgId="1" employeeId="1" />);
 
     expect(await screen.findByRole("heading", { name: "EMP-0001" })).toBeInTheDocument();
-    expect(screen.getByText("Inactive")).toBeInTheDocument();
+    expect(screen.getByText("Tidak aktif")).toBeInTheDocument();
   });
 
   it("shows contracts error with retry", async () => {
@@ -90,7 +90,7 @@ describe("EmployeeDetail branches", () => {
     await screen.findByRole("heading", { name: "EMP-0001" });
     await user.click(screen.getAllByRole("tab")[1]!);
 
-    expect(await screen.findByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 
   it("renders a contract with inactive state badge", async () => {
@@ -117,7 +117,7 @@ describe("EmployeeDetail branches", () => {
     await screen.findByRole("heading", { name: "EMP-0001" });
     await user.click(screen.getAllByRole("tab")[1]!);
 
-    expect(await screen.findByText(/5,000/)).toBeInTheDocument();
+    expect(await screen.findByText(/5\.000/)).toBeInTheDocument();
   });
 
   it("opens the edit dialog and saves", async () => {
@@ -125,7 +125,7 @@ describe("EmployeeDetail branches", () => {
     renderWithProviders(<EmployeeDetail orgId="1" employeeId="1" />);
 
     await screen.findByRole("heading", { name: "EMP-0001" });
-    await user.click(screen.getByRole("button", { name: "Edit" }));
+    await user.click(screen.getByRole("button", { name: "Ubah" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

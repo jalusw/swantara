@@ -84,9 +84,9 @@ describe("SaleOrderDetail reminder tab", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Reminder" }));
+    await user.click(screen.getByRole("tab", { name: "Pengingat" }));
 
-    expect(await screen.findByRole("button", { name: "Generate reminder" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Buat pengingat" })).toBeInTheDocument();
     expect(screen.getByText("#5")).toBeInTheDocument();
   });
 });

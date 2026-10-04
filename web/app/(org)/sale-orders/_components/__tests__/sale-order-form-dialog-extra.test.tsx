@@ -106,9 +106,9 @@ describe("SaleOrderFormDialog extra", () => {
     );
 
     await screen.findByRole("dialog");
-    await user.click(screen.getByRole("button", { name: "Remove" }));
+    await user.click(screen.getByRole("button", { name: "Hapus baris" }));
 
-    expect(await screen.findByText("Add at least one line.")).toBeInTheDocument();
+    expect(await screen.findByText("Tambahkan minimal satu baris.")).toBeInTheDocument();
   });
 
   it("requires a customer before saving", async () => {
@@ -118,9 +118,9 @@ describe("SaleOrderFormDialog extra", () => {
     );
 
     await screen.findByRole("dialog");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Select a customer.")).toBeInTheDocument();
+    expect(await screen.findByText("Pelanggan wajib dipilih.")).toBeInTheDocument();
   });
 
   it("explains when no won opportunities exist", async () => {
@@ -130,10 +130,10 @@ describe("SaleOrderFormDialog extra", () => {
     );
 
     await screen.findByRole("dialog");
-    const opportunityTrigger = screen.getByRole("combobox", { name: "Opportunity (won)" });
+    const opportunityTrigger = screen.getByRole("combobox", { name: "Peluang dimenangkan" });
     await user.click(opportunityTrigger);
 
-    expect(await screen.findByText("No won opportunities")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada peluang yang menang")).toBeInTheDocument();
   });
 
   it("updates the quantity of a line", async () => {

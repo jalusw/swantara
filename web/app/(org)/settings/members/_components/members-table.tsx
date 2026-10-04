@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Avatar, AvatarFallback } from "@/components/avatar";
 import { Badge } from "@/components/badge";
@@ -10,7 +11,6 @@ import { StateBadge } from "@/components/state-badge";
 import type { DataTableStatus } from "@/components/tanstack-table";
 import type { Member } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 
 export type MemberRow = {
   id: string;
@@ -64,10 +64,14 @@ export function MembersTable({
   status?: DataTableStatus;
   onInviteClick?: () => void;
 }) {
+  const t = useTranslations("Settings");
+  const memberRole = (role: string) => (t as unknown as (k: string) => string)(`role_${role}`);
+  const memberStatus = (st: string) =>
+    (t as unknown as (k: string) => string)(`memberStatus_${st}`);
   const columns: ColumnDef<MemberRow>[] = [
     {
       accessorKey: "name",
-      header: "Member",
+      header: t("colMember"),
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           <Avatar size="sm">
@@ -82,16 +86,16 @@ export function MembersTable({
     },
     {
       accessorKey: "role",
-      header: "Role",
+      header: t("colRole"),
       cell: ({ row }) => (
         <Badge variant={row.original.role === "owner" ? "default" : "secondary"}>
-          {humanizeKey(String(row.original.role))}
+          {memberRole(row.original.role)}
         </Badge>
       ),
     },
     {
       accessorKey: "status",
-      header: "Status",
+      header: t("colStatus"),
       cell: ({ row }) => {
         const toneMap: Record<MemberRow["status"], "success" | "info" | "neutral"> = {
           active: "success",
@@ -101,14 +105,14 @@ export function MembersTable({
         return (
           <StateBadge
             tone={toneMap[row.original.status]}
-            label={humanizeKey(String(row.original.status))}
+            label={memberStatus(row.original.status)}
           />
         );
       },
     },
     {
       accessorKey: "addedAt",
-      header: "Added",
+      header: t("colAdded"),
       cell: ({ row }) => <span className="text-muted-foreground">{row.original.addedAt}</span>,
     },
   ];
@@ -121,20 +125,20 @@ export function MembersTable({
       searchKeys={["name", "email"]}
       statusKey="status"
       statusOptions={[
-        { value: "active", label: "Active" },
-        { value: "invited", label: "Invited" },
-        { value: "inactive", label: "Inactive" },
+        { value: "active", label: memberStatus("active") },
+        { value: "invited", label: memberStatus("invited") },
+        { value: "inactive", label: memberStatus("inactive") },
       ]}
-      searchPlaceholder={"Search members…"}
-      filterLabel={"Filter by status"}
-      allLabel={"All statuses"}
-      ariaLabel={"All members"}
+      searchPlaceholder={t("membersSearchPlaceholder")}
+      filterLabel={t("filterByStatus")}
+      allLabel={t("allStatuses")}
+      ariaLabel={t("allMembers")}
       status={status}
-      exportFileName={"All members"}
+      exportFileName={t("allMembers")}
       actions={
         <Button size="sm" onClick={onInviteClick}>
           <UserPlus />
-          <span>{"Invite"}</span>
+          <span>{t("invite")}</span>
         </Button>
       }
     />

@@ -2,11 +2,13 @@ package accounting
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/jalusw/swantara/apps/service/internal/kernel/dao"
 	"github.com/jalusw/swantara/apps/service/internal/kernel/model"
+	"gorm.io/gorm"
 )
 
 type closingJournalMock struct {
@@ -59,7 +61,7 @@ func TestPeriodCloseService_ClosesPeriodWithNetIncome(t *testing.T) {
 
 	var capturedRequest PostRequest
 	poster := JournalEntryDAOMock{}
-	baseSvc := NewPeriodCloseService(periods, balances, movements, lines, periodCloses, NewPostingService(poster))
+	baseSvc := NewPeriodCloseService(periods, balances, movements, lines, periodCloses, NewPostingService(poster), TransactionerMock{})
 	svc := baseSvc.WithJournalResolver(closingJournalMock{id: 1})
 
 	_, err := svc.Close(ctx, 10, 1, 900)
@@ -85,7 +87,7 @@ func TestPeriodCloseService_RejectsWrongOrg(t *testing.T) {
 			}, nil
 		}},
 	}
-	svc := NewPeriodCloseService(periods, PeriodAccountBalanceDAOMock{}, JournalEntryDAOMock{}, JournalLineDAOMock{}, PeriodCloseDAOMock{}, NewPostingService(JournalEntryDAOMock{}))
+	svc := NewPeriodCloseService(periods, PeriodAccountBalanceDAOMock{}, JournalEntryDAOMock{}, JournalLineDAOMock{}, PeriodCloseDAOMock{}, NewPostingService(JournalEntryDAOMock{}), TransactionerMock{})
 
 	_, err := svc.Close(ctx, 99, 1, 900)
 	if err != ErrPeriodNotFound {
@@ -109,7 +111,7 @@ func TestPeriodCloseService_RejectsClosedPeriod(t *testing.T) {
 			}, nil
 		}},
 	}
-	svc := NewPeriodCloseService(periods, PeriodAccountBalanceDAOMock{}, JournalEntryDAOMock{}, JournalLineDAOMock{}, PeriodCloseDAOMock{}, NewPostingService(JournalEntryDAOMock{}))
+	svc := NewPeriodCloseService(periods, PeriodAccountBalanceDAOMock{}, JournalEntryDAOMock{}, JournalLineDAOMock{}, PeriodCloseDAOMock{}, NewPostingService(JournalEntryDAOMock{}), TransactionerMock{})
 
 	_, err := svc.Close(ctx, 10, 1, 900)
 	if err != ErrPeriodNotOpen {
@@ -138,7 +140,7 @@ func TestPeriodCloseService_RejectsAlreadyClosed(t *testing.T) {
 			return &PeriodCloseEntry{Base: model.Base{ID: 1}}, nil
 		},
 	}
-	svc := NewPeriodCloseService(periods, PeriodAccountBalanceDAOMock{}, JournalEntryDAOMock{}, JournalLineDAOMock{}, periodCloses, NewPostingService(JournalEntryDAOMock{}))
+	svc := NewPeriodCloseService(periods, PeriodAccountBalanceDAOMock{}, JournalEntryDAOMock{}, JournalLineDAOMock{}, periodCloses, NewPostingService(JournalEntryDAOMock{}), TransactionerMock{})
 
 	_, err := svc.Close(ctx, 10, 1, 900)
 	if err != ErrPeriodAlreadyClosed {
@@ -175,7 +177,7 @@ func TestPeriodCloseService_ClosesEmptyPeriod(t *testing.T) {
 		},
 	}
 
-	base := NewPeriodCloseService(periods, balances, JournalEntryDAOMock{}, JournalLineDAOMock{}, PeriodCloseDAOMock{}, NewPostingService(JournalEntryDAOMock{}))
+	base := NewPeriodCloseService(periods, balances, JournalEntryDAOMock{}, JournalLineDAOMock{}, PeriodCloseDAOMock{}, NewPostingService(JournalEntryDAOMock{}), TransactionerMock{})
 	svc := base.WithJournalResolver(closingJournalMock{id: 1})
 
 	entry, err := svc.Close(ctx, 10, 1, 900)
@@ -190,5 +192,64 @@ func TestPeriodCloseService_ClosesEmptyPeriod(t *testing.T) {
 	}
 	if updatedState != TaxPeriodStateClosed {
 		t.Errorf("period state = %s, want closed", updatedState)
+	}
+}
+
+func TestPeriodCloseService_CloseRunsInsideTransaction(t *testing.T) {
+	ctx := context.Background()
+	start := time.Date(2026, 8, 1, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2026, 8, 31, 0, 0, 0, 0, time.UTC)
+
+	periods := TaxPeriodDAOMock{
+		CRUDMock: dao.CRUDMock[TaxPeriod]{
+			FindFunc: func(_ context.Context, id uint64) (*TaxPeriod, error) {
+				return &TaxPeriod{
+					Base:           model.Base{ID: id},
+					OrganizationID: 10,
+					DateStart:      &start,
+					DateEnd:        &end,
+					State:          TaxPeriodStateOpen,
+				}, nil
+			},
+			UpdateFunc: func(_ context.Context, p *TaxPeriod) (*TaxPeriod, error) {
+				return p, nil
+			},
+		},
+	}
+	balances := PeriodAccountBalanceDAOMock{
+		SumByAccountAndPeriodFunc: func(_ context.Context, _ uint64, _, _ time.Time) ([]PeriodAccountBalance, error) {
+			return []PeriodAccountBalance{
+				{AccountID: 100, AccountCode: "4100", AccountName: "Revenue", AccountType: "income", TotalDebit: 0, TotalCredit: 5000},
+			}, nil
+		},
+	}
+	periodCloses := PeriodCloseDAOMock{
+		CreateFunc: func(context.Context, *PeriodCloseEntry) (*PeriodCloseEntry, error) {
+			t.Error("period close created outside the transaction")
+			return nil, errors.New("write outside transaction")
+		},
+		CreateTxFunc: func(_ context.Context, _ *gorm.DB, entry *PeriodCloseEntry) (*PeriodCloseEntry, error) {
+			entry.ID = 1
+			return entry, nil
+		},
+	}
+	var runs int
+	txer := TransactionerMock{
+		RunFunc: func(_ context.Context, fn func(tx *gorm.DB) error) error {
+			runs++
+			return fn(nil)
+		},
+	}
+	svc := NewPeriodCloseService(periods, balances, JournalEntryDAOMock{}, JournalLineDAOMock{}, periodCloses, NewPostingService(JournalEntryDAOMock{}), txer).WithJournalResolver(closingJournalMock{id: 1})
+
+	entry, err := svc.Close(ctx, 10, 1, 900)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if runs != 1 {
+		t.Errorf("transaction runs = %d, want 1", runs)
+	}
+	if entry == nil || entry.State != PeriodCloseStatePosted {
+		t.Errorf("entry = %+v, want posted", entry)
 	}
 }

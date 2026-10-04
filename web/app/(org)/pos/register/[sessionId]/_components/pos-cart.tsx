@@ -1,6 +1,7 @@
 "use client";
 
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { formatMoney, formatNumber } from "@/lib/utils";
 import type { CartLine } from "./pos-register-section";
 
@@ -17,10 +18,11 @@ export function PosCart({
   onRemoveLine: (key: string) => void;
   onClear: () => void;
 }) {
+  const t = useTranslations("Pos");
   if (lines.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center p-4">
-        <p className="text-sm text-muted-foreground">{"Cart is empty."}</p>
+        <p className="text-sm text-muted-foreground">{t("cartEmpty")}</p>
       </div>
     );
   }
@@ -28,13 +30,15 @@ export function PosCart({
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex items-center justify-between border-b px-3 py-2">
-        <span className="text-xs text-muted-foreground">{`${lines.length} item(s)`}</span>
+        <span className="text-xs text-muted-foreground">
+          {t("itemsCount", { count: lines.length })}
+        </span>
         <button
           type="button"
           onClick={onClear}
           className="text-xs text-destructive hover:underline"
         >
-          {"Clear"}
+          {t("clear")}
         </button>
       </div>
 
@@ -88,7 +92,7 @@ export function PosCart({
       </div>
 
       <div className="flex items-center justify-between border-t px-3 py-2">
-        <span className="text-sm">{"Subtotal"}</span>
+        <span className="text-sm">{t("subtotal")}</span>
         <span className="text-base font-bold tabular-nums">{formatMoney(subtotal)}</span>
       </div>
     </div>

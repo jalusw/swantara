@@ -83,9 +83,10 @@ describe("ProjectsSection", () => {
     renderWithProviders(<ProjectsSection orgId="1" />);
 
     await screen.findByText("Website Redesign");
-    await user.type(screen.getByPlaceholderText("Search projects…"), "Mobile");
+    await user.type(screen.getByPlaceholderText("Cari proyek…"), "Mobile");
 
     expect(await screen.findByText("Mobile App")).toBeInTheDocument();
+    expect(screen.queryByText("Website Redesign")).not.toBeInTheDocument();
   });
 
   it("opens the create dialog from the add button", async () => {
@@ -93,7 +94,7 @@ describe("ProjectsSection", () => {
     renderWithProviders(<ProjectsSection orgId="1" />);
 
     await screen.findByText("Website Redesign");
-    await user.click(screen.getByRole("button", { name: "New project" }));
+    await user.click(screen.getByRole("button", { name: "Tambah" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });

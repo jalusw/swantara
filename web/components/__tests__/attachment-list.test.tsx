@@ -21,7 +21,7 @@ describe("AttachmentList", () => {
 
     expect(screen.getByText("invoice.pdf")).toBeInTheDocument();
     expect(screen.getAllByText("24 KB").length).toBe(1);
-    expect(screen.getByText("120.6 KB")).toBeInTheDocument();
+    expect(screen.getByText("120,6 KB")).toBeInTheDocument();
   });
 
   it("removes an attachment via the remove action", async () => {

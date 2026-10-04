@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -19,10 +20,22 @@ import {
   useOnboardingFormStore,
 } from "./onboarding-form-store";
 
-export function useOnboardingFormSchema() {
+export type OnboardingFormMessages = {
+  nameRequired: string;
+  countryRequired: string;
+};
+
+const onboardingFormDefaultMessages: OnboardingFormMessages = {
+  nameRequired: "Company name is required",
+  countryRequired: "Country is required",
+};
+
+export function useOnboardingFormSchema(
+  messages: OnboardingFormMessages = onboardingFormDefaultMessages,
+) {
   return z.object({
-    name: z.string().min(1, { message: "Company name is required" }),
-    countryCode: z.string().min(2, { message: "Country is required" }),
+    name: z.string().min(1, { message: messages.nameRequired }),
+    countryCode: z.string().min(2, { message: messages.countryRequired }),
   });
 }
 
@@ -51,7 +64,14 @@ export type UseOnboardingFormParams = {
 export function useOnboardingForm({
   defaultValues = onboardingFormDefaultValues,
 }: UseOnboardingFormParams) {
-  const onboardingFormSchema = useOnboardingFormSchema();
+  const t = useTranslations("Onboarding");
+  const tCommon = useTranslations("Common");
+  const tx = t as unknown as (key: string) => string;
+  const txCommon = tCommon as unknown as (key: string) => string;
+  const onboardingFormSchema = useOnboardingFormSchema({
+    nameRequired: tx("companyNameRequired"),
+    countryRequired: tx("countryRequired"),
+  });
   const router = useRouter();
 
   const form = useForm<OnboardingFormSchema>({
@@ -103,18 +123,18 @@ export function useOnboardingForm({
         return;
       }
       if (error instanceof SwantaraError && error.status >= 500) {
-        toast.error("Something went wrong. Please try again later.");
+        toast.error(txCommon("serverError"));
         return;
       }
       if (error instanceof SwantaraError && error.status === 0) {
-        toast.error("Network error. Please check your connection.");
+        toast.error(txCommon("networkError"));
         return;
       }
       if (error instanceof SwantaraError) {
-        toast.error(error.message || "Failed to create company. Please try again.");
+        toast.error(error.message || tx("createFailed"));
       }
       form.setError("name", {
-        message: "Failed to create company. Please try again.",
+        message: tx("createFailed"),
       });
     },
     onSettled: () => {

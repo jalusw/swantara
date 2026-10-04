@@ -3,7 +3,7 @@ import { formatBytes, formatDate, formatDateTime, formatDuration, formatNumber }
 
 describe("formatNumber", () => {
   it("formats integers with grouping", () => {
-    expect(formatNumber(12500)).toMatch(/12,500/);
+    expect(formatNumber(12500)).toMatch(/12\.500/);
   });
 
   it("respects maximumFractionDigits", () => {

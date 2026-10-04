@@ -47,19 +47,19 @@ describe("DashboardTabs", () => {
   it("renders tab triggers for every dashboard area", async () => {
     renderWithProviders(<DashboardTabs orgId="1" />);
 
-    expect(await screen.findByRole("tab", { name: "Overview" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Operations" })).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "Ikhtisar" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Operasi" })).toBeInTheDocument();
   });
 
   it("switches to the operations tab with payroll, project and subscription sections", async () => {
     const user = userEvent.setup();
     renderWithProviders(<DashboardTabs orgId="1" />);
 
-    await user.click(await screen.findByRole("tab", { name: "Operations" }));
+    await user.click(await screen.findByRole("tab", { name: "Operasi" }));
 
-    expect(await screen.findByText("Payroll")).toBeInTheDocument();
-    expect(screen.getAllByText("Gross cost").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Projects").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Subscriptions").length).toBeGreaterThan(0);
+    expect(await screen.findByText("Penggajian")).toBeInTheDocument();
+    expect(screen.getAllByText("Biaya bruto").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Proyek").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Langganan").length).toBeGreaterThan(0);
   });
 });

@@ -34,7 +34,7 @@ describe("WarehouseDetail", () => {
     renderWithProviders(<WarehouseDetail orgId="1" warehouseId="1" />);
 
     expect(await screen.findByText("WH/Stock")).toBeInTheDocument();
-    expect(screen.getByText("Stock locations")).toBeInTheDocument();
+    expect(screen.getByText("Lokasi stok")).toBeInTheDocument();
   });
 
   it("opens the create location dialog from the add button", async () => {
@@ -42,8 +42,8 @@ describe("WarehouseDetail", () => {
     renderWithProviders(<WarehouseDetail orgId="1" warehouseId="1" />);
 
     await screen.findByText("WH/Stock");
-    await user.click(screen.getByRole("button", { name: "Add location" }));
+    await user.click(screen.getByRole("button", { name: "Tambah lokasi" }));
 
-    expect(await screen.findByRole("heading", { name: "New location" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Lokasi baru" })).toBeInTheDocument();
   });
 });

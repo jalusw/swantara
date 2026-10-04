@@ -224,7 +224,7 @@ func TestPeriodCloseService_ValidatesRetainedEarnings(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := NewPeriodCloseService(periods, PeriodAccountBalanceDAOMock{}, JournalEntryDAOMock{}, JournalLineDAOMock{}, PeriodCloseDAOMock{}, NewPostingService(JournalEntryDAOMock{}))
+			svc := NewPeriodCloseService(periods, PeriodAccountBalanceDAOMock{}, JournalEntryDAOMock{}, JournalLineDAOMock{}, PeriodCloseDAOMock{}, NewPostingService(JournalEntryDAOMock{}), TransactionerMock{})
 			if tt.account != nil {
 				id := uint64(900)
 				acc := tt.account

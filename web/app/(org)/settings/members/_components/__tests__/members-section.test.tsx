@@ -10,14 +10,16 @@ describe("MembersSection", () => {
 
     expect(await screen.findByText("Alex Rivera")).toBeInTheDocument();
     expect(screen.getByText("June Park")).toBeInTheDocument();
-    expect(screen.getByText("All members")).toBeInTheDocument();
+    expect(
+      screen.getByText("Semua anggota", { selector: '[data-slot="card-title"]' }),
+    ).toBeInTheDocument();
 
     const grid = screen
-      .getByText("Total members")
+      .getByText("Total Anggota")
       .closest('[data-slot="metric-grid"]') as HTMLElement;
-    const total = within(grid).getByText("Total members").closest('[data-slot="stat-card"]');
-    const active = within(grid).getByText("Active members").closest('[data-slot="stat-card"]');
-    const invited = within(grid).getByText("Invited").closest('[data-slot="stat-card"]');
+    const total = within(grid).getByText("Total Anggota").closest('[data-slot="stat-card"]');
+    const active = within(grid).getByText("Anggota aktif").closest('[data-slot="stat-card"]');
+    const invited = within(grid).getByText("Anggota diundang").closest('[data-slot="stat-card"]');
     const admins = within(grid).getByText("Admins").closest('[data-slot="stat-card"]');
 
     expect(within(total as HTMLElement).getByText("3")).toBeInTheDocument();
@@ -36,6 +38,6 @@ describe("MembersSection", () => {
     renderWithProviders(<MembersSection />);
 
     expect(await screen.findByText("Service unavailable.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 });

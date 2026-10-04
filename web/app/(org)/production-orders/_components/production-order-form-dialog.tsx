@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -29,17 +30,20 @@ type MoFormDialogProps = {
 };
 
 function useMoFormSchema() {
+  const t = useTranslations("ProductionOrders");
   return z.object({
-    itemId: z.string().min(1, "Select a item."),
+    itemId: z.string().min(1, t("validation_itemRequired")),
     qty: z
       .string()
-      .min(1, "Enter a quantity.")
-      .refine((v) => Number(v) >= 1, "Enter a quantity."),
+      .min(1, t("validation_qtyRequired"))
+      .refine((v) => Number(v) >= 1, t("validation_qtyRequired")),
     note: z.string(),
   });
 }
 
 export function MoFormDialog({ open, onOpenChange, orgId, products, onSave }: MoFormDialogProps) {
+  const t = useTranslations("ProductionOrders");
+  const tCommon = useTranslations("Common");
   const schema = useMoFormSchema();
   type Values = z.infer<typeof schema>;
 
@@ -53,7 +57,7 @@ export function MoFormDialog({ open, onOpenChange, orgId, products, onSave }: Mo
   });
 
   function handleSubmit(values: Values) {
-    void getSwantaraService()
+    return getSwantaraService()
       .productionOrders.create(Number(orgId), {
         itemId: Number(values.itemId),
         qtyToProduce: Number(values.qty) || 1,
@@ -62,24 +66,25 @@ export function MoFormDialog({ open, onOpenChange, orgId, products, onSave }: Mo
         dstLocationId: 0,
       })
       .then(() => {
-        toast.success("Manufacturing order created");
+        toast.success(t("orderCreated"));
         onSave();
-      });
+      })
+      .catch(() => {});
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"Create Manufacturing Order"}</DialogTitle>
-          <DialogDescription>{"Create a new manufacturing order"}</DialogDescription>
+          <DialogTitle>{t("newOrder")}</DialogTitle>
+          <DialogDescription>{t("formDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
-          <FormField name="itemId" label={"Item"}>
+          <FormField name="itemId" label={t("colItem")}>
             {({ field, id }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id={id} aria-label={"Item"}>
-                  <SelectValue placeholder={"Select item"} />
+                <SelectTrigger id={id} aria-label={t("colItem")}>
+                  <SelectValue placeholder={t("selectItem")} />
                 </SelectTrigger>
                 <SelectContent>
                   {products.map((p) => (
@@ -91,17 +96,17 @@ export function MoFormDialog({ open, onOpenChange, orgId, products, onSave }: Mo
               </Select>
             )}
           </FormField>
-          <FormField name="qty" label={"Quantity to Produce"}>
+          <FormField name="qty" label={t("colQtyToProduce")}>
             {({ field, id }) => <Input {...field} id={id} type="number" min="1" />}
           </FormField>
-          <FormField name="note" label={"Note"}>
+          <FormField name="note" label={t("note")}>
             {({ field, id }) => <Textarea {...field} id={id} rows={3} />}
           </FormField>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Create Order"}</SubmitButton>
+            <SubmitButton>{t("createOrder")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

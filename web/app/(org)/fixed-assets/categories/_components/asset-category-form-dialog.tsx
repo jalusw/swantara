@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -12,14 +13,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { Account, AssetCategory } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
-import { humanizeKey } from "@/lib/utils/case";
 
 const methods = ["linear", "declining", "declining_then_linear"] as const;
 const periods = ["month", "year"] as const;
 
 function useAssetCategorySchema() {
+  const t = useTranslations("FixedAssets");
   return z.object({
-    name: z.string().min(1, "Name is required"),
+    name: z.string().min(1, t("validationNameRequired")),
     method: z.enum(methods),
     methodNumber: z.string(),
     methodPeriod: z.enum(periods),
@@ -45,6 +46,8 @@ export function AssetCategoryFormDialog({
   initial?: AssetCategory | null;
   onSave: (id: string) => void;
 }) {
+  const t = useTranslations("FixedAssets");
+  const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();
   const isEdit = Boolean(initial);
 
@@ -101,10 +104,10 @@ export function AssetCategoryFormDialog({
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["assetCategories", Number(orgId)] });
       onSave(String(result.assetCategory.id));
-      toast.success("Category created");
+      toast.success(t("toastCategoryCreated"));
     },
     onError: () => {
-      toast.error("Failed to save category");
+      toast.error(t("toastCategoryFailed"));
     },
   });
 
@@ -129,10 +132,10 @@ export function AssetCategoryFormDialog({
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ["assetCategories", Number(orgId)] });
       onSave(String(variables.categoryId));
-      toast.success("Category updated");
+      toast.success(t("toastCategoryUpdated"));
     },
     onError: () => {
-      toast.error("Failed to save category");
+      toast.error(t("toastCategoryFailed"));
     },
   });
 
@@ -163,56 +166,59 @@ export function AssetCategoryFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? "Edit asset category" : "Create asset category"}
-      description={"Define the depreciation method and linked GL accounts."}
+      title={isEdit ? t("editCategoryTitle") : t("createCategoryTitle")}
+      description={t("categoryFormDescription")}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       form={form}
       onSubmit={handleSubmit}
+      isPending={createMutation.isPending || updateMutation.isPending}
       className="max-h-[85vh] overflow-y-auto sm:max-w-lg"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField name="name" label={"Name"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+        <FormField name="name" label={t("fieldName")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
         </FormField>
-        <FormField name="method" label={"Depreciation method"}>
+        <FormField name="method" label={t("fieldDepreciationMethod")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Depreciation method"}>
+              <SelectTrigger id={id} aria-label={t("fieldDepreciationMethod")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {methods.map((m) => (
                   <SelectItem key={m} value={m}>
-                    {humanizeKey(String(m))}
+                    {(t as unknown as (k: string) => string)(`categoryMethod_${m}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           )}
         </FormField>
-        <FormField name="methodNumber" label={"Method number"}>
+        <FormField name="methodNumber" label={t("fieldMethodNumber")}>
           {({ field, id }) => <Input {...field} id={id} type="number" min="1" />}
         </FormField>
-        <FormField name="methodPeriod" label={"Period"}>
+        <FormField name="methodPeriod" label={t("fieldPeriod")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Period"}>
+              <SelectTrigger id={id} aria-label={t("fieldPeriod")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {periods.map((p) => (
                   <SelectItem key={p} value={p}>
-                    {humanizeKey(String(p))}
+                    {(t as unknown as (k: string) => string)(`methodPeriod_${p}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           )}
         </FormField>
-        <FormField name="assetAccountId" label={"Asset account"}>
+        <FormField name="assetAccountId" label={t("fieldAssetAccount")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Asset account"}>
-                <SelectValue placeholder={"Select account"} />
+              <SelectTrigger id={id} aria-label={t("fieldAssetAccount")}>
+                <SelectValue placeholder={t("selectAccount")} />
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((a) => (
@@ -224,11 +230,11 @@ export function AssetCategoryFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="depreciationAccountId" label={"Depreciation account"}>
+        <FormField name="depreciationAccountId" label={t("fieldDepreciationAccount")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Depreciation account"}>
-                <SelectValue placeholder={"Select account"} />
+              <SelectTrigger id={id} aria-label={t("fieldDepreciationAccount")}>
+                <SelectValue placeholder={t("selectAccount")} />
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((a) => (
@@ -240,11 +246,11 @@ export function AssetCategoryFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="expenseAccountId" label={"Expense account"}>
+        <FormField name="expenseAccountId" label={t("fieldExpenseAccount")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Expense account"}>
-                <SelectValue placeholder={"Select account"} />
+              <SelectTrigger id={id} aria-label={t("fieldExpenseAccount")}>
+                <SelectValue placeholder={t("selectAccount")} />
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((a) => (
@@ -256,11 +262,11 @@ export function AssetCategoryFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="gainAccountId" label={"Gain account"}>
+        <FormField name="gainAccountId" label={t("fieldGainAccount")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Gain account"}>
-                <SelectValue placeholder={"Select account"} />
+              <SelectTrigger id={id} aria-label={t("fieldGainAccount")}>
+                <SelectValue placeholder={t("selectAccount")} />
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((a) => (
@@ -272,11 +278,11 @@ export function AssetCategoryFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="lossAccountId" label={"Loss account"}>
+        <FormField name="lossAccountId" label={t("fieldLossAccount")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Loss account"}>
-                <SelectValue placeholder={"Select account"} />
+              <SelectTrigger id={id} aria-label={t("fieldLossAccount")}>
+                <SelectValue placeholder={t("selectAccount")} />
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((a) => (

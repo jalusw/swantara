@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus, Trash2Icon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -25,7 +26,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { PaymentTerm } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
-import { humanizeKey } from "@/lib/utils/case";
 import { logger } from "@/lib/utils/logger";
 
 type LineValueType = "percent" | "fixed" | "balance";
@@ -58,6 +58,7 @@ function toPaymentTermRow(term: PaymentTerm): PaymentTermRow {
 const lineValueTypes = ["percent", "fixed", "balance"] as const;
 
 export function PaymentTermsSection(_props: { orgId: string }) {
+  const t = useTranslations("Reference");
   const [editing, setEditing] = useState<PaymentTermRow | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -73,9 +74,9 @@ export function PaymentTermsSection(_props: { orgId: string }) {
     valueType: z.enum(lineValueTypes),
     value: z
       .string()
-      .min(1, "Enter a value.")
-      .refine((value) => Number(value) > 0, "Value must be positive."),
-    daysAfter: z.string().min(1, "Enter due days."),
+      .min(1, t("validationValueRequired"))
+      .refine((value) => Number(value) > 0, t("validationValuePositive")),
+    daysAfter: z.string().min(1, t("validationDueDaysRequired")),
     discountPct: z.string(),
     discountDays: z.string(),
   });
@@ -83,9 +84,9 @@ export function PaymentTermsSection(_props: { orgId: string }) {
 
   const schema = z
     .object({
-      name: z.string().min(1, "Enter a name."),
+      name: z.string().min(1, t("validationNameRequired")),
       note: z.string(),
-      lines: z.array(lineSchema).min(1, "Add at least one line."),
+      lines: z.array(lineSchema).min(1, t("validationAddAtLeastOneLine")),
     })
     .superRefine((values, ctx) => {
       const percentTotal = values.lines
@@ -98,7 +99,7 @@ export function PaymentTermsSection(_props: { orgId: string }) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["lines"],
-          message: `Percent lines must add up to 100%. Current total: ${String(percentTotal)}%.`,
+          message: t("validationPercentTotal", { total: String(percentTotal) }),
         });
       }
     });
@@ -162,30 +163,30 @@ export function PaymentTermsSection(_props: { orgId: string }) {
     };
 
     if (editing) {
-      void getSwantaraService()
+      return getSwantaraService()
         .paymentTerms.update(Number(editing.id), payload)
         .then(() => {
-          toast.success("Payment term saved.");
+          toast.success(t("paymentTermSaved"));
           setOpen(false);
           form.reset();
           void query.refetch();
         })
         .catch((error) => {
           logger.error("Failed to update payment term", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastFailed"));
         });
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .paymentTerms.create(payload)
         .then(() => {
-          toast.success("Payment term saved.");
+          toast.success(t("paymentTermSaved"));
           setOpen(false);
           form.reset();
           void query.refetch();
         })
         .catch((error) => {
           logger.error("Failed to create payment term", error);
-          toast.error("Could not disable the organization.");
+          toast.error(t("toastFailed"));
         });
     }
   }
@@ -193,17 +194,17 @@ export function PaymentTermsSection(_props: { orgId: string }) {
   const columns: ColumnDef<PaymentTermRow>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("tableName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "note",
-      header: "Note",
+      header: t("tableNote"),
       cell: ({ row }) => <span className="text-muted-foreground">{row.original.note || "—"}</span>,
     },
     {
       accessorKey: "lines",
-      header: "Schedule",
+      header: t("schedule"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">{row.original.lines.length}</span>
@@ -214,10 +215,10 @@ export function PaymentTermsSection(_props: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"Edit"}
-          deleteLabel={"Delete"}
-          confirmTitle={"Delete this term?"}
-          confirmDescription={"The payment term will no longer be available on documents."}
+          editLabel={t("actionEdit")}
+          deleteLabel={t("actionDelete")}
+          confirmTitle={t("deleteTermTitle")}
+          confirmDescription={t("deleteTermDescription")}
           onEdit={() => openEdit(row.original)}
           onDelete={() =>
             void getSwantaraService()
@@ -225,7 +226,7 @@ export function PaymentTermsSection(_props: { orgId: string }) {
               .then(() => void query.refetch())
               .catch((error) => {
                 logger.error("Failed to delete payment term", error);
-                toast.error("Could not disable the organization.");
+                toast.error(t("toastFailed"));
               })
           }
         />
@@ -240,12 +241,12 @@ export function PaymentTermsSection(_props: { orgId: string }) {
         data={terms}
         getRowId={(row) => row.id}
         searchKeys={["name", "note"]}
-        searchPlaceholder={"Search terms…"}
+        searchPlaceholder={t("searchTermsPlaceholder")}
         filterLabel=""
         statusOptions={[]}
         allLabel=""
-        ariaLabel={"Payment terms"}
-        emptyTitle={"No payment terms"}
+        ariaLabel={t("paymentTermsTitle")}
+        emptyTitle={t("paymentTermsEmpty")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -260,7 +261,7 @@ export function PaymentTermsSection(_props: { orgId: string }) {
         actions={
           <Button size="sm" onClick={openCreate}>
             <Plus />
-            <span>{"Add term"}</span>
+            <span>{t("addTerm")}</span>
           </Button>
         }
       />
@@ -268,24 +269,22 @@ export function PaymentTermsSection(_props: { orgId: string }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit payment term" : "New payment term"}</DialogTitle>
-            <DialogDescription>
-              {"Terms applied to customer invoices and supplier bills."}
-            </DialogDescription>
+            <DialogTitle>{editing ? t("editTerm") : t("newTerm")}</DialogTitle>
+            <DialogDescription>{t("paymentTermDialogDescription")}</DialogDescription>
           </DialogHeader>
           <Form form={form} onSubmit={handleSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="name" label={"Name"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+              <FormField name="name" label={t("fieldName")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
               </FormField>
-              <FormField name="note" label={"Note"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Note"} />}
+              <FormField name="note" label={t("fieldNote")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldNote")} />}
               </FormField>
             </div>
 
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm">{"Schedule"}</span>
+                <span className="text-sm">{t("schedule")}</span>
                 <Button
                   type="button"
                   variant="outline"
@@ -293,7 +292,7 @@ export function PaymentTermsSection(_props: { orgId: string }) {
                   onClick={() => append(emptyLine())}
                 >
                   <Plus />
-                  <span>{"Add line"}</span>
+                  <span>{t("addLine")}</span>
                 </Button>
               </div>
               {form.formState.errors.lines?.message ? (
@@ -301,13 +300,13 @@ export function PaymentTermsSection(_props: { orgId: string }) {
                   {form.formState.errors.lines.message}
                 </p>
               ) : null}
-              <Table aria-label={"Schedule"}>
+              <Table aria-label={t("schedule")}>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{"Type"}</TableHead>
-                    <TableHead className="w-24">{"Value"}</TableHead>
-                    <TableHead className="w-24">{"Due days"}</TableHead>
-                    <TableHead className="w-24">{"Discount %"}</TableHead>
+                    <TableHead>{t("tableType")}</TableHead>
+                    <TableHead className="w-24">{t("tableValue")}</TableHead>
+                    <TableHead className="w-24">{t("tableDueDays")}</TableHead>
+                    <TableHead className="w-24">{t("tableDiscountPct")}</TableHead>
                     <TableHead className="w-20" />
                   </TableRow>
                 </TableHeader>
@@ -324,13 +323,13 @@ export function PaymentTermsSection(_props: { orgId: string }) {
                             )
                           }
                         >
-                          <SelectTrigger aria-label={"Type"} size="sm">
+                          <SelectTrigger aria-label={t("fieldType")} size="sm">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             {lineValueTypes.map((type) => (
                               <SelectItem key={type} value={type}>
-                                {humanizeKey(String(type))}
+                                {(t as unknown as (k: string) => string)(`type_${type}`)}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -341,7 +340,7 @@ export function PaymentTermsSection(_props: { orgId: string }) {
                           type="number"
                           step="any"
                           inputMode="decimal"
-                          aria-label={"Value"}
+                          aria-label={t("fieldValue")}
                           value={lineValues[index]!.value}
                           onChange={(event) =>
                             form.setValue(`lines.${index}.value`, event.target.value)
@@ -353,7 +352,7 @@ export function PaymentTermsSection(_props: { orgId: string }) {
                           type="number"
                           step="any"
                           inputMode="decimal"
-                          aria-label={"Due days"}
+                          aria-label={t("fieldDueDays")}
                           value={lineValues[index]!.daysAfter}
                           onChange={(event) =>
                             form.setValue(`lines.${index}.daysAfter`, event.target.value)
@@ -365,7 +364,7 @@ export function PaymentTermsSection(_props: { orgId: string }) {
                           type="number"
                           step="any"
                           inputMode="decimal"
-                          aria-label={"Discount %"}
+                          aria-label={t("fieldDiscountPct")}
                           value={lineValues[index]!.discountPct}
                           onChange={(event) =>
                             form.setValue(`lines.${index}.discountPct`, event.target.value)
@@ -377,7 +376,7 @@ export function PaymentTermsSection(_props: { orgId: string }) {
                           type="button"
                           variant="ghost"
                           size="icon-sm"
-                          aria-label={"Remove line"}
+                          aria-label={t("removeLine")}
                           onClick={() => remove(index)}
                           className="text-destructive"
                         >
@@ -392,9 +391,9 @@ export function PaymentTermsSection(_props: { orgId: string }) {
 
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>
-                {"Cancel"}
+                {t("actionCancel")}
               </Button>
-              <SubmitButton>{"Save term"}</SubmitButton>
+              <SubmitButton>{t("saveTerm")}</SubmitButton>
             </DialogFooter>
           </Form>
         </DialogContent>

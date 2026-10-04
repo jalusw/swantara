@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/select";
@@ -49,16 +50,17 @@ export function SaleOrderLinesEditor({
   onRemove,
   onSelectItem,
 }: SaleOrderLinesEditorProps) {
+  const t = useTranslations("Sales");
   return (
     <div className="mt-6 flex flex-col gap-3 rounded-md border p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm">{"Order lines"}</h3>
+        <h3 className="text-sm">{t("orderLines")}</h3>
         <Button type="button" variant="outline" size="sm" onClick={onAdd}>
-          {"Add line"}
+          {t("addLine")}
         </Button>
       </div>
       {lines.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{"Add at least one line."}</p>
+        <p className="text-sm text-muted-foreground">{t("addAtLeastOneLine")}</p>
       ) : null}
       <div className="flex flex-col gap-3">
         {lines.map((line, index) => {
@@ -79,7 +81,7 @@ export function SaleOrderLinesEditor({
           return (
             <div key={line.id} className="grid gap-2 rounded-md border p-3 sm:grid-cols-12">
               <div className="sm:col-span-5">
-                <span className="text-xs text-muted-foreground">{"Item variant"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldItem")}</span>
                 <Select
                   value={line.itemId}
                   onValueChange={(value) => {
@@ -87,8 +89,8 @@ export function SaleOrderLinesEditor({
                     if (value) onSelectItem(value);
                   }}
                 >
-                  <SelectTrigger aria-label={`${"Item variant"} ${index + 1}`}>
-                    <SelectValue placeholder={"Select item"} />
+                  <SelectTrigger aria-label={`${t("fieldItem")} ${index + 1}`}>
+                    <SelectValue placeholder={t("selectItem")} />
                   </SelectTrigger>
                   <SelectContent>
                     {products.map((product) => (
@@ -101,12 +103,12 @@ export function SaleOrderLinesEditor({
                 </Select>
                 {variants.length > 0 ? (
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {variants.length} variants — using template price
+                    {variants.length} {t("variantsUsingTemplate")}
                   </p>
                 ) : null}
               </div>
               <div className="sm:col-span-2">
-                <span className="text-xs text-muted-foreground">{"Qty"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldQty")}</span>
                 <Input
                   value={line.qtyOrdered}
                   onChange={(event) => onUpdate(line.id, { qtyOrdered: event.target.value })}
@@ -116,7 +118,7 @@ export function SaleOrderLinesEditor({
                 />
               </div>
               <div className="sm:col-span-2">
-                <span className="text-xs text-muted-foreground">{"Discount %"}</span>
+                <span className="text-xs text-muted-foreground">{t("fieldDiscountPct")}</span>
                 <Input
                   value={line.discountPct}
                   onChange={(event) => onUpdate(line.id, { discountPct: event.target.value })}
@@ -127,23 +129,23 @@ export function SaleOrderLinesEditor({
                 />
               </div>
               <div className="sm:col-span-2 flex flex-col justify-end">
-                <span className="text-xs text-muted-foreground">{"Price preview"}</span>
+                <span className="text-xs text-muted-foreground">{t("pricePreview")}</span>
                 <span className="text-sm tabular-nums">
                   {preview
                     ? formatMoney(preview.price, { currency: DEFAULT_CURRENCY })
-                    : "Select item and price_book".slice(0, 20)}
+                    : t("selectItemPriceBook").slice(0, 20)}
                 </span>
               </div>
               <div className="sm:col-span-1 flex items-end">
                 <Button type="button" variant="ghost" size="sm" onClick={() => onRemove(line.id)}>
-                  {"Remove"}
+                  {t("removeLine")}
                 </Button>
               </div>
               <div className="sm:col-span-12">
                 <Input
                   value={line.description}
                   onChange={(event) => onUpdate(line.id, { description: event.target.value })}
-                  placeholder={"Description"}
+                  placeholder={t("fieldDescription")}
                 />
               </div>
             </div>

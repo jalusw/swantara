@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
@@ -13,10 +14,13 @@ import { useOrgListQuery, useOrgQuery } from "@/lib/hooks/use-org-query";
 import type { GiftCard, GiftCardTransaction } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { canRedeem, canRefund, giftCardStateTone } from "../../_components/gift-card-utils";
 
 export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardId: string }) {
+  const t = useTranslations("Pos");
+  const tCommon = useTranslations("Common");
+  const giftCardState = (state: string) =>
+    (t as unknown as (k: string) => string)(`giftCardState_${state}`);
   const queryClient = useQueryClient();
 
   const cardQuery = useOrgQuery<{ giftCard: GiftCard }>("giftCard", giftCardId, (organizationId) =>
@@ -46,10 +50,10 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
       void queryClient.invalidateQueries({ queryKey: ["giftCard"] });
       void queryClient.invalidateQueries({ queryKey: ["giftCardTransactions"] });
       void queryClient.invalidateQueries({ queryKey: ["giftCards"] });
-      toast.success("Saved.");
+      toast.success(t("saved"));
     },
     onError: () => {
-      toast.error("Action failed");
+      toast.error(t("actionFailed"));
     },
   });
 
@@ -59,11 +63,11 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
   }
 
   if (cardQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (!card) {
-    return <p className="text-sm text-muted-foreground">{"Gift card not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("giftCardNotFound")}</p>;
   }
 
   const tone = giftCardStateTone(card.state);
@@ -76,7 +80,7 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
           disabled={actionMutation.isPending}
           onClick={() => handleAction("redeem")}
         >
-          {"Redeem"}
+          {t("redeem")}
         </Button>
       ) : null}
       {canRefund(card.state) ? (
@@ -86,7 +90,7 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
           disabled={actionMutation.isPending}
           onClick={() => handleAction("refund")}
         >
-          {"Refund"}
+          {t("refundTitle")}
         </Button>
       ) : null}
     </div>
@@ -95,14 +99,14 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
   const transactionColumns: ColumnDef<GiftCardTransaction>[] = [
     {
       accessorKey: "type",
-      header: "Type",
+      header: t("colType"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">{String(row.original.type)}</span>
       ),
     },
     {
       accessorKey: "amount",
-      header: "Amount",
+      header: t("amount"),
       cell: ({ row }) => (
         <span className="text-sm tabular-nums">
           {formatMoney(row.original.amount, { currency: DEFAULT_CURRENCY })}
@@ -111,14 +115,14 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
     },
     {
       accessorKey: "orderType",
-      header: "Order type",
+      header: t("colOrderType"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">{row.original.orderType || "—"}</span>
       ),
     },
     {
       accessorKey: "orderId",
-      header: "Order",
+      header: t("colOrder"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {row.original.orderId ? `#${row.original.orderId}` : "—"}
@@ -129,7 +133,10 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
 
   return (
     <RecordLayout
-      breadcrumbItems={[{ label: "Gift cards", href: "/pos/gift-cards" }, { label: card.code }]}
+      breadcrumbItems={[
+        { label: t("giftCardsTitle"), href: "/pos/gift-cards" },
+        { label: card.code },
+      ]}
       title={card.code}
       status={
         <Badge
@@ -146,19 +153,19 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
                     : ""
           }
         >
-          {humanizeKey(String(card.state))}
+          {giftCardState(card.state)}
         </Badge>
       }
       actions={stateActions}
       tabs={[
         {
           id: "overview",
-          label: "Overview",
+          label: t("tabOverview"),
           content: (
             <div className="grid gap-4 lg:grid-cols-3">
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Initial amount"}</CardTitle>
+                  <CardTitle>{t("colInitial")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold tabular-nums">
@@ -168,7 +175,7 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Balance"}</CardTitle>
+                  <CardTitle>{t("colBalance")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-2xl font-bold tabular-nums">
@@ -178,7 +185,7 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>{"Currency"}</CardTitle>
+                  <CardTitle>{t("currency")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm">{card.currencyCode}</p>
@@ -186,22 +193,22 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
               </Card>
               <Card className="lg:col-span-3">
                 <CardHeader>
-                  <CardTitle>{"Details"}</CardTitle>
+                  <CardTitle>{t("detailsTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <dl className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Customer"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("customer")}</dt>
                       <dd className="text-sm">{card.contactId ? `#${card.contactId}` : "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Expiry date"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("colExpiry")}</dt>
                       <dd className="text-sm">
                         {card.expiryDate ? formatDate(String(card.expiryDate)) : "—"}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-sm text-muted-foreground">{"Issued From Order"}</dt>
+                      <dt className="text-sm text-muted-foreground">{t("issuedFromOrder")}</dt>
                       <dd className="text-sm">
                         {card.issuedFromOrderId ? `#${card.issuedFromOrderId}` : "—"}
                       </dd>
@@ -214,16 +221,16 @@ export function GiftCardDetail({ orgId, giftCardId }: { orgId: string; giftCardI
         },
         {
           id: "transactions",
-          label: "Transactions",
+          label: t("tabTransactions"),
           content: (
             <InteractiveEntityTable
               columns={transactionColumns}
               data={transactions}
               getRowId={(row) => String(row.id)}
               searchKeys={["type", "orderType"]}
-              searchPlaceholder={"Search Transactions"}
-              ariaLabel={"Transactions"}
-              emptyTitle={"No transactions."}
+              searchPlaceholder={t("transactionsSearchPlaceholder")}
+              ariaLabel={t("tabTransactions")}
+              emptyTitle={t("transactionsEmpty")}
             />
           ),
         },

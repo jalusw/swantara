@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/button";
 import { Input } from "@/components/input";
 
@@ -26,6 +27,12 @@ export function AttributeEditor({
   value: AttributeRow[];
   onChange: (attributes: AttributeRow[]) => void;
 }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Products");
+  const tCommon = useTranslations("Common");
   function update(id: string, patch: Partial<AttributeOption>) {
     onChange(
       value.map((attribute) => (attribute.id === id ? { ...attribute, ...patch } : attribute)),
@@ -39,8 +46,8 @@ export function AttributeEditor({
           <Input
             value={attribute.name}
             onChange={(event) => update(attribute.id, { name: event.target.value })}
-            placeholder={"Attribute"}
-            aria-label={`${"Attribute"} ${attribute.name || ""}`}
+            placeholder={t("attribute")}
+            aria-label={`${t("attribute")} ${attribute.name || ""}`}
             className="w-40"
           />
           <Input
@@ -53,15 +60,15 @@ export function AttributeEditor({
                   .filter(Boolean),
               })
             }
-            placeholder={"Values (comma-separated)"}
-            aria-label={`${"Values (comma-separated)"} ${attribute.name || ""}`}
+            placeholder={t("attributeValuesPlaceholder")}
+            aria-label={`${t("attributeValuesPlaceholder")} ${attribute.name || ""}`}
           />
           <Button
             type="button"
             variant="ghost"
             size="icon"
             onClick={() => onChange(value.filter((entry) => entry.id !== attribute.id))}
-            aria-label={"Remove"}
+            aria-label={tCommon("delete")}
           >
             <X />
           </Button>
@@ -75,7 +82,7 @@ export function AttributeEditor({
           onClick={() => onChange([...value, createRow()])}
         >
           <Plus />
-          <span>{"Add attribute"}</span>
+          <span>{t("addAttribute")}</span>
         </Button>
       </div>
     </div>

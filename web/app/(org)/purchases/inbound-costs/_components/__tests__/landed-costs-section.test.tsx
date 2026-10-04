@@ -28,8 +28,8 @@ describe("InboundCostsSection", () => {
 
     expect(await screen.findByText("Freight January")).toBeInTheDocument();
     expect(screen.getByText("Insurance February")).toBeInTheDocument();
-    expect(screen.getByText("Draft")).toBeInTheDocument();
-    expect(screen.getByText("Posted")).toBeInTheDocument();
+    expect(screen.getByText("Draf")).toBeInTheDocument();
+    expect(screen.getByText("Diposting")).toBeInTheDocument();
   });
 
   it("filters costs through the search box", async () => {
@@ -37,7 +37,7 @@ describe("InboundCostsSection", () => {
     renderWithProviders(<InboundCostsSection orgId="1" />);
 
     await screen.findByText("Freight January");
-    await user.type(screen.getByPlaceholderText(/Search landed costs/), "Insurance");
+    await user.type(screen.getByPlaceholderText(/Cari biaya masuk/), "Insurance");
 
     expect(await screen.findByText("Insurance February")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Freight January")).not.toBeInTheDocument());

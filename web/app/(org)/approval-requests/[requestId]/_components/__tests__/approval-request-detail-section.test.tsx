@@ -66,13 +66,13 @@ describe("ApprovalRequestDetail", () => {
     expect(screen.getAllByText("Looks good")).toHaveLength(2);
 
     const stepsCard = screen
-      .getByText("Approval steps")
+      .getByText("Langkah persetujuan")
       .closest('[data-slot="card"]') as HTMLElement | null;
     if (!stepsCard) throw new Error("expected steps card");
-    const steps = within(stepsCard).getAllByText(/Step \d/);
+    const steps = within(stepsCard).getAllByText(/Langkah \d/);
     expect(steps).toHaveLength(2);
-    expect(steps[0]).toHaveTextContent("Step 1");
-    expect(steps[1]).toHaveTextContent("Step 2");
+    expect(steps[0]).toHaveTextContent("Langkah 1");
+    expect(steps[1]).toHaveTextContent("Langkah 2");
   });
 
   it("navigates back from the back button", async () => {
@@ -90,12 +90,12 @@ describe("ApprovalRequestDetail", () => {
     renderWithProviders(<ApprovalRequestDetail orgId="1" requestId="5" />);
 
     await screen.findByText("AR-5");
-    await user.click(screen.getAllByRole("button", { name: "Approve" })[0]!);
+    await user.click(screen.getAllByRole("button", { name: "Setujui" })[0]!);
 
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByText("Approve step")).toBeInTheDocument();
+    expect(within(dialog).getByText("Setujui langkah")).toBeInTheDocument();
 
-    await user.click(within(dialog).getByRole("button", { name: "Approve" }));
+    await user.click(within(dialog).getByRole("button", { name: "Setujui" }));
     await waitFor(() => expect(decideCalled).toBe(true));
   });
 
@@ -114,7 +114,11 @@ describe("ApprovalRequestDetail", () => {
     renderWithProviders(<ApprovalRequestDetail orgId="1" requestId="6" />);
 
     expect(await screen.findByText("AR-6")).toBeInTheDocument();
-    expect(screen.getByText("No approval steps.")).toBeInTheDocument();
-    expect(screen.getAllByText("Refused").length).toBeGreaterThan(0);
+    const stepsCard = screen
+      .getByText("Langkah persetujuan")
+      .closest('[data-slot="card"]') as HTMLElement | null;
+    if (!stepsCard) throw new Error("expected steps card");
+    expect(within(stepsCard).getByText("Tidak ada langkah")).toBeInTheDocument();
+    expect(screen.getAllByText("Ditolak").length).toBeGreaterThan(0);
   });
 });

@@ -25,7 +25,7 @@ describe("EmployeeFormDialog", () => {
       <EmployeeFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(await screen.findByText("Add employee")).toBeInTheDocument();
+    expect(await screen.findByText("Tambah Karyawan")).toBeInTheDocument();
   });
 
   it("renders employee number field", async () => {
@@ -33,7 +33,7 @@ describe("EmployeeFormDialog", () => {
       <EmployeeFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Add employee");
-    expect(screen.getByLabelText("Employee number")).toBeInTheDocument();
+    await screen.findByText("Tambah Karyawan");
+    expect(screen.getByLabelText("Nomor karyawan")).toBeInTheDocument();
   });
 });

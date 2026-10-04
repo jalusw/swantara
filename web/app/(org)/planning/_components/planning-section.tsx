@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -15,6 +16,7 @@ import { PlannedSupplysTable } from "./planning-planned-orders-table";
 import { PlanningRunDialog } from "./planning-run-dialog";
 
 export function MrpSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Planning");
   const [runDialogOpen, setRunDialogOpen] = useState(false);
   const [selectedRunId, setSelectedRunId] = useState<number | null>(null);
 
@@ -37,31 +39,31 @@ export function MrpSection({ orgId }: { orgId: string }) {
     void getSwantaraService()
       .planning.runs.create(Number(orgId), { horizonDays: 30 })
       .then((result) => {
-        toast.success("Planning run created");
+        toast.success(t("runCreated"));
         setSelectedRunId(result.run.id);
         void runsQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   function handleConfirm(runId: number) {
     void getSwantaraService()
       .planning.confirmPlannedOrder(Number(orgId), runId, { supplierId: 0 })
       .then(() => {
-        toast.success("Planned orders confirmed");
+        toast.success(t("ordersConfirmed"));
         void runsQuery.refetch();
         void selectedRunQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg">{"Planning Runs"}</h2>
+        <h2 className="text-lg">{t("runsTitle")}</h2>
         <Button size="sm" onClick={handleRun}>
           <Plus />
-          <span>{"Run Planning"}</span>
+          <span>{t("runPlanning")}</span>
         </Button>
       </div>
 
@@ -77,7 +79,7 @@ export function MrpSection({ orgId }: { orgId: string }) {
           >
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{`Run-${run.id}`}</CardTitle>
+                <CardTitle className="text-base">{t("runFallback", { id: run.id })}</CardTitle>
                 <Badge variant="outline">{run.state}</Badge>
               </div>
             </CardHeader>
@@ -88,7 +90,7 @@ export function MrpSection({ orgId }: { orgId: string }) {
         ))}
         {runs.length === 0 ? (
           <div className="text-muted-foreground text-sm sm:col-span-2 lg:col-span-3">
-            {"No Planning runs yet"}
+            {t("noRuns")}
           </div>
         ) : null}
       </div>
@@ -96,20 +98,20 @@ export function MrpSection({ orgId }: { orgId: string }) {
       {selectedRun ? (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg">{`Run-${selectedRun.id}`}</h3>
+            <h3 className="text-lg">{t("runFallback", { id: selectedRun.id })}</h3>
             {selectedRun.state === "done" ? (
               <Button size="sm" onClick={() => handleConfirm(selectedRun.id)}>
-                {"Confirm Planned Orders"}
+                {t("confirmOrders")}
               </Button>
             ) : null}
           </div>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">{"Demand Sources"}</CardTitle>
+              <CardTitle className="text-base">{t("demandSources")}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
-              {"Sales orders, manufacturing orders, and forecasts that create demand"}
+              {t("demandSourcesDesc")}
             </CardContent>
           </Card>
 

@@ -60,8 +60,8 @@ describe("RecordResultDialog", () => {
       />,
     );
 
-    expect(await screen.findByText("Record Result")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Fail" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Catat hasil" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Gagal" })).toBeInTheDocument();
   });
 
   it("records a fail result", async () => {
@@ -77,9 +77,9 @@ describe("RecordResultDialog", () => {
       />,
     );
 
-    await screen.findByText("Record Result");
-    await user.click(screen.getByRole("button", { name: "Fail" }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByRole("heading", { name: "Catat hasil" });
+    await user.click(screen.getByRole("button", { name: "Gagal" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalled());
     expect(recordedPass).toBe(false);

@@ -132,11 +132,11 @@ describe("service-order-utils", () => {
 
   describe("formatServiceType", () => {
     it("should format repair", () => {
-      expect(formatServiceType("repair")).toBe("Repair");
+      expect(formatServiceType("repair")).toBe("Perbaikan");
     });
 
     it("should format maintenance", () => {
-      expect(formatServiceType("maintenance")).toBe("Maintenance");
+      expect(formatServiceType("maintenance")).toBe("Perawatan");
     });
 
     it("should format installation", () => {
@@ -150,7 +150,7 @@ describe("service-order-utils", () => {
 
   describe("formatPriority", () => {
     it("should format low priority", () => {
-      expect(formatPriority(1)).toBe("Low");
+      expect(formatPriority(1)).toBe("Rendah");
     });
 
     it("should format normal priority", () => {
@@ -158,11 +158,11 @@ describe("service-order-utils", () => {
     });
 
     it("should format high priority", () => {
-      expect(formatPriority(3)).toBe("High");
+      expect(formatPriority(3)).toBe("Tinggi");
     });
 
     it("should format urgent priority", () => {
-      expect(formatPriority(4)).toBe("Urgent");
+      expect(formatPriority(4)).toBe("Mendesak");
     });
   });
 
@@ -176,7 +176,7 @@ describe("service-order-utils", () => {
     });
 
     it("should format expense", () => {
-      expect(formatLineType("expense")).toBe("Expense");
+      expect(formatLineType("expense")).toBe("Biaya");
     });
   });
 });

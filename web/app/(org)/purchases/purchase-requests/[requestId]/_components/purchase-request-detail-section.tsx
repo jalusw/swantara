@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ApprovalWidget } from "@/app/(org)/approval-requests/_components/approval-widget-section";
@@ -42,17 +43,20 @@ function requisitionStateIndex(state: PurchaseRequest["state"]): number {
   return idx >= 0 ? idx : 0;
 }
 
-function getRequisitionStatuses() {
+function getRequisitionStatuses(label?: (state: string) => string) {
+  const text = (state: string, fallback: string) => (label ? label(state) : fallback);
   return {
-    draft: { label: "Draft", tone: "neutral" as const },
-    confirmed: { label: "Confirmed", tone: "info" as const },
-    approved: { label: "Approved", tone: "success" as const },
-    done: { label: "Done", tone: "success" as const },
-    cancelled: { label: "Cancelled", tone: "danger" as const },
+    draft: { label: text("draft", "Draft"), tone: "neutral" as const },
+    confirmed: { label: text("confirmed", "Dikonfirmasi"), tone: "info" as const },
+    approved: { label: text("approved", "Disetujui"), tone: "success" as const },
+    done: { label: text("done", "Selesai"), tone: "success" as const },
+    cancelled: { label: text("cancelled", "Dibatalkan"), tone: "danger" as const },
   };
 }
 
 export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; requestId: string }) {
+  const t = useTranslations("Purchases");
+  const tCommon = useTranslations("Common");
   const [quoteRequestDialogOpen, setQuoteRequestDialogOpen] = useState(false);
 
   const requisitionQuery = useOrgQuery<{ request: PurchaseRequest }>(
@@ -104,30 +108,30 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
     mutationFn: (requestId: number) =>
       getSwantaraService().purchaseRequests.confirm(Number(orgId), requestId),
     onSuccess: () => {
-      toast.success("Request confirmed.");
+      toast.success(t("requestConfirmed"));
       void requisitionQuery.refetch();
     },
-    onError: () => toast.error("Could not disable the organization."),
+    onError: () => toast.error(t("saveFailed")),
   });
 
   const approveMutation = useMutation({
     mutationFn: (requestId: number) =>
       getSwantaraService().purchaseRequests.approve(Number(orgId), requestId),
     onSuccess: () => {
-      toast.success("Request approved.");
+      toast.success(t("requestApproved"));
       void requisitionQuery.refetch();
     },
-    onError: () => toast.error("Could not disable the organization."),
+    onError: () => toast.error(t("saveFailed")),
   });
 
   const cancelMutation = useMutation({
     mutationFn: (requestId: number) =>
       getSwantaraService().purchaseRequests.cancel(Number(orgId), requestId),
     onSuccess: () => {
-      toast.success("Request cancelled.");
+      toast.success(t("requestCancelled"));
       void requisitionQuery.refetch();
     },
-    onError: () => toast.error("Could not disable the organization."),
+    onError: () => toast.error(t("saveFailed")),
   });
 
   const createQuoteRequestMutation = useMutation({
@@ -136,11 +140,11 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
         requestId,
       }),
     onSuccess: () => {
-      toast.success("QuoteRequest created from request.");
+      toast.success(t("quoteRequestCreatedFromRequest"));
       setQuoteRequestDialogOpen(false);
       void requisitionQuery.refetch();
     },
-    onError: () => toast.error("Could not disable the organization."),
+    onError: () => toast.error(t("saveFailed")),
   });
 
   if (requisitionQuery.isLoading) {
@@ -148,26 +152,47 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
   }
 
   if (!request) {
-    return <p className="text-sm text-muted-foreground">{"Purchase request not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("purchaseRequestNotFound")}</p>;
+  }
+
+  function requisitionStateLabel(state: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`requisitionState.${state}`);
+    } catch {
+      return state;
+    }
+  }
+
+  function requisitionStepLabel(step: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`requisitionStep.${step}`);
+    } catch {
+      return String(step);
+    }
   }
 
   const lines = request.lines ?? [];
   const breadcrumbItems = [
-    { label: "All purchase requisitions", href: "/purchases/requisitions" },
+    { label: t("allRequisitions"), href: "/purchases/requisitions" },
     { label: request.name ?? `PR-${request.id}` },
   ];
-  const steps = requisitionSteps.map((s) => ({ label: String(s) }));
+  const steps = requisitionSteps.map((s) => ({ label: requisitionStepLabel(s) }));
 
   return (
     <>
       <RecordLayout
         breadcrumbItems={breadcrumbItems}
         title={request.name ?? `PR-${request.id}`}
-        status={<StateBadge value={request.state} statuses={getRequisitionStatuses()} />}
+        status={
+          <StateBadge
+            value={request.state}
+            statuses={getRequisitionStatuses(requisitionStateLabel)}
+          />
+        }
         tabs={[
           {
             id: "overview",
-            label: "Overview",
+            label: t("tabOverview"),
             content: (
               <div className="flex flex-col gap-4">
                 <WorkflowSteps steps={steps} currentIndex={requisitionStateIndex(request.state)} />
@@ -178,7 +203,7 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
                       disabled={confirmMutation.isPending}
                       onClick={() => confirmMutation.mutate(request.id)}
                     >
-                      {"Confirm"}
+                      {t("actionConfirm")}
                     </Button>
                   ) : null}
                   {canApprove(request.state) ? (
@@ -187,7 +212,7 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
                       disabled={approveMutation.isPending}
                       onClick={() => approveMutation.mutate(request.id)}
                     >
-                      {"Approve"}
+                      {t("actionApprove")}
                     </Button>
                   ) : null}
                   {canCancel(request.state) ? (
@@ -197,7 +222,7 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
                       disabled={cancelMutation.isPending}
                       onClick={() => cancelMutation.mutate(request.id)}
                     >
-                      {"Cancel"}
+                      {tCommon("cancel")}
                     </Button>
                   ) : null}
                   {canCreateQuoteRequest(request.state) ? (
@@ -207,24 +232,24 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
                       disabled={createQuoteRequestMutation.isPending}
                       onClick={() => setQuoteRequestDialogOpen(true)}
                     >
-                      {"Create QuoteRequest"}
+                      {t("createQuoteRequest")}
                     </Button>
                   ) : null}
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-base">{"Request header"}</CardTitle>
+                      <CardTitle className="text-base">{t("requestHeader")}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Requester"}</span>
+                        <span className="text-muted-foreground">{t("tableRequester")}</span>
                         <span className="">
                           {contactMap.get(request.requesterId) ?? `#${request.requesterId}`}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Department"}</span>
+                        <span className="text-muted-foreground">{t("tableDepartment")}</span>
                         <span>
                           {request.departmentId
                             ? (departmentMap.get(request.departmentId) ??
@@ -233,7 +258,7 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Needed by"}</span>
+                        <span className="text-muted-foreground">{t("fieldNeededBy")}</span>
                         <span>{request.neededBy ? formatDate(request.neededBy) : "—"}</span>
                       </div>
                     </CardContent>
@@ -241,7 +266,7 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
                   {linkedApproval ? (
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-base">{"Approval"}</CardTitle>
+                        <CardTitle className="text-base">{t("approvalTitle")}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <ApprovalWidget
@@ -255,21 +280,21 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
                 </div>
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">{"Lines"}</CardTitle>
+                    <CardTitle className="text-base">{t("orderLines")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {lines.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">{"No lines."}</p>
+                      <p className="text-sm text-muted-foreground">{t("emptyLines")}</p>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b text-left text-muted-foreground">
                               <th className="pb-2 ">#</th>
-                              <th className="pb-2 ">{"Item"}</th>
-                              <th className="pb-2 ">{"Description"}</th>
-                              <th className="pb-2 text-right">{"Qty"}</th>
-                              <th className="pb-2 ">{"Needed by"}</th>
+                              <th className="pb-2 ">{t("fieldItem")}</th>
+                              <th className="pb-2 ">{t("fieldDescription")}</th>
+                              <th className="pb-2 text-right">{t("fieldQty")}</th>
+                              <th className="pb-2 ">{t("fieldNeededBy")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -302,20 +327,16 @@ export function PurchaseRequestDetail({ orgId, requestId }: { orgId: string; req
       <Dialog open={quoteRequestDialogOpen} onOpenChange={setQuoteRequestDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{"Create QuoteRequest"}</DialogTitle>
-            <DialogDescription>
-              {"Convert this approved request into a Request for Quotation."}
-            </DialogDescription>
+            <DialogTitle>{t("createQuoteRequest")}</DialogTitle>
+            <DialogDescription>{t("createQuoteRequestDescription")}</DialogDescription>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            {"The QuoteRequest will be pre-filled with the request lines."}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("createQuoteRequestHint")}</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setQuoteRequestDialogOpen(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
             <Button onClick={() => createQuoteRequestMutation.mutate(request.id)}>
-              {"Create QuoteRequest"}
+              {t("createQuoteRequest")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ActiveBadge } from "@/components/active-badge";
@@ -14,6 +15,8 @@ import { humanizeKey } from "@/lib/utils/case";
 import { EmployeeFormDialog } from "../../_components/employee-form-dialog";
 
 export function EmployeeDetail({ orgId, employeeId }: { orgId: string; employeeId: string }) {
+  const t = useTranslations("Employees");
+  const tCommon = useTranslations("Common");
   const [editOpen, setEditOpen] = useState(false);
 
   const employeeQuery = useOrgQuery<{ employee: Employee }>(
@@ -33,47 +36,49 @@ export function EmployeeDetail({ orgId, employeeId }: { orgId: string; employeeI
   );
 
   if (employeeQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (!employee) {
-    return <p className="text-sm text-muted-foreground">{"Employee not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("detailNotFound")}</p>;
   }
 
   function handleEditSave() {
     setEditOpen(false);
-    toast.success("Employee saved");
+    toast.success(t("saved"));
     void employeeQuery.refetch();
     void contractsQuery.refetch();
   }
 
   const status = (
-    <ActiveBadge active={employee.active}>{employee.active ? "Active" : "Inactive"}</ActiveBadge>
+    <ActiveBadge active={employee.active}>
+      {employee.active ? t("statusActive") : t("statusInactive")}
+    </ActiveBadge>
   );
 
   return (
     <>
       <RecordLayout
         breadcrumbItems={[
-          { label: "Employees", href: "/employees" },
+          { label: t("title"), href: "/employees" },
           { label: employee.employeeNumber },
         ]}
         title={employee.employeeNumber}
         status={status}
         actions={
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>
-            {"Edit"}
+            {tCommon("edit")}
           </Button>
         }
         tabs={[
           {
             id: "overview",
-            label: "Overview",
+            label: t("tabOverview"),
             content: <EmployeeOverview employee={employee} />,
           },
           {
             id: "contracts",
-            label: "Contracts",
+            label: t("tabContracts"),
             content: (
               <EmployeeContracts
                 contracts={contracts}
@@ -107,38 +112,39 @@ export function EmployeeDetail({ orgId, employeeId }: { orgId: string; employeeI
 }
 
 function EmployeeOverview({ employee }: { employee: Employee }) {
+  const t = useTranslations("Employees");
   const identity = [
-    { label: "Employee number", value: employee.employeeNumber },
+    { label: t("fieldEmployeeNumber"), value: employee.employeeNumber },
     {
-      label: "Employment type",
+      label: t("fieldEmploymentType"),
       value: String(employee.employmentType),
     },
-    { label: "Hire date", value: employee.hireDate ?? "—" },
-    { label: "Termination date", value: employee.terminationDate ?? "—" },
+    { label: t("fieldHireDate"), value: employee.hireDate ?? "—" },
+    { label: t("fieldTerminationDate"), value: employee.terminationDate ?? "—" },
   ];
 
   const employment = [
     {
-      label: "Department",
+      label: t("fieldDepartment"),
       value: employee.departmentId != null ? String(employee.departmentId) : "—",
     },
     {
-      label: "Job position",
+      label: t("fieldJobPosition"),
       value: employee.jobPositionId != null ? String(employee.jobPositionId) : "—",
     },
-    { label: "Location", value: employee.workLocation ?? "—" },
+    { label: t("fieldWorkLocation"), value: employee.workLocation ?? "—" },
   ];
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Card>
         <CardContent>
-          <Section title={"Identity"} items={identity} />
+          <Section title={t("sectionIdentity")} items={identity} />
         </CardContent>
       </Card>
       <Card>
         <CardContent>
-          <Section title={"Employment"} items={employment} />
+          <Section title={t("formEmployment")} items={employment} />
         </CardContent>
       </Card>
     </div>
@@ -156,8 +162,10 @@ function EmployeeContracts({
     onRetry?: () => void;
   };
 }) {
+  const t = useTranslations("Employees");
+  const tCommon = useTranslations("Common");
   if (status?.type === "loading") {
-    return <p className="text-sm text-muted-foreground">{"Loading..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (status?.type === "error") {
@@ -165,14 +173,14 @@ function EmployeeContracts({
       <div className="flex flex-col items-center gap-2 py-8">
         <p className="text-sm text-muted-foreground">{status.message}</p>
         <Button variant="outline" size="sm" onClick={status.onRetry}>
-          {"Retry"}
+          {tCommon("retry")}
         </Button>
       </div>
     );
   }
 
   if (contracts.length === 0) {
-    return <p className="text-sm text-muted-foreground">{"No contracts found"}</p>;
+    return <p className="text-sm text-muted-foreground">{t("noContracts")}</p>;
   }
 
   return (
@@ -181,17 +189,17 @@ function EmployeeContracts({
         <Card key={contract.id}>
           <CardContent>
             <dl className="grid gap-3 sm:grid-cols-2">
-              <dt className="text-xs text-muted-foreground">{"Contract period"}</dt>
+              <dt className="text-xs text-muted-foreground">{t("contractPeriod")}</dt>
               <dd className="text-sm">
                 {contract.dateStart} — {contract.dateEnd ?? "—"}
               </dd>
-              <dt className="text-xs text-muted-foreground">{"Wage"}</dt>
+              <dt className="text-xs text-muted-foreground">{t("fieldWage")}</dt>
               <dd className="text-sm">
                 {formatNumber(contract.wage)} {contract.currencyCode}
               </dd>
-              <dt className="text-xs text-muted-foreground">{"Wage type"}</dt>
+              <dt className="text-xs text-muted-foreground">{t("fieldWageType")}</dt>
               <dd className="text-sm">{String(contract.wageType)}</dd>
-              <dt className="text-xs text-muted-foreground">{"State"}</dt>
+              <dt className="text-xs text-muted-foreground">{t("tableStatus")}</dt>
               <dd className="text-sm">
                 <ActiveBadge active={contract.state === "active"}>
                   {humanizeKey(String(contract.state))}

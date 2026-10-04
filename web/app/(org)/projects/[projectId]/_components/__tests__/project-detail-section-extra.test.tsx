@@ -98,7 +98,7 @@ describe("ProjectDetail extra", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("button", { name: "Close" }));
+    await user.click(screen.getByRole("button", { name: "Tutup" }));
 
     await waitFor(() => expect(stateCalls).toHaveLength(1));
     expect(stateCalls[0]).toMatchObject({ state: "closed" });
@@ -110,7 +110,7 @@ describe("ProjectDetail extra", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("button", { name: "Edit project" }));
+    await user.click(screen.getByRole("button", { name: "Ubah proyek" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
@@ -121,9 +121,9 @@ describe("ProjectDetail extra", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Milestones" }));
+    await user.click(screen.getByRole("tab", { name: "Tonggak" }));
 
-    expect(await screen.findByText("No milestones yet.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada tonggak.")).toBeInTheDocument();
   });
 
   it("toggles a milestone to reached", async () => {
@@ -144,8 +144,8 @@ describe("ProjectDetail extra", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Milestones" }));
-    await user.click(await screen.findByRole("button", { name: "Mark reached" }));
+    await user.click(screen.getByRole("tab", { name: "Tonggak" }));
+    await user.click(await screen.findByRole("button", { name: "Tandai tercapai" }));
 
     await waitFor(() => expect(reachedCalls).toBe(1));
   });
@@ -167,7 +167,7 @@ describe("ProjectDetail extra", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Timesheets" }));
+    await user.click(screen.getByRole("tab", { name: "Lembar waktu" }));
 
     expect(await screen.findByText("Homepage layout")).toBeInTheDocument();
   });
@@ -178,10 +178,10 @@ describe("ProjectDetail extra", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Billing" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
 
     expect(
-      await screen.findByText("Billing is only available for Time & Material projects."),
+      await screen.findByText("Penagihan hanya tersedia untuk proyek Waktu & Material."),
     ).toBeInTheDocument();
   });
 
@@ -191,10 +191,10 @@ describe("ProjectDetail extra", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Billing" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
 
-    expect(await screen.findByText("Unbilled hours")).toBeInTheDocument();
-    expect(screen.getByText("Unbilled amount")).toBeInTheDocument();
+    expect(await screen.findByText("Jam belum ditagih")).toBeInTheDocument();
+    expect(screen.getByText("Jumlah belum ditagih")).toBeInTheDocument();
   });
 
   it("shows financial cards on the P&L tab", async () => {
@@ -203,10 +203,10 @@ describe("ProjectDetail extra", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "P&L" }));
+    await user.click(screen.getByRole("tab", { name: "Laba rugi" }));
 
-    expect(await screen.findByText("Revenue")).toBeInTheDocument();
-    expect(screen.getByText("Planned vs Effective hours")).toBeInTheDocument();
+    expect(await screen.findByText("Pendapatan")).toBeInTheDocument();
+    expect(screen.getByText("Jam rencana vs jam efektif")).toBeInTheDocument();
   });
 
   it("shows the not-found state when the project is missing", async () => {
@@ -218,6 +218,6 @@ describe("ProjectDetail extra", () => {
     );
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
-    expect(await screen.findByText("Project not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Proyek tidak ditemukan.")).toBeInTheDocument();
   });
 });

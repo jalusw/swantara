@@ -1,6 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { CrmLead, CrmStage, PipelineForecast } from "@/lib/services/swantara";
@@ -9,6 +10,7 @@ import { CrmKpis, CrmPipelineKpiWall } from "./crm-kpis";
 import { PipelineBoard } from "./pipeline-board";
 
 export function PipelineSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Crm");
   const queryClient = useQueryClient();
 
   const leadsQuery = useOrgListQuery<{ leads: CrmLead[] }, Record<string, never>>(
@@ -53,7 +55,7 @@ export function PipelineSection({ orgId }: { orgId: string }) {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground">{"No opportunities in this stage"}</p>;
+    return <p className="text-sm text-muted-foreground">{t("loadingPipeline")}</p>;
   }
 
   if (error) {
@@ -61,7 +63,7 @@ export function PipelineSection({ orgId }: { orgId: string }) {
       <div className="flex flex-col gap-2">
         <p className="text-sm text-destructive">{error.message}</p>
         <button type="button" className="text-sm underline" onClick={refreshAll}>
-          {"No forecast yet"}
+          {t("retryLoad")}
         </button>
       </div>
     );
@@ -78,10 +80,8 @@ export function PipelineSection({ orgId }: { orgId: string }) {
       <div className="flex flex-col gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{"Weighted pipeline"}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              {"Sum of expected revenue times probability"}
-            </p>
+            <CardTitle className="text-base">{t("kpiWeighted")}</CardTitle>
+            <p className="text-sm text-muted-foreground">{t("kpiWeightedHint")}</p>
           </CardHeader>
           <CardContent>
             <CrmPipelineKpiWall pipeline={pipeline} />
@@ -89,14 +89,12 @@ export function PipelineSection({ orgId }: { orgId: string }) {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{"Pipeline board"}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              {"Drag opportunities across stages. Probability is synced from the stage."}
-            </p>
+            <CardTitle className="text-base">{t("pipelineTitle")}</CardTitle>
+            <p className="text-sm text-muted-foreground">{t("pipelineSubtitle")}</p>
           </CardHeader>
           <CardContent>
             {stages.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{"No opportunities in this stage"}</p>
+              <p className="text-sm text-muted-foreground">{t("emptyStages")}</p>
             ) : (
               <PipelineBoard
                 orgId={orgId}

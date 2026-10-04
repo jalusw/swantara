@@ -53,7 +53,7 @@ const journals = [
   {
     id: 1,
     organization_id: 1,
-    name: "Cash",
+    name: "Kas",
     code: "CASH",
     type: "cash",
     default_account_id: null,
@@ -111,7 +111,7 @@ describe("PurchaseOrderDetail branches2", () => {
     );
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
-    expect(await screen.findByText("Purchase order not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Pesanan pembelian tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("hides optional supplier ref and expected date branches when absent", async () => {
@@ -136,7 +136,7 @@ describe("PurchaseOrderDetail branches2", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Receipt" }));
+    await user.click(screen.getByRole("tab", { name: "Penerimaan" }));
     expect(await screen.findByText(/PK-0008/)).toBeInTheDocument();
   });
 
@@ -148,9 +148,11 @@ describe("PurchaseOrderDetail branches2", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    expect(await screen.findByText("No lines.")).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
-    expect(await screen.findByText("No received-not-billed lines to bill.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada baris")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
+    expect(
+      await screen.findByText("Tidak ada baris yang sudah diterima tetapi belum ditagih."),
+    ).toBeInTheDocument();
   });
 
   it("disables payment for draft orders and enables it when confirmed", async () => {
@@ -159,7 +161,7 @@ describe("PurchaseOrderDetail branches2", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findAllByText("PO-0005");
-    await user.click(screen.getByRole("tab", { name: "Payments" }));
-    expect(screen.getByRole("button", { name: "Make payment" })).toBeDisabled();
+    await user.click(screen.getByRole("tab", { name: "Pembayaran" }));
+    expect(screen.getByRole("button", { name: "Buat pembayaran" })).toBeDisabled();
   });
 });

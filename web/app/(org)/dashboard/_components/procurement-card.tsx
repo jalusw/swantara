@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { BarChart } from "@/components/bar-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
@@ -9,6 +10,7 @@ import { formatNumber } from "@/lib/utils";
 import { KpiCard } from "./kpi-card";
 
 export function ProcurementKpiCard() {
+  const t = useTranslations("Dashboard");
   const { data } = useProcurementKpi();
   const kpi = data?.kpi;
 
@@ -16,63 +18,63 @@ export function ProcurementKpiCard() {
     () =>
       kpi
         ? [
-            { label: "Purchase orders", value: kpi.purchaseCount },
-            { label: "Avg cycle days", value: kpi.avgCycleDays },
-            { label: "On-time", value: kpi.onTimeDeliveryPct * 100 },
-            { label: "Price variance", value: kpi.priceVariancePct * 100 },
+            { label: t("purchaseOrders"), value: kpi.purchaseCount },
+            { label: t("avgCycleDays"), value: kpi.avgCycleDays },
+            { label: t("onTime"), value: kpi.onTimeDeliveryPct * 100 },
+            { label: t("priceVariance"), value: kpi.priceVariancePct * 100 },
           ]
         : [
-            { label: "Purchase orders", value: 0 },
-            { label: "Avg cycle days", value: 0 },
-            { label: "On-time", value: 0 },
-            { label: "Price variance", value: 0 },
+            { label: t("purchaseOrders"), value: 0 },
+            { label: t("avgCycleDays"), value: 0 },
+            { label: t("onTime"), value: 0 },
+            { label: t("priceVariance"), value: 0 },
           ],
-    [kpi],
+    [kpi, t],
   );
 
   const deliveryData = useMemo(
     () =>
       kpi
         ? [
-            { label: "On-time", value: kpi.onTimeDeliveryPct * 100 },
-            { label: "Late", value: (1 - kpi.onTimeDeliveryPct) * 100 },
+            { label: t("onTime"), value: kpi.onTimeDeliveryPct * 100 },
+            { label: t("late"), value: (1 - kpi.onTimeDeliveryPct) * 100 },
           ]
         : [
-            { label: "On-time", value: 0 },
-            { label: "Late", value: 0 },
+            { label: t("onTime"), value: 0 },
+            { label: t("late"), value: 0 },
           ],
-    [kpi],
+    [kpi, t],
   );
 
   return (
     <div className="grid gap-4 grid-cols-12">
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle>{"Procurement"}</CardTitle>
-          <CardDescription>{"Cycle time, on-time delivery and price variance."}</CardDescription>
+          <CardTitle>{t("procurementTitle")}</CardTitle>
+          <CardDescription>{t("procurementDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-12">
           <KpiCard
             className="col-span-6 lg:col-span-3 rounded-xl border border-border bg-card p-4"
-            label={"Purchase orders"}
+            label={t("purchaseOrders")}
           >
             {kpi ? String(kpi.purchaseCount) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 lg:col-span-3 rounded-xl border border-border bg-card p-4"
-            label={"Avg cycle days"}
+            label={t("avgCycleDays")}
           >
             {kpi ? `${kpi.avgCycleDays.toFixed(1)}d` : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 lg:col-span-3 rounded-xl border border-border bg-card p-4 bg-primary/[0.04] border-primary/15"
-            label={"On-time"}
+            label={t("onTime")}
           >
             {kpi ? `${(kpi.onTimeDeliveryPct * 100).toFixed(1)}%` : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 lg:col-span-3 rounded-xl border border-border bg-card p-4"
-            label={"Price variance"}
+            label={t("priceVariance")}
           >
             {kpi ? `${(kpi.priceVariancePct * 100).toFixed(1)}%` : "—"}
           </KpiCard>
@@ -80,28 +82,28 @@ export function ProcurementKpiCard() {
       </Card>
       <Card className="col-span-12 lg:col-span-7">
         <CardHeader>
-          <CardTitle className="text-sm">{"Procurement metrics"}</CardTitle>
-          <CardDescription>{"Cycle, delivery and variance"}</CardDescription>
+          <CardTitle className="text-sm">{t("procurementMetrics")}</CardTitle>
+          <CardDescription>{t("procurementMetricsDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <BarChart
             data={procurementData}
-            ariaLabel={"Procurement"}
+            ariaLabel={t("procurementTitle")}
             valueFormatter={(value) => formatNumber(value)}
           />
         </CardContent>
       </Card>
       <Card className="col-span-12 lg:col-span-5">
         <CardHeader>
-          <CardTitle className="text-sm">{"On-time delivery"}</CardTitle>
-          <CardDescription>{"On-time vs late"}</CardDescription>
+          <CardTitle className="text-sm">{t("onTimeDelivery")}</CardTitle>
+          <CardDescription>{t("onTimeVsLate")}</CardDescription>
         </CardHeader>
         <CardContent>
           <DonutChart
             data={deliveryData}
-            ariaLabel={"On-time"}
+            ariaLabel={t("onTime")}
             valueFormatter={(value) => `${value.toFixed(1)}%`}
-            centerLabel={"On-time"}
+            centerLabel={t("onTime")}
           />
         </CardContent>
       </Card>

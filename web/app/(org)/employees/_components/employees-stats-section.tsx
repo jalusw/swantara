@@ -1,6 +1,7 @@
 "use client";
 
 import { Palmtree, UserCheck, UserRound, UsersRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { MetricGrid } from "@/components/metric-grid";
 import { StatCard } from "@/components/stat-card";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
@@ -22,6 +23,7 @@ function isHiredThisMonth(employee: Employee, now: Date): boolean {
 }
 
 export function EmployeesStats() {
+  const t = useTranslations("Employees");
   const employeesQuery = useOrgListQuery<{ employees: Employee[] }, Record<string, never>>(
     "employees",
     (organizationId) => getSwantaraService().employees.list(organizationId),
@@ -42,14 +44,14 @@ export function EmployeesStats() {
 
   return (
     <MetricGrid>
+      <StatCard label={t("statTotal")} value={formatNumber(employees.length)} icon={UsersRound} />
+      <StatCard label={t("statActive")} value={formatNumber(activeCount)} icon={UserCheck} />
+      <StatCard label={t("statOnLeave")} value={formatNumber(onLeaveCount)} icon={Palmtree} />
       <StatCard
-        label={"Total employees"}
-        value={formatNumber(employees.length)}
-        icon={UsersRound}
+        label={t("statNewThisMonth")}
+        value={formatNumber(newThisMonthCount)}
+        icon={UserRound}
       />
-      <StatCard label={"Active employees"} value={formatNumber(activeCount)} icon={UserCheck} />
-      <StatCard label={"On leave"} value={formatNumber(onLeaveCount)} icon={Palmtree} />
-      <StatCard label={"New this month"} value={formatNumber(newThisMonthCount)} icon={UserRound} />
     </MetricGrid>
   );
 }

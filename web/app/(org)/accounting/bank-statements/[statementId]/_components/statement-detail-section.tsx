@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { useOrgQuery } from "@/lib/hooks/use-org-query";
@@ -7,13 +8,13 @@ import type { BankStatement, BankStatementLine } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney } from "@/lib/utils";
 import { cn } from "@/lib/utils/style";
-import {
-  bankStatementStateLabel,
-  bankStatementStateTone,
-  statementBalance,
-} from "../../_components/statement-utils";
+import { bankStatementStateTone, statementBalance } from "../../_components/statement-utils";
+
+type TFn = (key: string, values?: Record<string, string | number>) => string;
 
 export function StatementDetailSection({ statementId }: { orgId: string; statementId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
+  const tCommon = useTranslations("Common");
   const statementQuery = useOrgQuery<{ bankStatement: BankStatement }>(
     "bankStatements",
     Number(statementId),
@@ -27,11 +28,11 @@ export function StatementDetailSection({ statementId }: { orgId: string; stateme
   const isReconciled = statement != null && Math.abs(computedBalance - statement.balanceEnd) < 0.01;
 
   if (statementQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">{"Loading statement..."}</p>;
+    return <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>;
   }
 
   if (!statement) {
-    return <p className="text-sm text-muted-foreground">{"Bank statement not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("statementNotFound")}</p>;
   }
 
   return (
@@ -44,14 +45,14 @@ export function StatementDetailSection({ statementId }: { orgId: string; stateme
           </p>
         </div>
         <Badge variant="outline" className={bankStatementStateTone(statement.state)}>
-          {bankStatementStateLabel(statement.state)}
+          {(t as unknown as (k: string) => string)(`statementState_${statement.state}`)}
         </Badge>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">{"Opening balance"}</CardTitle>
+            <CardTitle className="text-sm">{t("colBalanceStart")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-lg font-bold tabular-nums">{formatMoney(statement.balanceStart)}</p>
@@ -59,7 +60,7 @@ export function StatementDetailSection({ statementId }: { orgId: string; stateme
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">{"Closing balance"}</CardTitle>
+            <CardTitle className="text-sm">{t("colBalanceEnd")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-lg font-bold tabular-nums">{formatMoney(statement.balanceEnd)}</p>
@@ -67,7 +68,7 @@ export function StatementDetailSection({ statementId }: { orgId: string; stateme
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">{"Computed balance"}</CardTitle>
+            <CardTitle className="text-sm">{t("computedBalance")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p
@@ -84,25 +85,25 @@ export function StatementDetailSection({ statementId }: { orgId: string; stateme
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">{"Statement lines"}</CardTitle>
+          <CardTitle className="text-sm">{t("statementLines")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
-                  <th className="pb-2 ">{"Date"}</th>
-                  <th className="pb-2 ">{"Ref"}</th>
-                  <th className="pb-2 ">{"Narration"}</th>
-                  <th className="pb-2 text-right">{"Amount"}</th>
-                  <th className="pb-2 ">{"Reconciled"}</th>
+                  <th className="pb-2 ">{t("colDate")}</th>
+                  <th className="pb-2 ">{t("colReferenceShort")}</th>
+                  <th className="pb-2 ">{t("colNarration")}</th>
+                  <th className="pb-2 text-right">{t("colAmount")}</th>
+                  <th className="pb-2 ">{t("colReconciled")}</th>
                 </tr>
               </thead>
               <tbody>
                 {lines.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-4 text-center text-muted-foreground">
-                      {"No statement lines found."}
+                      {t("statementLinesEmpty")}
                     </td>
                   </tr>
                 ) : (
@@ -117,7 +118,7 @@ export function StatementDetailSection({ statementId }: { orgId: string; stateme
                       <td className="py-2">
                         {line.reconciled ? (
                           <Badge variant="secondary" className="text-xs">
-                            {"Reconciled"}
+                            {t("colReconciled")}
                           </Badge>
                         ) : (
                           <span className="text-muted-foreground text-xs">—</span>

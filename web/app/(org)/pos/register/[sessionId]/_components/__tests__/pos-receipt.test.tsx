@@ -21,8 +21,8 @@ describe("PosReceipt", () => {
     renderReceipt(() => {});
 
     expect(await screen.findByText("POS-0009")).toBeInTheDocument();
-    expect(screen.getByText("Receipt")).toBeInTheDocument();
-    expect(screen.getByText("cash")).toBeInTheDocument();
+    expect(screen.getByText("Struk")).toBeInTheDocument();
+    expect(screen.getByText("Tunai")).toBeInTheDocument();
   });
 
   it("starts a new order from the receipt", async () => {
@@ -31,7 +31,7 @@ describe("PosReceipt", () => {
     renderReceipt(onNewOrder);
 
     await screen.findByText("POS-0009");
-    await user.click(screen.getByRole("button", { name: "New order" }));
+    await user.click(screen.getByRole("button", { name: "Pesanan baru" }));
 
     expect(onNewOrder).toHaveBeenCalledTimes(1);
   });

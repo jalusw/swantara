@@ -55,9 +55,9 @@ describe("ProductFormDialog", () => {
   it("renders the create form with defaults", () => {
     renderDialog();
 
-    expect(screen.getByText("New item")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
-    expect(screen.getByLabelText("Sales price")).toBeInTheDocument();
+    expect(screen.getByText("Produk baru")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
+    expect(screen.getByLabelText("Harga jual")).toBeInTheDocument();
   });
 
   it("renders the edit title when initial data is provided", () => {
@@ -78,7 +78,7 @@ describe("ProductFormDialog", () => {
       },
     });
 
-    expect(screen.getByText("Edit item")).toBeInTheDocument();
+    expect(screen.getByText("Ubah produk")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Chair")).toBeInTheDocument();
   });
 
@@ -88,7 +88,7 @@ describe("ProductFormDialog", () => {
       http.post("*/api/v1/organizations/:organizationId/products", async ({ request }) => {
         created = await request.json();
         return HttpResponse.json(
-          { success: true, message: "Created.", data: { item: { id: 42 } } },
+          { success: true, message: "Dibuat.", data: { item: { id: 42 } } },
           { status: 201 },
         );
       }),
@@ -97,10 +97,10 @@ describe("ProductFormDialog", () => {
     const onSave = vi.fn();
     renderDialog({ onSave });
 
-    await user.type(screen.getByLabelText("Name"), "Office Chair");
-    await user.click(screen.getByLabelText("Category"));
+    await user.type(screen.getByLabelText("Nama"), "Office Chair");
+    await user.click(screen.getByLabelText("Kategori"));
     await user.click(await screen.findByRole("option", { name: "Furniture" }));
-    await user.click(screen.getByRole("button", { name: "Save item" }));
+    await user.click(screen.getByRole("button", { name: "Simpan produk" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("42"));
     expect(created).toMatchObject({ name: "Office Chair", category_id: 1 });
@@ -112,7 +112,7 @@ describe("ProductFormDialog", () => {
       http.post("*/api/v1/organizations/:organizationId/products", async ({ request }) => {
         created = await request.json();
         return HttpResponse.json(
-          { success: true, message: "Created.", data: { item: { id: 43 } } },
+          { success: true, message: "Dibuat.", data: { item: { id: 43 } } },
           { status: 201 },
         );
       }),
@@ -120,8 +120,8 @@ describe("ProductFormDialog", () => {
     const user = userEvent.setup();
     renderDialog();
 
-    await user.type(screen.getByLabelText("Name"), "Simple Service");
-    await user.click(screen.getByRole("button", { name: "Save item" }));
+    await user.type(screen.getByLabelText("Nama"), "Simple Service");
+    await user.click(screen.getByRole("button", { name: "Simpan produk" }));
 
     await waitFor(() =>
       expect(created).toMatchObject({ category_id: null, unit_id: null, purchase_unit_id: null }),
@@ -132,13 +132,13 @@ describe("ProductFormDialog", () => {
     const user = userEvent.setup();
     renderDialog();
 
-    const sellable = screen.getByLabelText("Can be sold");
+    const sellable = screen.getByLabelText("Dapat dijual");
     expect(sellable).toHaveAttribute("aria-checked", "true");
 
     await user.click(sellable);
     expect(sellable).toHaveAttribute("aria-checked", "false");
 
-    const manufactured = screen.getByLabelText("Is manufactured");
+    const manufactured = screen.getByLabelText("Diproduksi sendiri");
     await user.click(manufactured);
     expect(manufactured).toHaveAttribute("aria-checked", "true");
   });
@@ -148,15 +148,15 @@ describe("ProductFormDialog", () => {
     const onSave = vi.fn();
     renderDialog({ onSave });
 
-    await user.type(screen.getByLabelText("Name"), "Dup");
-    await user.click(screen.getByRole("button", { name: "Add attribute" }));
-    await user.type(screen.getByLabelText("Attribute"), "Size");
-    fireEvent.change(screen.getByPlaceholderText("Values (comma-separated)"), {
+    await user.type(screen.getByLabelText("Nama"), "Dup");
+    await user.click(screen.getByRole("button", { name: "Tambah atribut" }));
+    await user.type(screen.getByLabelText("Atribut"), "Size");
+    fireEvent.change(screen.getByPlaceholderText("Nilai (dipisahkan koma)"), {
       target: { value: "x, x" },
     });
-    await user.click(screen.getByRole("button", { name: "Save item" }));
+    await user.click(screen.getByRole("button", { name: "Simpan produk" }));
 
-    expect(await screen.findByText(/generated more than once/)).toBeInTheDocument();
+    expect(await screen.findByText(/SKU duplikat/)).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 });

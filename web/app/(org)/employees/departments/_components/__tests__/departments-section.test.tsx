@@ -55,7 +55,7 @@ describe("DepartmentsSection", () => {
     renderWithProviders(<DepartmentsSection orgId="1" />);
 
     await screen.findByText("Engineering");
-    await user.type(screen.getByPlaceholderText("Search departments…"), "Marketing");
+    await user.type(screen.getByPlaceholderText("Cari departemen…"), "Marketing");
 
     expect((await screen.findAllByText("Marketing")).length).toBeGreaterThan(0);
     await waitFor(() => expect(screen.queryByText("Engineering")).not.toBeInTheDocument());

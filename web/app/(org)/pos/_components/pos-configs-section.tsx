@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -21,6 +22,7 @@ import type { Journal, PosConfig, PriceBook, Warehouse } from "@/lib/services/sw
 import { getSwantaraService } from "@/lib/services/swantara";
 
 export function PosConfigsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Pos");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const configsQuery = useOrgListQuery<{ configs: PosConfig[] }, Record<string, never>>(
@@ -55,12 +57,12 @@ export function PosConfigsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<PosConfig>[] = [
     {
       accessorKey: "name",
-      header: "Config name",
+      header: t("colConfigName"),
       cell: ({ row }) => <span className="">{row.original.name || `POS-${row.original.id}`}</span>,
     },
     {
       accessorKey: "warehouseId",
-      header: "Warehouse",
+      header: t("colWarehouse"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.warehouseId
@@ -71,7 +73,7 @@ export function PosConfigsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "journalId",
-      header: "Journal",
+      header: t("colJournal"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.journalId
@@ -82,7 +84,7 @@ export function PosConfigsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "priceBookId",
-      header: "PriceBook",
+      header: t("colPriceBook"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.priceBookId
@@ -100,9 +102,9 @@ export function PosConfigsSection({ orgId }: { orgId: string }) {
         data={configs}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
-        searchPlaceholder={"Search configs..."}
-        ariaLabel={"POS Configs"}
-        emptyTitle={"No configs yet. Create your first config to get started."}
+        searchPlaceholder={t("configsSearchPlaceholder")}
+        ariaLabel={t("configsTitle")}
+        emptyTitle={t("configsEmpty")}
         status={
           configsQuery.isLoading
             ? { type: "loading" }
@@ -117,7 +119,7 @@ export function PosConfigsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Add config"}</span>
+            <span>{t("newConfig")}</span>
           </Button>
         }
       />
@@ -153,6 +155,8 @@ function PosConfigFormDialog({
   price_books: PriceBook[];
   onSave: () => void;
 }) {
+  const t = useTranslations("Pos");
+  const tCommon = useTranslations("Common");
   const [name, setName] = useState("");
   const [warehouseId, setWarehouseId] = useState("");
   const [journalId, setJournalId] = useState("");
@@ -169,35 +173,33 @@ function PosConfigFormDialog({
         priceBookId: priceBookId ? Number(priceBookId) : null,
       })
       .then(() => {
-        toast.success("POS config created.");
+        toast.success(t("configCreated"));
         onSave();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"New POS Config"}</DialogTitle>
-          <DialogDescription>
-            {"Bind a warehouse, journal and price_book to a POS register."}
-          </DialogDescription>
+          <DialogTitle>{t("newConfig")}</DialogTitle>
+          <DialogDescription>{t("configFormDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Config name"}</span>
+            <span className="text-sm">{t("colConfigName")}</span>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={"e.g. Main Store"}
+              placeholder={t("configNamePlaceholder")}
             />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Warehouse"}</span>
+            <span className="text-sm">{t("colWarehouse")}</span>
             <Select value={warehouseId} onValueChange={(v) => setWarehouseId(v ?? "")}>
-              <SelectTrigger aria-label={"Warehouse"}>
-                <SelectValue placeholder={"Select warehouse"} />
+              <SelectTrigger aria-label={t("colWarehouse")}>
+                <SelectValue placeholder={t("selectWarehouse")} />
               </SelectTrigger>
               <SelectContent>
                 {warehouses.map((w) => (
@@ -209,10 +211,10 @@ function PosConfigFormDialog({
             </Select>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Journal"}</span>
+            <span className="text-sm">{t("colJournal")}</span>
             <Select value={journalId} onValueChange={(v) => setJournalId(v ?? "")}>
-              <SelectTrigger aria-label={"Journal"}>
-                <SelectValue placeholder={"Select journal"} />
+              <SelectTrigger aria-label={t("colJournal")}>
+                <SelectValue placeholder={t("selectJournal")} />
               </SelectTrigger>
               <SelectContent>
                 {journals.map((j) => (
@@ -224,10 +226,10 @@ function PosConfigFormDialog({
             </Select>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"PriceBook"}</span>
+            <span className="text-sm">{t("colPriceBook")}</span>
             <Select value={priceBookId} onValueChange={(v) => setPriceBookId(v ?? "")}>
-              <SelectTrigger aria-label={"PriceBook"}>
-                <SelectValue placeholder={"Select price_book"} />
+              <SelectTrigger aria-label={t("colPriceBook")}>
+                <SelectValue placeholder={t("selectPriceBook")} />
               </SelectTrigger>
               <SelectContent>
                 {price_books.map((p) => (
@@ -241,10 +243,10 @@ function PosConfigFormDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={!name}>
-            {"Save"}
+            {tCommon("save")}
           </Button>
         </DialogFooter>
       </DialogContent>

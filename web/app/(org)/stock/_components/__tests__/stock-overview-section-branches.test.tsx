@@ -185,7 +185,7 @@ describe("StockOverviewSection branches", () => {
     useHandlers();
     renderWithProviders(<StockOverviewSection orgId="1" />);
     await screen.findByText("Finished Widget");
-    await user.click(screen.getByRole("combobox", { name: "Filter by location" }));
+    await user.click(screen.getByRole("combobox", { name: "Filter berdasarkan lokasi" }));
     await user.click(await screen.findByRole("option", { name: "WH/Output" }));
     await waitFor(() => expect(screen.queryByText("WH/Stock")).not.toBeInTheDocument());
     expect(screen.getAllByText("WH/Output").length).toBeGreaterThanOrEqual(2);
@@ -196,12 +196,12 @@ describe("StockOverviewSection branches", () => {
     useHandlers();
     renderWithProviders(<StockOverviewSection orgId="1" />);
     await screen.findByText("Finished Widget");
-    await user.click(screen.getByRole("tab", { name: "Stock movements" }));
-    expect(await screen.findByText("Stock movement ledger")).toBeInTheDocument();
-    expect(screen.getByText("done")).toBeInTheDocument();
-    expect(screen.getByText("cancelled")).toBeInTheDocument();
-    expect(screen.getByText("draft")).toBeInTheDocument();
-    expect(screen.getByText("confirmed")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Mutasi stok" }));
+    expect(await screen.findByText("Buku mutasi stok")).toBeInTheDocument();
+    expect(screen.getByText("Selesai")).toBeInTheDocument();
+    expect(screen.getByText("Dibatalkan")).toBeInTheDocument();
+    expect(screen.getByText("Draf")).toBeInTheDocument();
+    expect(screen.getByText("Dikonfirmasi")).toBeInTheDocument();
     expect(screen.getByText("77")).toBeInTheDocument();
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
@@ -211,14 +211,14 @@ describe("StockOverviewSection branches", () => {
     useHandlers({ emptyMoves: true });
     renderWithProviders(<StockOverviewSection orgId="1" />);
     await screen.findByText("Finished Widget");
-    await user.click(screen.getByRole("tab", { name: "Stock movements" }));
-    expect(await screen.findByText("No stock movements found.")).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Mutasi stok" }));
+    expect(await screen.findByText("Belum ada mutasi stok.")).toBeInTheDocument();
   });
 
   it("shows the error state with retry when balances fail", async () => {
     useHandlers({ failBalances: true });
     renderWithProviders(<StockOverviewSection orgId="1" />);
     expect(await screen.findByText("Balances down.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Coba lagi" })).toBeInTheDocument();
   });
 });

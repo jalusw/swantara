@@ -72,7 +72,7 @@ describe("TaxesSection", () => {
     renderWithProviders(<TaxesSection orgId="1" />);
 
     await screen.findByText("PPN 11%");
-    await user.type(screen.getByPlaceholderText("Search taxes..."), "PPh");
+    await user.type(screen.getByPlaceholderText("Cari pajak..."), "PPh");
 
     expect(await screen.findByText("PPh 23")).toBeInTheDocument();
   });
@@ -82,9 +82,9 @@ describe("TaxesSection", () => {
     renderWithProviders(<TaxesSection orgId="1" />);
 
     await screen.findByText("PPN 11%");
-    await user.click(screen.getByRole("button", { name: "Add tax" }));
+    await user.click(screen.getByRole("button", { name: "Tambah pajak" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Create tax")).toBeInTheDocument();
+    expect(screen.getByText("Buat pajak")).toBeInTheDocument();
   });
 });

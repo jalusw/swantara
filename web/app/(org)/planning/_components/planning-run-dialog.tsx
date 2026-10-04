@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -31,6 +32,8 @@ function usePlanningRunFormSchema() {
 }
 
 export function PlanningRunDialog({ open, onOpenChange, orgId, onSave }: PlanningRunDialogProps) {
+  const t = useTranslations("Planning");
+  const tCommon = useTranslations("Common");
   const schema = usePlanningRunFormSchema();
   type Values = z.infer<typeof schema>;
 
@@ -42,34 +45,33 @@ export function PlanningRunDialog({ open, onOpenChange, orgId, onSave }: Plannin
   });
 
   function handleSubmit() {
-    void getSwantaraService()
+    return getSwantaraService()
       .planning.runs.create(Number(orgId), {
         horizonDays: 30,
       })
       .then(() => {
-        toast.success("Planning run started");
+        toast.success(t("runStarted"));
         onSave();
-      });
+      })
+      .catch(() => {});
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{"Run Planning"}</DialogTitle>
-          <DialogDescription>
-            {"Create a new Planning run to calculate material requirements"}
-          </DialogDescription>
+          <DialogTitle>{t("runPlanning")}</DialogTitle>
+          <DialogDescription>{t("runDialogDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
-          <FormField name="name" label={"Run Name"}>
-            {({ field, id }) => <Input {...field} id={id} placeholder={"Optional name"} />}
+          <FormField name="name" label={t("runName")}>
+            {({ field, id }) => <Input {...field} id={id} placeholder={t("optionalName")} />}
           </FormField>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Run Planning"}</SubmitButton>
+            <SubmitButton>{t("runPlanning")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

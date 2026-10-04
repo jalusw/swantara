@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { DEFAULT_CURRENCY } from "@/lib/constants/currency";
@@ -10,16 +11,10 @@ import { formatMoney } from "@/lib/utils";
 import type { ReportSection } from "@/lib/utils/report-utils";
 import { bsGroupBySection } from "@/lib/utils/report-utils";
 
-const sectionLabels: Record<ReportSection, string> = {
-  assets: "Assets",
-  liabilities: "Liabilities",
-  equity: "Equity",
-  revenue: "Revenue",
-  cogs: "COGS",
-  expenses: "Expenses",
-};
+type TFn = (key: string, values?: Record<string, string | number>) => string;
 
 export function BalanceSheetSections() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Reports");
   const { data, isLoading } = useBalanceSheet();
   const bs = data?.balanceSheet;
   const sections = bs
@@ -30,7 +25,7 @@ export function BalanceSheetSections() {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          {"Loading balance sheet…"}
+          {t("loadingBalanceSheet")}
         </CardContent>
       </Card>
     );
@@ -40,7 +35,7 @@ export function BalanceSheetSections() {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          {"No balance sheet data available."}
+          {t("balanceSheetEmpty")}
         </CardContent>
       </Card>
     );
@@ -52,7 +47,7 @@ export function BalanceSheetSections() {
         <Card key={section}>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>{sectionLabels[section]}</CardTitle>
+              <CardTitle>{(t as unknown as (k: string) => string)(`section_${section}`)}</CardTitle>
               <Badge variant="outline">
                 {formatMoney(sectionRows.reduce((s, r) => s + r.balance, 0))}
               </Badge>
@@ -63,10 +58,12 @@ export function BalanceSheetSections() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="px-3 py-2 text-left text-muted-foreground">{"Code"}</th>
-                    <th className="px-3 py-2 text-left text-muted-foreground">{"Account"}</th>
-                    <th className="px-3 py-2 text-left text-muted-foreground">{"Type"}</th>
-                    <th className="px-3 py-2 text-right text-muted-foreground">{"Balance"}</th>
+                    <th className="px-3 py-2 text-left text-muted-foreground">{t("colCode")}</th>
+                    <th className="px-3 py-2 text-left text-muted-foreground">{t("colAccount")}</th>
+                    <th className="px-3 py-2 text-left text-muted-foreground">{t("fieldType")}</th>
+                    <th className="px-3 py-2 text-right text-muted-foreground">
+                      {t("colBalance")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

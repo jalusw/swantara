@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -14,20 +15,21 @@ import { getLocalDateString } from "@/lib/utils";
 import { zodResolver } from "@/lib/utils/zod-resolver";
 
 function useProjectFormSchema() {
+  const t = useTranslations("Projects");
   return z
     .object({
-      name: z.string().min(1, "Project name is required."),
-      contactId: z.coerce.number().min(1, "Select a customer."),
+      name: z.string().min(1, t("validation_nameRequired")),
+      contactId: z.coerce.number().min(1, t("validation_customerRequired")),
       managerId: z.coerce.number().nullable(),
       billingType: z.enum(["fixed", "time_material", "milestone"]),
-      billableRate: z.coerce.number().min(0, "Billable rate is required."),
+      billableRate: z.coerce.number().min(0, t("validation_rateRequired")),
       dimensionId: z.coerce.number().nullable(),
       saleOrderId: z.coerce.number().nullable(),
       dateStart: z.string().nullable(),
       dateEnd: z.string().nullable(),
     })
     .refine((data) => !data.dateStart || !data.dateEnd || data.dateEnd >= data.dateStart, {
-      message: "End date must be after start date",
+      message: t("validation_endAfterStart"),
       path: ["dateEnd"],
     });
 }
@@ -45,6 +47,9 @@ export function ProjectFormDialog({
   initial?: Project | null;
   onSave: () => void;
 }) {
+  const t = useTranslations("Projects");
+  const tCommon = useTranslations("Common");
+  const dyn = (key: string) => (t as unknown as (k: string) => string)(key);
   const isEdit = Boolean(initial);
 
   const contactsQuery = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
@@ -123,31 +128,33 @@ export function ProjectFormDialog({
         })
       : getSwantaraService().projects.create(Number(orgId), payload);
 
-    void op.then(() => onSave()).catch(() => toast.error("Something went wrong."));
+    return op.then(() => onSave()).catch(() => void toast.error(t("saveFailed")));
   }
 
   return (
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? "Edit project" : "New project"}
-      description={"Create a project with billing type, customer and dimension account."}
+      title={isEdit ? t("editProject") : t("newProject")}
+      description={t("formDescription")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="sm:max-w-lg"
     >
       <div className="flex flex-col gap-4">
-        <FormField name="name" label={"Project name"}>
+        <FormField name="name" label={t("fieldName")}>
           {({ field, id }) => <Input {...field} id={id} />}
         </FormField>
-        <FormField name="contactId" label={"Customer"}>
+        <FormField name="contactId" label={t("customer")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(Number(value))}
             >
-              <SelectTrigger id={id} aria-label={"Customer"}>
-                <SelectValue placeholder={"Select customer"} />
+              <SelectTrigger id={id} aria-label={t("customer")}>
+                <SelectValue placeholder={t("selectCustomer")} />
               </SelectTrigger>
               <SelectContent>
                 {contactOptions.map((p) => (
@@ -159,14 +166,14 @@ export function ProjectFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="managerId" label={"Manager"}>
+        <FormField name="managerId" label={t("manager")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(value ? Number(value) : null)}
             >
-              <SelectTrigger id={id} aria-label={"Manager"}>
-                <SelectValue placeholder={"Select manager"} />
+              <SelectTrigger id={id} aria-label={t("manager")}>
+                <SelectValue placeholder={t("selectManager")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>
@@ -179,7 +186,7 @@ export function ProjectFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="billingType" label={"Billing type"}>
+        <FormField name="billingType" label={t("billingType")}>
           {({ field, id }) => (
             <Select
               value={field.value ?? ""}
@@ -187,30 +194,30 @@ export function ProjectFormDialog({
                 field.onChange(value as "fixed" | "time_material" | "milestone")
               }
             >
-              <SelectTrigger id={id} aria-label={"Billing type"}>
-                <SelectValue placeholder={"Billing type"} />
+              <SelectTrigger id={id} aria-label={t("billingType")}>
+                <SelectValue placeholder={t("billingType")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="fixed">{"Fixed"}</SelectItem>
-                <SelectItem value="time_material">{"Time & Material"}</SelectItem>
-                <SelectItem value="milestone">{"Milestone"}</SelectItem>
+                <SelectItem value="fixed">{dyn("billing_fixed")}</SelectItem>
+                <SelectItem value="time_material">{dyn("billing_time_material")}</SelectItem>
+                <SelectItem value="milestone">{dyn("billing_milestone")}</SelectItem>
               </SelectContent>
             </Select>
           )}
         </FormField>
-        <FormField name="billableRate" label={"Billable rate"}>
+        <FormField name="billableRate" label={t("billableRate")}>
           {({ field, id }) => (
             <Input {...field} id={id} type="number" min="0" step="0.01" inputMode="decimal" />
           )}
         </FormField>
-        <FormField name="dimensionId" label={"Dimension account"}>
+        <FormField name="dimensionId" label={t("dimensionAccount")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(value ? Number(value) : null)}
             >
-              <SelectTrigger id={id} aria-label={"Dimension account"}>
-                <SelectValue placeholder={"Select dimension account"} />
+              <SelectTrigger id={id} aria-label={t("dimensionAccount")}>
+                <SelectValue placeholder={t("selectDimension")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>
@@ -223,14 +230,14 @@ export function ProjectFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="saleOrderId" label={"Sale order"}>
+        <FormField name="saleOrderId" label={t("saleOrder")}>
           {({ field, id }) => (
             <Select
               value={field.value ? String(field.value) : ""}
               onValueChange={(value) => field.onChange(value ? Number(value) : null)}
             >
-              <SelectTrigger id={id} aria-label={"Sale order"}>
-                <SelectValue placeholder={"Select sale order"} />
+              <SelectTrigger id={id} aria-label={t("saleOrder")}>
+                <SelectValue placeholder={t("selectSaleOrder")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">—</SelectItem>
@@ -243,7 +250,7 @@ export function ProjectFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="dateStart" label={"Start date"}>
+        <FormField name="dateStart" label={t("startDate")}>
           {({ field, id }) => (
             <Input
               {...field}
@@ -254,7 +261,7 @@ export function ProjectFormDialog({
             />
           )}
         </FormField>
-        <FormField name="dateEnd" label={"End date"}>
+        <FormField name="dateEnd" label={t("endDate")}>
           {({ field, id }) => (
             <Input
               {...field}

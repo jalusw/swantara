@@ -63,7 +63,7 @@ describe("AssetCategoriesSection", () => {
     renderWithProviders(<AssetCategoriesSection orgId="1" />);
 
     await screen.findByText("IT Equipment");
-    await user.type(screen.getByPlaceholderText("Search categories…"), "Furniture");
+    await user.type(screen.getByPlaceholderText("Cari kategori…"), "Furniture");
 
     expect(await screen.findByText("Office Furniture")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("IT Equipment")).not.toBeInTheDocument());

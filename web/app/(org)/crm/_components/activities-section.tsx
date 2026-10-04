@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Check, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -20,6 +21,7 @@ import { humanizeKey } from "@/lib/utils/case";
 import { ActivityFormDialog } from "./activity-form-dialog";
 
 export function ActivitiesSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Crm");
   const queryClient = useQueryClient();
   const [activityDialogOpen, setActivityDialogOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<CrmActivity | null>(null);
@@ -43,11 +45,11 @@ export function ActivitiesSection({ orgId }: { orgId: string }) {
     mutationFn: (activityId: number) =>
       getSwantaraService().crmActivities.done(Number(orgId), activityId),
     onSuccess: () => {
-      toast.success("Activity marked done.");
+      toast.success(t("activityDone"));
       void queryClient.invalidateQueries({ queryKey: ["crmActivities"] });
     },
     onError: () => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -55,30 +57,38 @@ export function ActivitiesSection({ orgId }: { orgId: string }) {
     mutationFn: (activityId: number) =>
       getSwantaraService().crmActivities.delete(Number(orgId), activityId),
     onSuccess: () => {
-      toast.success("Activity deleted.");
+      toast.success(t("activityDeleted"));
       void queryClient.invalidateQueries({ queryKey: ["crmActivities"] });
     },
     onError: () => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("saveFailed"));
     },
   });
+
+  function activityTypeLabel(type: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`activityType.${type}`);
+    } catch {
+      return humanizeKey(String(type));
+    }
+  }
 
   const activityColumns: ColumnDef<CrmActivity>[] = [
     {
       accessorKey: "type",
-      header: "Type",
+      header: t("tableType"),
       cell: ({ row }) => (
-        <Badge variant="secondary">{humanizeKey(String(row.original.type))}</Badge>
+        <Badge variant="secondary">{activityTypeLabel(String(row.original.type))}</Badge>
       ),
     },
     {
       accessorKey: "summary",
-      header: "Summary",
+      header: t("tableSummary"),
       cell: ({ row }) => <span className="">{row.original.summary}</span>,
     },
     {
       accessorKey: "dueDate",
-      header: "Due date",
+      header: t("tableDueDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.dueDate ? formatDate(row.original.dueDate) : "—"}
@@ -87,9 +97,11 @@ export function ActivitiesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "done",
-      header: "Done",
+      header: t("tableDone"),
       cell: ({ row }) => (
-        <ActiveBadge active={row.original.done}>{row.original.done ? "Done" : "Open"}</ActiveBadge>
+        <ActiveBadge active={row.original.done}>
+          {row.original.done ? t("doneLabel") : t("openLabel")}
+        </ActiveBadge>
       ),
     },
     {
@@ -101,7 +113,7 @@ export function ActivitiesSection({ orgId }: { orgId: string }) {
             <Button
               size="icon-sm"
               variant="ghost"
-              aria-label={"Mark done"}
+              aria-label={t("markDone")}
               onClick={() => doneMutation.mutate(row.original.id)}
               disabled={doneMutation.isPending}
             >
@@ -109,10 +121,10 @@ export function ActivitiesSection({ orgId }: { orgId: string }) {
             </Button>
           ) : null}
           <RowActions
-            editLabel={"Edit activity"}
-            deleteLabel={"Delete activity"}
-            confirmTitle={"Delete this activity?"}
-            confirmDescription={"The activity will be removed permanently."}
+            editLabel={t("editActivity")}
+            deleteLabel={t("deleteActivity")}
+            confirmTitle={t("deleteActivityTitle")}
+            confirmDescription={t("deleteActivityDescription")}
             onEdit={() => {
               setEditingActivity(row.original);
               setActivityDialogOpen(true);
@@ -132,10 +144,8 @@ export function ActivitiesSection({ orgId }: { orgId: string }) {
         <Card className="lg:col-span-3">
           <CardHeader className="flex flex-row items-center justify-between gap-4">
             <div>
-              <CardTitle className="text-base">{"Activities"}</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {"Calls, meetings, emails and tasks tied to a lead or contact."}
-              </p>
+              <CardTitle className="text-base">{t("activitiesTitle")}</CardTitle>
+              <p className="text-sm text-muted-foreground">{t("activitiesSubtitle")}</p>
             </div>
           </CardHeader>
           <CardContent>
@@ -145,11 +155,11 @@ export function ActivitiesSection({ orgId }: { orgId: string }) {
               getRowId={(row) => String(row.id)}
               searchKeys={["summary"]}
               statusOptions={[]}
-              searchPlaceholder={"Search activities…"}
-              filterLabel={"Search activities…"}
-              allLabel={"All activities"}
-              ariaLabel={"All activities"}
-              emptyTitle={"No activities"}
+              searchPlaceholder={t("searchActivitiesPlaceholder")}
+              filterLabel={t("searchActivitiesPlaceholder")}
+              allLabel={t("allActivities")}
+              ariaLabel={t("allActivities")}
+              emptyTitle={t("emptyActivities")}
               status={
                 isLoading
                   ? { type: "loading" }
@@ -170,7 +180,7 @@ export function ActivitiesSection({ orgId }: { orgId: string }) {
                   }}
                 >
                   <Plus />
-                  <span>{"Add activity"}</span>
+                  <span>{t("addActivity")}</span>
                 </Button>
               }
             />
@@ -178,14 +188,12 @@ export function ActivitiesSection({ orgId }: { orgId: string }) {
         </Card>
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base">{"Activity timeline"}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              {"Calls, meetings, emails and tasks tied to a lead or contact."}
-            </p>
+            <CardTitle className="text-base">{t("timelineTitle")}</CardTitle>
+            <p className="text-sm text-muted-foreground">{t("activitiesSubtitle")}</p>
           </CardHeader>
           <CardContent>
             {activities.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{"No activities"}</p>
+              <p className="text-sm text-muted-foreground">{t("emptyActivities")}</p>
             ) : (
               <ActivityTimeline
                 items={activities

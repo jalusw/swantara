@@ -4,11 +4,13 @@ import (
 	"context"
 
 	"github.com/jalusw/swantara/apps/service/internal/kernel/dao"
+	"gorm.io/gorm"
 )
 
 type ContactDAOMock struct {
 	dao.CRUDMock[Contact]
-	CreateWithDetailsFunc func(ctx context.Context, contact *Contact, addresses []*ContactAddress, banks []*ContactBankAccount, customer *CustomerProfile, supplier *SupplierProfile) (*Contact, error)
+	CreateWithDetailsFunc   func(ctx context.Context, contact *Contact, addresses []*ContactAddress, banks []*ContactBankAccount, customer *CustomerProfile, supplier *SupplierProfile) (*Contact, error)
+	CreateWithDetailsTxFunc func(ctx context.Context, tx *gorm.DB, contact *Contact, addresses []*ContactAddress, banks []*ContactBankAccount, customer *CustomerProfile, supplier *SupplierProfile) (*Contact, error)
 }
 
 func (m ContactDAOMock) CreateWithDetails(ctx context.Context, contact *Contact, addresses []*ContactAddress, banks []*ContactBankAccount, customer *CustomerProfile, supplier *SupplierProfile) (*Contact, error) {
@@ -16,6 +18,13 @@ func (m ContactDAOMock) CreateWithDetails(ctx context.Context, contact *Contact,
 		return m.CreateWithDetailsFunc(ctx, contact, addresses, banks, customer, supplier)
 	}
 	return contact, nil
+}
+
+func (m ContactDAOMock) CreateWithDetailsTx(ctx context.Context, tx *gorm.DB, contact *Contact, addresses []*ContactAddress, banks []*ContactBankAccount, customer *CustomerProfile, supplier *SupplierProfile) (*Contact, error) {
+	if m.CreateWithDetailsTxFunc != nil {
+		return m.CreateWithDetailsTxFunc(ctx, tx, contact, addresses, banks, customer, supplier)
+	}
+	return m.CreateWithDetails(ctx, contact, addresses, banks, customer, supplier)
 }
 
 type ContactAddressDAOMock struct {

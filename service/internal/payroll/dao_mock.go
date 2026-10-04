@@ -10,12 +10,28 @@ import (
 
 type EmployeeDAOMock struct {
 	dao.CRUDMock[Employee]
+	CreateTxFunc func(ctx context.Context, tx *gorm.DB, entity *Employee) (*Employee, error)
+}
+
+func (m EmployeeDAOMock) CreateTx(ctx context.Context, tx *gorm.DB, entity *Employee) (*Employee, error) {
+	if m.CreateTxFunc != nil {
+		return m.CreateTxFunc(ctx, tx, entity)
+	}
+	return m.Create(ctx, entity)
 }
 
 type EmploymentContractDAOMock struct {
 	dao.CRUDMock[EmploymentContract]
+	CreateTxFunc             func(ctx context.Context, tx *gorm.DB, entity *EmploymentContract) (*EmploymentContract, error)
 	ListByEmployeeFunc       func(ctx context.Context, employeeID uint64) ([]*EmploymentContract, error)
 	FindActiveByEmployeeFunc func(ctx context.Context, employeeID uint64) (*EmploymentContract, error)
+}
+
+func (m EmploymentContractDAOMock) CreateTx(ctx context.Context, tx *gorm.DB, entity *EmploymentContract) (*EmploymentContract, error) {
+	if m.CreateTxFunc != nil {
+		return m.CreateTxFunc(ctx, tx, entity)
+	}
+	return m.Create(ctx, entity)
 }
 
 func (m EmploymentContractDAOMock) ListByEmployee(ctx context.Context, employeeID uint64) ([]*EmploymentContract, error) {

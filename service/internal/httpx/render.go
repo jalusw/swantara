@@ -3,6 +3,7 @@ package httpx
 import (
 	"bytes"
 	"encoding/csv"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -13,42 +14,20 @@ import (
 
 const MIMETextCSV = "text/csv; charset=utf-8"
 
-type responseFormat string
-
-const (
-	formatJSON responseFormat = "json"
-	formatXML  responseFormat = "xml"
-	FormatCSV  responseFormat = "csv"
-)
-
-func RequestFormat(c fiber.Ctx) responseFormat {
-	if format := queryFormat(c); format != "" {
-		return format
-	}
-
-	switch c.Accepts(fiber.MIMEApplicationJSON, fiber.MIMEApplicationXML, fiber.MIMETextXML, MIMETextCSV) {
-	case fiber.MIMEApplicationXML, fiber.MIMETextXML:
-		return formatXML
-	case MIMETextCSV:
-		return FormatCSV
-	default:
-		return formatJSON
-	}
-}
-
-func queryFormat(c fiber.Ctx) responseFormat {
-	switch format := responseFormat(strings.TrimSpace(strings.ToLower(c.Query("format")))); format {
-	case formatJSON, formatXML, FormatCSV:
-		return format
-	default:
-		return ""
-	}
-}
-
 func ExportCSV(c fiber.Ctx, status int, filename string, items any) error {
-	elemType := reflect.TypeOf(items).Elem()
+	if items == nil {
+		return fmt.Errorf("csv export requires a slice, got nil")
+	}
+	itemsType := reflect.TypeOf(items)
+	if itemsType.Kind() != reflect.Slice && itemsType.Kind() != reflect.Array {
+		return fmt.Errorf("csv export requires a slice, got %s", itemsType.Kind())
+	}
+	elemType := itemsType.Elem()
 	if elemType.Kind() == reflect.Pointer {
 		elemType = elemType.Elem()
+	}
+	if elemType.Kind() != reflect.Struct {
+		return fmt.Errorf("csv export requires a slice of structs")
 	}
 
 	var buf bytes.Buffer

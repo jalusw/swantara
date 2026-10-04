@@ -1,17 +1,20 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { renderWithIntl } from "@/lib/tests/intl";
 import AuthShell from "../_components/auth-shell";
 
 describe("AuthShell", () => {
   it("renders the title, subtitle, and children inside a card", async () => {
     const element = await AuthShell({
-      title: "Welcome back",
+      title: "Selamat datang kembali",
       subtitle: "Enter your credentials",
       children: <p>inside</p>,
     });
-    const { container } = render(element);
+    const { container } = renderWithIntl(element);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Welcome back" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Selamat datang kembali" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Enter your credentials")).toBeInTheDocument();
     expect(screen.getByText("inside")).toBeInTheDocument();
     expect(container.querySelector('[data-slot="auth-shell"]')).toBeInTheDocument();
@@ -23,7 +26,7 @@ describe("AuthShell", () => {
       title: "Set a new password",
       children: <p>inside</p>,
     });
-    render(element);
+    renderWithIntl(element);
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Set a new password" }),
@@ -33,11 +36,11 @@ describe("AuthShell", () => {
 
   it("renders a single centered column", async () => {
     const element = await AuthShell({
-      title: "Welcome back",
+      title: "Selamat datang kembali",
       subtitle: "Enter your credentials",
       children: <p>inside</p>,
     });
-    const { container } = render(element);
+    const { container } = renderWithIntl(element);
 
     const wrapper = container.querySelector('[data-slot="auth-shell"]') as HTMLElement;
     expect(wrapper.className).toContain("min-h-screen");

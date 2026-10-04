@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -14,29 +15,44 @@ import { ME_ORGANIZATIONS_QUERY_KEY } from "@/lib/queries/me";
 import { setActiveOrg } from "@/lib/server/active-org-actions";
 import { getSwantaraService, SwantaraUnprocessableError } from "@/lib/services/swantara";
 
-const COUNTRY_OPTIONS = [
-  { code: "ID", name: "Indonesia" },
-  { code: "SG", name: "Singapore" },
-  { code: "US", name: "United States" },
-  { code: "GB", name: "United Kingdom" },
-  { code: "DE", name: "Germany" },
-  { code: "MY", name: "Malaysia" },
-  { code: "TH", name: "Thailand" },
-  { code: "PH", name: "Philippines" },
-  { code: "VN", name: "Vietnam" },
-  { code: "AU", name: "Australia" },
-  { code: "JP", name: "Japan" },
-  { code: "KR", name: "South Korea" },
+const COUNTRY_CODES = [
+  "ID",
+  "SG",
+  "US",
+  "GB",
+  "DE",
+  "MY",
+  "TH",
+  "PH",
+  "VN",
+  "AU",
+  "JP",
+  "KR",
 ] as const;
+
+function useCountryOptions(): Array<{ code: string; name: string }> {
+  const locale = useLocale();
+  return COUNTRY_CODES.map((code) => {
+    let name: string | undefined;
+    try {
+      name = new Intl.DisplayNames([locale], { type: "region" }).of(code);
+    } catch {
+      name = undefined;
+    }
+    return { code, name: name ?? code };
+  });
+}
 
 function resolveStandardCode(countryCode: string): string {
   return countryCode.toUpperCase() === "ID" ? "PSAK_EMKM" : "IFRS";
 }
 
 function useCreateOrganizationSchema() {
+  const tOrg = useTranslations("Organization" as unknown as "Common");
+  const tx = tOrg as unknown as (key: string) => string;
   return z.object({
-    name: z.string().min(1, "Company name is required"),
-    countryCode: z.string().min(2, "Country is required"),
+    name: z.string().min(1, tx("nameRequired")),
+    countryCode: z.string().min(2, tx("countryRequired")),
   });
 }
 
@@ -48,6 +64,10 @@ export type CreateOrganizationDialogProps = {
 export function CreateOrganizationDialog({ open, onOpenChange }: CreateOrganizationDialogProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const tOrg = useTranslations("Organization" as unknown as "Common");
+  const tx = tOrg as unknown as (key: string) => string;
+  const tCommon = useTranslations("Common");
+  const countryOptions = useCountryOptions();
   const schema = useCreateOrganizationSchema();
   type Values = z.infer<typeof schema>;
 
@@ -68,7 +88,7 @@ export function CreateOrganizationDialog({ open, onOpenChange }: CreateOrganizat
       void queryClient.invalidateQueries({ queryKey: ME_ORGANIZATIONS_QUERY_KEY });
       form.reset();
       onOpenChange(false);
-      toast.success("Organization created");
+      toast.success(tx("createSuccess"));
       router.push("/dashboard");
       router.refresh();
     },
@@ -82,7 +102,7 @@ export function CreateOrganizationDialog({ open, onOpenChange }: CreateOrganizat
         toast.error(error.message);
         return;
       }
-      toast.error("Failed to create organization. Please try again.");
+      toast.error(tx("createFailed"));
     },
   });
 
@@ -94,26 +114,28 @@ export function CreateOrganizationDialog({ open, onOpenChange }: CreateOrganizat
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Create organization"
-      description="Create a new company to manage separately."
+      title={tx("dialogTitle")}
+      description={tx("dialogDescription")}
       form={form}
       onSubmit={handleSubmit}
       isPending={mutation.isPending}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="sm:max-w-lg"
     >
-      <FormField name="name" label="Company name">
+      <FormField name="name" label={tx("nameLabel")}>
         {({ field, id }) => (
           <Input {...field} id={id} placeholder="Acme Inc." autoComplete="organization" />
         )}
       </FormField>
-      <FormField name="countryCode" label="Country">
+      <FormField name="countryCode" label={tx("countryLabel")}>
         {({ field, id }) => (
           <Select value={field.value} onValueChange={field.onChange}>
-            <SelectTrigger id={id} aria-label="Country">
-              <SelectValue placeholder="Select country" />
+            <SelectTrigger id={id} aria-label={tx("countryLabel")}>
+              <SelectValue placeholder={tx("countryPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              {COUNTRY_OPTIONS.map((country) => (
+              {countryOptions.map((country) => (
                 <SelectItem key={country.code} value={country.code}>
                   {country.name}
                 </SelectItem>

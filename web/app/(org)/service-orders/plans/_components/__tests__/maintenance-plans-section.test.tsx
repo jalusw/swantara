@@ -36,7 +36,7 @@ describe("MaintenancePlansSection", () => {
     renderWithProviders(<MaintenancePlansSection orgId="1" />);
 
     expect(await screen.findByText("Quarterly Inspection")).toBeInTheDocument();
-    expect(screen.getByText("90 days")).toBeInTheDocument();
+    expect(screen.getByText("90 hari")).toBeInTheDocument();
   });
 
   it("opens the create dialog from the add button", async () => {
@@ -44,10 +44,10 @@ describe("MaintenancePlansSection", () => {
     renderWithProviders(<MaintenancePlansSection orgId="1" />);
 
     await screen.findByText("Quarterly Inspection");
-    await user.click(screen.getByRole("button", { name: "Create plan" }));
+    await user.click(screen.getByRole("button", { name: "Paket baru" }));
 
     expect(
-      await screen.findByRole("heading", { name: "Create maintenance plan" }),
+      await screen.findByRole("heading", { name: "Paket perawatan baru" }),
     ).toBeInTheDocument();
   });
 });

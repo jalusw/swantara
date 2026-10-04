@@ -22,7 +22,7 @@ describe("GlobalError", () => {
     await act(async () => {});
 
     expect(screen.getByText("boom")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /coba lagi/i })).toBeInTheDocument();
   });
 
   it("resolves a stored light theme", async () => {

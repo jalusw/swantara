@@ -66,7 +66,7 @@ function useHandlers(options?: { categories?: unknown[]; failCreate?: boolean })
         return HttpResponse.json({ success: false, message: "Nope." }, { status: 422 });
       }
       return HttpResponse.json(
-        { success: true, message: "Created.", data: { category: { id: 9 } } },
+        { success: true, message: "Dibuat.", data: { category: { id: 9 } } },
         { status: 201 },
       );
     }),
@@ -88,7 +88,7 @@ describe("CategoryTreeSection branches", () => {
   it("renders the empty state without categories", async () => {
     useHandlers({ categories: [] });
     renderWithProviders(<CategoryTreeSection orgId="1" />);
-    expect(await screen.findByText("No categories yet.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada kategori")).toBeInTheDocument();
   });
 
   it("closes the create dialog through cancel", async () => {
@@ -96,9 +96,9 @@ describe("CategoryTreeSection branches", () => {
     useHandlers();
     renderWithProviders(<CategoryTreeSection orgId="1" />);
     await screen.findByText("Raw Materials");
-    await user.click(screen.getByRole("button", { name: "Add category" }));
+    await user.click(screen.getByRole("button", { name: "Tambah kategori" }));
     await screen.findByRole("dialog");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Batal" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 
@@ -107,9 +107,9 @@ describe("CategoryTreeSection branches", () => {
     const { posted } = useHandlers();
     renderWithProviders(<CategoryTreeSection orgId="1" />);
     await screen.findByText("Raw Materials");
-    await user.click(screen.getByRole("button", { name: "Add category" }));
-    await user.type(await screen.findByLabelText("Name"), "Packaging");
-    await user.click(screen.getByRole("button", { name: "Save category" }));
+    await user.click(screen.getByRole("button", { name: "Tambah kategori" }));
+    await user.type(await screen.findByLabelText("Nama"), "Packaging");
+    await user.click(screen.getByRole("button", { name: "Simpan kategori" }));
     await waitFor(() => expect(posted.length).toBe(1));
     const body = posted[0] as Record<string, unknown>;
     expect(body.name).toBe("Packaging");
@@ -123,11 +123,11 @@ describe("CategoryTreeSection branches", () => {
     useHandlers({ failCreate: true });
     renderWithProviders(<CategoryTreeSection orgId="1" />);
     await screen.findByText("Raw Materials");
-    await user.click(screen.getByRole("button", { name: "Add category" }));
-    await user.type(await screen.findByLabelText("Name"), "Broken");
-    await user.click(screen.getByRole("button", { name: "Save category" }));
+    await user.click(screen.getByRole("button", { name: "Tambah kategori" }));
+    await user.type(await screen.findByLabelText("Nama"), "Broken");
+    await user.click(screen.getByRole("button", { name: "Simpan kategori" }));
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
-    expect(screen.getByLabelText("Name")).toHaveValue("Broken");
+    expect(screen.getByLabelText("Nama")).toHaveValue("Broken");
   });
 
   it("edits a category with prefilled values and updates it", async () => {
@@ -135,13 +135,13 @@ describe("CategoryTreeSection branches", () => {
     const { put } = useHandlers();
     renderWithProviders(<CategoryTreeSection orgId="1" />);
     await screen.findByText("Metals");
-    const edits = screen.getAllByRole("button", { name: "Edit" });
+    const edits = screen.getAllByRole("button", { name: "Ubah" });
     const lastEdit = edits[edits.length - 1];
     if (lastEdit === undefined) throw new Error("expected an edit button");
     await user.click(lastEdit);
-    expect(await screen.findByText("Edit category")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toHaveValue("Metals");
-    await user.click(screen.getByRole("button", { name: "Save category" }));
+    expect(await screen.findByText("Ubah kategori")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toHaveValue("Metals");
+    await user.click(screen.getByRole("button", { name: "Simpan kategori" }));
     await waitFor(() => expect(put.length).toBe(1));
   });
 
@@ -150,12 +150,12 @@ describe("CategoryTreeSection branches", () => {
     const { deleted } = useHandlers();
     renderWithProviders(<CategoryTreeSection orgId="1" />);
     await screen.findByText("Raw Materials");
-    const deletes = screen.getAllByRole("button", { name: "Delete" });
+    const deletes = screen.getAllByRole("button", { name: "Hapus" });
     const firstDelete = deletes[0];
     if (firstDelete === undefined) throw new Error("expected a delete button");
     await user.click(firstDelete);
     const confirm = await screen.findByRole("alertdialog");
-    await user.click(within(confirm).getByRole("button", { name: "Delete" }));
+    await user.click(within(confirm).getByRole("button", { name: "Hapus" }));
     await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
     expect(deleted.length).toBe(0);
     expect(screen.getByText("Raw Materials")).toBeInTheDocument();
@@ -166,12 +166,12 @@ describe("CategoryTreeSection branches", () => {
     const { deleted } = useHandlers();
     renderWithProviders(<CategoryTreeSection orgId="1" />);
     await screen.findByText("Metals");
-    const deletes = screen.getAllByRole("button", { name: "Delete" });
+    const deletes = screen.getAllByRole("button", { name: "Hapus" });
     const lastDelete = deletes[deletes.length - 1];
     if (lastDelete === undefined) throw new Error("expected a delete button");
     await user.click(lastDelete);
     const confirm = await screen.findByRole("alertdialog");
-    await user.click(within(confirm).getByRole("button", { name: "Delete" }));
+    await user.click(within(confirm).getByRole("button", { name: "Hapus" }));
     await waitFor(() => expect(deleted).toEqual(["2"]));
   });
 });

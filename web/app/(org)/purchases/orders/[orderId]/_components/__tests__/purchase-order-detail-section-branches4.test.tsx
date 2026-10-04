@@ -35,7 +35,7 @@ const journals = [
   {
     id: 1,
     organization_id: 1,
-    name: "Cash",
+    name: "Kas",
     code: "CASH",
     type: "cash",
     default_account_id: null,
@@ -128,9 +128,9 @@ describe("PurchaseOrderDetail branches4", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findByRole("heading", { name: "PO-0005" });
-    expect(await screen.findByText("No lines.")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(await screen.findByText("Belum ada baris")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Konfirmasi" }));
+    await user.click(screen.getByRole("button", { name: "Batal" }));
     expect(await screen.findAllByText("PO-0005").then((els) => els.length)).toBeGreaterThan(0);
   });
 
@@ -140,8 +140,8 @@ describe("PurchaseOrderDetail branches4", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findByRole("heading", { name: "PO-0005" });
-    await user.click(screen.getByRole("tab", { name: "Receipt" }));
-    await user.click(await screen.findByRole("button", { name: "Receive" }));
+    await user.click(screen.getByRole("tab", { name: "Penerimaan" }));
+    await user.click(await screen.findByRole("button", { name: "Terima" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
@@ -152,10 +152,10 @@ describe("PurchaseOrderDetail branches4", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findByRole("heading", { name: "PO-0005" });
-    await user.click(screen.getByRole("tab", { name: "Receipt" }));
+    await user.click(screen.getByRole("tab", { name: "Penerimaan" }));
 
     expect(
-      await screen.findByText("No shipment yet — confirm the order to create one."),
+      await screen.findByText("Belum ada pengiriman — konfirmasi pesanan untuk membuatnya."),
     ).toBeInTheDocument();
   });
 
@@ -172,7 +172,7 @@ describe("PurchaseOrderDetail branches4", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findByRole("heading", { name: "PO-0005" });
-    await user.click(screen.getByRole("tab", { name: "Receipt" }));
+    await user.click(screen.getByRole("tab", { name: "Penerimaan" }));
 
     expect(await screen.findByText(/PK-0008/)).toBeInTheDocument();
   });
@@ -197,8 +197,8 @@ describe("PurchaseOrderDetail branches4", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findByRole("heading", { name: "PO-0005" });
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
-    await user.click(await screen.findByRole("button", { name: "Create supplier bill" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
+    await user.click(await screen.findByRole("button", { name: "Buat tagihan pemasok" }));
 
     const dialog = await screen.findByRole("dialog");
     expect(dialog).toBeInTheDocument();
@@ -213,8 +213,8 @@ describe("PurchaseOrderDetail branches4", () => {
     renderWithProviders(<PurchaseOrderDetail orgId="1" orderId="5" />);
 
     await screen.findByRole("heading", { name: "PO-0005" });
-    await user.click(screen.getByRole("tab", { name: "Payments" }));
+    await user.click(screen.getByRole("tab", { name: "Pembayaran" }));
 
-    expect(await screen.findByRole("button", { name: "Make payment" })).toBeDisabled();
+    expect(await screen.findByRole("button", { name: "Buat pembayaran" })).toBeDisabled();
   });
 });

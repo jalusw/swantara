@@ -29,8 +29,8 @@ describe("ServiceContractFormDialog", () => {
       <ServiceContractFormDialog open onOpenChange={() => {}} orgId="1" onSave={() => {}} />,
     );
 
-    expect(await screen.findByText("Create service contract")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Kontrak baru")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("closes without saving from the cancel button", async () => {
@@ -40,8 +40,8 @@ describe("ServiceContractFormDialog", () => {
       <ServiceContractFormDialog open onOpenChange={onOpenChange} orgId="1" onSave={() => {}} />,
     );
 
-    await screen.findByText("Create service contract");
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByText("Kontrak baru");
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

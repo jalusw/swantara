@@ -38,7 +38,7 @@ describe("PosCart", () => {
       />,
     );
 
-    expect(screen.getByText("Cart is empty.")).toBeInTheDocument();
+    expect(screen.getByText("Keranjang Kosong")).toBeInTheDocument();
   });
 
   it("renders lines with quantities and subtotal", () => {
@@ -54,7 +54,7 @@ describe("PosCart", () => {
 
     expect(screen.getByText("Arabica Beans")).toBeInTheDocument();
     expect(screen.getByText("Paper Cups")).toBeInTheDocument();
-    expect(screen.getByText("2 item(s)")).toBeInTheDocument();
+    expect(screen.getByText("2 item")).toBeInTheDocument();
     expect(screen.getByText("Subtotal")).toBeInTheDocument();
   });
 

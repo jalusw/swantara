@@ -64,8 +64,8 @@ describe("RmaFormDialog", () => {
       <RmaFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(screen.getByRole("heading", { name: "Create RMA" })).toBeInTheDocument();
-    expect(screen.getByText("Return lines")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Retur baru" })).toBeInTheDocument();
+    expect(screen.getByText("Baris retur")).toBeInTheDocument();
   });
 
   it("appends another line through the add line button", async () => {
@@ -74,7 +74,7 @@ describe("RmaFormDialog", () => {
       <RmaFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Add line" }));
+    await user.click(screen.getByRole("button", { name: "Tambah baris" }));
 
     expect((await screen.findAllByRole("combobox", { name: "Item" })).length).toBe(2);
   });

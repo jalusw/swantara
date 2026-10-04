@@ -6,6 +6,37 @@ import LoginPage from "../login/page";
 import RegisterPage from "../register/page";
 import ResetPasswordPage from "../reset-password/page";
 
+// Server components call `getTranslations` from `next-intl/server`, which throws
+// outside a React Server Components environment (vitest resolves the client
+// build). Resolve the same keys from the default test locale (id) instead.
+vi.mock("next-intl/server", async () => {
+  const loaded = (await import("@/messages/id.json")) as unknown as Record<
+    string,
+    Record<string, string>
+  >;
+  const messages: Record<string, Record<string, string>> = (
+    loaded as { default?: Record<string, Record<string, string>> }
+  ).default ?? loaded;
+  return {
+    getTranslations: async (namespace: string) => {
+      const ns = messages[namespace];
+      if (!ns) {
+        throw new Error(`Missing messages namespace: ${namespace}`);
+      }
+      return (key: string, values?: Record<string, string | number>) => {
+        const message = ns[key];
+        if (message === undefined) {
+          throw new Error(`Missing message: ${namespace}.${key}`);
+        }
+        if (!values) return message;
+        return message.replace(/\{(\w+)\}/g, (match, name: string) =>
+          values[name] !== undefined ? String(values[name]) : match,
+        );
+      };
+    },
+  };
+});
+
 vi.mock("../login/_components/login-form", () => ({
   default: () => <div>login-form</div>,
 }));
@@ -37,7 +68,7 @@ describe("auth pages", () => {
     render(element);
 
     expect(screen.getByText("login-form")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /register a new account/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /daftarkan akun baru/i })).toHaveAttribute(
       "href",
       "/register",
     );
@@ -48,8 +79,8 @@ describe("auth pages", () => {
     render(element);
 
     expect(screen.getByText("register-form")).toBeInTheDocument();
-    expect(screen.getByText(/have an account already/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /log in/i })).toHaveAttribute("href", "/login");
+    expect(screen.getByText(/sudah punya akun/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /masuk/i })).toHaveAttribute("href", "/login");
   });
 
   it("renders the forgot password page inside the auth shell", async () => {

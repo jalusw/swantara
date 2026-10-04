@@ -1,16 +1,20 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
 import { DEFAULT_CURRENCY } from "@/lib/constants/currency";
 import { formatMoney } from "@/lib/utils";
 import type { getMockAccounts } from "../_utils";
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 export function AccountsList({ accounts }: { accounts: ReturnType<typeof getMockAccounts> }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{"Accounts"}</CardTitle>
-        <CardDescription>{"Current balances by account group."}</CardDescription>
+        <CardTitle>{t("overviewTitle")}</CardTitle>
+        <CardDescription>{t("overviewDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

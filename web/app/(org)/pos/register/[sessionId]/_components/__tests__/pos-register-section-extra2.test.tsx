@@ -41,8 +41,8 @@ describe("PosRegister extra2", () => {
     renderWithProviders(<PosRegister orgId="1" sessionId="1" />);
 
     await screen.findByText("Arabica Beans");
-    expect(screen.getByRole("button", { name: /^Pay/ })).toBeDisabled();
-    expect(screen.getByText("Cart is empty.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Bayar/ })).toBeDisabled();
+    expect(screen.getByText("Keranjang Kosong")).toBeInTheDocument();
   });
 
   it("increments quantity when adding the same item twice", async () => {
@@ -53,7 +53,7 @@ describe("PosRegister extra2", () => {
     await user.click(screen.getByRole("button", { name: /Arabica Beans/ }));
     await user.click(screen.getByRole("button", { name: /Arabica Beans/ }));
 
-    expect(await screen.findByText("1 item(s)")).toBeInTheDocument();
+    expect(await screen.findByText("1 item")).toBeInTheDocument();
   });
 
   it("clears the cart", async () => {
@@ -62,10 +62,10 @@ describe("PosRegister extra2", () => {
 
     await screen.findByText("Arabica Beans");
     await user.click(screen.getByRole("button", { name: /Arabica Beans/ }));
-    expect(await screen.findByText("1 item(s)")).toBeInTheDocument();
+    expect(await screen.findByText("1 item")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Clear" }));
-    expect(await screen.findByText("Cart is empty.")).toBeInTheDocument();
+    expect(await screen.findByText("Keranjang Kosong")).toBeInTheDocument();
   });
 
   it("disables pay when the session is closed", async () => {
@@ -75,9 +75,9 @@ describe("PosRegister extra2", () => {
 
     await screen.findByText("Arabica Beans");
     await user.click(screen.getByRole("button", { name: /Arabica Beans/ }));
-    expect(await screen.findByText("1 item(s)")).toBeInTheDocument();
+    expect(await screen.findByText("1 item")).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: /^Pay/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /^Bayar/ })).toBeDisabled();
   });
 
   it("completes payment and shows the receipt", async () => {
@@ -100,13 +100,13 @@ describe("PosRegister extra2", () => {
 
     await screen.findByText("Arabica Beans");
     await user.click(screen.getByRole("button", { name: /Arabica Beans/ }));
-    await user.click(screen.getByRole("button", { name: /^Pay/ }));
+    await user.click(screen.getByRole("button", { name: /^Bayar/ }));
 
     const dialog = await screen.findByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "Confirm" }));
+    await user.click(within(dialog).getByRole("button", { name: "Konfirmasi" }));
 
     await waitFor(() => expect(orderCalls).toBe(1));
-    expect(await screen.findByText("Receipt")).toBeInTheDocument();
+    expect(await screen.findByText("Struk")).toBeInTheDocument();
     expect(screen.getByText("POS-0007")).toBeInTheDocument();
   });
 
@@ -128,16 +128,16 @@ describe("PosRegister extra2", () => {
 
     await screen.findByText("Arabica Beans");
     await user.click(screen.getByRole("button", { name: /Arabica Beans/ }));
-    await user.click(screen.getByRole("button", { name: /^Pay/ }));
+    await user.click(screen.getByRole("button", { name: /^Bayar/ }));
     await user.click(
-      within(await screen.findByRole("dialog")).getByRole("button", { name: "Confirm" }),
+      within(await screen.findByRole("dialog")).getByRole("button", { name: "Konfirmasi" }),
     );
 
-    await screen.findByText("Receipt");
-    await user.click(screen.getByRole("button", { name: "New order" }));
+    await screen.findByText("Struk");
+    await user.click(screen.getByRole("button", { name: "Pesanan baru" }));
 
     expect(await screen.findByText("Arabica Beans")).toBeInTheDocument();
-    expect(screen.getByText("Cart is empty.")).toBeInTheDocument();
+    expect(screen.getByText("Keranjang Kosong")).toBeInTheDocument();
   });
 
   it("blocks confirm when the payment does not cover the total", async () => {
@@ -146,12 +146,12 @@ describe("PosRegister extra2", () => {
 
     await screen.findByText("Arabica Beans");
     await user.click(screen.getByRole("button", { name: /Arabica Beans/ }));
-    await user.click(screen.getByRole("button", { name: /^Pay/ }));
+    await user.click(screen.getByRole("button", { name: /^Bayar/ }));
 
     const dialog = await screen.findByRole("dialog");
     await user.clear(within(dialog).getByRole("spinbutton"));
     await user.type(within(dialog).getByRole("spinbutton"), "0");
 
-    expect(within(dialog).getByRole("button", { name: "Confirm" })).toBeDisabled();
+    expect(within(dialog).getByRole("button", { name: "Konfirmasi" })).toBeDisabled();
   });
 });

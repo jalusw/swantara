@@ -36,9 +36,9 @@ describe("ContactDetail", () => {
     renderWithProviders(<ContactDetail orgId="1" contactId="1" />);
 
     expect(screen.getAllByText("Bluebird").length).toBeGreaterThan(0);
-    expect(screen.getByRole("tab", { name: "Overview" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Addresses" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Bank accounts" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Defaults" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Ringkasan" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Alamat" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Rekening bank" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Bawaan" })).toBeInTheDocument();
   });
 });

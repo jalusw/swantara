@@ -1,8 +1,10 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { AppShell } from "@/components/app-shell";
 
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { NotificationBell } from "@/components/notification-bell";
 import { Separator } from "@/components/separator";
 import { OrgBrand } from "./org-brand";
@@ -12,6 +14,7 @@ import { OrgSearch } from "./org-search";
 import { OrgUserMenu } from "./org-user-menu";
 
 export function OrgShell({ children }: { children: ReactNode }) {
+  const t = useTranslations("Common");
   return (
     <AppShell
       brand={<OrgBrand />}
@@ -19,7 +22,8 @@ export function OrgShell({ children }: { children: ReactNode }) {
       search={<OrgSearch />}
       actions={
         <>
-          <NotificationBell tooltip="Notifications" />
+          <NotificationBell tooltip={t("notifications")} />
+          <LocaleSwitcher />
           <Separator orientation="vertical" className="h-6" />
           <OrgUserMenu />
         </>

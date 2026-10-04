@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -14,18 +15,19 @@ import type { AssetCategory } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 
 function useFixedAssetSchema() {
+  const t = useTranslations("FixedAssets");
   return z
     .object({
-      name: z.string().min(1, "Name is required"),
-      categoryId: z.string().min(1, "Category is required"),
-      purchaseValue: z.string().min(1, "Purchase value is required"),
+      name: z.string().min(1, t("validationNameRequired")),
+      categoryId: z.string().min(1, t("validationCategoryRequired")),
+      purchaseValue: z.string().min(1, t("validationPurchaseValueRequired")),
       salvageValue: z.string(),
-      acquisitionDate: z.string().min(1, "Acquisition date is required"),
-      inServiceDate: z.string().min(1, "In service date is required"),
+      acquisitionDate: z.string().min(1, t("validationAcquisitionDateRequired")),
+      inServiceDate: z.string().min(1, t("validationInServiceDateRequired")),
       invoiceLineId: z.string(),
     })
     .refine((data) => data.inServiceDate >= data.acquisitionDate, {
-      message: "In-service date must be on or after acquisition date",
+      message: t("validationInServiceDateOrder"),
       path: ["inServiceDate"],
     });
 }
@@ -42,6 +44,7 @@ export function FixedAssetFormDialog({
   orgId: string;
   onSave: (id: string) => void;
 }) {
+  const t = useTranslations("FixedAssets");
   const queryClient = useQueryClient();
 
   const categoriesQuery = useOrgListQuery<
@@ -82,10 +85,10 @@ export function FixedAssetFormDialog({
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["fixedAssets", Number(orgId)] });
       onSave(String(result.fixedAsset.id));
-      toast.success("Asset registered");
+      toast.success(t("toastAssetRegistered"));
     },
     onError: () => {
-      toast.error("Failed to register asset");
+      toast.error(t("toastAssetFailed"));
     },
   });
 
@@ -97,21 +100,22 @@ export function FixedAssetFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={"Register fixed asset"}
-      description={"Register a new asset from a supplier bill or manually."}
+      title={t("registerAssetTitle")}
+      description={t("registerAssetDescription")}
       form={form}
       onSubmit={handleSubmit}
+      isPending={createMutation.isPending}
       className="max-h-[85vh] overflow-y-auto sm:max-w-lg"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField name="name" label={"Name"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+        <FormField name="name" label={t("fieldName")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
         </FormField>
-        <FormField name="categoryId" label={"Category"}>
+        <FormField name="categoryId" label={t("fieldCategory")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Category"}>
-                <SelectValue placeholder={"Select category"} />
+              <SelectTrigger id={id} aria-label={t("fieldCategory")}>
+                <SelectValue placeholder={t("selectCategory")} />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((c) => (
@@ -123,19 +127,19 @@ export function FixedAssetFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="purchaseValue" label={"Purchase value"}>
+        <FormField name="purchaseValue" label={t("fieldPurchaseValue")}>
           {({ field, id }) => <Input {...field} id={id} type="number" min="0" step="0.01" />}
         </FormField>
-        <FormField name="salvageValue" label={"Salvage value"}>
+        <FormField name="salvageValue" label={t("fieldSalvageValue")}>
           {({ field, id }) => <Input {...field} id={id} type="number" min="0" step="0.01" />}
         </FormField>
-        <FormField name="acquisitionDate" label={"Acquisition date"}>
+        <FormField name="acquisitionDate" label={t("fieldAcquisitionDate")}>
           {({ field, id }) => <Input {...field} id={id} type="date" />}
         </FormField>
-        <FormField name="inServiceDate" label={"In service date"}>
+        <FormField name="inServiceDate" label={t("fieldInServiceDate")}>
           {({ field, id }) => <Input {...field} id={id} type="date" />}
         </FormField>
-        <FormField name="invoiceLineId" label={"Invoice line ID"}>
+        <FormField name="invoiceLineId" label={t("fieldInvoiceLineId")}>
           {({ field, id }) => <Input {...field} id={id} type="number" min="0" />}
         </FormField>
       </div>

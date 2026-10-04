@@ -42,8 +42,8 @@ describe("FixedAssetFormDialog", () => {
       <FixedAssetFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(await screen.findByText("Register fixed asset")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Daftarkan aset tetap")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("lists seeded categories in the select", async () => {
@@ -51,7 +51,7 @@ describe("FixedAssetFormDialog", () => {
       <FixedAssetFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByText("Register fixed asset");
-    expect(screen.getByText("Purchase value")).toBeInTheDocument();
+    await screen.findByText("Daftarkan aset tetap");
+    expect(screen.getByText("Nilai pembelian")).toBeInTheDocument();
   });
 });

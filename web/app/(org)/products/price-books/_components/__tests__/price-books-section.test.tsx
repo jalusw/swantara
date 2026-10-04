@@ -56,7 +56,7 @@ function usePriceBookHandlers() {
       };
       rows = [...rows, created];
       return HttpResponse.json(
-        { success: true, message: "Created.", data: { price_book: created } },
+        { success: true, message: "Dibuat.", data: { price_book: created } },
         { status: 201 },
       );
     }),
@@ -75,8 +75,8 @@ describe("PriceBooksSection", () => {
     expect(await screen.findByText("Retail")).toBeInTheDocument();
     expect(screen.getByText("Wholesale IDR")).toBeInTheDocument();
     expect(screen.getByText("USD")).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
-    expect(screen.getByText("Inactive")).toBeInTheDocument();
+    expect(screen.getByText("Aktif")).toBeInTheDocument();
+    expect(screen.getByText("Tidak aktif")).toBeInTheDocument();
   });
 
   it("filters price_books through the search box", async () => {
@@ -84,7 +84,7 @@ describe("PriceBooksSection", () => {
     renderWithProviders(<PriceBooksSection orgId="1" />);
 
     await screen.findByText("Retail");
-    await user.type(screen.getByPlaceholderText("Search price_books…"), "Wholesale");
+    await user.type(screen.getByPlaceholderText("Cari daftar harga"), "Wholesale");
 
     expect(await screen.findByText("Wholesale IDR")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Retail")).not.toBeInTheDocument());
@@ -95,9 +95,9 @@ describe("PriceBooksSection", () => {
     renderWithProviders(<PriceBooksSection orgId="1" />);
 
     await screen.findByText("Retail");
-    await user.click(screen.getByRole("button", { name: "Add price_book" }));
-    await user.type(await screen.findByLabelText("Name"), "Distributor");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Tambah daftar harga" }));
+    await user.type(await screen.findByLabelText("Nama"), "Distributor");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     expect(await screen.findByText("Distributor")).toBeInTheDocument();
   });

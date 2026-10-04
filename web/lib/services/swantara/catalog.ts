@@ -22,6 +22,7 @@ import type {
   CreateInboundCostRequest,
   CreateItemCategoryRequest,
   CreateMaintenancePlanRequest,
+  CreateOutsideProcessingOrderRequest,
   CreatePriceBookRequest,
   CreatePriceRuleRequest,
   CreateProductionOrderRequest,
@@ -34,7 +35,6 @@ import type {
   CreateStockCountRequest,
   CreateStockLocationRequest,
   CreateStockMovementRequest,
-  CreateOutsideProcessingOrderRequest,
   CreateSupplierProductRequest,
   CreateSupplierQuoteRequestFromRequisitionRequest,
   CreateSupplierQuoteRequestRequest,
@@ -57,6 +57,7 @@ import type {
   MaintenancePlan,
   MOComponent,
   OnHand,
+  OutsideProcessingOrder,
   PaymentSummary,
   PayPurchaseOrderRequest,
   PlannedSupply,
@@ -73,8 +74,8 @@ import type {
   QualityCheck,
   QualityPoint,
   ReceiveMoveRequest,
-  ReceivePurchaseOrderRequest,
   ReceiveOutsideProcessingOrderRequest,
+  ReceivePurchaseOrderRequest,
   Recipe,
   RecordLaborRequest,
   RecordQualityCheckRequest,
@@ -103,7 +104,6 @@ import type {
   StockHold,
   StockLocation,
   StockMovement,
-  OutsideProcessingOrder,
   SubmitSupplierQuoteRequest,
   SuccessEnvelope,
   SupplierProduct,
@@ -1161,10 +1161,9 @@ export class OutsideProcessingOrders {
     organizationId: number,
     body: CreateOutsideProcessingOrderRequest,
   ): Promise<{ outsideProcessingOrder: OutsideProcessingOrder }> {
-    const response = await this.axios.post<SuccessEnvelope<{ outsideProcessingOrder: OutsideProcessingOrder }>>(
-      endpoints.outsideProcessingOrders.create(String(organizationId)),
-      body,
-    );
+    const response = await this.axios.post<
+      SuccessEnvelope<{ outsideProcessingOrder: OutsideProcessingOrder }>
+    >(endpoints.outsideProcessingOrders.create(String(organizationId)), body);
     return withListMeta(response.data);
   }
 
@@ -1173,10 +1172,9 @@ export class OutsideProcessingOrders {
     id: number,
     body: SendOutsideProcessingOrderRequest,
   ): Promise<{ outsideProcessingOrder: OutsideProcessingOrder }> {
-    const response = await this.axios.post<SuccessEnvelope<{ outsideProcessingOrder: OutsideProcessingOrder }>>(
-      endpoints.outsideProcessingOrders.send(String(organizationId), String(id)),
-      body,
-    );
+    const response = await this.axios.post<
+      SuccessEnvelope<{ outsideProcessingOrder: OutsideProcessingOrder }>
+    >(endpoints.outsideProcessingOrders.send(String(organizationId), String(id)), body);
     return withListMeta(response.data);
   }
 
@@ -1185,17 +1183,19 @@ export class OutsideProcessingOrders {
     id: number,
     body: ReceiveOutsideProcessingOrderRequest,
   ): Promise<{ outsideProcessingOrder: OutsideProcessingOrder }> {
-    const response = await this.axios.post<SuccessEnvelope<{ outsideProcessingOrder: OutsideProcessingOrder }>>(
-      endpoints.outsideProcessingOrders.receive(String(organizationId), String(id)),
-      body,
-    );
+    const response = await this.axios.post<
+      SuccessEnvelope<{ outsideProcessingOrder: OutsideProcessingOrder }>
+    >(endpoints.outsideProcessingOrders.receive(String(organizationId), String(id)), body);
     return withListMeta(response.data);
   }
 
-  async done(organizationId: number, id: number): Promise<{ outsideProcessingOrder: OutsideProcessingOrder }> {
-    const response = await this.axios.post<SuccessEnvelope<{ outsideProcessingOrder: OutsideProcessingOrder }>>(
-      endpoints.outsideProcessingOrders.done(String(organizationId), String(id)),
-    );
+  async done(
+    organizationId: number,
+    id: number,
+  ): Promise<{ outsideProcessingOrder: OutsideProcessingOrder }> {
+    const response = await this.axios.post<
+      SuccessEnvelope<{ outsideProcessingOrder: OutsideProcessingOrder }>
+    >(endpoints.outsideProcessingOrders.done(String(organizationId), String(id)));
     return withListMeta(response.data);
   }
 
@@ -1203,9 +1203,9 @@ export class OutsideProcessingOrders {
     organizationId: number,
     id: number,
   ): Promise<{ outsideProcessingOrder: OutsideProcessingOrder }> {
-    const response = await this.axios.post<SuccessEnvelope<{ outsideProcessingOrder: OutsideProcessingOrder }>>(
-      endpoints.outsideProcessingOrders.cancel(String(organizationId), String(id)),
-    );
+    const response = await this.axios.post<
+      SuccessEnvelope<{ outsideProcessingOrder: OutsideProcessingOrder }>
+    >(endpoints.outsideProcessingOrders.cancel(String(organizationId), String(id)));
     return withListMeta(response.data);
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -15,17 +16,20 @@ import { humanizeKey } from "@/lib/utils/case";
 const categories = ["earning", "deduction"] as const;
 const computeTypes = ["fixed", "percent", "formula"] as const;
 
-const salaryRuleFormSchema = z.object({
-  code: z.string().min(1),
-  name: z.string().min(1),
-  category: z.enum(categories),
-  computeType: z.enum(computeTypes),
-  amount: z.string(),
-  formula: z.string(),
-  accountDebitId: z.string(),
-  accountCreditId: z.string(),
-});
-type SalaryRuleFormValues = z.infer<typeof salaryRuleFormSchema>;
+function useSalaryRuleFormSchema() {
+  const t = useTranslations("Payroll");
+  return z.object({
+    code: z.string().min(1, t("validationCodeRequired")),
+    name: z.string().min(1, t("validationNameRequired")),
+    category: z.enum(categories),
+    computeType: z.enum(computeTypes),
+    amount: z.string(),
+    formula: z.string(),
+    accountDebitId: z.string(),
+    accountCreditId: z.string(),
+  });
+}
+type SalaryRuleFormValues = z.infer<ReturnType<typeof useSalaryRuleFormSchema>>;
 
 export function SalaryRuleFormDialog({
   open,
@@ -43,9 +47,11 @@ export function SalaryRuleFormDialog({
   onSave: () => void;
 }) {
   const isEdit = Boolean(initial);
+  const t = useTranslations("Payroll");
+  const tCommon = useTranslations("Common");
 
   const form = useForm<SalaryRuleFormValues>({
-    resolver: zodResolver(salaryRuleFormSchema),
+    resolver: zodResolver(useSalaryRuleFormSchema()),
     defaultValues: initial
       ? {
           code: initial.code,
@@ -69,6 +75,22 @@ export function SalaryRuleFormDialog({
         },
   });
 
+  function categoryLabel(cat: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`category.${cat}`);
+    } catch {
+      return humanizeKey(String(cat));
+    }
+  }
+
+  function computeTypeLabel(ct: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`computeType.${ct}`);
+    } catch {
+      return humanizeKey(String(ct));
+    }
+  }
+
   function handleSubmit(values: SalaryRuleFormValues) {
     const body = {
       code: values.code,
@@ -81,18 +103,18 @@ export function SalaryRuleFormDialog({
       accountCreditId: values.accountCreditId ? Number(values.accountCreditId) : null,
     };
     if (isEdit && initial) {
-      void getSwantaraService()
+      return getSwantaraService()
         .salaryRules.update(Number(orgId), initial.id, body)
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("saveFailed")));
     } else {
-      void getSwantaraService()
+      return getSwantaraService()
         .salaryRules.create(Number(orgId), {
           ...body,
           organizationId: Number(orgId),
         })
         .then(() => onSave())
-        .catch(() => toast.error("Something went wrong."));
+        .catch(() => void toast.error(t("saveFailed")));
     }
   }
 
@@ -100,62 +122,64 @@ export function SalaryRuleFormDialog({
     <EntityFormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={isEdit ? "Edit salary rule" : "Create asset category"}
-      description={"Create a new salary rule."}
+      title={isEdit ? t("editSalaryRule") : t("newSalaryRule")}
+      description={t("newSalaryRuleDescription")}
       form={form}
       onSubmit={handleSubmit}
+      submitLabel={tCommon("save")}
+      cancelLabel={tCommon("cancel")}
       className="max-h-[85vh] overflow-y-auto sm:max-w-lg"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField name="code" label={"Code"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Code"} />}
+        <FormField name="code" label={t("fieldCode")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldCode")} />}
         </FormField>
-        <FormField name="name" label={"Name"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+        <FormField name="name" label={t("fieldName")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("fieldName")} />}
         </FormField>
-        <FormField name="category" label={"Category"}>
+        <FormField name="category" label={t("tableCategory")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Category"}>
+              <SelectTrigger id={id} aria-label={t("tableCategory")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
-                    {humanizeKey(String(cat))}
+                    {categoryLabel(String(cat))}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           )}
         </FormField>
-        <FormField name="computeType" label={"Compute type"}>
+        <FormField name="computeType" label={t("tableComputeType")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Compute type"}>
+              <SelectTrigger id={id} aria-label={t("tableComputeType")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {computeTypes.map((ct) => (
                   <SelectItem key={ct} value={ct}>
-                    {humanizeKey(String(ct))}
+                    {computeTypeLabel(String(ct))}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           )}
         </FormField>
-        <FormField name="amount" label={"Amount"}>
+        <FormField name="amount" label={t("tableAmount")}>
           {({ field, id }) => <Input {...field} id={id} type="number" min="0" step="any" />}
         </FormField>
-        <FormField name="formula" label={"Formula"}>
-          {({ field, id }) => <Input {...field} id={id} placeholder={"e.g. base * 0.1"} />}
+        <FormField name="formula" label={t("fieldFormula")}>
+          {({ field, id }) => <Input {...field} id={id} placeholder={t("formulaPlaceholder")} />}
         </FormField>
-        <FormField name="accountDebitId" label={"Debit account"}>
+        <FormField name="accountDebitId" label={t("fieldDebitAccount")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Debit account"}>
-                <SelectValue placeholder={"Select account"} />
+              <SelectTrigger id={id} aria-label={t("fieldDebitAccount")}>
+                <SelectValue placeholder={t("selectAccount")} />
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((a) => (
@@ -167,11 +191,11 @@ export function SalaryRuleFormDialog({
             </Select>
           )}
         </FormField>
-        <FormField name="accountCreditId" label={"Credit account"}>
+        <FormField name="accountCreditId" label={t("fieldCreditAccount")}>
           {({ field, id }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id={id} aria-label={"Credit account"}>
-                <SelectValue placeholder={"Select account"} />
+              <SelectTrigger id={id} aria-label={t("fieldCreditAccount")}>
+                <SelectValue placeholder={t("selectAccount")} />
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((a) => (

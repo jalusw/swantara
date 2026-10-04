@@ -11,6 +11,7 @@ import (
 type PaymentDAO interface {
 	dao.CRUD[Payment]
 	CreateWithAllocationsTx(ctx context.Context, tx *gorm.DB, payment *Payment, allocations []*PaymentAllocation) (*Payment, error)
+	UpdateTx(ctx context.Context, tx *gorm.DB, payment *Payment) (*Payment, error)
 	ListPostedByContact(ctx context.Context, contactID uint64) ([]*Payment, error)
 }
 
@@ -21,6 +22,13 @@ type paymentDAO struct {
 
 func NewPaymentDAO(db *gorm.DB) PaymentDAO {
 	return paymentDAO{Base: dao.NewBase[Payment](db), db: db}
+}
+
+func (d paymentDAO) UpdateTx(ctx context.Context, tx *gorm.DB, payment *Payment) (*Payment, error) {
+	if err := tx.WithContext(ctx).Save(payment).Error; err != nil {
+		return nil, err
+	}
+	return payment, nil
 }
 
 func (d paymentDAO) CreateWithAllocationsTx(ctx context.Context, tx *gorm.DB, payment *Payment, allocations []*PaymentAllocation) (*Payment, error) {
@@ -50,6 +58,7 @@ func (d paymentDAO) ListPostedByContact(ctx context.Context, contactID uint64) (
 
 type PaymentAllocationDAO interface {
 	dao.CRUD[PaymentAllocation]
+	DeleteTx(ctx context.Context, tx *gorm.DB, id uint64) error
 	ListByPayment(ctx context.Context, paymentID uint64) ([]*PaymentAllocation, error)
 	ListByInvoice(ctx context.Context, invoiceID uint64) ([]*PaymentAllocation, error)
 }
@@ -61,6 +70,10 @@ type paymentAllocationDAO struct {
 
 func NewPaymentAllocationDAO(db *gorm.DB) PaymentAllocationDAO {
 	return paymentAllocationDAO{Base: dao.NewBase[PaymentAllocation](db), db: db}
+}
+
+func (d paymentAllocationDAO) DeleteTx(ctx context.Context, tx *gorm.DB, id uint64) error {
+	return tx.WithContext(ctx).Delete(&PaymentAllocation{}, id).Error
 }
 
 func (d paymentAllocationDAO) ListByPayment(ctx context.Context, paymentID uint64) ([]*PaymentAllocation, error) {

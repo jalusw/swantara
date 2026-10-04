@@ -7,6 +7,6 @@ describe("ContactAddresses", () => {
   it("renders empty state", () => {
     renderWithProviders(<ContactAddresses orgId="1" contactId="1" onRefetch={() => {}} />);
 
-    expect(screen.getByText("No addresses")).toBeInTheDocument();
+    expect(screen.getByText("Tidak ada alamat")).toBeInTheDocument();
   });
 });

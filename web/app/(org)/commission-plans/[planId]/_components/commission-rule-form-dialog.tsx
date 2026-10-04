@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -40,6 +41,8 @@ export function CommissionRuleFormDialog({
   planId: string;
   onSave: () => void;
 }) {
+  const t = useTranslations("Commissions");
+  const tCommon = useTranslations("Common");
   const schema = useCommissionRuleFormSchema();
 
   const form = useForm<CommissionRuleFormValues>({
@@ -52,52 +55,53 @@ export function CommissionRuleFormDialog({
     },
   });
 
-  function handleSubmit(values: CommissionRuleFormValues) {
-    void toast.promise(
-      getSwantaraService().commissionPlans.rules.create(Number(orgId), Number(planId), {
+  async function handleSubmit(values: CommissionRuleFormValues) {
+    const request = getSwantaraService().commissionPlans.rules.create(
+      Number(orgId),
+      Number(planId),
+      {
         itemCategoryId: null,
         minAmount: values.minAmount,
         maxAmount: values.maxAmount,
         ratePct: values.ratePct,
         fixedAmount: values.fixedAmount,
-      }),
-      {
-        loading: "Saving…",
-        success: () => {
-          onSave();
-          return "Rule added";
-        },
-        error: "Failed to add rule",
       },
     );
+    toast.promise(request, {
+      loading: t("saving"),
+      success: () => {
+        onSave();
+        return t("ruleCreated");
+      },
+      error: t("createRuleFailed"),
+    });
+    await request.catch(() => {});
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"Add commission rule"}</DialogTitle>
-          <DialogDescription>
-            {"Define a commission rule for a item category range."}
-          </DialogDescription>
+          <DialogTitle>{t("newRule")}</DialogTitle>
+          <DialogDescription>{t("newRuleDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="minAmount" label={"Min amount"}>
+              <FormField name="minAmount" label={t("fieldMinAmount")}>
                 {({ field, id }) => <Input {...field} id={id} type="number" min={0} step="0.01" />}
               </FormField>
-              <FormField name="maxAmount" label={"Max amount"}>
+              <FormField name="maxAmount" label={t("fieldMaxAmount")}>
                 {({ field, id }) => <Input {...field} id={id} type="number" min={0} step="0.01" />}
               </FormField>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="ratePct" label={"Rate %"}>
+              <FormField name="ratePct" label={t("fieldRatePct")}>
                 {({ field, id }) => (
                   <Input {...field} id={id} type="number" min={0} max={100} step="0.01" />
                 )}
               </FormField>
-              <FormField name="fixedAmount" label={"Fixed amount"}>
+              <FormField name="fixedAmount" label={t("fieldFixedAmount")}>
                 {({ field, id }) => <Input {...field} id={id} type="number" min={0} step="0.01" />}
               </FormField>
             </div>
@@ -105,9 +109,9 @@ export function CommissionRuleFormDialog({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Save"}</SubmitButton>
+            <SubmitButton>{tCommon("save")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

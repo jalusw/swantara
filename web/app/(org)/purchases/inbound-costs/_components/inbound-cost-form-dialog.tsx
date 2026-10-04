@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,17 +24,18 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { getLocalDateString } from "@/lib/utils";
 
 function useInboundCostFormSchema() {
+  const t = useTranslations("Purchases");
   const lineSchema = z.object({
-    itemId: z.string().min(1, "Select a item."),
+    itemId: z.string().min(1, t("validationItemRequired")),
     description: z.string(),
-    amount: z.string().min(1, "Amount is required"),
+    amount: z.string().min(1, t("validationAmountRequired")),
     splitMethod: z.enum(["by_quantity", "by_weight", "by_volume", "by_value", "equal"]),
   });
   return z.object({
-    name: z.string().min(1, "Name is required"),
+    name: z.string().min(1, t("validationNameRequired")),
     date: z.string(),
     targetShipmentIds: z.array(z.string()),
-    lines: z.array(lineSchema).min(1, "At least one line is required"),
+    lines: z.array(lineSchema).min(1, t("addAtLeastOneLine")),
   });
 }
 
@@ -48,6 +50,8 @@ export function InboundCostFormDialog({
   orgId: string;
   onSave: () => void;
 }) {
+  const t = useTranslations("Purchases");
+  const tCommon = useTranslations("Common");
   const linePrefix = useId();
 
   const productsQuery = useOrgListQuery<{ products: Item[] }, Record<string, never>>(
@@ -81,52 +85,59 @@ export function InboundCostFormDialog({
     name: "lines",
   });
 
-  function handleSubmit(values: Values) {
-    void toast.promise(
-      getSwantaraService().inventory.createInboundCost(Number(orgId), {
-        name: values.name,
-        date: values.date || null,
-        targetShipmentIds: values.targetShipmentIds.map(Number),
-        lines: values.lines.map((l) => ({
-          itemId: Number(l.itemId),
-          description: l.description,
-          amount: Number(l.amount),
-          vendorBillLineId: null,
-          splitMethod: l.splitMethod,
-          accountId: null,
-        })),
-      }),
-      {
-        loading: "Saving…",
-        success: () => {
-          onSave();
-          return "Landed cost created";
-        },
-        error: "Failed to create landed cost",
+  async function handleSubmit(values: Values) {
+    const request = getSwantaraService().inventory.createInboundCost(Number(orgId), {
+      name: values.name,
+      date: values.date || null,
+      targetShipmentIds: values.targetShipmentIds.map(Number),
+      lines: values.lines.map((l) => ({
+        itemId: Number(l.itemId),
+        description: l.description,
+        amount: Number(l.amount),
+        vendorBillLineId: null,
+        splitMethod: l.splitMethod,
+        accountId: null,
+      })),
+    });
+    toast.promise(request, {
+      loading: t("saving"),
+      success: () => {
+        onSave();
+        return t("inboundCostCreated");
       },
-    );
+      error: t("inboundCostCreateFailed"),
+    });
+    await request.catch(() => {});
+  }
+
+  function splitMethodLabel(method: string): string {
+    try {
+      return (t as unknown as (k: string) => string)(`splitMethod.${method}`);
+    } catch {
+      return method;
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{"Create landed cost"}</DialogTitle>
-          <DialogDescription>{"Description"}</DialogDescription>
+          <DialogTitle>{t("newInboundCost")}</DialogTitle>
+          <DialogDescription>{t("newInboundCostDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
           <div className="flex flex-col gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="name" label={"Name"}>
-                {({ field, id }) => <Input {...field} id={id} placeholder={"Name"} />}
+              <FormField name="name" label={t("tableName")}>
+                {({ field, id }) => <Input {...field} id={id} placeholder={t("tableName")} />}
               </FormField>
-              <FormField name="date" label={"Date"}>
+              <FormField name="date" label={t("tableDate")}>
                 {({ field, id }) => <Input {...field} id={id} type="date" />}
               </FormField>
             </div>
 
             <div className="flex flex-col gap-2">
-              <span className="text-sm">{"Cost lines"}</span>
+              <span className="text-sm">{t("costLines")}</span>
               {fields.map((field, index) => (
                 <div
                   key={field.id}
@@ -137,14 +148,14 @@ export function InboundCostFormDialog({
                       htmlFor={`${linePrefix}-item-${index}`}
                       className="text-muted-foreground text-xs"
                     >
-                      {"Item"}
+                      {t("fieldItem")}
                     </label>
                     <Select
                       value={form.watch(`lines.${index}.itemId`)}
                       onValueChange={(v) => form.setValue(`lines.${index}.itemId`, v ?? "")}
                     >
-                      <SelectTrigger id={`${linePrefix}-item-${index}`} aria-label={"Item"}>
-                        <SelectValue placeholder={"Select item"} />
+                      <SelectTrigger id={`${linePrefix}-item-${index}`} aria-label={t("fieldItem")}>
+                        <SelectValue placeholder={t("selectItem")} />
                       </SelectTrigger>
                       <SelectContent>
                         {products.map((p) => (
@@ -160,7 +171,7 @@ export function InboundCostFormDialog({
                       htmlFor={`${linePrefix}-desc-${index}`}
                       className="text-muted-foreground text-xs"
                     >
-                      {"Description"}
+                      {t("fieldDescription")}
                     </label>
                     <Input
                       id={`${linePrefix}-desc-${index}`}
@@ -172,7 +183,7 @@ export function InboundCostFormDialog({
                       htmlFor={`${linePrefix}-amount-${index}`}
                       className="text-muted-foreground text-xs"
                     >
-                      {"Amount"}
+                      {t("tableAmount")}
                     </label>
                     <Input
                       id={`${linePrefix}-amount-${index}`}
@@ -187,7 +198,7 @@ export function InboundCostFormDialog({
                       htmlFor={`${linePrefix}-split-${index}`}
                       className="text-muted-foreground text-xs"
                     >
-                      {"Split method"}
+                      {t("fieldSplitMethod")}
                     </label>
                     <Select
                       value={form.watch(`lines.${index}.splitMethod`)}
@@ -200,16 +211,18 @@ export function InboundCostFormDialog({
                     >
                       <SelectTrigger
                         id={`${linePrefix}-split-${index}`}
-                        aria-label={"Split method"}
+                        aria-label={t("fieldSplitMethod")}
                       >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="by_quantity">{"By quantity"}</SelectItem>
-                        <SelectItem value="by_weight">{"By weight"}</SelectItem>
-                        <SelectItem value="by_volume">{"By volume"}</SelectItem>
-                        <SelectItem value="by_value">{"By value"}</SelectItem>
-                        <SelectItem value="equal">{"Equal"}</SelectItem>
+                        <SelectItem value="by_quantity">
+                          {splitMethodLabel("by_quantity")}
+                        </SelectItem>
+                        <SelectItem value="by_weight">{splitMethodLabel("by_weight")}</SelectItem>
+                        <SelectItem value="by_volume">{splitMethodLabel("by_volume")}</SelectItem>
+                        <SelectItem value="by_value">{splitMethodLabel("by_value")}</SelectItem>
+                        <SelectItem value="equal">{splitMethodLabel("equal")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -237,16 +250,16 @@ export function InboundCostFormDialog({
                   })
                 }
               >
-                {"Add line"}
+                {t("addLine")}
               </Button>
             </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Save"}</SubmitButton>
+            <SubmitButton>{tCommon("save")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

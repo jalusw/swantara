@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { humanizeKey } from "@/lib/utils/case";
 
@@ -19,10 +20,19 @@ const CRM_TABS = [
 ] as const;
 
 export function CrmSubNav() {
+  const tNav = useTranslations("Nav");
   const pathname = usePathname();
 
+  function tabLabel(key: string): string {
+    try {
+      return (tNav as unknown as (k: string) => string)(key);
+    } catch {
+      return humanizeKey(String(key));
+    }
+  }
+
   return (
-    <nav aria-label={"Pipeline"}>
+    <nav aria-label={tabLabel("pipeline")}>
       <div className="inline-flex w-full items-center gap-6 border-b border-border">
         {CRM_TABS.map((tab) => {
           const href = tab.href;
@@ -42,7 +52,7 @@ export function CrmSubNav() {
                   : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
-              {humanizeKey(String(tab.key))}
+              {tabLabel(String(tab.key))}
             </Link>
           );
         })}

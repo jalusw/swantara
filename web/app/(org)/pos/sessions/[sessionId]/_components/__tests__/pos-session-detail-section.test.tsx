@@ -47,16 +47,16 @@ describe("PosSessionDetail", () => {
   it("renders session with balances", async () => {
     renderWithProviders(<PosSessionDetail orgId="1" sessionId="1" />);
 
-    expect(await screen.findByRole("heading", { name: "Session-1" })).toBeInTheDocument();
-    expect(screen.getByText("Total sales")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Sesi 1" })).toBeInTheDocument();
+    expect(screen.getByText("Total penjualan")).toBeInTheDocument();
   });
 
   it("shows orders on the orders tab", async () => {
     const user = userEvent.setup();
     renderWithProviders(<PosSessionDetail orgId="1" sessionId="1" />);
 
-    await screen.findByRole("heading", { name: "Session-1" });
-    await user.click(screen.getByRole("tab", { name: "Orders" }));
+    await screen.findByRole("heading", { name: "Sesi 1" });
+    await user.click(screen.getByRole("tab", { name: "Pesanan" }));
 
     expect(await screen.findByText("POS-001")).toBeInTheDocument();
   });

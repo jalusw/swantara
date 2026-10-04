@@ -101,7 +101,7 @@ describe("WarehouseFormDialog branches", () => {
       />,
     );
 
-    expect(await screen.findByRole("heading", { name: "Edit warehouse" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Ubah gudang" })).toBeInTheDocument();
     expect(screen.getByDisplayValue("WH-02")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Block B")).toBeInTheDocument();
   });
@@ -114,10 +114,10 @@ describe("WarehouseFormDialog branches", () => {
       <WarehouseFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await screen.findByRole("heading", { name: "New warehouse" });
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByRole("heading", { name: "Gudang baru" });
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Warehouse name is required.")).toBeInTheDocument();
+    expect(await screen.findByText("Nama gudang wajib diisi.")).toBeInTheDocument();
     expect(onSave).not.toHaveBeenCalled();
   });
 
@@ -129,8 +129,8 @@ describe("WarehouseFormDialog branches", () => {
       <WarehouseFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await user.type(await screen.findByPlaceholderText("Name"), "East Warehouse");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByPlaceholderText("Nama"), "East Warehouse");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("9"));
   });
@@ -143,15 +143,15 @@ describe("WarehouseFormDialog branches", () => {
       <WarehouseFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await user.type(await screen.findByPlaceholderText("Name"), "East Warehouse");
-    await user.type(screen.getByPlaceholderText("Code"), "WH-02");
-    await user.type(screen.getByPlaceholderText("Address line 1"), "Jl. Merdeka 1");
-    await user.type(screen.getByPlaceholderText("Address line 2"), "Block B");
-    await user.type(screen.getByPlaceholderText("City"), "Jakarta");
-    await user.type(screen.getByPlaceholderText("State"), "DKI");
-    await user.type(screen.getByPlaceholderText("Postal code"), "10110");
-    await user.type(screen.getByPlaceholderText("Country code"), "ID");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByPlaceholderText("Nama"), "East Warehouse");
+    await user.type(screen.getByPlaceholderText("Kode"), "WH-02");
+    await user.type(screen.getByPlaceholderText("Alamat baris 1"), "Jl. Merdeka 1");
+    await user.type(screen.getByPlaceholderText("Alamat baris 2"), "Block B");
+    await user.type(screen.getByPlaceholderText("Kota"), "Jakarta");
+    await user.type(screen.getByPlaceholderText("Provinsi"), "DKI");
+    await user.type(screen.getByPlaceholderText("Kode pos"), "10110");
+    await user.type(screen.getByPlaceholderText("Kode negara"), "ID");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("9"));
   });
@@ -164,11 +164,11 @@ describe("WarehouseFormDialog branches", () => {
       <WarehouseFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={onSave} />,
     );
 
-    await user.type(await screen.findByPlaceholderText("Name"), "East Warehouse");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.type(await screen.findByPlaceholderText("Nama"), "East Warehouse");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() =>
-      expect(screen.getByRole("heading", { name: "New warehouse" })).toBeInTheDocument(),
+      expect(screen.getByRole("heading", { name: "Gudang baru" })).toBeInTheDocument(),
     );
     expect(onSave).not.toHaveBeenCalled();
   });
@@ -187,8 +187,8 @@ describe("WarehouseFormDialog branches", () => {
       />,
     );
 
-    await screen.findByRole("heading", { name: "Edit warehouse" });
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByRole("heading", { name: "Ubah gudang" });
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("4"));
   });
@@ -207,9 +207,9 @@ describe("WarehouseFormDialog branches", () => {
       />,
     );
 
-    await screen.findByRole("heading", { name: "Edit warehouse" });
+    await screen.findByRole("heading", { name: "Ubah gudang" });
     await user.clear(screen.getByDisplayValue("Block B"));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("4"));
   });
@@ -228,11 +228,11 @@ describe("WarehouseFormDialog branches", () => {
       />,
     );
 
-    await screen.findByRole("heading", { name: "Edit warehouse" });
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByRole("heading", { name: "Ubah gudang" });
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() =>
-      expect(screen.getByRole("heading", { name: "Edit warehouse" })).toBeInTheDocument(),
+      expect(screen.getByRole("heading", { name: "Ubah gudang" })).toBeInTheDocument(),
     );
     expect(onSave).not.toHaveBeenCalled();
   });
@@ -244,8 +244,8 @@ describe("WarehouseFormDialog branches", () => {
       <WarehouseFormDialog open={true} onOpenChange={onOpenChange} orgId="1" onSave={vi.fn()} />,
     );
 
-    await screen.findByRole("heading", { name: "New warehouse" });
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await screen.findByRole("heading", { name: "Gudang baru" });
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

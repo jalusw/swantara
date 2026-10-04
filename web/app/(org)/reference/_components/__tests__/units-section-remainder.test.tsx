@@ -16,7 +16,7 @@ describe("UnitsSection remainder", () => {
     );
     renderWithProviders(<UnitsSection orgId="1" />);
 
-    expect(await screen.findByText("No categories yet")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada kategori")).toBeInTheDocument();
   });
 
   it("shows the error state with retry when loading fails", async () => {
@@ -31,7 +31,7 @@ describe("UnitsSection remainder", () => {
     expect(await screen.findByText("UoM load failed.")).toBeInTheDocument();
 
     server.resetHandlers();
-    await user.click(screen.getByRole("button", { name: /retry|try again/i }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     expect(await screen.findByText("Meter")).toBeInTheDocument();
   });
@@ -44,7 +44,7 @@ describe("UnitsSection remainder", () => {
         return HttpResponse.json(
           {
             success: true,
-            message: "Created.",
+            message: "Dibuat.",
             data: {
               unit: {
                 id: 9,
@@ -66,19 +66,19 @@ describe("UnitsSection remainder", () => {
     renderWithProviders(<UnitsSection orgId="1" />);
 
     await screen.findByText("Meter");
-    await user.click(screen.getByRole("button", { name: "Add UoM" }));
+    await user.click(screen.getByRole("button", { name: "Tambah satuan" }));
 
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByText("New unit of measure")).toBeInTheDocument();
+    expect(within(dialog).getByText("Satuan ukur baru")).toBeInTheDocument();
 
-    await user.click(within(dialog).getByLabelText("Category"));
+    await user.click(within(dialog).getByLabelText("Kategori"));
     await user.click(await screen.findByRole("option", { name: "Length" }));
     await waitFor(() =>
       expect(screen.queryByRole("option", { name: "Length" })).not.toBeInTheDocument(),
     );
-    await user.type(within(dialog).getByLabelText("Name"), "Centimeter");
-    await user.type(within(dialog).getByLabelText("Factor"), "0.01");
-    await user.click(within(dialog).getByRole("button", { name: "Save unit" }));
+    await user.type(within(dialog).getByLabelText("Nama"), "Centimeter");
+    await user.type(within(dialog).getByLabelText("Faktor"), "0.01");
+    await user.click(within(dialog).getByRole("button", { name: "Simpan satuan" }));
 
     await waitFor(() => expect(created).toMatchObject({ name: "Centimeter" }));
   });
@@ -96,13 +96,13 @@ describe("UnitsSection remainder", () => {
 
     await screen.findByText("Meter");
     const table = screen.getByRole("table");
-    await user.click(within(table).getAllByRole("button", { name: "Edit" })[0]!);
+    await user.click(within(table).getAllByRole("button", { name: "Ubah" })[0]!);
 
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByText("Edit unit of measure")).toBeInTheDocument();
+    expect(within(dialog).getByText("Ubah satuan ukur")).toBeInTheDocument();
     expect(within(dialog).getByDisplayValue("Meter")).toBeInTheDocument();
 
-    await user.click(within(dialog).getByRole("button", { name: "Save unit" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan satuan" }));
 
     await waitFor(() => expect(updated).toMatchObject({ name: "Meter" }));
   });
@@ -115,7 +115,7 @@ describe("UnitsSection remainder", () => {
         return HttpResponse.json(
           {
             success: true,
-            message: "Created.",
+            message: "Dibuat.",
             data: { category: { id: 9, name: "Time" } },
           },
           { status: 201 },
@@ -126,11 +126,11 @@ describe("UnitsSection remainder", () => {
     renderWithProviders(<UnitsSection orgId="1" />);
 
     await screen.findByText("Meter");
-    await user.click(screen.getByRole("button", { name: "Add category" }));
+    await user.click(screen.getByRole("button", { name: "Tambah kategori" }));
 
     const dialog = await screen.findByRole("dialog");
     await user.type(within(dialog).getByRole("textbox"), "Time");
-    await user.click(within(dialog).getByRole("button", { name: "Save category" }));
+    await user.click(within(dialog).getByRole("button", { name: "Simpan kategori" }));
 
     await waitFor(() => expect(created).toMatchObject({ name: "Time" }));
   });
@@ -148,10 +148,10 @@ describe("UnitsSection remainder", () => {
 
     await screen.findByText("Meter");
     const table = screen.getByRole("table");
-    await user.click(within(table).getAllByRole("button", { name: "Delete" })[0]!);
+    await user.click(within(table).getAllByRole("button", { name: "Hapus" })[0]!);
 
     const confirm = await screen.findByRole("alertdialog");
-    await user.click(within(confirm).getByRole("button", { name: "Delete" }));
+    await user.click(within(confirm).getByRole("button", { name: "Hapus" }));
 
     await waitFor(() => expect(deleted).toBe(true));
   });

@@ -12,6 +12,7 @@ import (
 	"github.com/jalusw/swantara/apps/service/internal/kernel/model"
 	"github.com/jalusw/swantara/apps/service/internal/kernel/query"
 	"github.com/jalusw/swantara/apps/service/internal/kernel/sequence"
+	"gorm.io/gorm"
 )
 
 func TestSupplierQuoteRequestService_Create(t *testing.T) {
@@ -648,6 +649,10 @@ func newContactDAOMock() contactDAOMock {
 }
 
 func (contactDAOMock) CreateWithDetails(_ context.Context, _ *contacts.Contact, _ []*contacts.ContactAddress, _ []*contacts.ContactBankAccount, _ *contacts.CustomerProfile, _ *contacts.SupplierProfile) (*contacts.Contact, error) {
+	return nil, nil
+}
+
+func (contactDAOMock) CreateWithDetailsTx(_ context.Context, _ *gorm.DB, _ *contacts.Contact, _ []*contacts.ContactAddress, _ []*contacts.ContactBankAccount, _ *contacts.CustomerProfile, _ *contacts.SupplierProfile) (*contacts.Contact, error) {
 	return nil, nil
 }
 

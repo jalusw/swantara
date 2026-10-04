@@ -37,7 +37,7 @@ describe("OrgNav module gating", () => {
     renderNav();
 
     await user.click(await screen.findByRole("button", { name: "CRM" }));
-    expect(await screen.findByRole("link", { name: "Sales" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Penjualan" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "HR" })).not.toBeInTheDocument();
   });
 
@@ -45,18 +45,18 @@ describe("OrgNav module gating", () => {
     const user = userEvent.setup();
     renderNav();
 
-    await user.click(await screen.findByRole("button", { name: "Finance" }));
-    expect(await screen.findByRole("link", { name: "Reports" })).toHaveAttribute(
+    await user.click(await screen.findByRole("button", { name: "Keuangan" }));
+    expect(await screen.findByRole("link", { name: "Laporan" })).toHaveAttribute(
       "href",
       "/reports",
     );
-    expect(screen.getByRole("link", { name: "Reference" })).toHaveAttribute("href", "/reference");
+    expect(screen.getByRole("link", { name: "Referensi" })).toHaveAttribute("href", "/reference");
     expect(screen.queryByRole("button", { name: "Other" })).toBeNull();
-    expect(screen.getByRole("link", { name: "Approval Requests" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Persetujuan" })).toHaveAttribute(
       "href",
       "/approval-requests",
     );
-    expect(screen.getByRole("link", { name: "Activity" })).toHaveAttribute("href", "/audit-logs");
+    expect(screen.getByRole("link", { name: "Aktivitas" })).toHaveAttribute("href", "/audit-logs");
   });
 
   it("shows every permitted section when the modules request fails", async () => {
@@ -69,8 +69,8 @@ describe("OrgNav module gating", () => {
     renderNav();
 
     await user.click(await screen.findByRole("button", { name: "CRM" }));
-    expect(await screen.findByRole("link", { name: "Sales" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Penjualan" })).toBeInTheDocument();
     await user.click(await screen.findByRole("button", { name: "HR" }));
-    expect(await screen.findByRole("link", { name: "Employees" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Karyawan" })).toBeInTheDocument();
   });
 });

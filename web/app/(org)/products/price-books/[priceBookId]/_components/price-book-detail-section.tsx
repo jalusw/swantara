@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -26,31 +27,32 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { Item, ItemCategory, PriceRule } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
+
+type TFn = (key: string, values?: Record<string, string | number>) => string;
 
 const scopeOptions = ["all", "category", "item", "variant"] as const;
 const computeTypeOptions = ["fixed", "percent", "formula"] as const;
 
-function computeTypeLabel(computeType: string): string {
-  if (computeType === "fixed") return "Fixed price";
-  if (computeType === "percent") return "Percent discount";
-  return humanizeKey(computeType);
+function useRuleSchema() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  return z.object({
+    appliesTo: z.enum(scopeOptions),
+    itemId: z.string(),
+    categoryId: z.string(),
+    minQty: z.string().refine((v) => Number(v) >= 0, t("validationNonNegative")),
+    computeType: z.enum(computeTypeOptions),
+    fixedPrice: z.string(),
+    discountPct: z.string(),
+    dateStart: z.string(),
+    dateEnd: z.string(),
+  });
 }
-
-const ruleSchema = z.object({
-  appliesTo: z.enum(scopeOptions),
-  itemId: z.string(),
-  categoryId: z.string(),
-  minQty: z.string().refine((v) => Number(v) >= 0),
-  computeType: z.enum(computeTypeOptions),
-  fixedPrice: z.string(),
-  discountPct: z.string(),
-  dateStart: z.string(),
-  dateEnd: z.string(),
-});
-type RuleValues = z.infer<typeof ruleSchema>;
+type RuleValues = z.infer<ReturnType<typeof useRuleSchema>>;
 
 export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBookId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Products");
+  const tCommon = useTranslations("Common");
+  const ruleSchema = useRuleSchema();
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const rulesQuery = useOrgListQuery<{ rules: PriceRule[] }, Record<string, never>>(
@@ -92,7 +94,7 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
   const watchedCompute = form.watch("computeType");
 
   function handleCreateRule(values: RuleValues) {
-    void getSwantaraService()
+    return getSwantaraService()
       .priceBooks.rules.create(Number(orgId), Number(priceBookId), {
         appliesTo: values.appliesTo,
         itemId: values.itemId ? Number(values.itemId) : null,
@@ -105,25 +107,27 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
         dateEnd: values.dateEnd ? new Date(values.dateEnd) : null,
       })
       .then(() => {
-        toast.success("Rule added.");
+        toast.success(t("toastRuleAdded"));
         setDialogOpen(false);
         form.reset();
         void rulesQuery.refetch();
       })
-      .catch(() => toast.error("Could not disable the organization."));
+      .catch(() => void toast.error(t("toastRuleFailed")));
   }
 
   const columns: ColumnDef<PriceRule>[] = [
     {
       accessorKey: "appliesTo",
-      header: "Scope",
+      header: () => t("fieldScope"),
       cell: ({ row }) => (
-        <Badge variant="secondary">{humanizeKey(String(row.original.appliesTo))}</Badge>
+        <Badge variant="secondary">
+          {(t as unknown as (k: string) => string)(`ruleScope_${row.original.appliesTo}`)}
+        </Badge>
       ),
     },
     {
       accessorKey: "itemId",
-      header: "Item",
+      header: () => t("fieldItem"),
       cell: ({ row }) => {
         if (!row.original.itemId) return <span className="text-muted-foreground">—</span>;
         const item = products.find((p) => p.id === row.original.itemId);
@@ -132,7 +136,7 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
     },
     {
       accessorKey: "categoryId",
-      header: "Category",
+      header: () => t("fieldCategory"),
       cell: ({ row }) => {
         if (!row.original.categoryId) return <span className="text-muted-foreground">—</span>;
         const cat = categories.find((c) => c.id === row.original.categoryId);
@@ -141,17 +145,21 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
     },
     {
       accessorKey: "minQty",
-      header: "Min. quantity",
+      header: () => t("fieldMinQty"),
       cell: ({ row }) => <span className="tabular-nums">{row.original.minQty}</span>,
     },
     {
       accessorKey: "computeType",
-      header: "Compute type",
-      cell: ({ row }) => <Badge>{computeTypeLabel(String(row.original.computeType))}</Badge>,
+      header: () => t("fieldComputeType"),
+      cell: ({ row }) => (
+        <Badge>
+          {(t as unknown as (k: string) => string)(`computeType_${row.original.computeType}`)}
+        </Badge>
+      ),
     },
     {
       accessorKey: "fixedPrice",
-      header: "Price",
+      header: () => t("fieldPrice"),
       cell: ({ row }) => (
         <span className="tabular-nums">
           {row.original.fixedPrice != null ? row.original.fixedPrice.toFixed(2) : "—"}
@@ -160,7 +168,7 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
     },
     {
       accessorKey: "discountPct",
-      header: "Discount %",
+      header: () => t("fieldDiscountPct"),
       cell: ({ row }) => (
         <span className="tabular-nums">
           {row.original.discountPct != null ? `${row.original.discountPct}%` : "—"}
@@ -169,7 +177,7 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
     },
     {
       accessorKey: "dateStart",
-      header: "Valid from",
+      header: () => t("fieldStartDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {row.original.dateStart ? formatDate(new Date(row.original.dateStart)) : "—"}
@@ -178,7 +186,7 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
     },
     {
       accessorKey: "dateEnd",
-      header: "Valid to",
+      header: () => t("fieldEndDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {row.original.dateEnd ? formatDate(new Date(row.original.dateEnd)) : "—"}
@@ -201,10 +209,8 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
       <Card>
         <CardHeader className="flex-row items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <CardTitle>{"Pricing rules"}</CardTitle>
-            <CardDescription>
-              {"Rules that determine prices for products, categories, or all items."}
-            </CardDescription>
+            <CardTitle>{t("pricingRules")}</CardTitle>
+            <CardDescription>{t("pricingRulesDescription")}</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
@@ -213,10 +219,10 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
             data={rules}
             getRowId={(row) => String(row.id)}
             searchKeys={[]}
-            searchPlaceholder={"Search rules…"}
-            filterLabel={"Scope"}
-            allLabel={"All rules"}
-            ariaLabel={"All rules"}
+            searchPlaceholder={t("searchRules")}
+            filterLabel={t("fieldScope")}
+            allLabel={t("allRules")}
+            ariaLabel={t("allRules")}
             statusOptions={[]}
             status={
               isLoading
@@ -232,7 +238,7 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
             actions={
               <Button size="sm" onClick={() => setDialogOpen(true)}>
                 <Plus />
-                <span>{"Add rule"}</span>
+                <span>{t("addRule")}</span>
               </Button>
             }
           />
@@ -242,37 +248,37 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{"New pricing rule"}</DialogTitle>
-            <DialogDescription>{"Add a rule to this price_book."}</DialogDescription>
+            <DialogTitle>{t("newPricingRule")}</DialogTitle>
+            <DialogDescription>{t("newPricingRuleDescription")}</DialogDescription>
           </DialogHeader>
           <Form form={form} onSubmit={handleCreateRule}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <FormField name="appliesTo" label={"Scope"}>
+              <FormField name="appliesTo" label={t("fieldScope")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Scope"}>
+                    <SelectTrigger id={id} aria-label={t("fieldScope")}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {scopeOptions.map((scope) => (
                         <SelectItem key={scope} value={scope}>
-                          {humanizeKey(String(scope))}
+                          {(t as unknown as (k: string) => string)(`ruleScope_${scope}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 )}
               </FormField>
-              <FormField name="computeType" label={"Compute type"}>
+              <FormField name="computeType" label={t("fieldComputeType")}>
                 {({ field, id }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id={id} aria-label={"Compute type"}>
+                    <SelectTrigger id={id} aria-label={t("fieldComputeType")}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {computeTypeOptions.map((ct) => (
                         <SelectItem key={ct} value={ct}>
-                          {computeTypeLabel(String(ct))}
+                          {(t as unknown as (k: string) => string)(`computeType_${ct}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -280,11 +286,11 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
                 )}
               </FormField>
               {watchedScope === "item" || watchedScope === "variant" ? (
-                <FormField name="itemId" label={"Item"}>
+                <FormField name="itemId" label={t("fieldItem")}>
                   {({ field, id }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id={id} aria-label={"Item"}>
-                        <SelectValue placeholder={"Item"} />
+                      <SelectTrigger id={id} aria-label={t("fieldItem")}>
+                        <SelectValue placeholder={t("fieldItem")} />
                       </SelectTrigger>
                       <SelectContent>
                         {products.map((p) => (
@@ -298,11 +304,11 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
                 </FormField>
               ) : null}
               {watchedScope === "category" ? (
-                <FormField name="categoryId" label={"Category"}>
+                <FormField name="categoryId" label={t("fieldCategory")}>
                   {({ field, id }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id={id} aria-label={"Category"}>
-                        <SelectValue placeholder={"Category"} />
+                      <SelectTrigger id={id} aria-label={t("fieldCategory")}>
+                        <SelectValue placeholder={t("fieldCategory")} />
                       </SelectTrigger>
                       <SelectContent>
                         {categories.map((c) => (
@@ -315,13 +321,13 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
                   )}
                 </FormField>
               ) : null}
-              <FormField name="minQty" label={"Min. quantity"}>
+              <FormField name="minQty" label={t("fieldMinQty")}>
                 {({ field, id }) => (
                   <Input {...field} id={id} type="number" min="0" inputMode="decimal" />
                 )}
               </FormField>
               {watchedCompute === "fixed" ? (
-                <FormField name="fixedPrice" label={"Price"}>
+                <FormField name="fixedPrice" label={t("fieldPrice")}>
                   {({ field, id }) => (
                     <Input
                       {...field}
@@ -335,7 +341,7 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
                 </FormField>
               ) : null}
               {watchedCompute === "percent" ? (
-                <FormField name="discountPct" label={"Discount %"}>
+                <FormField name="discountPct" label={t("fieldDiscountPct")}>
                   {({ field, id }) => (
                     <Input
                       {...field}
@@ -349,18 +355,18 @@ export function PriceBookDetail({ orgId, priceBookId }: { orgId: string; priceBo
                   )}
                 </FormField>
               ) : null}
-              <FormField name="dateStart" label={"Valid from"}>
+              <FormField name="dateStart" label={t("fieldStartDate")}>
                 {({ field, id }) => <Input {...field} id={id} type="date" />}
               </FormField>
-              <FormField name="dateEnd" label={"Valid to"}>
+              <FormField name="dateEnd" label={t("fieldEndDate")}>
                 {({ field, id }) => <Input {...field} id={id} type="date" />}
               </FormField>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                {"Cancel"}
+                {tCommon("cancel")}
               </Button>
-              <SubmitButton>{"Save rule"}</SubmitButton>
+              <SubmitButton>{t("saveRule")}</SubmitButton>
             </DialogFooter>
           </Form>
         </DialogContent>

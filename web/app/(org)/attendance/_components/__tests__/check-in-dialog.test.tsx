@@ -38,7 +38,7 @@ describe("CheckInDialog", () => {
     );
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: "Employee" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Karyawan" })).toBeInTheDocument();
   });
 
   it("closes when the cancel action is used", async () => {
@@ -55,7 +55,7 @@ describe("CheckInDialog", () => {
     );
 
     await screen.findByRole("dialog");
-    await user.click(screen.getByRole("button", { name: /cancel/i }));
+    await user.click(screen.getByRole("button", { name: /batal/i }));
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

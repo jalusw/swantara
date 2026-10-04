@@ -87,7 +87,7 @@ describe("MoSection", () => {
     renderWithProviders(<MoSection orgId="1" />);
 
     await screen.findByText("MO-0001 Chair Assembly");
-    await user.type(screen.getByPlaceholderText("Search manufacturing orders..."), "Table");
+    await user.type(screen.getByPlaceholderText("Cari perintah produksi…"), "Table");
 
     expect(await screen.findByText("MO-0002 Table Assembly")).toBeInTheDocument();
     await waitFor(() =>

@@ -40,7 +40,7 @@ describe("WarehouseTransferDetail branches2", () => {
     seedTransfer(null);
     renderWithProviders(<WarehouseTransferDetail orgId="1" warehouseTransferId="99" />);
 
-    expect(await screen.findByText("Transfer not found.")).toBeInTheDocument();
+    expect(await screen.findByText("Transfer tidak ditemukan.")).toBeInTheDocument();
   });
 
   it("shows out and in shipment branches when linked", async () => {
@@ -65,7 +65,7 @@ describe("WarehouseTransferDetail branches2", () => {
     renderWithProviders(<WarehouseTransferDetail orgId="1" warehouseTransferId="31" />);
 
     await screen.findAllByText("TO-0031");
-    await user.click(screen.getByRole("button", { name: "Receive" }));
+    await user.click(screen.getByRole("button", { name: "Terima" }));
 
     await waitFor(() => expect(receiveCalls).toBe(1));
   });
@@ -75,6 +75,6 @@ describe("WarehouseTransferDetail branches2", () => {
     renderWithProviders(<WarehouseTransferDetail orgId="1" warehouseTransferId="31" />);
 
     expect((await screen.findAllByText("TO-31")).length).toBeGreaterThan(0);
-    expect(screen.queryByRole("button", { name: "Send" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Kirim" })).not.toBeInTheDocument();
   });
 });

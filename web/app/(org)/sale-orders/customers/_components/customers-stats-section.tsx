@@ -1,6 +1,7 @@
 "use client";
 
 import { UserCheck, UserPlus, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { MetricGrid } from "@/components/metric-grid";
 import { StatCard } from "@/components/stat-card";
 import { useOrgListQuery } from "@/lib/hooks/use-org-query";
@@ -18,6 +19,7 @@ function countNewThisMonth(contacts: Contact[]) {
 }
 
 export function CustomersStats() {
+  const t = useTranslations("Sales");
   const contactsQuery = useOrgListQuery<{ contacts: Contact[] }, Record<string, never>>(
     "contacts",
     (organizationId) => getSwantaraService().contacts.list(organizationId),
@@ -25,7 +27,7 @@ export function CustomersStats() {
 
   if (contactsQuery.isLoading) {
     return (
-      <output aria-busy="true" aria-label={"Customer overview"}>
+      <output aria-busy="true" aria-label={t("customersSummary")}>
         <MetricGrid>
           {[0, 1, 2].map((key) => (
             <div key={key} className="h-28 animate-pulse rounded-xl bg-muted" aria-hidden />
@@ -36,22 +38,27 @@ export function CustomersStats() {
   }
 
   if (contactsQuery.isError) {
-    return <p className="text-sm text-muted-foreground">{"Something went wrong."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("loadFailed")}</p>;
   }
 
   const contacts = contactsQuery.data?.contacts ?? [];
 
   const stats: Array<{ key: string; label: string; value: string; icon: typeof Users }> = [
-    { key: "total", label: "Total customers", value: formatNumber(contacts.length), icon: Users },
+    {
+      key: "total",
+      label: t("statTotalCustomers"),
+      value: formatNumber(contacts.length),
+      icon: Users,
+    },
     {
       key: "active",
-      label: "Active",
+      label: t("statusActive"),
       value: formatNumber(contacts.filter((contact) => contact.active).length),
       icon: UserCheck,
     },
     {
       key: "newThisMonth",
-      label: "New this month",
+      label: t("statNewThisMonth"),
       value: formatNumber(countNewThisMonth(contacts)),
       icon: UserPlus,
     },

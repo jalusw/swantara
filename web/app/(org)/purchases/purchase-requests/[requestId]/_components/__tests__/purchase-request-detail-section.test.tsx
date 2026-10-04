@@ -43,7 +43,7 @@ const requester = {
 const department = {
   id: 2,
   organization_id: 1,
-  name: "Procurement",
+  name: "Pengadaan",
   created_at: STAMP,
   updated_at: STAMP,
 };
@@ -71,7 +71,7 @@ describe("PurchaseRequestDetail", () => {
 
     expect((await screen.findAllByText("PR-0003")).length).toBeGreaterThan(0);
     expect(screen.getByText("Rina Requester")).toBeInTheDocument();
-    expect(screen.getByText("Procurement")).toBeInTheDocument();
+    expect(screen.getByText("Pengadaan")).toBeInTheDocument();
   });
 
   it("opens the create QuoteRequest dialog from the action button", async () => {
@@ -79,10 +79,12 @@ describe("PurchaseRequestDetail", () => {
     renderWithProviders(<PurchaseRequestDetail orgId="1" requestId="3" />);
 
     await screen.findAllByText("PR-0003");
-    await user.click(screen.getByRole("button", { name: "Create QuoteRequest" }));
+    await user.click(screen.getByRole("button", { name: "Buat permintaan penawaran" }));
 
     expect(
-      await screen.findByText("Convert this approved request into a Request for Quotation."),
+      await screen.findByText(
+        "Ubah permintaan yang sudah disetujui ini menjadi permintaan penawaran.",
+      ),
     ).toBeInTheDocument();
   });
 });

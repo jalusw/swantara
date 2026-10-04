@@ -42,7 +42,7 @@ describe("PosRegister", () => {
 
     expect(await screen.findByText("Arabica Beans")).toBeInTheDocument();
     expect(screen.getByText("Paper Cups")).toBeInTheDocument();
-    expect(screen.getByText(/Session-1/)).toBeInTheDocument();
+    expect(screen.getByText(/Sesi: Sesi 1/)).toBeInTheDocument();
   });
 
   it("adds a item to the cart", async () => {
@@ -52,6 +52,6 @@ describe("PosRegister", () => {
     await screen.findByText("Arabica Beans");
     await user.click(screen.getByRole("button", { name: /Arabica Beans/ }));
 
-    expect(await screen.findByText("1 item(s)")).toBeInTheDocument();
+    expect(await screen.findByText("1 item")).toBeInTheDocument();
   });
 });

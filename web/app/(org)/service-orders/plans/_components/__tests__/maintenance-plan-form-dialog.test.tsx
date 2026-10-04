@@ -14,7 +14,7 @@ const equipments = [
     serial_batch_id: null,
     owner_contact_id: null,
     fixed_asset_id: null,
-    location: "Warehouse",
+    location: "Gudang",
     install_date: null,
     warranty_end: null,
     category: "forklift",
@@ -30,7 +30,7 @@ beforeEach(() => {
       HttpResponse.json(
         {
           success: true,
-          message: "Created.",
+          message: "Dibuat.",
           data: { maintenance_plan: { id: 6 } },
         },
         { status: 201 },
@@ -50,9 +50,9 @@ describe("MaintenancePlanFormDialog", () => {
     renderDialog(() => {});
 
     expect(
-      await screen.findByRole("heading", { name: "Create maintenance plan" }),
+      await screen.findByRole("heading", { name: "Paket perawatan baru" }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("creates a maintenance plan on submit", async () => {
@@ -60,18 +60,18 @@ describe("MaintenancePlanFormDialog", () => {
     const user = userEvent.setup();
     renderDialog(onSave);
 
-    await screen.findByRole("heading", { name: "Create maintenance plan" });
+    await screen.findByRole("heading", { name: "Paket perawatan baru" });
 
-    await user.click(screen.getByRole("combobox", { name: "Equipment" }));
+    await user.click(screen.getByRole("combobox", { name: "Peralatan" }));
     await user.click(await screen.findByRole("option", { name: "Forklift A" }));
 
-    await user.type(screen.getByLabelText("Name"), "Quarterly Inspection");
-    const interval = screen.getByLabelText("Interval (days)");
+    await user.type(screen.getByLabelText("Nama"), "Quarterly Inspection");
+    const interval = screen.getByLabelText("Interval (hari)");
     await user.clear(interval);
     await user.type(interval, "90");
-    await user.type(screen.getByLabelText("Next due date"), "2026-04-01");
+    await user.type(screen.getByLabelText("Tanggal jatuh tempo berikutnya"), "2026-04-01");
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith("6"));
   });

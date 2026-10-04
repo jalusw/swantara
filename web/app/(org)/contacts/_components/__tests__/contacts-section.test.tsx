@@ -13,10 +13,10 @@ describe("ContactsSection", () => {
     expect(await screen.findByText("Bluebird Trading")).toBeInTheDocument();
     expect(screen.getByText("Nusantara Logistics")).toBeInTheDocument();
     expect(screen.getByText("Klima Foods")).toBeInTheDocument();
-    expect(screen.getAllByText("Organization").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Individual").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Active").length).toBeGreaterThan(0);
-    expect(screen.getByText("Inactive")).toBeInTheDocument();
+    expect(screen.getAllByText("Organisasi").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Perorangan").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Aktif").length).toBeGreaterThan(0);
+    expect(screen.getByText("Nonaktif")).toBeInTheDocument();
   });
 
   it("filters by status", async () => {
@@ -24,8 +24,8 @@ describe("ContactsSection", () => {
     renderWithProviders(<ContactsSection orgId="1" />);
 
     await screen.findByText("Bluebird Trading");
-    await user.click(screen.getByRole("button", { name: "Filters" }));
-    await user.selectOptions(screen.getByLabelText("Filter by status"), "false");
+    await user.click(screen.getByRole("button", { name: "Filter" }));
+    await user.selectOptions(screen.getByLabelText("Saring berdasar status"), "false");
 
     expect(await screen.findByText("Klima Foods")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("Bluebird Trading")).not.toBeInTheDocument());
@@ -36,9 +36,9 @@ describe("ContactsSection", () => {
     renderWithProviders(<ContactsSection orgId="1" />);
 
     await screen.findByText("Bluebird Trading");
-    await user.click(screen.getByRole("button", { name: "Add contact" }));
+    await user.click(screen.getByRole("button", { name: "Tambah kontak" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("New contact")).toBeInTheDocument();
+    expect(screen.getByText("Kontak baru")).toBeInTheDocument();
   });
 });

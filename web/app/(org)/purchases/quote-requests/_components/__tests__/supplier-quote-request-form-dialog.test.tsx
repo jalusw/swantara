@@ -73,8 +73,8 @@ describe("SupplierQuoteRequestFormDialog", () => {
       />,
     );
 
-    expect(screen.getByText("New QuoteRequest")).toBeInTheDocument();
-    expect(screen.getByText("QuoteRequest lines")).toBeInTheDocument();
+    expect(screen.getByText("Permintaan penawaran baru")).toBeInTheDocument();
+    expect(screen.getByText("Baris permintaan penawaran")).toBeInTheDocument();
   });
 
   it("does not save when the line item is missing", async () => {
@@ -89,7 +89,7 @@ describe("SupplierQuoteRequestFormDialog", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
     expect(onSave).not.toHaveBeenCalled();

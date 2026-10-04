@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -35,14 +36,16 @@ export function ProduceDialog({
   productionOrder,
   onSave,
 }: ProduceDialogProps) {
+  const t = useTranslations("ProductionOrders");
+  const tCommon = useTranslations("Common");
   const remaining = productionOrder.qtyToProduce - productionOrder.qtyProduced;
 
   const schema = z.object({
     qty: z
       .string()
-      .min(1, "Enter a quantity.")
-      .refine((v) => Number(v) > 0, "Enter a quantity.")
-      .refine((v) => Number(v) <= remaining, "Quantity Exceeds Remaining"),
+      .min(1, t("validation_qtyRequired"))
+      .refine((v) => Number(v) > 0, t("validation_qtyRequired"))
+      .refine((v) => Number(v) <= remaining, t("validation_qtyExceeds")),
   });
   type Values = z.infer<typeof schema>;
 
@@ -54,35 +57,38 @@ export function ProduceDialog({
   });
 
   function handleSubmit(values: Values) {
-    void getSwantaraService()
+    return getSwantaraService()
       .productionOrders.produce(Number(orgId), Number(productionOrderId), {
         qty: Number(values.qty),
         journalId: 1,
         wipAccountId: 1,
       })
       .then(() => {
-        toast.success("Goods produced");
+        toast.success(t("goodsProduced"));
         onSave();
-      });
+      })
+      .catch(() => {});
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{"Produce Goods"}</DialogTitle>
-          <DialogDescription>{"Record production output"}</DialogDescription>
+          <DialogTitle>{t("produceTitle")}</DialogTitle>
+          <DialogDescription>{t("produceDescription")}</DialogDescription>
         </DialogHeader>
         <Form form={form} onSubmit={handleSubmit}>
-          <FormField name="qty" label={"Quantity to Produce"}>
+          <FormField name="qty" label={t("colQtyToProduce")}>
             {({ field, id }) => <Input {...field} id={id} type="number" min="0" max={remaining} />}
           </FormField>
-          <span className="text-xs text-muted-foreground">{`${remaining} remaining`}</span>
+          <span className="text-xs text-muted-foreground">
+            {t("remainingCount", { remaining })}
+          </span>
           <DialogFooter>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {"Cancel"}
+              {tCommon("cancel")}
             </Button>
-            <SubmitButton>{"Produce"}</SubmitButton>
+            <SubmitButton>{t("produceAction")}</SubmitButton>
           </DialogFooter>
         </Form>
       </DialogContent>

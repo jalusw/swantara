@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus, Trophy, XCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -18,6 +19,7 @@ import { LeadFormDialog } from "./lead-form-dialog";
 import { LostReasonDialog } from "./lost-reason-dialog";
 
 export function OpportunitiesSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Crm");
   const queryClient = useQueryClient();
 
   const [leadDialogOpen, setLeadDialogOpen] = useState(false);
@@ -58,11 +60,11 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
     mutationFn: (prospectId: number) =>
       getSwantaraService().crmOpportunities.win(Number(orgId), prospectId),
     onSuccess: () => {
-      toast.success("Mark won");
+      toast.success(t("markedWon"));
       refresh();
     },
     onError: () => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("saveFailed"));
     },
   });
 
@@ -70,23 +72,30 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
     mutationFn: (prospectId: number) =>
       getSwantaraService().crmOpportunities.delete(Number(orgId), prospectId),
     onSuccess: () => {
-      toast.success("Deleted.");
+      toast.success(t("deleted"));
       refresh();
     },
     onError: () => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("saveFailed"));
     },
   });
 
   const oppColumns: ColumnDef<CrmLead>[] = [
     {
       accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => <span className="">{row.original.name}</span>,
+      header: t("tableName"),
+      cell: ({ row }) => (
+        <span className="flex flex-col">
+          <span className="font-medium">{row.original.name}</span>
+          {row.original.contactName ? (
+            <span className="text-xs text-muted-foreground">{row.original.contactName}</span>
+          ) : null}
+        </span>
+      ),
     },
     {
       accessorKey: "stageId",
-      header: "Stage",
+      header: t("tableStage"),
       cell: ({ row }) => {
         const stageName = row.original.stageId ? stageMap.get(String(row.original.stageId)) : null;
         return (
@@ -102,7 +111,7 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "expectedRevenue",
-      header: "Expected revenue",
+      header: t("tableExpectedRevenue"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums">{formatNumber(row.original.expectedRevenue)}</span>
@@ -110,13 +119,13 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "probability",
-      header: "Probability",
+      header: t("tableProbability"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums">{row.original.probability}%</span>,
     },
     {
       accessorKey: "weighted",
-      header: "Weighted",
+      header: t("tableWeighted"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums ">
@@ -129,7 +138,7 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "expectedClose",
-      header: "Expected close",
+      header: t("tableExpectedClose"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.expectedClose ? formatDate(row.original.expectedClose) : "—"}
@@ -149,7 +158,7 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
                 <Button
                   size="icon-sm"
                   variant="ghost"
-                  aria-label={"Mark won"}
+                  aria-label={t("markWon")}
                   onClick={() => winMutation.mutate(row.original.id)}
                   disabled={winMutation.isPending}
                 >
@@ -158,7 +167,7 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
                 <Button
                   size="icon-sm"
                   variant="ghost"
-                  aria-label={"Mark lost"}
+                  aria-label={t("markLost")}
                   onClick={() => setLoseId(String(row.original.id))}
                 >
                   <XCircle className="size-4" />
@@ -167,14 +176,14 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
             ) : null}
             {row.original.isWon ? (
               <Button size="sm" variant="outline" asChild>
-                <a href={`/crm?quotation=${row.original.id}`}>{"Create quotation"}</a>
+                <a href={`/crm?quotation=${row.original.id}`}>{t("createQuote")}</a>
               </Button>
             ) : null}
             <RowActions
-              editLabel={"Edit opportunity"}
-              deleteLabel={"Delete opportunity"}
-              confirmTitle={"Delete this opportunity?"}
-              confirmDescription={"The opportunity will be removed permanently."}
+              editLabel={t("editOpportunity")}
+              deleteLabel={t("deleteOpportunity")}
+              confirmTitle={t("deleteOpportunityTitle")}
+              confirmDescription={t("deleteOpportunityDescription")}
               onEdit={() => {
                 setEditingLead(row.original);
                 setLeadDialogOpen(true);
@@ -194,10 +203,8 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base">{"Opportunities"}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              {"Qualified deals on the pipeline. Move them through stages to closing."}
-            </p>
+            <CardTitle className="text-base">{t("opportunitiesTitle")}</CardTitle>
+            <p className="text-sm text-muted-foreground">{t("opportunitiesSubtitle")}</p>
           </div>
         </CardHeader>
         <CardContent>
@@ -207,11 +214,11 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
             getRowId={(row) => String(row.id)}
             searchKeys={["name"]}
             statusOptions={[]}
-            searchPlaceholder={"Search opportunities…"}
-            filterLabel={"Search opportunities…"}
-            allLabel={"All opportunities"}
-            ariaLabel={"All opportunities"}
-            emptyTitle={"No opportunities"}
+            searchPlaceholder={t("searchOpportunitiesPlaceholder")}
+            filterLabel={t("searchOpportunitiesPlaceholder")}
+            allLabel={t("allOpportunities")}
+            ariaLabel={t("allOpportunities")}
+            emptyTitle={t("emptyOpportunities")}
             status={
               isLoading
                 ? { type: "loading" }
@@ -232,7 +239,7 @@ export function OpportunitiesSection({ orgId }: { orgId: string }) {
                 }}
               >
                 <Plus />
-                <span>{"Add opportunity"}</span>
+                <span>{t("addOpportunity")}</span>
               </Button>
             }
           />

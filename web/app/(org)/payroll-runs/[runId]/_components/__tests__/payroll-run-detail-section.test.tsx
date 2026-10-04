@@ -58,7 +58,7 @@ describe("PayrollRunDetail", () => {
     renderWithProviders(<PayrollRunDetail orgId="1" runId="3" />);
 
     expect((await screen.findAllByText("March 2026")).length).toBeGreaterThan(0);
-    expect(screen.getByText("10,000")).toBeInTheDocument();
+    expect(screen.getByText("10.000")).toBeInTheDocument();
   });
 
   it("switches to the payslips tab on selection", async () => {
@@ -66,7 +66,7 @@ describe("PayrollRunDetail", () => {
     renderWithProviders(<PayrollRunDetail orgId="1" runId="3" />);
 
     await screen.findAllByText("March 2026");
-    await user.click(screen.getByRole("tab", { name: "Payslips" }));
+    await user.click(screen.getByRole("tab", { name: "Slip gaji" }));
 
     expect(await screen.findByText("Basic salary")).toBeInTheDocument();
   });

@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -21,10 +22,12 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { Journal, JournalEntry } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, getLocalDateString } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { moveStateTone } from "./journal-entry-utils";
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 export function JournalEntriesSection({ orgId }: { orgId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const movementsQuery = useOrgListQuery<{ movements: JournalEntry[] }, Record<string, never>>(
@@ -48,7 +51,7 @@ export function JournalEntriesSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<JournalEntry>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: () => t("fieldName"),
       cell: ({ row }) => (
         <a
           href={`/accounting/journal-entries/${row.original.id}`}
@@ -60,7 +63,7 @@ export function JournalEntriesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "journalId",
-      header: "Journal",
+      header: () => t("fieldJournal"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {journalMap.get(row.original.journalId) ?? `#${row.original.journalId}`}
@@ -69,24 +72,24 @@ export function JournalEntriesSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "date",
-      header: "Date",
+      header: () => t("colDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">{formatDate(row.original.date)}</span>
       ),
     },
     {
       accessorKey: "ref",
-      header: "Reference",
+      header: () => t("colReference"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">{row.original.ref ?? "—"}</span>
       ),
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: () => t("colStatus"),
       cell: ({ row }) => (
         <Badge variant="outline" className={moveStateTone(row.original.state)}>
-          {humanizeKey(String(row.original.state))}
+          {(t as unknown as (k: string) => string)(`entryState_${row.original.state}`)}
         </Badge>
       ),
     },
@@ -101,15 +104,21 @@ export function JournalEntriesSection({ orgId }: { orgId: string }) {
         searchKeys={["name"]}
         statusKey="state"
         statusOptions={[
-          { value: "draft", label: "Draft" },
-          { value: "posted", label: "Posted" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "draft", label: (t as unknown as (k: string) => string)("entryState_draft") },
+          {
+            value: "posted",
+            label: (t as unknown as (k: string) => string)("entryState_posted"),
+          },
+          {
+            value: "cancelled",
+            label: (t as unknown as (k: string) => string)("entryState_cancelled"),
+          },
         ]}
-        searchPlaceholder={"Search journal entries..."}
-        filterLabel={"State"}
-        allLabel={"All"}
-        ariaLabel={"All"}
-        emptyTitle={"No journal entries found."}
+        searchPlaceholder={t("searchJournalEntries")}
+        filterLabel={t("colStatus")}
+        allLabel={t("filterAll")}
+        ariaLabel={t("journalEntriesTitle")}
+        emptyTitle={t("journalEntriesEmpty")}
         status={
           movementsQuery.isLoading
             ? { type: "loading" }
@@ -124,7 +133,7 @@ export function JournalEntriesSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"New entry"}</span>
+            <span>{t("newEntry")}</span>
           </Button>
         }
       />
@@ -165,6 +174,8 @@ function MoveFormDialog({
     { id: "1", accountId: "", name: "", debit: "", credit: "" },
     { id: "2", accountId: "", name: "", debit: "", credit: "" },
   ]);
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
+  const tCommon = useTranslations("Common");
 
   useEffect(() => {
     if (!open) return;
@@ -219,7 +230,7 @@ function MoveFormDialog({
           })),
       })
       .then(() => {
-        toast.success("Journal entry created successfully");
+        toast.success(t("toastEntryCreated"));
         onSave();
       });
   }
@@ -228,16 +239,16 @@ function MoveFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>{"Create journal entry"}</DialogTitle>
-          <DialogDescription>{"Description"}</DialogDescription>
+          <DialogTitle>{t("createEntry")}</DialogTitle>
+          <DialogDescription>{t("colDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Journal"}</span>
+              <span className="text-sm">{t("fieldJournal")}</span>
               <Select value={journalId} onValueChange={(v) => setJournalId(v ?? "")}>
-                <SelectTrigger aria-label={"Journal"}>
-                  <SelectValue placeholder={"Select a journal"} />
+                <SelectTrigger aria-label={t("fieldJournal")}>
+                  <SelectValue placeholder={t("selectJournal")} />
                 </SelectTrigger>
                 <SelectContent>
                   {journals.map((j) => (
@@ -249,44 +260,44 @@ function MoveFormDialog({
               </Select>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Date"}</span>
+              <span className="text-sm">{t("colDate")}</span>
               <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Reference"}</span>
+              <span className="text-sm">{t("colReference")}</span>
               <Input value={ref_} onChange={(e) => setRef(e.target.value)} />
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Description"}</span>
+            <span className="text-sm">{t("colDescription")}</span>
             <Input value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
           <div className="flex flex-col gap-3 rounded-md border p-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm">{"Journal lines"}</h3>
+              <h3 className="text-sm">{t("journalLines")}</h3>
               <Button type="button" variant="outline" size="sm" onClick={addLine}>
-                {"Add line"}
+                {t("addLine")}
               </Button>
             </div>
             {lines.map((line, _index) => (
               <div key={line.id} className="grid gap-2 rounded-md border p-3 sm:grid-cols-12">
                 <div className="sm:col-span-4">
-                  <span className="text-xs text-muted-foreground">{"Account"}</span>
+                  <span className="text-xs text-muted-foreground">{t("fieldAccount")}</span>
                   <Input
                     value={line.accountId}
                     onChange={(e) => updateLine(line.id, { accountId: e.target.value })}
-                    placeholder={"Account ID"}
+                    placeholder={t("accountIdPlaceholder")}
                   />
                 </div>
                 <div className="sm:col-span-3">
-                  <span className="text-xs text-muted-foreground">{"Name"}</span>
+                  <span className="text-xs text-muted-foreground">{t("fieldName")}</span>
                   <Input
                     value={line.name}
                     onChange={(e) => updateLine(line.id, { name: e.target.value })}
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <span className="text-xs text-muted-foreground">{"Debit"}</span>
+                  <span className="text-xs text-muted-foreground">{t("colDebit")}</span>
                   <Input
                     value={line.debit}
                     onChange={(e) => updateLine(line.id, { debit: e.target.value })}
@@ -296,7 +307,7 @@ function MoveFormDialog({
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <span className="text-xs text-muted-foreground">{"Credit"}</span>
+                  <span className="text-xs text-muted-foreground">{t("colCredit")}</span>
                   <Input
                     value={line.credit}
                     onChange={(e) => updateLine(line.id, { credit: e.target.value })}
@@ -312,30 +323,30 @@ function MoveFormDialog({
                     size="sm"
                     onClick={() => removeLine(line.id)}
                   >
-                    {"Remove"}
+                    {tCommon("delete")}
                   </Button>
                 </div>
               </div>
             ))}
             <div className="flex justify-between text-sm">
               <span>
-                {"Total debit"}: {totalDebit.toFixed(2)}
+                {t("totalDebit")}: {totalDebit.toFixed(2)}
               </span>
               <span>
-                {"Total credit"}: {totalCredit.toFixed(2)}
+                {t("totalCredit")}: {totalCredit.toFixed(2)}
               </span>
               <span className={isBalanced ? "text-success" : "text-destructive"}>
-                {isBalanced ? "Balanced" : "Unbalanced"}
+                {isBalanced ? t("balanced") : t("unbalanced")}
               </span>
             </div>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={!journalId || !isBalanced}>
-            {"Save"}
+            {tCommon("save")}
           </Button>
         </DialogFooter>
       </DialogContent>

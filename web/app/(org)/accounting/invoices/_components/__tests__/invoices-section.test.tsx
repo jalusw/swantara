@@ -84,7 +84,7 @@ describe("InvoicesSection", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-2026-001");
-    await user.type(screen.getByPlaceholderText("Search invoices..."), "002");
+    await user.type(screen.getByPlaceholderText("Cari faktur..."), "002");
 
     expect(await screen.findByText("INV-2026-002")).toBeInTheDocument();
   });
@@ -94,9 +94,9 @@ describe("InvoicesSection", () => {
     renderWithProviders(<InvoicesSection orgId="1" />);
 
     await screen.findByText("INV-2026-001");
-    await user.click(screen.getByRole("button", { name: "New invoice" }));
+    await user.click(screen.getByRole("button", { name: "Faktur baru" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("Create invoice")).toBeInTheDocument();
+    expect(screen.getByText("Buat faktur")).toBeInTheDocument();
   });
 });

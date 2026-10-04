@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { BarChart } from "@/components/bar-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/card";
@@ -11,6 +12,7 @@ import { formatMoney } from "@/lib/utils";
 import { KpiCard } from "./kpi-card";
 
 export function SalesSection() {
+  const t = useTranslations("Dashboard");
   const salesKpi = useSalesKpi();
   const sales = salesKpi.data?.kpi;
 
@@ -18,79 +20,79 @@ export function SalesSection() {
     () =>
       sales
         ? [
-            { label: "Bookings", value: sales.bookings },
-            { label: "Revenue", value: sales.revenue },
-            { label: "COGS", value: sales.cogs },
-            { label: "Gross margin", value: sales.grossMargin },
+            { label: t("bookings"), value: sales.bookings },
+            { label: t("stat_revenue"), value: sales.revenue },
+            { label: t("cogs"), value: sales.cogs },
+            { label: t("grossMargin"), value: sales.grossMargin },
           ]
         : [
-            { label: "Bookings", value: 0 },
-            { label: "Revenue", value: 0 },
-            { label: "COGS", value: 0 },
-            { label: "Gross margin", value: 0 },
+            { label: t("bookings"), value: 0 },
+            { label: t("stat_revenue"), value: 0 },
+            { label: t("cogs"), value: 0 },
+            { label: t("grossMargin"), value: 0 },
           ],
-    [sales],
+    [sales, t],
   );
 
   const winRateData = useMemo(
     () =>
       sales
         ? [
-            { label: "Win rate", value: sales.winRate * 100 },
-            { label: "Loss", value: (1 - sales.winRate) * 100 },
+            { label: t("winRate"), value: sales.winRate * 100 },
+            { label: t("loss"), value: (1 - sales.winRate) * 100 },
           ]
         : [
-            { label: "Win rate", value: 0 },
-            { label: "Loss", value: 0 },
+            { label: t("winRate"), value: 0 },
+            { label: t("loss"), value: 0 },
           ],
-    [sales],
+    [sales, t],
   );
 
   const marginFlow = useMemo(
     () =>
       sales
         ? [
-            { label: "Bookings", value: sales.bookings },
-            { label: "Revenue", value: sales.revenue },
-            { label: "Gross margin", value: sales.grossMargin },
+            { label: t("bookings"), value: sales.bookings },
+            { label: t("stat_revenue"), value: sales.revenue },
+            { label: t("grossMargin"), value: sales.grossMargin },
           ]
         : [
-            { label: "Bookings", value: 0 },
-            { label: "Revenue", value: 0 },
-            { label: "Gross margin", value: 0 },
+            { label: t("bookings"), value: 0 },
+            { label: t("stat_revenue"), value: 0 },
+            { label: t("grossMargin"), value: 0 },
           ],
-    [sales],
+    [sales, t],
   );
 
   return (
     <div className="grid gap-4 grid-cols-12">
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle>{"Sales"}</CardTitle>
-          <CardDescription>{"Bookings, revenue, COGS and win rate."}</CardDescription>
+          <CardTitle>{t("salesTitle")}</CardTitle>
+          <CardDescription>{t("salesDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-12">
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-4"
-            label={"Bookings"}
+            label={t("bookings")}
           >
             {sales ? formatMoney(sales.bookings, { currency: DEFAULT_CURRENCY }) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-4"
-            label={"Revenue"}
+            label={t("stat_revenue")}
           >
             {sales ? formatMoney(sales.revenue, { currency: DEFAULT_CURRENCY }) : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-4"
-            label={"COGS"}
+            label={t("cogs")}
           >
             {sales ? formatMoney(sales.cogs, { currency: DEFAULT_CURRENCY }) : "—"}
           </KpiCard>
           <div className="col-span-6 rounded-xl border border-border bg-card p-4">
             <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
-              {"Gross margin"}
+              {t("grossMargin")}
             </p>
             <p className="mt-1 font-heading text-xl font-semibold tabular-nums">
               {sales ? formatMoney(sales.grossMargin, { currency: DEFAULT_CURRENCY }) : "—"}
@@ -101,7 +103,7 @@ export function SalesSection() {
           </div>
           <KpiCard
             className="col-span-12 rounded-xl border border-border bg-card p-4 bg-primary/[0.04] border-primary/15"
-            label={"Win rate"}
+            label={t("winRate")}
           >
             {sales ? `${(sales.winRate * 100).toFixed(1)}%` : "—"}
           </KpiCard>
@@ -109,40 +111,40 @@ export function SalesSection() {
       </Card>
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle className="text-sm">{"Bookings flow"}</CardTitle>
-          <CardDescription>{"Bookings → Revenue → Margin"}</CardDescription>
+          <CardTitle className="text-sm">{t("bookingFlowTitle")}</CardTitle>
+          <CardDescription>{t("bookingFlowDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <BarChart
             data={salesData}
-            ariaLabel={"Sales"}
+            ariaLabel={t("salesTitle")}
             valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
           />
         </CardContent>
       </Card>
       <Card className="col-span-6">
         <CardHeader>
-          <CardTitle className="text-sm">{"Win rate"}</CardTitle>
-          <CardDescription>{"Win vs loss"}</CardDescription>
+          <CardTitle className="text-sm">{t("winRate")}</CardTitle>
+          <CardDescription>{t("winVsLoss")}</CardDescription>
         </CardHeader>
         <CardContent>
           <DonutChart
             data={winRateData}
-            ariaLabel={"Win rate"}
+            ariaLabel={t("winRate")}
             valueFormatter={(value) => `${value.toFixed(1)}%`}
-            centerLabel={"Win rate"}
+            centerLabel={t("winRate")}
           />
         </CardContent>
       </Card>
       <Card className="col-span-6">
         <CardHeader>
-          <CardTitle className="text-sm">{"Margin trend"}</CardTitle>
-          <CardDescription>{"Flow across stages"}</CardDescription>
+          <CardTitle className="text-sm">{t("marginTrendTitle")}</CardTitle>
+          <CardDescription>{t("marginFlowDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <LineChart
             data={marginFlow}
-            ariaLabel={"Gross margin"}
+            ariaLabel={t("grossMargin")}
             valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
           />
         </CardContent>
@@ -152,6 +154,7 @@ export function SalesSection() {
 }
 
 export function PipelineSection() {
+  const t = useTranslations("Dashboard");
   const pipelineKpi = usePipelineKpi();
   const pipeline = pipelineKpi.data?.kpi;
 
@@ -159,41 +162,41 @@ export function PipelineSection() {
     () =>
       pipeline
         ? [
-            { label: "Weighted pipeline", value: pipeline.weightedPipeline },
-            { label: "Expected revenue", value: pipeline.totalExpectedRevenue },
+            { label: t("weightedPipeline"), value: pipeline.weightedPipeline },
+            { label: t("expectedRevenue"), value: pipeline.totalExpectedRevenue },
           ]
         : [
-            { label: "Weighted pipeline", value: 0 },
-            { label: "Expected revenue", value: 0 },
+            { label: t("weightedPipeline"), value: 0 },
+            { label: t("expectedRevenue"), value: 0 },
           ],
-    [pipeline],
+    [pipeline, t],
   );
 
   const pipelineWinData = useMemo(
     () =>
       pipeline
         ? [
-            { label: "Win rate", value: pipeline.winRate * 100 },
-            { label: "Loss", value: (1 - pipeline.winRate) * 100 },
+            { label: t("winRate"), value: pipeline.winRate * 100 },
+            { label: t("loss"), value: (1 - pipeline.winRate) * 100 },
           ]
         : [
-            { label: "Win rate", value: 0 },
-            { label: "Loss", value: 0 },
+            { label: t("winRate"), value: 0 },
+            { label: t("loss"), value: 0 },
           ],
-    [pipeline],
+    [pipeline, t],
   );
 
   return (
     <div className="grid gap-4 grid-cols-12">
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle>{"Pipeline"}</CardTitle>
-          <CardDescription>{"Weighted pipeline and stage coverage."}</CardDescription>
+          <CardTitle>{t("pipelineTitle")}</CardTitle>
+          <CardDescription>{t("pipelineDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-12">
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-4 bg-primary/[0.04] border-primary/15"
-            label={"Weighted pipeline"}
+            label={t("weightedPipeline")}
           >
             {pipeline
               ? formatMoney(pipeline.weightedPipeline, { currency: DEFAULT_CURRENCY })
@@ -201,7 +204,7 @@ export function PipelineSection() {
           </KpiCard>
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-4"
-            label={"Expected revenue"}
+            label={t("expectedRevenue")}
           >
             {pipeline
               ? formatMoney(pipeline.totalExpectedRevenue, { currency: DEFAULT_CURRENCY })
@@ -209,13 +212,13 @@ export function PipelineSection() {
           </KpiCard>
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-4"
-            label={"Win rate"}
+            label={t("winRate")}
           >
             {pipeline ? `${(pipeline.winRate * 100).toFixed(1)}%` : "—"}
           </KpiCard>
           <KpiCard
             className="col-span-6 rounded-xl border border-border bg-card p-4"
-            label={"Stages"}
+            label={t("stages")}
           >
             {pipeline ? String(pipeline.stages) : "—"}
           </KpiCard>
@@ -223,28 +226,28 @@ export function PipelineSection() {
       </Card>
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle className="text-sm">{"Pipeline value"}</CardTitle>
-          <CardDescription>{"Weighted vs expected"}</CardDescription>
+          <CardTitle className="text-sm">{t("pipelineValueTitle")}</CardTitle>
+          <CardDescription>{t("pipelineValueDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <BarChart
             data={pipelineData}
-            ariaLabel={"Pipeline"}
+            ariaLabel={t("pipelineTitle")}
             valueFormatter={(value) => formatMoney(value, { currency: DEFAULT_CURRENCY })}
           />
         </CardContent>
       </Card>
       <Card className="col-span-12">
         <CardHeader>
-          <CardTitle className="text-sm">{"Win rate"}</CardTitle>
-          <CardDescription>{"Coverage across stages"}</CardDescription>
+          <CardTitle className="text-sm">{t("winRate")}</CardTitle>
+          <CardDescription>{t("pipelineWinDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <DonutChart
             data={pipelineWinData}
-            ariaLabel={"Win rate"}
+            ariaLabel={t("winRate")}
             valueFormatter={(value) => `${value.toFixed(1)}%`}
-            centerLabel={"Win rate"}
+            centerLabel={t("winRate")}
           />
         </CardContent>
       </Card>

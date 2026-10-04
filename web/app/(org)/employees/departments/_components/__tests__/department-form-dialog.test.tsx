@@ -12,8 +12,8 @@ describe("DepartmentFormDialog", () => {
       <DepartmentFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    expect(await screen.findByText("Add department")).toBeInTheDocument();
-    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+    expect(await screen.findByText("Departemen baru")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nama")).toBeInTheDocument();
   });
 
   it("accepts a department name", async () => {
@@ -22,7 +22,7 @@ describe("DepartmentFormDialog", () => {
       <DepartmentFormDialog open={true} onOpenChange={vi.fn()} orgId="1" onSave={vi.fn()} />,
     );
 
-    const nameInput = await screen.findByLabelText("Name");
+    const nameInput = await screen.findByLabelText("Nama");
     await user.type(nameInput, "Engineering");
 
     expect(nameInput).toHaveValue("Engineering");

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/table";
 import { cn } from "@/lib/utils/style";
 
@@ -45,26 +46,27 @@ export function VariantMatrixPreview({
   attributes: AttributeOption[];
 }) {
   const matrix = buildMatrix(attributes);
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Products");
   const skus = matrix.map((combination) => generateSku(templateName || "", combination));
   const duplicates = [...skus.filter((sku, index) => skus.indexOf(sku) !== index)];
 
   if (matrix.length === 0 || Object.keys(matrix[0] ?? {}).length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        {"No attributes defined — the item will have a single default variant."}
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground">{t("noAttributesHint")}</p>;
   }
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm">{`Generated variants (${matrix.length})`}</p>
+      <p className="text-sm">{t("variantsCreated", { count: matrix.length })}</p>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{"Variant"}</TableHead>
-              <TableHead>{"SKU"}</TableHead>
+              <TableHead>{t("variantsTab")}</TableHead>
+              <TableHead>SKU</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -94,7 +96,7 @@ export function VariantMatrixPreview({
       </div>
       {duplicates.length > 0 ? (
         <p className="text-sm text-destructive" role="alert">
-          {`SKU ${duplicates[0]!} is generated more than once. Make names unique.`}
+          {t("duplicateSkuDetail", { sku: duplicates[0] ?? "" })}
         </p>
       ) : null}
     </div>

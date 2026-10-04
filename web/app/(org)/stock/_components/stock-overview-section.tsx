@@ -1,6 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { Badge } from "@/components/badge";
@@ -53,6 +54,11 @@ function stateBadgeVariant(state: StockMovement["state"]) {
 }
 
 export function StockOverviewSection({ orgId: _orgId }: { orgId: string }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Stock");
   const [locationFilter, setLocationFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("onhand");
 
@@ -140,21 +146,21 @@ export function StockOverviewSection({ orgId: _orgId }: { orgId: string }) {
   const onHandColumns: ColumnDef<OnHandRow>[] = [
     {
       accessorKey: "productName",
-      header: "Item",
+      header: () => t("fieldItem"),
     },
     {
       accessorKey: "locationName",
-      header: "Location",
+      header: () => t("fieldLocation"),
     },
     {
       accessorKey: "onHand",
-      header: "On hand",
+      header: () => t("colOnHand"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums">{formatNumber(row.original.onHand)}</span>,
     },
     {
       accessorKey: "reserved",
-      header: "Reserved",
+      header: () => t("colReserved"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums text-muted-foreground">
@@ -164,7 +170,7 @@ export function StockOverviewSection({ orgId: _orgId }: { orgId: string }) {
     },
     {
       accessorKey: "available",
-      header: "Available",
+      header: () => t("colAvailable"),
       meta: { align: "right" },
       cell: ({ row }) => (
         <span className="tabular-nums ">{formatNumber(row.original.available)}</span>
@@ -175,32 +181,34 @@ export function StockOverviewSection({ orgId: _orgId }: { orgId: string }) {
   const moveColumns: ColumnDef<MoveRow>[] = [
     {
       accessorKey: "productName",
-      header: "Item",
+      header: () => t("fieldItem"),
     },
     {
       accessorKey: "qty",
-      header: "Quantity",
+      header: () => t("colQuantity"),
       meta: { align: "right" },
       cell: ({ row }) => <span className="tabular-nums">{formatNumber(row.original.qty)}</span>,
     },
     {
       accessorKey: "srcLocation",
-      header: "From",
+      header: () => t("colFrom"),
     },
     {
       accessorKey: "dstLocation",
-      header: "To",
+      header: () => t("colTo"),
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: () => t("colStatus"),
       cell: ({ row }) => (
-        <Badge variant={stateBadgeVariant(row.original.state)}>{row.original.state}</Badge>
+        <Badge variant={stateBadgeVariant(row.original.state)}>
+          {(t as unknown as (k: string) => string)(`moveState_${row.original.state}`)}
+        </Badge>
       ),
     },
     {
       accessorKey: "dateDone",
-      header: "Date",
+      header: () => t("colDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground">
           {row.original.dateDone ? formatDate(row.original.dateDone, { nullFallback: "—" }) : "—"}
@@ -226,11 +234,11 @@ export function StockOverviewSection({ orgId: _orgId }: { orgId: string }) {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <Select value={locationFilter} onValueChange={(value) => setLocationFilter(value ?? "all")}>
-          <SelectTrigger className="w-60" aria-label={"Filter by location"}>
-            <SelectValue placeholder={"All locations"} />
+          <SelectTrigger className="w-60" aria-label={t("filterByLocation")}>
+            <SelectValue placeholder={t("allLocations")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{"All locations"}</SelectItem>
+            <SelectItem value="all">{t("allLocations")}</SelectItem>
             {locations.map((location) => (
               <SelectItem key={location.id} value={String(location.id)}>
                 {location.name}
@@ -245,14 +253,14 @@ export function StockOverviewSection({ orgId: _orgId }: { orgId: string }) {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="onhand">{"On hand"}</TabsTrigger>
-          <TabsTrigger value="movements">{"Stock movements"}</TabsTrigger>
+          <TabsTrigger value="onhand">{t("onHandTab")}</TabsTrigger>
+          <TabsTrigger value="movements">{t("movementsTab")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="onhand">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">{"On-hand quantities"}</CardTitle>
+              <CardTitle className="text-base">{t("onHandTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
               <InteractiveEntityTable
@@ -260,9 +268,9 @@ export function StockOverviewSection({ orgId: _orgId }: { orgId: string }) {
                 data={onHandRows}
                 getRowId={(row) => row.id}
                 searchKeys={["productName", "locationName"]}
-                searchPlaceholder={"Search stock…"}
-                ariaLabel={"On hand"}
-                emptyTitle={"No on-hand quantities found."}
+                searchPlaceholder={t("searchStock")}
+                ariaLabel={t("onHandTab")}
+                emptyTitle={t("onHandEmpty")}
                 status={
                   isLoading
                     ? { type: "loading" }
@@ -285,7 +293,7 @@ export function StockOverviewSection({ orgId: _orgId }: { orgId: string }) {
         <TabsContent value="movements">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">{"Stock movement ledger"}</CardTitle>
+              <CardTitle className="text-base">{t("movementsTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
               <InteractiveEntityTable
@@ -293,9 +301,9 @@ export function StockOverviewSection({ orgId: _orgId }: { orgId: string }) {
                 data={moveRows}
                 getRowId={(row) => row.id}
                 searchKeys={["productName"]}
-                searchPlaceholder={"Search stock…"}
-                ariaLabel={"Stock movements"}
-                emptyTitle={"No stock movements found."}
+                searchPlaceholder={t("searchStock")}
+                ariaLabel={t("movementsTab")}
+                emptyTitle={t("movementsEmpty")}
                 status={
                   isLoading
                     ? { type: "loading" }

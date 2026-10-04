@@ -18,8 +18,8 @@ export function getMockAccounts(): AccountRow[] {
     { name: "Current assets", balance: 58200, movement: "up", percent: "+4.2%" },
     { name: "Accounts payable", balance: 12800, movement: "down", percent: "-1.1%" },
     { name: "Accounts receivable", balance: 41300, movement: "up", percent: "+6.5%" },
-    { name: "Inventory", balance: 23900, movement: "up", percent: "+0.8%" },
-    { name: "Equity", balance: 96400, movement: "up", percent: "+2.9%" },
+    { name: "Persediaan", balance: 23900, movement: "up", percent: "+0.8%" },
+    { name: "Ekuitas", balance: 96400, movement: "up", percent: "+2.9%" },
   ];
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -18,14 +19,15 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { Account } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { cn } from "@/lib/utils/style";
-import {
-  type AccountTreeNode,
-  accountTypeLabels,
-  accountTypeTone,
-  buildAccountTree,
-} from "./account-utils";
+import { type AccountTreeNode, accountTypeTone, buildAccountTree } from "./account-utils";
 
 export function AccountsSection({ orgId }: { orgId: string }) {
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Accounting");
+  const tCommon = useTranslations("Common");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
 
@@ -63,20 +65,20 @@ export function AccountsSection({ orgId }: { orgId: string }) {
           <span className="font-mono text-sm w-20 shrink-0">{node.code}</span>
           <span className="flex-1 text-sm">{node.name}</span>
           <Badge variant="outline" className={cn("text-xs", accountTypeTone(node.type))}>
-            {accountTypeLabels[node.type]}
+            {(t as unknown as (k: string) => string)(`accountType_${node.type}`)}
           </Badge>
           {node.reconcilable ? (
             <Badge variant="secondary" className="text-xs">
-              {"Reconcilable"}
+              {t("badgeReconcilable")}
             </Badge>
           ) : null}
           {!node.active ? (
             <Badge variant="outline" className="text-xs text-muted-foreground">
-              {"Inactive"}
+              {t("badgeInactive")}
             </Badge>
           ) : null}
           <Button size="sm" variant="ghost" onClick={() => handleEdit(node)}>
-            {"Edit"}
+            {tCommon("edit")}
           </Button>
         </div>
         {node.children.map((child) => renderNode(child, depth + 1))}
@@ -87,17 +89,17 @@ export function AccountsSection({ orgId }: { orgId: string }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{`${accounts.length} accounts`}</p>
+        <p className="text-sm text-muted-foreground">
+          {t("accountsCount", { count: accounts.length })}
+        </p>
         <Button size="sm" onClick={handleCreate}>
-          {"Add account"}
+          {t("addAccount")}
         </Button>
       </div>
       {accountsQuery.isLoading ? (
-        <div className="text-sm text-muted-foreground">{"Loading accounts..."}</div>
+        <div className="text-sm text-muted-foreground">{t("loadingAccounts")}</div>
       ) : tree.length === 0 ? (
-        <div className="text-sm text-muted-foreground">
-          {"No accounts yet. Create your first account to get started."}
-        </div>
+        <div className="text-sm text-muted-foreground">{t("accountsEmpty")}</div>
       ) : (
         <div className="flex flex-col gap-1 rounded-md border p-2">
           {tree.map((node) => renderNode(node, 0))}
@@ -139,6 +141,12 @@ function AccountFormDialog({
   const [parentId, setParentId] = useState(
     account?.parentId != null ? String(account.parentId) : "",
   );
+  const t = (
+    useTranslations as unknown as (
+      ns: string,
+    ) => (key: string, values?: Record<string, string | number>) => string
+  )("Accounting");
+  const tCommon = useTranslations("Common");
 
   const accountTypes = [
     "asset",
@@ -172,7 +180,7 @@ function AccountFormDialog({
       ? getSwantaraService().accounts.update(Number(orgId), account.id, request)
       : getSwantaraService().accounts.create(Number(orgId), request);
     void promise.then(() => {
-      toast.success(account ? "Account updated successfully" : "Account created successfully");
+      toast.success(account ? t("toastAccountUpdated") : t("toastAccountCreated"));
       onSave();
     });
   }
@@ -181,15 +189,13 @@ function AccountFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{account ? "Edit account" : "Create account"}</DialogTitle>
-          <DialogDescription>
-            {"Define the account code, name, and classification."}
-          </DialogDescription>
+          <DialogTitle>{account ? t("editAccount") : t("createAccount")}</DialogTitle>
+          <DialogDescription>{t("accountDialogDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Code"}</span>
+              <span className="text-sm">{t("fieldCode")}</span>
               <Input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
@@ -197,30 +203,30 @@ function AccountFormDialog({
               />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Name"}</span>
+              <span className="text-sm">{t("fieldName")}</span>
               <Input value={name} onChange={(e) => setName(e.target.value)} />
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Type"}</span>
+            <span className="text-sm">{t("fieldType")}</span>
             <Select value={type} onValueChange={(v) => setType(v as Account["type"])}>
-              <SelectTrigger aria-label={"Type"}>
+              <SelectTrigger aria-label={t("fieldType")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {accountTypes.map((tp) => (
                   <SelectItem key={tp} value={tp}>
-                    {accountTypeLabels[tp]}
+                    {(t as unknown as (k: string) => string)(`accountType_${tp}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Parent account"}</span>
+            <span className="text-sm">{t("fieldParentAccount")}</span>
             <Select value={parentId} onValueChange={(v) => setParentId(v ?? "")}>
-              <SelectTrigger aria-label={"Parent account"}>
-                <SelectValue placeholder={"None (root account)"} />
+              <SelectTrigger aria-label={t("fieldParentAccount")}>
+                <SelectValue placeholder={t("noneRootAccount")} />
               </SelectTrigger>
               <SelectContent>
                 {accounts
@@ -240,15 +246,15 @@ function AccountFormDialog({
               onChange={(e) => setReconcilable(e.target.checked)}
               className="size-4"
             />
-            {"Reconcilable"}
+            {t("badgeReconcilable")}
           </label>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={!code || !name}>
-            {"Save"}
+            {tCommon("save")}
           </Button>
         </DialogFooter>
       </DialogContent>

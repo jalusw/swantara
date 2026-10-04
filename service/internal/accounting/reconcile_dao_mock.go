@@ -49,8 +49,16 @@ func (m AccountPartialReconcileDAOMock) TotalByLine(ctx context.Context, lineID 
 
 type ReminderActionDAOMock struct {
 	dao.CRUDMock[ReminderAction]
+	CreateTxFunc           func(ctx context.Context, tx *gorm.DB, action *ReminderAction) (*ReminderAction, error)
 	FindByInvoiceLevelFunc func(ctx context.Context, invoiceID, levelID uint64) (*ReminderAction, error)
 	ListByInvoiceFunc      func(ctx context.Context, invoiceID uint64) ([]*ReminderAction, error)
+}
+
+func (m ReminderActionDAOMock) CreateTx(ctx context.Context, tx *gorm.DB, action *ReminderAction) (*ReminderAction, error) {
+	if m.CreateTxFunc != nil {
+		return m.CreateTxFunc(ctx, tx, action)
+	}
+	return m.Create(ctx, action)
 }
 
 func (m ReminderActionDAOMock) FindByInvoiceLevel(ctx context.Context, invoiceID, levelID uint64) (*ReminderAction, error) {

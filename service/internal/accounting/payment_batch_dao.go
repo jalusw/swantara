@@ -10,6 +10,7 @@ import (
 
 type PaymentBatchDAO interface {
 	dao.CRUD[PaymentBatch]
+	CreateTx(ctx context.Context, tx *gorm.DB, batch *PaymentBatch) (*PaymentBatch, error)
 	UpdateTx(ctx context.Context, tx *gorm.DB, batch *PaymentBatch) (*PaymentBatch, error)
 }
 
@@ -20,6 +21,13 @@ type paymentBatchDAO struct {
 
 func NewPaymentBatchDAO(db *gorm.DB) PaymentBatchDAO {
 	return paymentBatchDAO{Base: dao.NewBase[PaymentBatch](db), db: db}
+}
+
+func (d paymentBatchDAO) CreateTx(ctx context.Context, tx *gorm.DB, batch *PaymentBatch) (*PaymentBatch, error) {
+	if err := tx.WithContext(ctx).Create(batch).Error; err != nil {
+		return nil, err
+	}
+	return batch, nil
 }
 
 func (d paymentBatchDAO) UpdateTx(ctx context.Context, tx *gorm.DB, batch *PaymentBatch) (*PaymentBatch, error) {

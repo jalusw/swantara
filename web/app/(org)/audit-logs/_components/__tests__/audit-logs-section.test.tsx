@@ -58,9 +58,9 @@ describe("AuditLogsSection", () => {
     expect(await screen.findByText("AL-1")).toBeInTheDocument();
     expect(screen.getAllByText("invoices").length).toBeGreaterThan(0);
     expect(screen.getByText("contacts")).toBeInTheDocument();
-    expect(screen.getAllByText("Created").length).toBeGreaterThan(0);
-    expect(screen.getByText("Updated")).toBeInTheDocument();
-    expect(screen.getByText("Deleted")).toBeInTheDocument();
+    expect(screen.getAllByText("Dibuat").length).toBeGreaterThan(0);
+    expect(screen.getByText("Diperbarui")).toBeInTheDocument();
+    expect(screen.getByText("Dihapus")).toBeInTheDocument();
   });
 
   it("filters logs by search", async () => {
@@ -68,7 +68,7 @@ describe("AuditLogsSection", () => {
     renderWithProviders(<AuditLogsSection orgId="1" />);
 
     await screen.findByText("AL-1");
-    await user.type(screen.getByPlaceholderText("Search audit logs…"), "contacts");
+    await user.type(screen.getByPlaceholderText("Cari log audit…"), "contacts");
 
     expect(await screen.findByText("AL-2")).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("AL-1")).not.toBeInTheDocument());
@@ -82,7 +82,7 @@ describe("AuditLogsSection", () => {
     );
     renderWithProviders(<AuditLogsSection orgId="1" />);
 
-    expect(await screen.findByText("No audit logs")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada log audit")).toBeInTheDocument();
   });
 
   it("shows the error state with retry and refetches", async () => {
@@ -104,7 +104,7 @@ describe("AuditLogsSection", () => {
     renderWithProviders(<AuditLogsSection orgId="1" />);
 
     expect(await screen.findByText("audit boom")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Retry" }));
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     expect(await screen.findByText("AL-1")).toBeInTheDocument();
     expect(calls).toBe(2);

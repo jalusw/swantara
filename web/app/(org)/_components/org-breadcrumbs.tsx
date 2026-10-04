@@ -1,12 +1,23 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/breadcrumb";
 import { humanizeKey } from "@/lib/utils/case";
 import { navLabel, orgNavItems } from "./nav-items";
 
 export function OrgBreadcrumbs() {
   const pathname = usePathname();
+  const tNav = useTranslations("Nav");
+  const tCrumb = useTranslations("Breadcrumbs");
+
+  function translatedNavLabel(key: string): string {
+    try {
+      return (tNav as unknown as (k: string) => string)(key);
+    } catch {
+      return navLabel(key);
+    }
+  }
 
   const trail = pathname.split("/").filter(Boolean);
   if (trail.length === 0) {
@@ -14,7 +25,7 @@ export function OrgBreadcrumbs() {
   }
   const items: BreadcrumbItem[] = [
     {
-      label: "Home",
+      label: tCrumb("home"),
       href: trail[0] === "dashboard" ? undefined : "/dashboard",
     },
   ];
@@ -27,7 +38,7 @@ export function OrgBreadcrumbs() {
     const isLast = i === trail.length;
     let label: string;
     if (match) {
-      label = navLabel(match.key);
+      label = translatedNavLabel(match.key);
     } else if (trail[0] === "crm" && crmTabKeys.has(trail[i - 1]!)) {
       try {
         label = humanizeKey(String(trail[i - 1]!));

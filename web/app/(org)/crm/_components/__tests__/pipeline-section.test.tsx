@@ -121,8 +121,8 @@ describe("PipelineSection", () => {
   it("renders KPIs, stage forecast wall, and the pipeline board", async () => {
     renderWithProviders(<PipelineSection orgId="1" />);
 
-    expect((await screen.findAllByText("Weighted pipeline")).length).toBeGreaterThan(0);
-    expect(screen.getByText("Pipeline board")).toBeInTheDocument();
+    expect((await screen.findAllByText("Tertimbang")).length).toBeGreaterThan(0);
+    expect(screen.getByText("Papan pipa")).toBeInTheDocument();
     expect(screen.getByText("Acme Enterprise Deal")).toBeInTheDocument();
     expect(screen.getByText("New")).toBeInTheDocument();
   });
@@ -132,7 +132,7 @@ describe("PipelineSection", () => {
     renderWithProviders(<PipelineSection orgId="1" />);
 
     await screen.findByText("Acme Enterprise Deal");
-    await user.click(screen.getByRole("button", { name: "Mark won: Acme Enterprise Deal" }));
+    await user.click(screen.getByRole("button", { name: "Tandai menang: Acme Enterprise Deal" }));
 
     await waitFor(() => expect(winCalls).toBe(1));
   });

@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -9,17 +10,29 @@ import { isServerError } from "@/lib/client/error";
 
 const REDIRECT_DELAY = 1200;
 
-export function useResetPasswordFormSchema() {
+export type ResetPasswordFormMessages = {
+  passwordMinLength: string;
+  confirmPasswordMinLength: string;
+  passwordMismatch: string;
+};
+
+const resetPasswordFormDefaultMessages: ResetPasswordFormMessages = {
+  passwordMinLength: "Password must contain at least 8 characters",
+  confirmPasswordMinLength: "Password confirmation must contain at least 8 characters",
+  passwordMismatch: "Password confirmation doesn't match",
+};
+
+export function useResetPasswordFormSchema(
+  messages: ResetPasswordFormMessages = resetPasswordFormDefaultMessages,
+) {
   return z
     .object({
-      password: z.string().min(8, { message: "Password must contain at least 8 characters" }),
-      passwordConfirmation: z
-        .string()
-        .min(8, { message: "Password confirmation must contain at least 8 characters" }),
+      password: z.string().min(8, { message: messages.passwordMinLength }),
+      passwordConfirmation: z.string().min(8, { message: messages.confirmPasswordMinLength }),
     })
     .refine((value) => value.password === value.passwordConfirmation, {
       path: ["passwordConfirmation"],
-      message: "Password confirmation doesn't match",
+      message: messages.passwordMismatch,
     });
 }
 
@@ -34,7 +47,15 @@ export function useResetPasswordForm({ token }: { token?: string }) {
   const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
-  const resetPasswordFormSchema = useResetPasswordFormSchema();
+  const t = useTranslations("Auth");
+  const tCommon = useTranslations("Common");
+  const tx = t as unknown as (key: string) => string;
+  const txCommon = tCommon as unknown as (key: string) => string;
+  const resetPasswordFormSchema = useResetPasswordFormSchema({
+    passwordMinLength: tx("passwordMinLength"),
+    confirmPasswordMinLength: tx("confirmPasswordMinLength"),
+    passwordMismatch: tx("passwordMismatch"),
+  });
 
   const form = useForm<ResetPasswordFormSchema>({
     resolver: zodResolver(resetPasswordFormSchema),
@@ -43,7 +64,7 @@ export function useResetPasswordForm({ token }: { token?: string }) {
 
   const handleSubmit = form.handleSubmit((data: ResetPasswordFormSchema) => {
     if (!token) {
-      toast.error("We couldn't reset your password. Please try again later.");
+      toast.error(tx("resetFailed"));
       return;
     }
     startTransition(async () => {
@@ -53,14 +74,14 @@ export function useResetPasswordForm({ token }: { token?: string }) {
           password: data.password,
         });
         setIsSuccess(true);
-        toast.success("Password updated!");
+        toast.success(tx("passwordUpdatedTitle"));
         setTimeout(() => router.push("/login"), REDIRECT_DELAY);
       } catch (error: unknown) {
         if (isServerError(error)) {
-          toast.error("Something went wrong. Please try again later.");
+          toast.error(txCommon("serverError"));
           return;
         }
-        toast.error("We couldn't reset your password. Please try again later.");
+        toast.error(tx("resetFailed"));
       }
     });
   });

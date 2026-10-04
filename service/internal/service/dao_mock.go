@@ -133,7 +133,15 @@ type ServiceOrderDAOMock struct {
 	UpdateFunc     func(ctx context.Context, entity *ServiceOrder) (*ServiceOrder, error)
 	DeleteFunc     func(ctx context.Context, id uint64) error
 	HardDeleteFunc func(ctx context.Context, id uint64) error
+	CreateTxFunc   func(ctx context.Context, tx *gorm.DB, entity *ServiceOrder) (*ServiceOrder, error)
 	UpdateTxFunc   func(ctx context.Context, tx *gorm.DB, entity *ServiceOrder) (*ServiceOrder, error)
+}
+
+func (m ServiceOrderDAOMock) CreateTx(ctx context.Context, tx *gorm.DB, entity *ServiceOrder) (*ServiceOrder, error) {
+	if m.CreateTxFunc != nil {
+		return m.CreateTxFunc(ctx, tx, entity)
+	}
+	return m.Create(ctx, entity)
 }
 
 func (m ServiceOrderDAOMock) List(ctx context.Context, q *query.Query) (*query.Page[ServiceOrder], error) {

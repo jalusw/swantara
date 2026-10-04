@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
@@ -22,7 +23,10 @@ import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate } from "@/lib/utils";
 import { isYearLocked, yearDurationMonths } from "./tax-year-utils";
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 export function TaxYearsSection({ orgId }: { orgId: string }) {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const yearsQuery = useOrgListQuery<{ taxYears: TaxYear[] }, Record<string, never>>(
@@ -40,12 +44,12 @@ export function TaxYearsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<TaxYear>[] = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: () => t("fieldName"),
       cell: ({ row }) => <span className="">{row.original.name}</span>,
     },
     {
       accessorKey: "dateStart",
-      header: "Start date",
+      header: () => t("fieldStartDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.dateStart ? formatDate(row.original.dateStart) : "—"}
@@ -54,7 +58,7 @@ export function TaxYearsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "dateEnd",
-      header: "End date",
+      header: () => t("fieldEndDate"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
           {row.original.dateEnd ? formatDate(row.original.dateEnd) : "—"}
@@ -63,16 +67,16 @@ export function TaxYearsSection({ orgId }: { orgId: string }) {
     },
     {
       id: "duration",
-      header: "Duration",
+      header: () => t("colDuration"),
       cell: ({ row }) => (
         <span className="text-muted-foreground text-sm">
-          {yearDurationMonths(row.original)} {"months"}
+          {t("durationMonths", { count: yearDurationMonths(row.original) })}
         </span>
       ),
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: () => t("colStatus"),
       cell: ({ row }) => (
         <Badge
           variant="outline"
@@ -84,7 +88,7 @@ export function TaxYearsSection({ orgId }: { orgId: string }) {
                 : "neutral"
           }
         >
-          {row.original.state ?? "open"}
+          {(t as unknown as (k: string) => string)(`taxYearState_${row.original.state ?? "open"}`)}
         </Badge>
       ),
     },
@@ -97,7 +101,7 @@ export function TaxYearsSection({ orgId }: { orgId: string }) {
           <div className="flex gap-1">
             {locked ? (
               <Badge variant="secondary" className="text-xs">
-                {"Locked"}
+                {t("locked")}
               </Badge>
             ) : null}
           </div>
@@ -113,9 +117,9 @@ export function TaxYearsSection({ orgId }: { orgId: string }) {
         data={years}
         getRowId={(row) => String(row.id)}
         searchKeys={["name"]}
-        searchPlaceholder={"Search tax years..."}
-        emptyTitle={"No tax years defined."}
-        ariaLabel={"Accounts"}
+        searchPlaceholder={t("searchTaxYears")}
+        emptyTitle={t("taxYearsEmpty")}
+        ariaLabel={t("taxYearsTitle")}
         status={
           yearsQuery.isLoading
             ? { type: "loading" }
@@ -130,7 +134,7 @@ export function TaxYearsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Add tax year"}</span>
+            <span>{t("addTaxYear")}</span>
           </Button>
         }
       />
@@ -160,6 +164,8 @@ function TaxYearFormDialog({
   const [name, setName] = useState("");
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Accounting");
+  const tCommon = useTranslations("Common");
 
   useEffect(() => {
     if (!open) return;
@@ -178,7 +184,7 @@ function TaxYearFormDialog({
         dateEnd,
       })
       .then(() => {
-        toast.success("Tax year created successfully");
+        toast.success(t("toastTaxYearCreated"));
         onSave();
       });
   }
@@ -187,33 +193,31 @@ function TaxYearFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{"Create tax year"}</DialogTitle>
-          <DialogDescription>
-            {"Define the name and date range for this tax year."}
-          </DialogDescription>
+          <DialogTitle>{t("createTaxYear")}</DialogTitle>
+          <DialogDescription>{t("taxYearDialogDescription")}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <span className="text-sm">{"Name"}</span>
+            <span className="text-sm">{t("fieldName")}</span>
             <Input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"Start date"}</span>
+              <span className="text-sm">{t("fieldStartDate")}</span>
               <Input type="date" value={dateStart} onChange={(e) => setDateStart(e.target.value)} />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-sm">{"End date"}</span>
+              <span className="text-sm">{t("fieldEndDate")}</span>
               <Input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)} />
             </div>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {"Cancel"}
+            {tCommon("cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={!name || !dateStart || !dateEnd}>
-            {"Save"}
+            {tCommon("save")}
           </Button>
         </DialogFooter>
       </DialogContent>

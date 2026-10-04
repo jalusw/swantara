@@ -147,7 +147,7 @@ describe("SaleOrderDetail", () => {
 
     expect((await screen.findAllByText("SO-0007")).length).toBeGreaterThan(0);
     expect(screen.getByText("Bluebird Trading")).toBeInTheDocument();
-    expect(screen.getByText("Order header")).toBeInTheDocument();
+    expect(screen.getByText("Header pesanan")).toBeInTheDocument();
     expect(screen.getByText("Retail")).toBeInTheDocument();
     expect(screen.getByText("Main Warehouse")).toBeInTheDocument();
   });
@@ -157,9 +157,9 @@ describe("SaleOrderDetail", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Delivery" }));
+    await user.click(screen.getByRole("tab", { name: "Pengiriman" }));
 
-    expect(await screen.findByText("Ship / Deliver")).toBeInTheDocument();
+    expect(await screen.findByText("Kirim / Antar")).toBeInTheDocument();
   });
 
   it("switches to the invoicing tab on selection", async () => {
@@ -167,8 +167,8 @@ describe("SaleOrderDetail", () => {
     renderWithProviders(<SaleOrderDetail orgId="1" saleOrderId="7" />);
 
     await screen.findAllByText("SO-0007");
-    await user.click(screen.getByRole("tab", { name: "Invoicing" }));
+    await user.click(screen.getByRole("tab", { name: "Penagihan" }));
 
-    expect(await screen.findByText("Create invoice")).toBeInTheDocument();
+    expect(await screen.findByText("Buat faktur")).toBeInTheDocument();
   });
 });

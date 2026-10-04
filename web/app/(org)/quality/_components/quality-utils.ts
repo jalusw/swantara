@@ -7,7 +7,7 @@ export type TestType = QualityPoint["testType"];
 export function checkResultLabel(result: CheckResult): string {
   switch (result) {
     case "pending":
-      return "Pending";
+      return "Menunggu";
     case "pass":
       return "Pass";
     case "fail":
@@ -20,13 +20,13 @@ export function checkResultLabel(result: CheckResult): string {
 export function alertStateLabel(state: AlertState): string {
   switch (state) {
     case "open":
-      return "Open";
+      return "Buka";
     case "in_progress":
-      return "In Progress";
+      return "Berjalan";
     case "solved":
       return "Solved";
     case "cancelled":
-      return "Cancelled";
+      return "Dibatalkan";
     default:
       return state;
   }
@@ -48,11 +48,11 @@ export function testTypeLabel(testType: TestType): string {
 export function severityLabel(severity: string): string {
   switch (severity) {
     case "low":
-      return "Low";
+      return "Rendah";
     case "medium":
-      return "Medium";
+      return "Sedang";
     case "high":
-      return "High";
+      return "Tinggi";
     case "critical":
       return "Critical";
     default:

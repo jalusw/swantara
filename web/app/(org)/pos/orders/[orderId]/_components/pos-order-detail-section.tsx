@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/badge";
@@ -13,14 +14,15 @@ import { useOrgListQuery, useOrgQuery } from "@/lib/hooks/use-org-query";
 import type { Journal, PosOrder, PosOrderLine, PosPayment } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney, formatNumber } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
-import {
-  canInvoiceOrder,
-  canRefundOrder,
-  posOrderStateConfig,
-} from "../../../_components/pos-utils";
+import { canInvoiceOrder, canRefundOrder, posOrderStateTone } from "../../../_components/pos-utils";
 
 export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: string }) {
+  const t = useTranslations("Pos");
+  const tCommon = useTranslations("Common");
+  const orderState = (state: string) =>
+    (t as unknown as (k: string) => string)(`orderState_${state}`);
+  const paymentMethod = (method: string) =>
+    (t as unknown as (k: string) => string)(`paymentMethod_${method}`);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
   const [refundOpen, setRefundOpen] = useState(false);
 
@@ -40,7 +42,7 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
   }
 
   if (!order) {
-    return <p className="text-sm text-muted-foreground">{"Order not found."}</p>;
+    return <p className="text-sm text-muted-foreground">{t("orderNotFound")}</p>;
   }
 
   const lines: PosOrderLine[] = order.lines ?? [];
@@ -53,11 +55,11 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
         date: values.date,
       })
       .then(({ invoiceId }) => {
-        toast.success(`Invoice #${invoiceId} created.`);
+        toast.success(t("invoiceCreated", { id: invoiceId }));
         setInvoiceOpen(false);
         void orderQuery.refetch();
       })
-      .catch(() => toast.error("Something went wrong. Please try again."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   function handleRefund(values: { journalId: string; date: string }) {
@@ -67,18 +69,18 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
         date: values.date,
       })
       .then(() => {
-        toast.success("Order refunded.");
+        toast.success(t("orderRefunded"));
         setRefundOpen(false);
         void orderQuery.refetch();
       })
-      .catch(() => toast.error("Something went wrong. Please try again."));
+      .catch(() => toast.error(t("saveFailed")));
   }
 
   return (
     <>
       <RecordLayout
         breadcrumbItems={[
-          { label: "POS Orders", href: "/pos/orders" },
+          { label: t("ordersTitle"), href: "/pos/orders" },
           { label: order.name ?? `POS-${order.id}` },
         ]}
         title={order.name ?? `POS-${order.id}`}
@@ -86,8 +88,8 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
           <StateBadge
             value={order.state}
             statuses={{
-              done: posOrderStateConfig("done"),
-              refunded: posOrderStateConfig("refunded"),
+              done: { label: orderState("done"), tone: posOrderStateTone("done") },
+              refunded: { label: orderState("refunded"), tone: posOrderStateTone("refunded") },
             }}
           />
         }
@@ -95,17 +97,17 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
           <div className="flex gap-2">
             {canInvoiceOrder(order) ? (
               <Button size="sm" onClick={() => setInvoiceOpen(true)}>
-                {"Create invoice"}
+                {t("createInvoice")}
               </Button>
             ) : null}
             {canRefundOrder(order) ? (
               <Button size="sm" variant="outline" onClick={() => setRefundOpen(true)}>
-                {"Refund"}
+                {t("refundTitle")}
               </Button>
             ) : null}
             {order.invoiceId ? (
               <Button size="sm" variant="ghost" asChild>
-                <a href={`/accounting/invoices/${order.invoiceId}`}>{"View invoice"}</a>
+                <a href={`/accounting/invoices/${order.invoiceId}`}>{t("viewInvoice")}</a>
               </Button>
             ) : null}
           </div>
@@ -113,35 +115,35 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
         tabs={[
           {
             id: "overview",
-            label: "Overview",
+            label: t("tabOverview"),
             content: (
               <div className="flex flex-col gap-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-base">{"Order info"}</CardTitle>
+                      <CardTitle className="text-base">{t("orderInfo")}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Session"}</span>
+                        <span className="text-muted-foreground">{t("session")}</span>
                         <a
                           href={`/pos/sessions/${order.sessionId}`}
                           className=" text-primary hover:underline"
                         >
-                          Session-{order.sessionId}
+                          {t("sessionFallback", { id: order.sessionId })}
                         </a>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Customer"}</span>
+                        <span className="text-muted-foreground">{t("customer")}</span>
                         <span>{order.contactId ? `#${order.contactId}` : "—"}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Order time"}</span>
+                        <span className="text-muted-foreground">{t("orderTime")}</span>
                         <span>{order.orderTime ? formatDate(order.orderTime) : "—"}</span>
                       </div>
                       {order.invoiceId ? (
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">{"Invoice"}</span>
+                          <span className="text-muted-foreground">{t("invoice")}</span>
                           <a
                             href={`/accounting/invoices/${order.invoiceId}`}
                             className=" text-primary hover:underline"
@@ -154,21 +156,21 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
                   </Card>
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-base">{"Totals"}</CardTitle>
+                      <CardTitle className="text-base">{t("totalsTitle")}</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Subtotal"}</span>
+                        <span className="text-muted-foreground">{t("subtotal")}</span>
                         <span className="tabular-nums">
                           {formatMoney(order.amountTotal - order.amountTax)}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{"Tax"}</span>
+                        <span className="text-muted-foreground">{t("tax")}</span>
                         <span className="tabular-nums">{formatMoney(order.amountTax)}</span>
                       </div>
                       <div className="flex justify-between ">
-                        <span>{"Total"}</span>
+                        <span>{t("colTotal")}</span>
                         <span className="tabular-nums">{formatMoney(order.amountTotal)}</span>
                       </div>
                     </CardContent>
@@ -179,23 +181,23 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
           },
           {
             id: "lines",
-            label: "Lines",
+            label: t("tabLines"),
             content: (
               <Card>
                 <CardContent className="pt-6">
                   {lines.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{"No lines in this order."}</p>
+                    <p className="text-sm text-muted-foreground">{t("noOrderLines")}</p>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b text-left text-muted-foreground">
                             <th className="pb-2 ">#</th>
-                            <th className="pb-2 ">{"Item"}</th>
-                            <th className="pb-2 text-right">{"Qty"}</th>
-                            <th className="pb-2 text-right">{"Unit price"}</th>
-                            <th className="pb-2 text-right">{"Discount"}</th>
-                            <th className="pb-2 text-right">{"Subtotal"}</th>
+                            <th className="pb-2 ">{t("item")}</th>
+                            <th className="pb-2 text-right">{t("qty")}</th>
+                            <th className="pb-2 text-right">{t("unitPrice")}</th>
+                            <th className="pb-2 text-right">{t("discount")}</th>
+                            <th className="pb-2 text-right">{t("subtotal")}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -227,28 +229,26 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
           },
           {
             id: "payments",
-            label: "Payments",
+            label: t("tabPayments"),
             content: (
               <Card>
                 <CardContent className="pt-6">
                   {payments.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{"No payments recorded."}</p>
+                    <p className="text-sm text-muted-foreground">{t("noPayments")}</p>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b text-left text-muted-foreground">
-                            <th className="pb-2 ">{"Method"}</th>
-                            <th className="pb-2 text-right">{"Amount"}</th>
+                            <th className="pb-2 ">{t("method")}</th>
+                            <th className="pb-2 text-right">{t("amount")}</th>
                           </tr>
                         </thead>
                         <tbody>
                           {payments.map((payment: PosPayment) => (
                             <tr key={payment.id} className="border-b last:border-0">
                               <td className="py-2">
-                                <Badge variant="outline">
-                                  {humanizeKey(String(payment.method))}
-                                </Badge>
+                                <Badge variant="outline">{paymentMethod(payment.method)}</Badge>
                               </td>
                               <td className="py-2 text-right tabular-nums ">
                                 {formatMoney(payment.amount)}
@@ -258,7 +258,7 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
                         </tbody>
                         <tfoot>
                           <tr className="border-t ">
-                            <td className="py-2">{"Total"}</td>
+                            <td className="py-2">{t("colTotal")}</td>
                             <td className="py-2 text-right tabular-nums">
                               {formatMoney(payments.reduce((sum, p) => sum + p.amount, 0))}
                             </td>
@@ -275,10 +275,10 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
       />
       {invoiceOpen ? (
         <JournalDateDialog
-          title={"Create invoice"}
-          description={"Generate a customer invoice for this POS order."}
-          confirmLabel={"Create invoice"}
-          cancelLabel={"Cancel"}
+          title={t("createInvoice")}
+          description={t("invoiceDialogDescription")}
+          confirmLabel={t("createInvoice")}
+          cancelLabel={tCommon("cancel")}
           open={invoiceOpen}
           onOpenChange={setInvoiceOpen}
           onConfirm={(journalId, date) => handleInvoice({ journalId, date })}
@@ -287,10 +287,10 @@ export function PosOrderDetail({ orgId, orderId }: { orgId: string; orderId: str
       ) : null}
       {refundOpen ? (
         <JournalDateDialog
-          title={"Refund"}
-          description={"Issue a refund for this POS order. This will create a credit note."}
-          confirmLabel={"Refund"}
-          cancelLabel={"Cancel"}
+          title={t("refundTitle")}
+          description={t("refundDialogDescription")}
+          confirmLabel={t("refundTitle")}
+          cancelLabel={tCommon("cancel")}
           open={refundOpen}
           onOpenChange={setRefundOpen}
           onConfirm={(journalId, date) => handleRefund({ journalId, date })}

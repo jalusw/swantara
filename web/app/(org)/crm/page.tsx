@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/page-header";
 import { requireActiveOrgId } from "@/lib/server/active-org";
 import { PipelineSection } from "./_components/pipeline-section";
@@ -21,12 +22,10 @@ export default async function OrgCrmPage({
   if (rawTab && LEGACY_TAB_REDIRECT[rawTab]) {
     redirect(`/crm/${LEGACY_TAB_REDIRECT[rawTab]}`);
   }
+  const t = await getTranslations("Crm");
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <PageHeader
-        title={"Pipeline board"}
-        description={"Drag opportunities across stages. Probability is synced from the stage."}
-      />
+      <PageHeader title={t("pipelineTitle")} description={t("pipelineSubtitle")} />
       <PipelineSection orgId={id} />
     </div>
   );

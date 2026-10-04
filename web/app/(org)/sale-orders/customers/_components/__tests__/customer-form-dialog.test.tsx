@@ -11,7 +11,7 @@ beforeEach(() => {
       HttpResponse.json(
         {
           success: true,
-          message: "Created.",
+          message: "Dibuat.",
           data: { contact: { id: 10, name: "Acme Corp" } },
         },
         { status: 201 },
@@ -30,8 +30,8 @@ describe("CustomerFormDialog", () => {
   it("renders the create form", async () => {
     renderDialog(() => {});
 
-    expect(await screen.findByRole("heading", { name: "New customer" })).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Name")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Pelanggan baru" })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Nama")).toBeInTheDocument();
   });
 
   it("creates a customer on submit", async () => {
@@ -39,9 +39,9 @@ describe("CustomerFormDialog", () => {
     const user = userEvent.setup();
     renderDialog(onSave);
 
-    await screen.findByRole("heading", { name: "New customer" });
-    await user.type(screen.getByPlaceholderText("Name"), "Acme Corp");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByRole("heading", { name: "Pelanggan baru" });
+    await user.type(screen.getByPlaceholderText("Nama"), "Acme Corp");
+    await user.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
   });

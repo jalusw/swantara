@@ -23,17 +23,17 @@ describe("project-utils", () => {
   describe("projectStateLabel", () => {
     it("maps all states to translation keys", () => {
       expect(projectStateLabel("draft")).toBe("Draft");
-      expect(projectStateLabel("open")).toBe("Open");
-      expect(projectStateLabel("closed")).toBe("Closed");
-      expect(projectStateLabel("cancelled")).toBe("Cancelled");
+      expect(projectStateLabel("open")).toBe("Buka");
+      expect(projectStateLabel("closed")).toBe("Ditutup");
+      expect(projectStateLabel("cancelled")).toBe("Dibatalkan");
     });
   });
 
   describe("billingTypeLabel", () => {
     it("maps all billing types to translation keys", () => {
-      expect(billingTypeLabel("fixed")).toBe("Fixed");
+      expect(billingTypeLabel("fixed")).toBe("Tetap");
       expect(billingTypeLabel("time_material")).toBe("Time & Material");
-      expect(billingTypeLabel("milestone")).toBe("Milestone");
+      expect(billingTypeLabel("milestone")).toBe("Tonggak");
     });
   });
 
@@ -85,8 +85,8 @@ describe("project-utils", () => {
     it("maps all stages to translation keys", () => {
       expect(taskStageLabel("backlog")).toBe("Backlog");
       expect(taskStageLabel("todo")).toBe("To Do");
-      expect(taskStageLabel("in_progress")).toBe("In Progress");
-      expect(taskStageLabel("done")).toBe("Done");
+      expect(taskStageLabel("in_progress")).toBe("Berjalan");
+      expect(taskStageLabel("done")).toBe("Selesai");
     });
   });
 

@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { InteractiveEntityTable } from "@/app/(org)/_components/interactive-entity-table";
 import { RowActions } from "@/app/(org)/_components/row-actions";
@@ -14,11 +15,13 @@ import { useOrgListQuery } from "@/lib/hooks/use-org-query";
 import type { GiftCard } from "@/lib/services/swantara";
 import { getSwantaraService } from "@/lib/services/swantara";
 import { formatDate, formatMoney } from "@/lib/utils";
-import { humanizeKey } from "@/lib/utils/case";
 import { GiftCardFormDialog } from "./gift-card-form-dialog";
 import { giftCardStateTone } from "./gift-card-utils";
 
 export function GiftCardsSection({ orgId }: { orgId: string }) {
+  const t = useTranslations("Pos");
+  const giftCardState = (state: string) =>
+    (t as unknown as (k: string) => string)(`giftCardState_${state}`);
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -40,7 +43,7 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
   const columns: ColumnDef<GiftCard>[] = [
     {
       accessorKey: "code",
-      header: "Code",
+      header: t("colCode"),
       cell: ({ row }) => (
         <a
           href={`/pos/gift-cards/${row.original.id}`}
@@ -52,7 +55,7 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "initialAmount",
-      header: "Initial",
+      header: t("colInitial"),
       cell: ({ row }) => (
         <span className="text-sm tabular-nums">
           {formatMoney(row.original.initialAmount, { currency: DEFAULT_CURRENCY })}
@@ -61,7 +64,7 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "balance",
-      header: "Balance",
+      header: t("colBalance"),
       cell: ({ row }) => (
         <span className="text-sm tabular-nums">
           {formatMoney(row.original.balance, { currency: DEFAULT_CURRENCY })}
@@ -70,14 +73,14 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "currencyCode",
-      header: "Currency",
+      header: t("currency"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">{row.original.currencyCode}</span>
       ),
     },
     {
       accessorKey: "expiryDate",
-      header: "Expiry",
+      header: t("colExpiry"),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {formatDate(row.original.expiryDate, { nullFallback: "—" })}
@@ -86,7 +89,7 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
     },
     {
       accessorKey: "state",
-      header: "State",
+      header: t("colStatus"),
       cell: ({ row }) => {
         const tone = giftCardStateTone(row.original.state);
         return (
@@ -104,7 +107,7 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
                       : ""
             }
           >
-            {humanizeKey(String(row.original.state))}
+            {giftCardState(row.original.state)}
           </Badge>
         );
       },
@@ -114,7 +117,7 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
       header: "",
       cell: ({ row }) => (
         <RowActions
-          editLabel={"View"}
+          editLabel={t("view")}
           deleteLabel=""
           confirmTitle=""
           confirmDescription=""
@@ -130,7 +133,7 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>{"Total Cards"}</CardTitle>
+            <CardTitle>{t("totalCards")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">{giftCards.length}</p>
@@ -138,7 +141,7 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>{"Total Balance"}</CardTitle>
+            <CardTitle>{t("totalBalance")}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold tabular-nums">
@@ -154,16 +157,16 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
         searchKeys={["code"]}
         statusKey="state"
         statusOptions={[
-          { value: "active", label: "Active" },
-          { value: "used", label: "Used" },
-          { value: "expired", label: "Expired" },
-          { value: "cancelled", label: "Cancelled" },
+          { value: "active", label: giftCardState("active") },
+          { value: "used", label: giftCardState("used") },
+          { value: "expired", label: giftCardState("expired") },
+          { value: "cancelled", label: giftCardState("cancelled") },
         ]}
-        searchPlaceholder={"Search gift cards…"}
-        filterLabel={"State"}
-        allLabel={"All gift cards"}
-        ariaLabel={"Gift cards"}
-        emptyTitle={"No gift cards yet"}
+        searchPlaceholder={t("giftCardsSearchPlaceholder")}
+        filterLabel={t("colStatus")}
+        allLabel={t("allGiftCards")}
+        ariaLabel={t("giftCardsTitle")}
+        emptyTitle={t("giftCardsEmpty")}
         status={
           query.isLoading
             ? { type: "loading" }
@@ -178,7 +181,7 @@ export function GiftCardsSection({ orgId }: { orgId: string }) {
         actions={
           <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus />
-            <span>{"Issue gift card"}</span>
+            <span>{t("issueGiftCard")}</span>
           </Button>
         }
       />

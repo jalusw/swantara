@@ -2,6 +2,7 @@ package payroll
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/jalusw/swantara/apps/service/internal/kernel/dao"
 	"github.com/jalusw/swantara/apps/service/internal/kernel/model"
 	"github.com/jalusw/swantara/apps/service/internal/reference"
+	"gorm.io/gorm"
 )
 
 func TestHRService_CreateEmployee(t *testing.T) {
@@ -1076,5 +1078,67 @@ func TestHRService_CheckIn(t *testing.T) {
 				tt.check(t, a)
 			}
 		})
+	}
+}
+
+func TestHRService_CreateEmployee_WritesInsideTransaction(t *testing.T) {
+	var runs int
+	txer := inventory.TransactionerMock{
+		RunFunc: func(_ context.Context, fn func(tx *gorm.DB) error) error {
+			runs++
+			return fn(nil)
+		},
+	}
+	outsideTx := errors.New("write outside transaction")
+	contactDAO := contacts.ContactDAOMock{
+		CreateWithDetailsFunc: func(context.Context, *contacts.Contact, []*contacts.ContactAddress, []*contacts.ContactBankAccount, *contacts.CustomerProfile, *contacts.SupplierProfile) (*contacts.Contact, error) {
+			t.Error("contact created outside the transaction")
+			return nil, outsideTx
+		},
+		CreateWithDetailsTxFunc: func(_ context.Context, _ *gorm.DB, contact *contacts.Contact, _ []*contacts.ContactAddress, _ []*contacts.ContactBankAccount, _ *contacts.CustomerProfile, _ *contacts.SupplierProfile) (*contacts.Contact, error) {
+			contact.ID = 9
+			return contact, nil
+		},
+	}
+	employees := EmployeeDAOMock{
+		CRUDMock: dao.CRUDMock[Employee]{
+			CreateFunc: func(context.Context, *Employee) (*Employee, error) {
+				t.Error("employee created outside the transaction")
+				return nil, outsideTx
+			},
+		},
+		CreateTxFunc: func(_ context.Context, _ *gorm.DB, employee *Employee) (*Employee, error) {
+			employee.ID = 3
+			return employee, nil
+		},
+	}
+	contracts := EmploymentContractDAOMock{
+		CRUDMock: dao.CRUDMock[EmploymentContract]{
+			CreateFunc: func(context.Context, *EmploymentContract) (*EmploymentContract, error) {
+				t.Error("contract created outside the transaction")
+				return nil, outsideTx
+			},
+		},
+		CreateTxFunc: func(_ context.Context, _ *gorm.DB, contract *EmploymentContract) (*EmploymentContract, error) {
+			contract.ID = 4
+			return contract, nil
+		},
+	}
+	svc := NewHRService(employees, contracts, LeaveRequestDAOMock{}, dao.CRUDMock[reference.LeaveType]{}, dao.CRUDMock[reference.Department]{}, dao.CRUDMock[reference.JobPosition]{}, dao.CRUDMock[reference.Organization]{}, contactDAO, dao.CRUDMock[reference.Dimension]{}, iam.UserDAOMock{}, AttendanceDAOMock{}, TimesheetDAOMock{}, ShiftDAOMock{}, ShiftAssignmentDAOMock{}, txer)
+
+	organizationID := uint64(1)
+	employee, err := svc.CreateEmployee(context.Background(), CreateEmployeeRequest{
+		Employee: &Employee{OrganizationID: &organizationID, EmployeeNumber: "EMP-001"},
+		Contact:  &contacts.Contact{},
+		Contract: &EmploymentContract{Wage: 5000000},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if runs != 1 {
+		t.Errorf("transaction runs = %d, want 1", runs)
+	}
+	if employee.ID != 3 || employee.ContactID != 9 {
+		t.Errorf("employee = id %d contact %d, want id 3 contact 9", employee.ID, employee.ContactID)
 	}
 }

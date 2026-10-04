@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/card";
 import { DEFAULT_CURRENCY } from "@/lib/constants/currency";
 import { useTrialBalance } from "@/lib/hooks/use-report-queries";
 import { formatMoney } from "@/lib/utils";
 
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
 export function TrialBalanceTable() {
+  const t = (useTranslations as unknown as (ns: string) => TFn)("Reports");
   const { data, isLoading } = useTrialBalance();
   const tb = data?.trialBalance;
   const rows = tb?.rows ?? [];
@@ -16,7 +20,7 @@ export function TrialBalanceTable() {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          {"Loading trial balance…"}
+          {t("loadingTrialBalance")}
         </CardContent>
       </Card>
     );
@@ -26,7 +30,7 @@ export function TrialBalanceTable() {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          {"No trial balance data available."}
+          {t("trialBalanceEmpty")}
         </CardContent>
       </Card>
     );
@@ -35,22 +39,22 @@ export function TrialBalanceTable() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{"Trial balance"}</CardTitle>
+        <CardTitle>{t("trialBalanceTitle")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="px-3 py-2 text-left text-muted-foreground">{"Code"}</th>
-                <th className="px-3 py-2 text-left text-muted-foreground">{"Account"}</th>
-                <th className="px-3 py-2 text-left text-muted-foreground">{"Type"}</th>
-                <th className="px-3 py-2 text-right text-muted-foreground">{"Open. DR"}</th>
-                <th className="px-3 py-2 text-right text-muted-foreground">{"Open. CR"}</th>
-                <th className="px-3 py-2 text-right text-muted-foreground">{"Per. DR"}</th>
-                <th className="px-3 py-2 text-right text-muted-foreground">{"Per. CR"}</th>
-                <th className="px-3 py-2 text-right text-muted-foreground">{"Close. DR"}</th>
-                <th className="px-3 py-2 text-right text-muted-foreground">{"Close. CR"}</th>
+                <th className="px-3 py-2 text-left text-muted-foreground">{t("colCode")}</th>
+                <th className="px-3 py-2 text-left text-muted-foreground">{t("colAccount")}</th>
+                <th className="px-3 py-2 text-left text-muted-foreground">{t("fieldType")}</th>
+                <th className="px-3 py-2 text-right text-muted-foreground">{t("colOpenDr")}</th>
+                <th className="px-3 py-2 text-right text-muted-foreground">{t("colOpenCr")}</th>
+                <th className="px-3 py-2 text-right text-muted-foreground">{t("colPeriodDr")}</th>
+                <th className="px-3 py-2 text-right text-muted-foreground">{t("colPeriodCr")}</th>
+                <th className="px-3 py-2 text-right text-muted-foreground">{t("colCloseDr")}</th>
+                <th className="px-3 py-2 text-right text-muted-foreground">{t("colCloseCr")}</th>
               </tr>
             </thead>
             <tbody>
@@ -100,7 +104,7 @@ export function TrialBalanceTable() {
             <tfoot>
               <tr className="border-t-2 border-border ">
                 <td className="px-3 py-2" colSpan={3}>
-                  {"Totals"}
+                  {t("colTotal")}
                 </td>
                 <td className="px-3 py-2 text-right tabular-nums">
                   {formatMoney(

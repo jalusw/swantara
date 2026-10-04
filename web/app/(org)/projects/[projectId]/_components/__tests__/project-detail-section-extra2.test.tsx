@@ -98,7 +98,7 @@ describe("ProjectDetail extra2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("button", { name: "Open" }));
+    await user.click(screen.getByRole("button", { name: "Buka" }));
 
     await waitFor(() => expect(stateCalls).toHaveLength(1));
     expect(stateCalls[0]).toMatchObject({ state: "open" });
@@ -117,7 +117,7 @@ describe("ProjectDetail extra2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Batal" }));
 
     await waitFor(() => expect(stateCalls).toHaveLength(1));
     expect(stateCalls[0]).toMatchObject({ state: "cancelled" });
@@ -129,8 +129,8 @@ describe("ProjectDetail extra2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Tasks" }));
-    await user.click(await screen.findByRole("button", { name: "New task" }));
+    await user.click(screen.getByRole("tab", { name: "Tugas" }));
+    await user.click(await screen.findByRole("button", { name: "Tugas baru" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
@@ -156,7 +156,7 @@ describe("ProjectDetail extra2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Tasks" }));
+    await user.click(screen.getByRole("tab", { name: "Tugas" }));
     await screen.findByText("Design homepage");
     const panel = screen
       .getAllByRole("tabpanel")
@@ -191,7 +191,7 @@ describe("ProjectDetail extra2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Tasks" }));
+    await user.click(screen.getByRole("tab", { name: "Tugas" }));
 
     expect(await screen.findByText(/Due/)).toBeInTheDocument();
   });
@@ -202,8 +202,8 @@ describe("ProjectDetail extra2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Milestones" }));
-    await user.click(await screen.findByRole("button", { name: "New milestone" }));
+    await user.click(screen.getByRole("tab", { name: "Tonggak" }));
+    await user.click(await screen.findByRole("button", { name: "Tonggak baru" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
@@ -226,9 +226,9 @@ describe("ProjectDetail extra2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Milestones" }));
-    expect(await screen.findByText("Reached")).toBeInTheDocument();
-    await user.click(await screen.findByRole("button", { name: "Mark unreached" }));
+    await user.click(screen.getByRole("tab", { name: "Tonggak" }));
+    expect(await screen.findByText("Tonggak tercapai")).toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: "Tandai belum tercapai" }));
 
     await waitFor(() => expect(reachedBodies).toHaveLength(1));
     expect(reachedBodies[0]).toMatchObject({ reached: false });
@@ -240,9 +240,9 @@ describe("ProjectDetail extra2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Tasks" }));
+    await user.click(screen.getByRole("tab", { name: "Tugas" }));
 
-    expect(await screen.findByText("No tasks yet.")).toBeInTheDocument();
+    expect(await screen.findByText("Tidak ada tugas")).toBeInTheDocument();
   });
 
   it("shows the empty timesheets state when no timesheets exist", async () => {
@@ -251,9 +251,9 @@ describe("ProjectDetail extra2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "Timesheets" }));
+    await user.click(screen.getByRole("tab", { name: "Lembar waktu" }));
 
-    expect(await screen.findByText("No tasks yet.")).toBeInTheDocument();
+    expect(await screen.findByText("Belum ada lembar waktu.")).toBeInTheDocument();
   });
 
   it("shows the P&L no-data state when the summary is missing", async () => {
@@ -262,8 +262,8 @@ describe("ProjectDetail extra2", () => {
     renderWithProviders(<ProjectDetail orgId="1" projectId="1" />);
 
     await screen.findByRole("heading", { name: "Website Redesign" });
-    await user.click(screen.getByRole("tab", { name: "P&L" }));
+    await user.click(screen.getByRole("tab", { name: "Laba rugi" }));
 
-    expect(await screen.findByText("No financial data available.")).toBeInTheDocument();
+    expect(await screen.findByText("Tidak ada data keuangan yang tersedia.")).toBeInTheDocument();
   });
 });

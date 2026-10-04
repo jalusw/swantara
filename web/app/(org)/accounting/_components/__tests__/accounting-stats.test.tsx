@@ -40,25 +40,25 @@ describe("AccountingStats", () => {
   it("renders revenue, expenses, profit and cash labels", async () => {
     renderWithProviders(<AccountingStats />);
 
-    expect(await screen.findByText("Revenue")).toBeInTheDocument();
-    expect(screen.getByText("Expenses")).toBeInTheDocument();
-    expect(screen.getByText("Net profit")).toBeInTheDocument();
-    expect(screen.getByText("Cash balance")).toBeInTheDocument();
+    expect(await screen.findByText("Pendapatan")).toBeInTheDocument();
+    expect(screen.getByText("Biaya")).toBeInTheDocument();
+    expect(screen.getByText("Laba bersih")).toBeInTheDocument();
+    expect(screen.getByText("Saldo kas")).toBeInTheDocument();
   });
 
   it("renders seeded kpi values", async () => {
     renderWithProviders(<AccountingStats />);
 
-    expect(await screen.findByText("IDR 84,320.00")).toBeInTheDocument();
-    expect(screen.getByText("IDR 52,300.00")).toBeInTheDocument();
-    expect(screen.getByText("IDR 32,020.00")).toBeInTheDocument();
-    expect(screen.getByText("IDR 125,000.00")).toBeInTheDocument();
+    expect(await screen.findByText("Rp 84.320,00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 52.300,00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 32.020,00")).toBeInTheDocument();
+    expect(screen.getByText("Rp 125.000,00")).toBeInTheDocument();
   });
 
   it("renders trend hints from kpi margins", async () => {
     renderWithProviders(<AccountingStats />);
 
-    expect(await screen.findByText("22% from last month")).toBeInTheDocument();
-    expect(screen.getByText("IDR 140,000.00 from last month")).toBeInTheDocument();
+    expect(await screen.findByText("Margin bersih: 22%")).toBeInTheDocument();
+    expect(screen.getByText("Prakiraan: Rp 140.000,00")).toBeInTheDocument();
   });
 });

@@ -60,8 +60,8 @@ describe("EmployeeDetail", () => {
     renderWithProviders(<EmployeeDetail orgId="1" employeeId="1" />);
 
     await screen.findByRole("heading", { name: "EMP-0001" });
-    await user.click(screen.getByRole("tab", { name: "Contracts" }));
+    await user.click(screen.getByRole("tab", { name: "Kontrak" }));
 
-    expect(await screen.findByText("No contracts found")).toBeInTheDocument();
+    expect(await screen.findByText("Tidak ada kontrak")).toBeInTheDocument();
   });
 });

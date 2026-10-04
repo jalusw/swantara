@@ -39,8 +39,8 @@ describe("CustomersAcquisition", () => {
   it("renders the acquisition trend chart", async () => {
     renderWithProviders(<CustomersAcquisition />);
 
-    expect(await screen.findByText("Customer acquisition")).toBeInTheDocument();
-    expect(await screen.findByRole("img", { name: /Customer acquisition/ })).toBeInTheDocument();
+    expect(await screen.findByText("Akuisisi pelanggan")).toBeInTheDocument();
+    expect(await screen.findByRole("img", { name: /Akuisisi pelanggan/ })).toBeInTheDocument();
   });
 
   it("retries loading after a failure", async () => {
@@ -52,9 +52,9 @@ describe("CustomersAcquisition", () => {
     const user = userEvent.setup();
     renderWithProviders(<CustomersAcquisition />);
 
-    expect(await screen.findByText("Something went wrong.")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Retry" }));
+    expect(await screen.findByText("Gagal memuat")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Coba lagi" }));
 
-    expect(await screen.findByText("Something went wrong.")).toBeInTheDocument();
+    expect(await screen.findByText("Gagal memuat")).toBeInTheDocument();
   });
 });

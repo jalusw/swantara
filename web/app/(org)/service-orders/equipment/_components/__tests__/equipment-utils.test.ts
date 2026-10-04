@@ -36,15 +36,15 @@ describe("equipment-utils", () => {
 
   describe("formatEquipmentState", () => {
     it("should format active", () => {
-      expect(formatEquipmentState("active")).toBe("Active");
+      expect(formatEquipmentState("active")).toBe("Aktif");
     });
 
     it("should format inactive", () => {
-      expect(formatEquipmentState("inactive")).toBe("Inactive");
+      expect(formatEquipmentState("inactive")).toBe("Nonaktif");
     });
 
     it("should format maintenance", () => {
-      expect(formatEquipmentState("maintenance")).toBe("Maintenance");
+      expect(formatEquipmentState("maintenance")).toBe("Perawatan");
     });
 
     it("should format retired", () => {

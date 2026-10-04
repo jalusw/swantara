@@ -34,17 +34,17 @@ describe("ApprovalWidget remainder", () => {
   it("sorts steps by sequence and shows refused tone", () => {
     renderWithProviders(<ApprovalWidget approvalRequest={makeRequest()} orgId="1" />);
 
-    const steps = screen.getAllByText(/Step \d/);
-    expect(steps[0]).toHaveTextContent("Step 1");
-    expect(steps[1]).toHaveTextContent("Step 2");
-    expect(screen.getByText("Refused")).toBeInTheDocument();
+    const steps = screen.getAllByText(/Langkah \d/);
+    expect(steps[0]).toHaveTextContent("Langkah 1");
+    expect(steps[1]).toHaveTextContent("Langkah 2");
+    expect(screen.getByText("Ditolak")).toBeInTheDocument();
     expect(screen.getByText("No budget")).toBeInTheDocument();
   });
 
   it("renders decided date when present", () => {
     renderWithProviders(<ApprovalWidget approvalRequest={makeRequest()} orgId="1" />);
 
-    expect(screen.getByText("Jan 15, 2026")).toBeInTheDocument();
+    expect(screen.getByText("15 Jan 2026")).toBeInTheDocument();
   });
 
   it("opens the approve dialog and submits the decision", async () => {
@@ -54,12 +54,12 @@ describe("ApprovalWidget remainder", () => {
       <ApprovalWidget approvalRequest={makeRequest()} orgId="1" onDecided={onDecided} />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Approve" }));
+    await user.click(screen.getByRole("button", { name: "Setujui" }));
 
-    expect(await screen.findByText("Approve step")).toBeInTheDocument();
+    expect(await screen.findByText("Setujui langkah")).toBeInTheDocument();
 
-    await user.type(screen.getByPlaceholderText("Optional comment…"), "Looks good");
-    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Approve" }));
+    await user.type(screen.getByPlaceholderText("Komentar opsional…"), "Looks good");
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Setujui" }));
 
     await waitFor(() => expect(onDecided).toHaveBeenCalled());
   });
@@ -68,13 +68,13 @@ describe("ApprovalWidget remainder", () => {
     const user = userEvent.setup();
     renderWithProviders(<ApprovalWidget approvalRequest={makeRequest()} orgId="1" />);
 
-    await user.click(screen.getByRole("button", { name: "Refuse" }));
+    await user.click(screen.getByRole("button", { name: "Tolak" }));
 
-    expect(await screen.findByText("Refuse step")).toBeInTheDocument();
+    expect(await screen.findByText("Tolak langkah")).toBeInTheDocument();
 
-    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Refuse" }));
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Tolak" }));
 
-    await waitFor(() => expect(screen.queryByText("Refuse step")).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText("Tolak langkah")).not.toBeInTheDocument());
   });
 
   it("shows an error toast when the decision fails", async () => {
@@ -86,10 +86,10 @@ describe("ApprovalWidget remainder", () => {
     const user = userEvent.setup();
     renderWithProviders(<ApprovalWidget approvalRequest={makeRequest()} orgId="1" />);
 
-    await user.click(screen.getByRole("button", { name: "Approve" }));
-    expect(await screen.findByText("Approve step")).toBeInTheDocument();
-    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Approve" }));
+    await user.click(screen.getByRole("button", { name: "Setujui" }));
+    expect(await screen.findByText("Setujui langkah")).toBeInTheDocument();
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Setujui" }));
 
-    await waitFor(() => expect(screen.getByText("Approve step")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Setujui langkah")).toBeInTheDocument());
   });
 });

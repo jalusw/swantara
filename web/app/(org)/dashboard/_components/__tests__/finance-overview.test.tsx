@@ -28,8 +28,8 @@ describe("FinanceOverview", () => {
     seedFinance({ kpi });
     renderWithProviders(<FinanceOverview />);
 
-    expect(await screen.findByText("Finance")).toBeInTheDocument();
-    const matches = await screen.findAllByText(/84,320/);
+    expect(await screen.findByText("Keuangan")).toBeInTheDocument();
+    const matches = await screen.findAllByText(/84\.320/);
     expect(matches.length).toBeGreaterThan(0);
   });
 
@@ -37,7 +37,7 @@ describe("FinanceOverview", () => {
     seedFinance({});
     renderWithProviders(<FinanceOverview />);
 
-    await screen.findByText("Finance");
+    await screen.findByText("Keuangan");
     const dashes = screen.getAllByText("—");
     expect(dashes.length).toBeGreaterThan(0);
   });
@@ -54,7 +54,7 @@ describe("FinanceOverview", () => {
     seedFinance({ kpi: null });
     renderWithProviders(<FinanceOverview />);
 
-    await screen.findByText("Finance");
+    await screen.findByText("Keuangan");
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
 });

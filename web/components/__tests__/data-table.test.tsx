@@ -37,7 +37,7 @@ describe("DataTable", () => {
       />,
     );
 
-    expect(screen.getByRole("table", { name: "Data table" })).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Tabel data" })).toBeInTheDocument();
   });
 
   it("renders with a custom aria-label", () => {
